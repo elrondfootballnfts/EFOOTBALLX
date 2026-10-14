@@ -42,11 +42,11 @@ A MultiversX Explorerben (`explorer.multiversx.com`) az `EFOO-8fe2d4` és az `EF
 ### `tokens/EFOO-8fe2d4/info.json` (Javasolt új tartalom):
 ```json
 {
-  "website": "https://linktr.ee/EFootballX",
+  "website": "https://efoo.optibase.ro",
   "description": "⚽ $EFOO (Sunday League Degen FC) is the OG football cult meme token on MultiversX. 92.91% of the 100B initial supply is permanently burned, with 10,300+ holders and 679 verified football NFTs.",
   "status": "active",
   "social": {
-    "email": "elrondfootballnfts@gmail.com",
+    "email": "office@optibase.ro",
     "blog": "https://medium.com/@elrondfootball",
     "X": "https://x.com/EFootball_X",
     "telegram": "https://t.me/elrondfootball"
@@ -62,11 +62,11 @@ A MultiversX Explorerben (`explorer.multiversx.com`) az `EFOO-8fe2d4` és az `EF
 ### `tokens/EFOOTBALL-91a4eb/info.json` (Javasolt új tartalom):
 ```json
 {
-  "website": "https://linktr.ee/EFootballX",
+  "website": "https://efoo.optibase.ro",
   "description": "⚽ Sunday League Degen FC Outfield Players — 628 verified hand-drawn football NFTs featuring Romanian Liga 1 & Champions League jerseys on MultiversX.",
   "status": "active",
   "social": {
-    "email": "elrondfootballnfts@gmail.com",
+    "email": "office@optibase.ro",
     "twitter": "https://x.com/EFootball_X",
     "telegram": "https://t.me/elrondfootball"
   }
