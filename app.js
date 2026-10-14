@@ -356,27 +356,43 @@ const MEME_PRESETS = {
 const CONTRACTS = {
   ONEDEX_PAIR: "erd1qqqqqqqqqqqqqpgqqz6vp9y50ep867vnr296mqf3dduh6guvmvlsu3sujc",
   XEXCHANGE_PAIR: "erd1qqqqqqqqqqqqqpgqjz0jwz73e8u7s0hu2y5qqeu8phm5d4f92jpsdu5qhw",
-  WEGLD_WRAPPER: "erd1qqqqqqqqqqqqqpgqhe8t5jewej70zupmh44jurgn29psua5l2jps3ntjj3",
+  WEGLD_WRAPPERS: {
+    0: "erd1qqqqqqqqqqqqqpgqvc7gdl0p4s97guh498wgz75k8sav6sjfjlwqh679jy",
+    1: "erd1qqqqqqqqqqqqqpgqhe8t5jewej70zupmh44jurgn29psua5l2jps3ntjj3",
+    2: "erd1qqqqqqqqqqqqqpgqmuk0q2saj0mgutxm4teywre6dl8wqf58xamqdrukln"
+  },
   NFT_MINTER: "erd1qqqqqqqqqqqqqpgq78frnmw5sep0q4r2qd96y3d6f6p7ujwcys5s9evzym",
   FOMO_RESERVE: "erd1k8w7y5ftg2uax8v8ng8p5azjw96zzfgky9v3fydtpe2xwdz0007q3hl9z8",
-  CLUB_OWNER_DEMO: "erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq"
+  CLUB_OWNER_DEMO: "erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq",
+  WC_PROJECT_ID: "9b1a9564f91cb659ffe21b73d5c4e2d8"
 };
 
 let currentLang = "en";
 let connectedAddress = localStorage.getItem("efoo_wallet_address") || "";
+let connectedProvider = localStorage.getItem("efoo_wallet_provider") || ""; // "xportal" | "extension" | "webwallet" | "demo" | "inspector"
+let wcSignClient = null;
+let wcSessionTopic = localStorage.getItem("efoo_wc_topic") || "";
+let currentWcUri = "";
+
 let walletState = {
+  shard: 0,
+  nonce: 0,
   efooBalance: 0,
   egldBalance: 0,
   wegldBalance: 0,
   usdcBalance: 0,
   playersCount: 0,
   keepersCount: 0,
-  ownedNfts: []
+  ownedNfts: [],
+  showcaseNfts: []
 };
 
-let dexRates = {
+let dexState = {
+  mode: "buy", // "buy" | "sell"
+  slippage: 1,
   efooPerWegld: 29950000,
-  efooPerUsdc: 8050000
+  efooPerUsdc: 8050000,
+  squadFilter: "all"
 };
 
 // Meme Studio State
@@ -424,6 +440,16 @@ function strToHex(str) {
     .join("");
 }
 
+// Helper: Safe Base64 encode for transaction data field
+function toBase64Data(str) {
+  if (!str) return "";
+  try {
+    return btoa(str);
+  } catch (e) {
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+}
+
 // Helper: Convert BigInt / Number token amount (with decimals) to even-length Hex
 function amountToHex(amountFloat, decimals = 18) {
   const factor = Math.pow(10, Math.min(decimals, 9));
@@ -431,6 +457,25 @@ function amountToHex(amountFloat, decimals = 18) {
   let hex = scaled.toString(16);
   if (hex.length % 2 !== 0) hex = "0" + hex;
   return hex;
+}
+
+// Helper: Show Toast Notification
+function showToast(messageHtml, explorerUrl = "") {
+  const toast = document.getElementById("tx-toast");
+  const toastLink = document.getElementById("tx-toast-link");
+  const toastText = document.getElementById("tx-toast-text");
+  if (!toast || !toastText) return;
+
+  toastText.innerHTML = messageHtml;
+  if (toastLink) {
+    if (explorerUrl) {
+      toastLink.href = explorerUrl;
+      toastLink.classList.remove("hidden");
+    } else {
+      toastLink.classList.add("hidden");
+    }
+  }
+  toast.classList.remove("hidden");
 }
 
 // ============================================================================
@@ -454,12 +499,13 @@ function setLanguage(lang) {
   });
 
   updateWalletStatusUI();
+  updateSwapEstimate();
   renderMemePresets();
   updateTweetShareLink();
 }
 
 // ============================================================================
-// MULTIVERSX WEB3 WALLET LOGIN, HOOKS & DASHBOARD
+// MULTIVERSX REAL WALLET PROVIDERS (xPortal WC v2, DeFi Extension, Web Wallet)
 // ============================================================================
 function getCallbackUrl() {
   return window.location.origin + window.location.pathname;
@@ -469,49 +515,455 @@ function getMultiversXLoginHookUrl() {
   return `https://wallet.multiversx.com/hook/login?callbackUrl=${encodeURIComponent(getCallbackUrl())}`;
 }
 
-function triggerMultiversXTransaction({ receiver, value = "0", gasLimit = 45000000, data = "" }) {
-  const callbackUrl = getCallbackUrl();
-  const txUrl =
-    `https://wallet.multiversx.com/hook/transaction?` +
-    `receiver=${encodeURIComponent(receiver)}` +
-    `&value=${encodeURIComponent(value)}` +
-    `&gasLimit=${encodeURIComponent(gasLimit)}` +
-    `&data=${encodeURIComponent(data)}` +
-    `&callbackUrl=${encodeURIComponent(callbackUrl)}`;
+// 1. xPortal Mobile App via Official WalletConnect v2 SignClient
+async function initXPortalWalletConnect() {
+  const qrBox = document.getElementById("xportal-qr-box");
+  const statusPill = document.getElementById("wc-status-pill");
+  const qrImg = document.getElementById("xportal-qr-img");
+  const bridgeLink = document.getElementById("xportal-bridge-link");
 
-  window.location.href = txUrl;
-}
-
-function checkUrlCallbacks() {
-  const params = new URLSearchParams(window.location.search);
-  const addrFromHook = params.get("address");
-  const txHashFromHook = params.get("txHash");
-
-  if (addrFromHook && addrFromHook.startsWith("erd1")) {
-    connectedAddress = addrFromHook.trim();
-    localStorage.setItem("efoo_wallet_address", connectedAddress);
+  if (qrBox) qrBox.classList.remove("hidden");
+  if (statusPill) {
+    statusPill.textContent =
+      currentLang === "ro"
+        ? "⏳ Se generează codul QR oficial WalletConnect v2 pentru xPortal..."
+        : "⏳ Generating official WalletConnect v2 pairing QR for xPortal...";
   }
 
-  if (txHashFromHook) {
-    const toast = document.getElementById("tx-toast");
-    const toastLink = document.getElementById("tx-toast-link");
-    const toastText = document.getElementById("tx-toast-text");
-    if (toast && toastLink && toastText) {
-      toastText.textContent =
+  try {
+    if (!wcSignClient) {
+      let SignClientMod;
+      try {
+        SignClientMod = await import("https://esm.sh/@walletconnect/sign-client@2.11.0?bundle");
+      } catch (err1) {
+        SignClientMod = await import("https://cdn.jsdelivr.net/npm/@walletconnect/sign-client@2.11.0/+esm");
+      }
+      const SignClient = SignClientMod.SignClient || SignClientMod.default;
+      wcSignClient = await SignClient.init({
+        projectId: CONTRACTS.WC_PROJECT_ID,
+        relayUrl: "wss://relay.walletconnect.com",
+        metadata: {
+          name: "Sunday League Degen FC ($EFOO)",
+          description: "MultiversX Football Meme Coin, DEX Swap, NFT Minter & EFOO FOMO Game",
+          url: window.location.origin,
+          icons: ["https://elrondfootballnfts.github.io/EFOOTBALLX/branding/rebranded/efoo-degen-crest-200x200.png"]
+        }
+      });
+    }
+
+    const { uri, approval } = await wcSignClient.connect({
+      requiredNamespaces: {
+        mvx: {
+          chains: ["mvx:1"],
+          methods: [
+            "mvx_signTransaction",
+            "mvx_signTransactions",
+            "mvx_signMessage",
+            "mvx_signLoginToken",
+            "mvx_cancelAction"
+          ],
+          events: []
+        }
+      }
+    });
+
+    if (uri) {
+      currentWcUri = uri;
+      if (qrImg) {
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(uri)}`;
+      }
+      if (bridgeLink) {
+        // Official xPortal Dynamic Deep Link with WalletConnect v2 URI
+        bridgeLink.href = `https://maiar.page.link/?apn=com.elrond.maiar.wallet&isi=1519405832&ibi=com.elrond.maiar.wallet&link=${encodeURIComponent(
+          `https://xportal.com/?wallet-connect=${encodeURIComponent(uri)}`
+        )}`;
+      }
+      if (statusPill) {
+        statusPill.textContent =
+          currentLang === "ro"
+            ? "📱 Scanează codul QR din aplicația xPortal și aprobă conectarea!"
+            : "📱 Scan QR code inside your xPortal App & approve on your phone!";
+      }
+    }
+
+    // Wait for the user to approve connection in xPortal mobile app
+    const session = await approval();
+    if (session && session.namespaces && session.namespaces.mvx) {
+      wcSessionTopic = session.topic;
+      localStorage.setItem("efoo_wc_topic", wcSessionTopic);
+      const accEntry = session.namespaces.mvx.accounts[0] || ""; // "mvx:1:erd1..."
+      const parts = accEntry.split(":");
+      const erdAddr = parts[parts.length - 1];
+      if (erdAddr && erdAddr.startsWith("erd1")) {
+        await connectWithWalletAddress(erdAddr, "xportal");
+        showToast(
+          currentLang === "ro"
+            ? `✅ Conectat cu succes prin xPortal (${shortErd(erdAddr)})!`
+            : `✅ Connected via xPortal Mobile App (${shortErd(erdAddr)})!`
+        );
+      }
+    }
+  } catch (err) {
+    console.warn("xPortal WalletConnect v2 init notice:", err);
+    if (statusPill) {
+      statusPill.textContent =
         currentLang === "ro"
-          ? `✅ Tranzacție trimisă pe MultiversX (${txHashFromHook.slice(0, 10)}...)!`
-          : `✅ Transaction sent on MultiversX (${txHashFromHook.slice(0, 10)}...)!`;
-      toastLink.href = `https://explorer.multiversx.com/transactions/${txHashFromHook}`;
-      toast.classList.remove("hidden");
+          ? "⚠️ Conexiunea xPortal a expirat. Apasă din nou pe xPortal pentru un QR nou."
+          : "⚠️ xPortal session timed out or closed. Click xPortal again to refresh QR.";
+    }
+  }
+}
+
+// 2. MultiversX DeFi Wallet Browser Extension (erdw-inpage / erdw-contentScript)
+function sendExtensionMessage(type, data = "") {
+  return new Promise((resolve, reject) => {
+    const responseTypeMap = {
+      connect: "connectResponse",
+      signTransactions: "signTransactionsResponse",
+      logout: "logoutResponse"
+    };
+    const expectedType = responseTypeMap[type];
+
+    const timer = setTimeout(() => {
+      window.removeEventListener("message", handleMessage);
+      reject(new Error("Extension response timed out"));
+    }, 60000);
+
+    function handleMessage(event) {
+      if (event.origin !== window.origin) return;
+      const msg = event.data;
+      if (!msg || msg.target !== "erdw-contentScript") return;
+      if (msg.type === expectedType) {
+        clearTimeout(timer);
+        window.removeEventListener("message", handleMessage);
+        resolve(msg.data);
+      }
+    }
+
+    window.addEventListener("message", handleMessage);
+    window.postMessage({ target: "erdw-inpage", type, data }, window.origin);
+  });
+}
+
+async function connectDefiExtension() {
+  if (!window.elrondWallet) {
+    const confirmInstall = confirm(
+      currentLang === "ro"
+        ? "Extensia MultiversX DeFi Wallet nu a fost detectată în acest browser.\n\nApasă OK pentru a te autentifica prin MultiversX Web Wallet (sau instalează extensia din Chrome Web Store)."
+        : "MultiversX DeFi Wallet Extension was not detected in this browser.\n\nPress OK to sign in via MultiversX Web Wallet instead (or install the extension from Chrome Web Store)."
+    );
+    if (confirmInstall) {
+      window.location.href = getMultiversXLoginHookUrl();
+    }
+    return;
+  }
+
+  try {
+    const res = await sendExtensionMessage("connect", "");
+    const addr = typeof res === "string" ? res : res && res.address ? res.address : "";
+    if (addr && addr.startsWith("erd1")) {
+      await connectWithWalletAddress(addr, "extension");
+      showToast(
+        currentLang === "ro"
+          ? `✅ Conectat prin MultiversX DeFi Extension (${shortErd(addr)})!`
+          : `✅ Connected via MultiversX DeFi Extension (${shortErd(addr)})!`
+      );
+    }
+  } catch (err) {
+    console.warn("Extension connect cancelled or failed:", err);
+  }
+}
+
+// 3. Broadcast Signed Transaction(s) to MultiversX Mainnet API
+async function broadcastSignedTransactions(signedTxs) {
+  const hashes = [];
+  for (const tx of signedTxs) {
+    const payload = {
+      nonce: Number(tx.nonce),
+      value: String(tx.value || "0"),
+      receiver: String(tx.receiver),
+      sender: String(tx.sender),
+      gasPrice: Number(tx.gasPrice || 1000000000),
+      gasLimit: Number(tx.gasLimit),
+      data: tx.dataIsBase64 ? tx.data : toBase64Data(tx.data || ""),
+      chainID: String(tx.chainID || "1"),
+      version: Number(tx.version || 1),
+      signature: String(tx.signature)
+    };
+    if (tx.options !== undefined && tx.options !== null && Number(tx.options) !== 0) {
+      payload.options = Number(tx.options);
+    }
+    if (tx.guardian) payload.guardian = tx.guardian;
+    if (tx.guardianSignature) payload.guardianSignature = tx.guardianSignature;
+
+    const res = await fetch("https://api.multiversx.com/transactions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      throw new Error(`MultiversX API broadcast error: ${errBody}`);
+    }
+    const resData = await res.json();
+    if (resData.txHash) hashes.push(resData.txHash);
+  }
+  return hashes;
+}
+
+// 4. Unified Sign & Broadcast Engine (Supports 1 or Multiple Transactions)
+async function signAndBroadcastTransactions(rawTxList) {
+  // If user is not connected or is viewing the Demo Treasury wallet, prompt them to connect their real wallet first
+  if (!connectedAddress || connectedProvider === "demo") {
+    openWalletModal();
+    showToast(
+      currentLang === "ro"
+        ? "⚡ Conectează-ți mai întâi portofelul (xPortal, Extensie sau Web Wallet) pentru a semna tranzacția!"
+        : "⚡ Please connect your wallet (xPortal, DeFi Extension, or Web Wallet) to sign this transaction!"
+    );
+    return;
+  }
+
+  // Fetch latest account nonce & shard from MultiversX API
+  try {
+    const accRes = await fetch(`https://api.multiversx.com/accounts/${connectedAddress}`);
+    if (accRes.ok) {
+      const accData = await accRes.json();
+      walletState.nonce = Number(accData.nonce || 0);
+      walletState.shard = Number(accData.shard || 0);
+    }
+  } catch (e) {
+    console.warn("Could not refresh nonce, using cached nonce:", e);
+  }
+
+  const preparedTxs = rawTxList.map((tx, idx) => ({
+    nonce: walletState.nonce + idx,
+    value: String(tx.value || "0"),
+    receiver: tx.receiver,
+    sender: connectedAddress,
+    gasPrice: 1000000000,
+    gasLimit: Number(tx.gasLimit || 50000000),
+    data: tx.data || "",
+    chainID: "1",
+    version: 1
+  }));
+
+  // PATH A: Sign via xPortal (WalletConnect v2)
+  if (connectedProvider === "xportal" && wcSignClient && wcSessionTopic) {
+    try {
+      showToast(
+        currentLang === "ro"
+          ? "📱 Deschide aplicația xPortal pe telefon pentru a aproba și semna tranzacția..."
+          : "📱 Please check your xPortal Mobile App to approve & sign the transaction..."
+      );
+
+      const wcTxs = preparedTxs.map((t) => ({
+        ...t,
+        data: toBase64Data(t.data)
+      }));
+
+      let signedTxs = [];
+      if (wcTxs.length === 1) {
+        const res = await wcSignClient.request({
+          topic: wcSessionTopic,
+          chainId: "mvx:1",
+          request: {
+            method: "mvx_signTransaction",
+            params: { transaction: wcTxs[0] }
+          }
+        });
+        signedTxs = [
+          {
+            ...wcTxs[0],
+            ...res,
+            data: wcTxs[0].data,
+            dataIsBase64: true
+          }
+        ];
+      } else {
+        const res = await wcSignClient.request({
+          topic: wcSessionTopic,
+          chainId: "mvx:1",
+          request: {
+            method: "mvx_signTransactions",
+            params: { transactions: wcTxs }
+          }
+        });
+        const sigArray = res.signatures || res;
+        signedTxs = wcTxs.map((t, i) => ({
+          ...t,
+          ...(sigArray[i] || {}),
+          data: t.data,
+          dataIsBase64: true
+        }));
+      }
+
+      const hashes = await broadcastSignedTransactions(signedTxs);
+      if (hashes.length > 0) {
+        showToast(
+          currentLang === "ro"
+            ? `✅ Tranzacție trimisă pe MultiversX (${hashes[0].slice(0, 10)}...)!`
+            : `✅ Transaction broadcasted on MultiversX (${hashes[0].slice(0, 10)}...)!`,
+          `https://explorer.multiversx.com/transactions/${hashes[0]}`
+        );
+        setTimeout(() => fetchConnectedWalletData(connectedAddress), 4000);
+      }
+      return;
+    } catch (err) {
+      console.warn("xPortal signing error, offering Web Wallet fallback:", err);
+      showToast(
+        currentLang === "ro"
+          ? `⚠️ Semnarea în xPortal a fost anulată sau sesiunea a expirat.`
+          : `⚠️ xPortal signing cancelled or session expired.`
+      );
+      return;
     }
   }
 
-  if (addrFromHook || txHashFromHook) {
+  // PATH B: Sign via MultiversX DeFi Wallet Extension (erdw-inpage)
+  if (connectedProvider === "extension" && window.elrondWallet) {
+    try {
+      showToast(
+        currentLang === "ro"
+          ? "🧩 Confirmă tranzacția în fereastra extensiei MultiversX DeFi Wallet..."
+          : "🧩 Please confirm the transaction in your MultiversX DeFi Wallet Extension popup..."
+      );
+
+      const extInputTxs = preparedTxs.map((t) => ({
+        ...t,
+        data: toBase64Data(t.data)
+      }));
+
+      const signedRes = await sendExtensionMessage("signTransactions", {
+        from: connectedAddress,
+        transactions: extInputTxs
+      });
+
+      if (Array.isArray(signedRes) && signedRes.length > 0) {
+        const formattedSigned = signedRes.map((st, idx) => ({
+          ...preparedTxs[idx],
+          ...st,
+          data: preparedTxs[idx].data,
+          dataIsBase64: false
+        }));
+        const hashes = await broadcastSignedTransactions(formattedSigned);
+        if (hashes.length > 0) {
+          showToast(
+            currentLang === "ro"
+              ? `✅ Tranzacție trimisă pe MultiversX (${hashes[0].slice(0, 10)}...)!`
+              : `✅ Transaction broadcasted on MultiversX (${hashes[0].slice(0, 10)}...)!`,
+            `https://explorer.multiversx.com/transactions/${hashes[0]}`
+          );
+          setTimeout(() => fetchConnectedWalletData(connectedAddress), 4000);
+        }
+      }
+      return;
+    } catch (err) {
+      console.warn("Extension signing cancelled or failed:", err);
+      showToast(
+        currentLang === "ro"
+          ? "⚠️ Semnarea în extensie a fost anulată."
+          : "⚠️ Extension transaction signing was cancelled."
+      );
+      return;
+    }
+  }
+
+  // PATH C: Sign via Official MultiversX Web Wallet (/hook/sign indexed query format)
+  const queryParts = [];
+  preparedTxs.forEach((t, i) => {
+    queryParts.push(`nonce[${i}]=${encodeURIComponent(t.nonce)}`);
+    queryParts.push(`value[${i}]=${encodeURIComponent(t.value)}`);
+    queryParts.push(`receiver[${i}]=${encodeURIComponent(t.receiver)}`);
+    queryParts.push(`sender[${i}]=${encodeURIComponent(t.sender)}`);
+    queryParts.push(`gasPrice[${i}]=${encodeURIComponent(t.gasPrice)}`);
+    queryParts.push(`gasLimit[${i}]=${encodeURIComponent(t.gasLimit)}`);
+    queryParts.push(`data[${i}]=${encodeURIComponent(t.data)}`);
+    queryParts.push(`chainID[${i}]=${encodeURIComponent(t.chainID)}`);
+    queryParts.push(`version[${i}]=${encodeURIComponent(t.version)}`);
+  });
+  queryParts.push(`callbackUrl=${encodeURIComponent(getCallbackUrl())}`);
+
+  window.location.href = `https://wallet.multiversx.com/hook/sign?${queryParts.join("&")}`;
+}
+
+// 5. Handle URL Callbacks from MultiversX Web Wallet (Login & Signed Transactions)
+async function checkUrlCallbacks() {
+  const params = new URLSearchParams(window.location.search);
+  const addrFromHook = params.get("address");
+  const txHashFromHook = params.get("txHash");
+  const statusFromHook = params.get("walletProviderStatus");
+
+  if (addrFromHook && addrFromHook.startsWith("erd1")) {
+    connectedAddress = addrFromHook.trim();
+    connectedProvider = "webwallet";
+    localStorage.setItem("efoo_wallet_address", connectedAddress);
+    localStorage.setItem("efoo_wallet_provider", connectedProvider);
+    showToast(
+      currentLang === "ro"
+        ? `✅ Conectat prin MultiversX Web Wallet (${shortErd(connectedAddress)})!`
+        : `✅ Connected via MultiversX Web Wallet (${shortErd(connectedAddress)})!`
+    );
+  }
+
+  // If returning from https://wallet.multiversx.com/hook/sign with signed transactions:
+  if (statusFromHook === "transactionsSigned" || params.get("signature[0]")) {
+    const signedBatch = [];
+    let i = 0;
+    while (params.get(`signature[${i}]`) !== null) {
+      signedBatch.push({
+        nonce: Number(params.get(`nonce[${i}]`) || 0),
+        value: params.get(`value[${i}]`) || "0",
+        receiver: params.get(`receiver[${i}]`) || "",
+        sender: params.get(`sender[${i}]`) || connectedAddress,
+        gasPrice: Number(params.get(`gasPrice[${i}]`) || 1000000000),
+        gasLimit: Number(params.get(`gasLimit[${i}]`) || 50000000),
+        data: params.get(`data[${i}]`) || "",
+        dataIsBase64: false,
+        chainID: params.get(`chainID[${i}]`) || "1",
+        version: Number(params.get(`version[${i}]`) || 1),
+        signature: params.get(`signature[${i}]`)
+      });
+      i++;
+    }
+
+    if (signedBatch.length > 0) {
+      try {
+        showToast(
+          currentLang === "ro"
+            ? "⏳ Se transmite tranzacția semnată către rețeaua MultiversX..."
+            : "⏳ Broadcasting signed transaction to MultiversX Mainnet..."
+        );
+        const hashes = await broadcastSignedTransactions(signedBatch);
+        if (hashes.length > 0) {
+          showToast(
+            currentLang === "ro"
+              ? `✅ Tranzacție trimisă pe MultiversX (${hashes[0].slice(0, 10)}...)!`
+              : `✅ Transaction sent on MultiversX (${hashes[0].slice(0, 10)}...)!`,
+            `https://explorer.multiversx.com/transactions/${hashes[0]}`
+          );
+        }
+      } catch (err) {
+        console.error("Broadcast error after Web Wallet sign:", err);
+        showToast(`⚠️ Broadcast Error: ${err.message}`);
+      }
+    }
+  } else if (txHashFromHook) {
+    showToast(
+      currentLang === "ro"
+        ? `✅ Tranzacție trimisă pe MultiversX (${txHashFromHook.slice(0, 10)}...)!`
+        : `✅ Transaction sent on MultiversX (${txHashFromHook.slice(0, 10)}...)!`,
+      `https://explorer.multiversx.com/transactions/${txHashFromHook}`
+    );
+  }
+
+  if (addrFromHook || txHashFromHook || statusFromHook || params.get("signature[0]")) {
     window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
   }
 }
 
-async function connectWithWalletAddress(address) {
+async function connectWithWalletAddress(address, providerType = "inspector") {
   if (!address || !address.trim().startsWith("erd1") || address.trim().length < 58) {
     alert(
       currentLang === "ro"
@@ -522,7 +974,9 @@ async function connectWithWalletAddress(address) {
   }
 
   connectedAddress = address.trim();
+  connectedProvider = providerType;
   localStorage.setItem("efoo_wallet_address", connectedAddress);
+  localStorage.setItem("efoo_wallet_provider", connectedProvider);
   closeWalletModal();
   updateWalletStatusUI();
   await fetchConnectedWalletData(connectedAddress);
@@ -530,19 +984,24 @@ async function connectWithWalletAddress(address) {
 
 function disconnectWallet() {
   connectedAddress = "";
+  connectedProvider = "";
+  wcSessionTopic = "";
   localStorage.removeItem("efoo_wallet_address");
-  walletState = {
-    efooBalance: 0,
-    egldBalance: 0,
-    wegldBalance: 0,
-    usdcBalance: 0,
-    playersCount: 0,
-    keepersCount: 0,
-    ownedNfts: []
-  };
+  localStorage.removeItem("efoo_wallet_provider");
+  localStorage.removeItem("efoo_wc_topic");
+
+  walletState.efooBalance = 0;
+  walletState.egldBalance = 0;
+  walletState.wegldBalance = 0;
+  walletState.usdcBalance = 0;
+  walletState.playersCount = 0;
+  walletState.keepersCount = 0;
+  walletState.ownedNfts = [];
+
   updateWalletStatusUI();
   renderOwnedNftsGallery();
   updateGamePowerUps();
+  updateSwapEstimate();
 }
 
 function updateWalletStatusUI() {
@@ -550,44 +1009,80 @@ function updateWalletStatusUI() {
   const wsDot = document.getElementById("ws-dot");
   const wsTitle = document.getElementById("ws-status-title");
   const wsSub = document.getElementById("ws-address-display");
+  const wsProvPill = document.getElementById("ws-provider-pill");
+  const wsShardPill = document.getElementById("ws-shard-pill");
   const wsConnectBtn = document.getElementById("ws-connect-btn");
+  const wsRefreshBtn = document.getElementById("ws-refresh-btn");
   const wsDisconnectBtn = document.getElementById("ws-disconnect-btn");
+
+  const providerNames = {
+    xportal: "📱 xPortal App",
+    extension: "🧩 DeFi Extension",
+    webwallet: "🌐 Web Wallet",
+    demo: "🏆 Club Treasury Demo",
+    inspector: "🔍 Wallet Inspector"
+  };
 
   if (connectedAddress) {
     if (navLabel) navLabel.textContent = shortErd(connectedAddress);
     if (wsDot) wsDot.classList.add("connected");
     if (wsTitle) {
       wsTitle.textContent =
-        currentLang === "ro"
+        connectedProvider === "demo"
+          ? currentLang === "ro"
+            ? "🏆 Portofel Demo Trezorerie Club"
+            : "🏆 Club Treasury Showcase Wallet"
+          : currentLang === "ro"
           ? "🟢 Portofel MultiversX Conectat"
           : "🟢 MultiversX Wallet Connected";
     }
     if (wsSub) wsSub.textContent = connectedAddress;
-    if (wsConnectBtn) wsConnectBtn.classList.add("hidden");
+    if (wsProvPill) {
+      wsProvPill.textContent = providerNames[connectedProvider] || "⚡ MultiversX";
+      wsProvPill.classList.remove("hidden");
+    }
+    if (wsShardPill) {
+      wsShardPill.textContent = `Shard ${walletState.shard}`;
+      wsShardPill.classList.remove("hidden");
+    }
+    if (wsConnectBtn) {
+      wsConnectBtn.classList.toggle("hidden", connectedProvider !== "demo");
+    }
+    if (wsRefreshBtn) wsRefreshBtn.classList.remove("hidden");
     if (wsDisconnectBtn) wsDisconnectBtn.classList.remove("hidden");
   } else {
     if (navLabel) navLabel.textContent = I18N[currentLang].nav_connect;
     if (wsDot) wsDot.classList.remove("connected");
     if (wsTitle) wsTitle.textContent = I18N[currentLang].ws_not_connected;
     if (wsSub) wsSub.textContent = I18N[currentLang].ws_connect_prompt;
+    if (wsProvPill) wsProvPill.classList.add("hidden");
+    if (wsShardPill) wsShardPill.classList.add("hidden");
     if (wsConnectBtn) wsConnectBtn.classList.remove("hidden");
+    if (wsRefreshBtn) wsRefreshBtn.classList.add("hidden");
     if (wsDisconnectBtn) wsDisconnectBtn.classList.add("hidden");
 
-    document.getElementById("wallet-efoo-bal").textContent = "—";
-    document.getElementById("wallet-egld-bal").textContent = "—";
+    document.getElementById("wallet-efoo-bal").textContent = "0 EFOO";
+    document.getElementById("wallet-egld-bal").textContent = "0.000 EGLD";
+    document.getElementById("wallet-wegld-bal").textContent = "WEGLD: 0.000 • USDC: 0.00";
     document.getElementById("wallet-players-count").textContent = "0 NFTs";
     document.getElementById("wallet-keepers-count").textContent = "0 NFTs";
+    const tierEl = document.getElementById("wallet-efoo-tier");
+    if (tierEl) tierEl.textContent = "Spectator";
   }
 }
 
 async function fetchConnectedWalletData(address) {
   try {
-    // 1. Account EGLD balance
+    // 1. Account EGLD balance, nonce & shard
     const accRes = await fetch(`https://api.multiversx.com/accounts/${address}`);
     if (accRes.ok) {
       const accData = await accRes.json();
       walletState.egldBalance = Number(accData.balance || 0) / 1e18;
+      walletState.nonce = Number(accData.nonce || 0);
+      walletState.shard = Number(accData.shard || 0);
       document.getElementById("wallet-egld-bal").textContent = `${walletState.egldBalance.toFixed(3)} EGLD`;
+      const wsShardPill = document.getElementById("ws-shard-pill");
+      if (wsShardPill) wsShardPill.textContent = `Shard ${walletState.shard}`;
     }
 
     // 2. Account ESDT tokens (EFOO, WEGLD, USDC)
@@ -614,7 +1109,24 @@ async function fetchConnectedWalletData(address) {
     document.getElementById("wallet-efoo-bal").textContent =
       walletState.efooBalance.toLocaleString("en-US", { maximumFractionDigits: 0 }) + " EFOO";
     document.getElementById("wallet-wegld-bal").textContent =
-      `WEGLD: ${walletState.wegldBalance.toFixed(3)} | USDC: ${walletState.usdcBalance.toFixed(2)}`;
+      `WEGLD: ${walletState.wegldBalance.toFixed(3)} • USDC: ${walletState.usdcBalance.toFixed(2)}`;
+
+    const tierEl = document.getElementById("wallet-efoo-tier");
+    if (tierEl) {
+      if (walletState.efooBalance >= 10000000) {
+        tierEl.textContent = "🔥 Club Whale";
+        tierEl.className = "wb-badge gold";
+      } else if (walletState.efooBalance >= 1000000) {
+        tierEl.textContent = "🚀 Rocket Striker";
+        tierEl.className = "wb-badge green";
+      } else if (walletState.efooBalance > 0) {
+        tierEl.textContent = "⚽ Holder";
+        tierEl.className = "wb-badge green";
+      } else {
+        tierEl.textContent = "No $EFOO Yet";
+        tierEl.className = "wb-badge";
+      }
+    }
 
     // 3. Player & Goalkeeper NFT counts
     const [pCountRes, kCountRes, nftsRes] = await Promise.all([
@@ -633,23 +1145,39 @@ async function fetchConnectedWalletData(address) {
     const rankEl = document.getElementById("wallet-ultras-rank");
     if (rankEl) {
       if (walletState.keepersCount >= 1 || walletState.playersCount >= 3) {
-        rankEl.textContent = "🏆 Rank: SUNDAY LEAGUE VIP BOARD";
+        rankEl.textContent = "🏆 VIP BOARD MEMBER";
         rankEl.style.color = "#ffd700";
       } else if (walletState.playersCount >= 1 || walletState.efooBalance > 0) {
-        rankEl.textContent = "⚽ Rank: FIRST TEAM DEGEN";
+        rankEl.textContent = "⚽ FIRST TEAM ULTRAS";
         rankEl.style.color = "#a8ff00";
       }
     }
 
     renderOwnedNftsGallery();
     updateGamePowerUps();
+    updateSwapEstimate();
 
-    // Auto-select first owned NFT as active striker in game!
     if (walletState.ownedNfts.length > 0) {
       setActiveGameStriker(walletState.ownedNfts[0]);
     }
   } catch (err) {
     console.warn("Error fetching wallet details:", err);
+  }
+}
+
+async function fetchShowcaseSquadNfts() {
+  try {
+    const res = await fetch(
+      `https://api.multiversx.com/accounts/${CONTRACTS.CLUB_OWNER_DEMO}/nfts?collections=EFOOTBALL-91a4eb,GOALKEEPER-cb9e3e&size=8`
+    );
+    if (res.ok) {
+      walletState.showcaseNfts = await res.json();
+      if (!connectedAddress) {
+        renderOwnedNftsGallery();
+      }
+    }
+  } catch (e) {
+    console.warn("Showcase NFTs load notice:", e);
   }
 }
 
@@ -660,25 +1188,40 @@ function renderOwnedNftsGallery() {
 
   grid.innerHTML = "";
 
-  if (!connectedAddress) {
-    sub.textContent = I18N[currentLang].squad_gallery_sub;
+  const isConnected = Boolean(connectedAddress);
+  const sourceList = isConnected ? walletState.ownedNfts : walletState.showcaseNfts;
+
+  const filteredList = (sourceList || []).filter((nft) => {
+    if (dexState.squadFilter === "player") return nft.collection === "EFOOTBALL-91a4eb";
+    if (dexState.squadFilter === "keeper") return nft.collection === "GOALKEEPER-cb9e3e";
+    return true;
+  });
+
+  if (!isConnected) {
+    if (sub) {
+      sub.innerHTML =
+        currentLang === "ro"
+          ? `🏆 <strong>Vitrina Clubului (Mod Spectator):</strong> Conectează-ți portofelul pentru a-ți vedea propriile NFT-uri, sau testează orice card de mai jos în Meme Studio &amp; EFOO FOMO!`
+          : `🏆 <strong>Club Showcase (Spectator Preview):</strong> Connect your wallet to view your personal NFTs, or click any featured squad card below to test in the Meme Studio &amp; EFOO FOMO!`;
+    }
+  } else if (walletState.ownedNfts.length === 0) {
+    if (sub) {
+      sub.innerHTML =
+        currentLang === "ro"
+          ? `Acest portofel (<code>${shortErd(connectedAddress)}</code>) nu deține încă NFT-uri EFOOTBALL sau GOALKEEPER. Mintează unul mai sus sau cumpără de pe XOXNO!`
+          : `This wallet (<code>${shortErd(connectedAddress)}</code>) doesn't hold any EFOOTBALL or GOALKEEPER NFTs yet. Mint one above or grab a floor player on XOXNO!`;
+    }
     return;
+  } else {
+    if (sub) {
+      sub.innerHTML =
+        currentLang === "ro"
+          ? `Portofelul tău deține <strong>${walletState.playersCount} Jucători</strong> și <strong>${walletState.keepersCount} Portari</strong>! Alege oricare card pentru Studio Meme sau Jocul EFOO FOMO:`
+          : `Your wallet holds <strong>${walletState.playersCount} Outfield Players</strong> &amp; <strong>${walletState.keepersCount} Goalkeepers</strong>! Click any card to load in the Meme Studio or EFOO FOMO Game:`;
+    }
   }
 
-  if (walletState.ownedNfts.length === 0) {
-    sub.textContent =
-      currentLang === "ro"
-        ? "Acest portofel nu deține încă NFT-uri EFOOTBALL sau GOALKEEPER. Mintează unul mai jos!"
-        : "This wallet doesn't hold any EFOOTBALL or GOALKEEPER NFTs yet. Mint one below!";
-    return;
-  }
-
-  sub.textContent =
-    currentLang === "ro"
-      ? `Portofelul tău deține ${walletState.playersCount} Jucători și ${walletState.keepersCount} Portari! Alege oricare pentru Studio Meme sau Jocul EFOO FOMO:`
-      : `Your wallet holds ${walletState.playersCount} Outfield Players & ${walletState.keepersCount} Goalkeepers! Click any card to use in the Meme Studio or EFOO FOMO Game:`;
-
-  walletState.ownedNfts.forEach((nft) => {
+  filteredList.forEach((nft) => {
     const rawImg =
       (nft.media && nft.media[0] && (nft.media[0].url || nft.media[0].thumbnailUrl)) ||
       nft.url;
@@ -688,9 +1231,9 @@ function renderOwnedNftsGallery() {
     const card = document.createElement("div");
     card.className = "squad-nft-card";
     card.innerHTML = `
-      <img src="${safeImg}" alt="${nft.name}" loading="lazy" />
+      <img src="${safeImg}" alt="${nft.name || nft.identifier}" loading="lazy" />
       <div class="squad-nft-body">
-        <span class="squad-nft-type">${isKeeper ? "🧤 GOALKEEPER (3x)" : "⚽ PLAYER (2x)"}</span>
+        <span class="squad-nft-type">${isKeeper ? "🧤 GOALKEEPER (3x + Shield)" : "⚽ STRIKER NFT (2x + Curve)"}</span>
         <h4>${nft.name || nft.identifier}</h4>
         <div class="squad-nft-actions">
           <button type="button" class="use-meme-btn">🎨 Meme</button>
@@ -721,7 +1264,7 @@ function renderOwnedNftsGallery() {
 }
 
 // ============================================================================
-// DIRECT ON-SITE SWAP & ON-CHAIN NFT MINTER
+// DIRECT ON-SITE SWAP (BUY / SELL / AUTO-WRAP) & ON-CHAIN NFT MINTER
 // ============================================================================
 async function fetchLiveDexReserves() {
   try {
@@ -737,7 +1280,7 @@ async function fetchLiveDexReserves() {
       if (t.identifier === "WEGLD-bd4d79") wegldRes = Number(t.balance) / 1e18;
     });
     if (efooRes > 0 && wegldRes > 0) {
-      dexRates.efooPerWegld = Math.floor(efooRes / wegldRes);
+      dexState.efooPerWegld = Math.floor(efooRes / wegldRes);
       updateSwapEstimate();
     }
   } catch (err) {
@@ -745,85 +1288,263 @@ async function fetchLiveDexReserves() {
   }
 }
 
+function setDexMode(mode) {
+  dexState.mode = mode === "sell" ? "sell" : "buy";
+  document.querySelectorAll(".dex-tab").forEach((btn) => {
+    btn.classList.toggle("active", btn.getAttribute("data-dex-mode") === dexState.mode);
+  });
+
+  const paySelectorWrap = document.getElementById("swap-pay-selector-wrap");
+  const sellPillWrap = document.getElementById("swap-sell-pill-wrap");
+  const recLabel = document.getElementById("swap-receive-token-label");
+  const inputEl = document.getElementById("swap-input-amount");
+  const quickBtns = document.getElementById("swap-quick-amounts");
+
+  if (dexState.mode === "buy") {
+    paySelectorWrap?.classList.remove("hidden");
+    sellPillWrap?.classList.add("hidden");
+    if (recLabel) recLabel.textContent = "$EFOO";
+    if (inputEl && Number(inputEl.value) > 1000) inputEl.value = "0.1";
+    if (quickBtns) {
+      quickBtns.innerHTML = `
+        <button type="button" class="quick-amt-btn" data-amt="0.1">0.1</button>
+        <button type="button" class="quick-amt-btn" data-amt="0.5">0.5</button>
+        <button type="button" class="quick-amt-btn" data-amt="1">1.0</button>
+        <button type="button" class="quick-amt-btn" data-amt="5">5.0</button>
+        <button type="button" class="quick-amt-btn" data-amt="max">MAX</button>
+      `;
+    }
+  } else {
+    paySelectorWrap?.classList.add("hidden");
+    sellPillWrap?.classList.remove("hidden");
+    if (recLabel) recLabel.textContent = "⚡ EGLD";
+    if (inputEl && Number(inputEl.value) < 100) inputEl.value = "1000000";
+    if (quickBtns) {
+      quickBtns.innerHTML = `
+        <button type="button" class="quick-amt-btn" data-amt="500000">500K</button>
+        <button type="button" class="quick-amt-btn" data-amt="1000000">1M</button>
+        <button type="button" class="quick-amt-btn" data-amt="5000000">5M</button>
+        <button type="button" class="quick-amt-btn" data-amt="10000000">10M</button>
+        <button type="button" class="quick-amt-btn" data-amt="max">MAX</button>
+      `;
+    }
+  }
+
+  bindQuickAmountButtons();
+  updateSwapEstimate();
+}
+
 function updateSwapEstimate() {
   const amt = Math.max(0, Number(document.getElementById("swap-input-amount")?.value || 0));
-  const tok = document.getElementById("swap-input-token")?.value || "WEGLD";
-  const rate = tok === "WEGLD" ? dexRates.efooPerWegld : dexRates.efooPerUsdc;
-  const estOut = Math.floor(amt * rate * 0.98);
-
+  const tok = document.getElementById("swap-input-token")?.value || "EGLD";
   const rateLabel = document.getElementById("swap-rate-label");
   const outField = document.getElementById("swap-output-efoo");
+  const balHint = document.getElementById("swap-pay-balance");
+  const routeTag = document.getElementById("swap-route-tag");
+  const scLabel = document.getElementById("swap-sc-label");
+  const txModeNote = document.getElementById("swap-tx-mode-note");
+  const actionBtnText = document.getElementById("direct-swap-btn-text");
 
-  if (rateLabel) {
-    rateLabel.textContent = `1 ${tok} ≈ ${rate.toLocaleString("en-US")} $EFOO`;
-  }
-  if (outField) {
-    outField.value = `~${estOut.toLocaleString("en-US")} EFOO`;
+  const slipFactor = 1 - dexState.slippage / 100;
+
+  if (dexState.mode === "buy") {
+    const rate = tok === "USDC" ? dexState.efooPerUsdc : dexState.efooPerWegld;
+    const estOut = Math.floor(amt * rate * slipFactor);
+
+    if (rateLabel) {
+      rateLabel.textContent = `1 ${tok} ≈ ${rate.toLocaleString("en-US")} $EFOO`;
+    }
+    if (outField) {
+      outField.value = `~${estOut.toLocaleString("en-US")} EFOO`;
+    }
+    if (balHint) {
+      const userBal =
+        tok === "EGLD"
+          ? `${walletState.egldBalance.toFixed(3)} EGLD`
+          : tok === "WEGLD"
+          ? `${walletState.wegldBalance.toFixed(3)} WEGLD`
+          : `${walletState.usdcBalance.toFixed(2)} USDC`;
+      balHint.textContent = `Balance: ${userBal}`;
+    }
+    if (routeTag) {
+      routeTag.textContent = tok === "USDC" ? "Route: xExchange SC" : "Route: OneDex Pool SC";
+    }
+    if (scLabel) {
+      scLabel.innerHTML =
+        tok === "USDC"
+          ? `Pair SC: <code>erd1qqqq...du5qhw</code>`
+          : `Pool SC: <code>erd1qqqq...su3sujc</code>`;
+    }
+    if (txModeNote) {
+      txModeNote.textContent =
+        tok === "EGLD"
+          ? `⚡ Auto-Wrap Shard ${walletState.shard} + Swap (2 Tx)`
+          : `⚡ Direct Single-Tx Swap (1 Tx)`;
+    }
+    if (actionBtnText) {
+      actionBtnText.textContent =
+        currentLang === "ro"
+          ? `Schimbă ${amt || 0} ${tok} ➔ $EFOO On-Chain`
+          : `Swap ${amt || 0} ${tok} ➔ $EFOO On-Chain`;
+    }
+  } else {
+    // SELL $EFOO -> Native EGLD
+    const estEgld = (amt / dexState.efooPerWegld) * slipFactor;
+    if (rateLabel) {
+      rateLabel.textContent = `${dexState.efooPerWegld.toLocaleString("en-US")} $EFOO ≈ 1 EGLD`;
+    }
+    if (outField) {
+      outField.value = `~${estEgld.toFixed(4)} EGLD`;
+    }
+    if (balHint) {
+      balHint.textContent = `Balance: ${walletState.efooBalance.toLocaleString("en-US", { maximumFractionDigits: 0 })} EFOO`;
+    }
+    if (routeTag) {
+      routeTag.textContent = "Route: OneDex SC (Auto-Unwrap EGLD)";
+    }
+    if (txModeNote) {
+      txModeNote.textContent = "⚡ Direct Swap + Unwrap to EGLD (1 Tx)";
+    }
+    if (actionBtnText) {
+      actionBtnText.textContent =
+        currentLang === "ro"
+          ? `Vinde ${amt.toLocaleString("en-US")} $EFOO ➔ EGLD`
+          : `Swap ${amt.toLocaleString("en-US")} $EFOO ➔ EGLD`;
+    }
   }
 }
 
 function executeDirectSwapOnChain() {
-  const amt = Math.max(0.001, Number(document.getElementById("swap-input-amount")?.value || 0.1));
-  const tok = document.getElementById("swap-input-token")?.value || "WEGLD";
+  const amt = Math.max(0.0001, Number(document.getElementById("swap-input-amount")?.value || 0.1));
 
-  if (tok === "WEGLD") {
-    // OneDex EFOO/WEGLD Smart Contract call:
-    // ESDTTransfer@<WEGLD-bd4d79 hex>@<amountHex>@<swapMultiTokensFixedInput hex>@01@@<WEGLD hex>@<EFOO hex>
+  if (dexState.mode === "sell") {
+    // SELL $EFOO -> Native EGLD via OneDex (unwrapWegld = 01)
+    const efooHex = strToHex("EFOO-8fe2d4");
+    const wegldHex = strToHex("WEGLD-bd4d79");
+    const amtHex = amountToHex(amt, 18);
+    const funcHex = strToHex("swapMultiTokensFixedInput");
+    const data = `ESDTTransfer@${efooHex}@${amtHex}@${funcHex}@01@01@${efooHex}@${wegldHex}`;
+
+    signAndBroadcastTransactions([
+      {
+        receiver: CONTRACTS.ONEDEX_PAIR,
+        value: "0",
+        gasLimit: 85000000,
+        data
+      }
+    ]);
+    return;
+  }
+
+  const tok = document.getElementById("swap-input-token")?.value || "EGLD";
+
+  if (tok === "EGLD") {
+    // 2-Transaction Batch:
+    // Tx 1: Wrap native EGLD -> WEGLD on the user's own Shard Wrapper SC
+    // Tx 2: Swap WEGLD -> EFOO on OneDex Pair SC
+    const weiStr = (BigInt(Math.round(amt * 1e9)) * BigInt(1e9)).toString();
+    const shardWrapper = CONTRACTS.WEGLD_WRAPPERS[walletState.shard] || CONTRACTS.WEGLD_WRAPPERS[0];
+
+    const tokenHex = strToHex("WEGLD-bd4d79");
+    const amtHex = amountToHex(amt, 18);
+    const funcHex = strToHex("swapMultiTokensFixedInput");
+    const efooHex = strToHex("EFOO-8fe2d4");
+    const swapData = `ESDTTransfer@${tokenHex}@${amtHex}@${funcHex}@01@@${tokenHex}@${efooHex}`;
+
+    signAndBroadcastTransactions([
+      {
+        receiver: shardWrapper,
+        value: weiStr,
+        gasLimit: 8000000,
+        data: "wrapEgld"
+      },
+      {
+        receiver: CONTRACTS.ONEDEX_PAIR,
+        value: "0",
+        gasLimit: 85000000,
+        data: swapData
+      }
+    ]);
+  } else if (tok === "WEGLD") {
+    // 1-Transaction Swap: WEGLD -> EFOO on OneDex Pair SC
     const tokenHex = strToHex("WEGLD-bd4d79");
     const amtHex = amountToHex(amt, 18);
     const funcHex = strToHex("swapMultiTokensFixedInput");
     const efooHex = strToHex("EFOO-8fe2d4");
     const data = `ESDTTransfer@${tokenHex}@${amtHex}@${funcHex}@01@@${tokenHex}@${efooHex}`;
 
-    triggerMultiversXTransaction({
-      receiver: CONTRACTS.ONEDEX_PAIR,
-      value: "0",
-      gasLimit: 60000000,
-      data
-    });
+    signAndBroadcastTransactions([
+      {
+        receiver: CONTRACTS.ONEDEX_PAIR,
+        value: "0",
+        gasLimit: 85000000,
+        data
+      }
+    ]);
   } else {
-    // xExchange EFOO/USDC Smart Contract call:
-    // ESDTTransfer@<USDC-c76f1f hex>@<amountHex>@<swapTokensFixedInput hex>@<EFOO hex>@01
+    // 1-Transaction Swap: USDC -> EFOO on xExchange Pair SC
     const usdcHex = strToHex("USDC-c76f1f");
     const amtHex = amountToHex(amt, 6);
     const funcHex = strToHex("swapTokensFixedInput");
     const efooHex = strToHex("EFOO-8fe2d4");
     const data = `ESDTTransfer@${usdcHex}@${amtHex}@${funcHex}@${efooHex}@01`;
 
-    triggerMultiversXTransaction({
-      receiver: CONTRACTS.XEXCHANGE_PAIR,
-      value: "0",
-      gasLimit: 55000000,
-      data
-    });
+    signAndBroadcastTransactions([
+      {
+        receiver: CONTRACTS.XEXCHANGE_PAIR,
+        value: "0",
+        gasLimit: 60000000,
+        data
+      }
+    ]);
   }
 }
 
 function executeWrapEgldOnChain() {
   const amt = Math.max(0.01, Number(document.getElementById("swap-input-amount")?.value || 0.1));
   const weiStr = (BigInt(Math.round(amt * 1e9)) * BigInt(1e9)).toString();
-  triggerMultiversXTransaction({
-    receiver: CONTRACTS.WEGLD_WRAPPER,
-    value: weiStr,
-    gasLimit: 10000000,
-    data: "wrapEgld"
-  });
+  const shardWrapper = CONTRACTS.WEGLD_WRAPPERS[walletState.shard] || CONTRACTS.WEGLD_WRAPPERS[0];
+
+  signAndBroadcastTransactions([
+    {
+      receiver: shardWrapper,
+      value: weiStr,
+      gasLimit: 8000000,
+      data: "wrapEgld"
+    }
+  ]);
+}
+
+function updatePlayerMintPriceUI() {
+  const qty = Math.max(1, Math.min(10, Number(document.getElementById("mint-player-qty")?.value || 1)));
+  const totalEgld = (qty * 0.08).toFixed(2);
+  const priceTag = document.getElementById("player-mint-total-price");
+  const btnSpan = document.querySelector("#mint-player-btn span");
+  if (priceTag) priceTag.textContent = `${totalEgld} EGLD`;
+  if (btnSpan) {
+    btnSpan.textContent =
+      currentLang === "ro"
+        ? `Mintează ${qty}x Jucător (${totalEgld} EGLD)`
+        : `Mint ${qty}x Player (${totalEgld} EGLD)`;
+  }
 }
 
 function executeMintPlayerNft() {
-  const qty = Number(document.getElementById("mint-player-qty")?.value || 1);
+  const qty = Math.max(1, Math.min(10, Number(document.getElementById("mint-player-qty")?.value || 1)));
   const pricePerNftWei = BigInt("80000000000000000"); // 0.08 EGLD
   const totalValueWei = (pricePerNftWei * BigInt(qty)).toString();
   const brandHex = strToHex("1stGenPlayers"); // 31737447656e506c6179657273
   const qtyHex = qty.toString(16).padStart(2, "0");
   const data = `buy@${brandHex}@${brandHex}@${qtyHex}`;
 
-  triggerMultiversXTransaction({
-    receiver: CONTRACTS.NFT_MINTER,
-    value: totalValueWei,
-    gasLimit: 32000000 + qty * 10000000,
-    data
-  });
+  signAndBroadcastTransactions([
+    {
+      receiver: CONTRACTS.NFT_MINTER,
+      value: totalValueWei,
+      gasLimit: 32000000 + qty * 10000000,
+      data
+    }
+  ]);
 }
 
 function executeMintKeeperNft() {
@@ -831,12 +1552,14 @@ function executeMintKeeperNft() {
   const brandHex = strToHex("GoalKeepers"); // 476f616c4b656570657273
   const data = `buy@${brandHex}@${brandHex}@01`;
 
-  triggerMultiversXTransaction({
-    receiver: CONTRACTS.NFT_MINTER,
-    value: priceWei,
-    gasLimit: 42000000,
-    data
-  });
+  signAndBroadcastTransactions([
+    {
+      receiver: CONTRACTS.NFT_MINTER,
+      value: priceWei,
+      gasLimit: 42000000,
+      data
+    }
+  ]);
 }
 
 // ============================================================================
@@ -991,12 +1714,14 @@ function kickEfooIntoFomoPot() {
     document.getElementById("fomo-last-striker").textContent = shortErd(connectedAddress);
   }
 
-  triggerMultiversXTransaction({
-    receiver: CONTRACTS.FOMO_RESERVE,
-    value: "0",
-    gasLimit: 1500000,
-    data
-  });
+  signAndBroadcastTransactions([
+    {
+      receiver: CONTRACTS.FOMO_RESERVE,
+      value: "0",
+      gasLimit: 1500000,
+      data
+    }
+  ]);
 }
 
 // ============================================================================
@@ -1248,19 +1973,47 @@ function openWalletModal() {
   if (!modal) return;
   modal.classList.remove("hidden");
 
-  const hookUrl = getMultiversXLoginHookUrl();
-  const qrImg = document.getElementById("xportal-qr-img");
-  const bridgeLink = document.getElementById("xportal-bridge-link");
-  if (qrImg) {
-    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(hookUrl)}`;
-  }
-  if (bridgeLink) {
-    bridgeLink.href = hookUrl;
+  // Update Extension badge based on whether window.elrondWallet is injected
+  const extBadge = document.getElementById("ext-detect-badge");
+  if (extBadge) {
+    if (window.elrondWallet) {
+      extBadge.textContent = "🟢 Detected";
+    } else {
+      extBadge.textContent = "Browser Ext";
+    }
   }
 }
 
 function closeWalletModal() {
   document.getElementById("wallet-modal-backdrop")?.classList.add("hidden");
+}
+
+function bindQuickAmountButtons() {
+  document.querySelectorAll(".quick-amt-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const val = btn.getAttribute("data-amt");
+      const inputEl = document.getElementById("swap-input-amount");
+      if (!inputEl) return;
+
+      if (val === "max") {
+        if (dexState.mode === "sell") {
+          inputEl.value = String(Math.max(1000, Math.floor(walletState.efooBalance)));
+        } else {
+          const tok = document.getElementById("swap-input-token")?.value || "EGLD";
+          if (tok === "EGLD") {
+            inputEl.value = String(Math.max(0.01, Number((walletState.egldBalance - 0.015).toFixed(3))));
+          } else if (tok === "WEGLD") {
+            inputEl.value = String(Math.max(0.01, Number(walletState.wegldBalance.toFixed(3))));
+          } else {
+            inputEl.value = String(Math.max(1, Number(walletState.usdcBalance.toFixed(2))));
+          }
+        }
+      } else {
+        inputEl.value = val;
+      }
+      updateSwapEstimate();
+    });
+  });
 }
 
 async function fetchLiveTokenStats() {
@@ -1322,51 +2075,101 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target.id === "wallet-modal-backdrop") closeWalletModal();
   });
 
-  // Wallet Providers inside Modal
+  // 1. xPortal Mobile App (WalletConnect v2 Pairing QR + Deep Link)
   document.getElementById("login-xportal-btn")?.addEventListener("click", () => {
-    document.getElementById("xportal-qr-box")?.classList.toggle("hidden");
+    initXPortalWalletConnect();
   });
 
+  document.getElementById("copy-wc-uri-btn")?.addEventListener("click", () => {
+    if (currentWcUri) {
+      navigator.clipboard.writeText(currentWcUri);
+      const btn = document.getElementById("copy-wc-uri-btn");
+      if (btn) {
+        btn.textContent = "✅ Copied wc: URI!";
+        setTimeout(() => {
+          btn.textContent = "📋 Copy wc: URI";
+        }, 2000);
+      }
+    }
+  });
+
+  // 2. MultiversX DeFi Wallet Extension (erdw-inpage protocol)
+  document.getElementById("login-extension-btn")?.addEventListener("click", () => {
+    connectDefiExtension();
+  });
+
+  // 3. MultiversX Web Wallet (wallet.multiversx.com/hook/login)
   document.getElementById("login-webwallet-btn")?.addEventListener("click", () => {
     window.location.href = getMultiversXLoginHookUrl();
   });
 
-  document.getElementById("login-extension-btn")?.addEventListener("click", async () => {
-    if (window.elrondWallet && typeof window.elrondWallet.request === "function") {
-      try {
-        const res = await window.elrondWallet.request({ method: "connect" });
-        if (res && res.address) {
-          await connectWithWalletAddress(res.address);
-          return;
-        }
-      } catch (e) {
-        console.warn("Extension direct connect fallback to hook:", e);
-      }
-    }
-    window.location.href = getMultiversXLoginHookUrl();
-  });
-
+  // 4. Direct erd1 Address Inspector & Club Treasury Demo
   document.getElementById("login-manual-btn")?.addEventListener("click", () => {
     const val = document.getElementById("manual-erd-input")?.value || "";
-    connectWithWalletAddress(val);
+    connectWithWalletAddress(val, "inspector");
   });
 
-  // Demo Club Owner Wallet buttons
   document.getElementById("modal-demo-owner-btn")?.addEventListener("click", () => {
-    connectWithWalletAddress(CONTRACTS.CLUB_OWNER_DEMO);
+    connectWithWalletAddress(CONTRACTS.CLUB_OWNER_DEMO, "demo");
   });
   document.getElementById("ws-demo-btn")?.addEventListener("click", () => {
-    connectWithWalletAddress(CONTRACTS.CLUB_OWNER_DEMO);
+    connectWithWalletAddress(CONTRACTS.CLUB_OWNER_DEMO, "demo");
+  });
+  document.getElementById("ws-refresh-btn")?.addEventListener("click", () => {
+    if (connectedAddress) fetchConnectedWalletData(connectedAddress);
   });
   document.getElementById("ws-disconnect-btn")?.addEventListener("click", disconnectWallet);
 
-  // Direct Swap & Mint Bindings
+  // DEX Mode Tabs (Buy / Sell) & Flip Button
+  document.querySelectorAll(".dex-tab").forEach((btn) => {
+    btn.addEventListener("click", () => setDexMode(btn.getAttribute("data-dex-mode")));
+  });
+  document.getElementById("swap-flip-btn")?.addEventListener("click", () => {
+    setDexMode(dexState.mode === "buy" ? "sell" : "buy");
+  });
+
+  // Slippage Tolerance Buttons
+  document.querySelectorAll(".slip-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      dexState.slippage = Number(btn.getAttribute("data-slip") || 1);
+      document.querySelectorAll(".slip-btn").forEach((b) => b.classList.toggle("active", b === btn));
+      updateSwapEstimate();
+    });
+  });
+
+  // Quick Amount Buttons & Swap Inputs
+  bindQuickAmountButtons();
   document.getElementById("swap-input-amount")?.addEventListener("input", updateSwapEstimate);
   document.getElementById("swap-input-token")?.addEventListener("change", updateSwapEstimate);
   document.getElementById("direct-swap-btn")?.addEventListener("click", executeDirectSwapOnChain);
   document.getElementById("wrap-egld-btn")?.addEventListener("click", executeWrapEgldOnChain);
+
+  // NFT Minter Quantity Stepper & Mint Buttons
+  document.getElementById("qty-minus-btn")?.addEventListener("click", () => {
+    const inp = document.getElementById("mint-player-qty");
+    if (inp) {
+      inp.value = String(Math.max(1, Number(inp.value || 1) - 1));
+      updatePlayerMintPriceUI();
+    }
+  });
+  document.getElementById("qty-plus-btn")?.addEventListener("click", () => {
+    const inp = document.getElementById("mint-player-qty");
+    if (inp) {
+      inp.value = String(Math.min(10, Number(inp.value || 1) + 1));
+      updatePlayerMintPriceUI();
+    }
+  });
   document.getElementById("mint-player-btn")?.addEventListener("click", executeMintPlayerNft);
   document.getElementById("mint-keeper-btn")?.addEventListener("click", executeMintKeeperNft);
+
+  // Squad Gallery Filter Pills
+  document.querySelectorAll(".sq-filter").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      dexState.squadFilter = btn.getAttribute("data-sq-filter") || "all";
+      document.querySelectorAll(".sq-filter").forEach((b) => b.classList.toggle("active", b === btn));
+      renderOwnedNftsGallery();
+    });
+  });
 
   // EFOO FOMO Penalty Shootout Bindings
   document.getElementById("game-best").textContent = gameState.bestScore.toLocaleString("en-US");
@@ -1442,6 +2245,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setLanguage("en");
   fetchLiveTokenStats();
   fetchLiveDexReserves();
+  fetchShowcaseSquadNfts();
   loadNftFromChain("EFOOTBALL-91a4eb", 619);
 
   if (connectedAddress) {

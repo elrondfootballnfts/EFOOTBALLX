@@ -171,28 +171,38 @@
   <section id="wallet-hub" class="section section-alt">
     <div class="container">
       <div class="section-header">
-        <span class="section-kicker" data-i18n="wh_kicker">⚡ MULTIVERSX WEB3 PLAYER TERMINAL</span>
+        <span class="section-kicker" data-i18n="wh_kicker">⚡ MULTIVERSX WEB3 STADIUM &amp; DEX TERMINAL</span>
         <h2 class="section-title" data-i18n="wh_title">MY LOCKER ROOM, DIRECT $EFOO SWAP &amp; NFT MINTER</h2>
         <p class="section-desc" data-i18n="wh_desc">
-          Connect with <strong>xPortal</strong>, <strong>MultiversX DeFi Extension</strong>, or <strong>Web Wallet</strong> to view your live <code>$EFOO</code> balance, inspect your <code>EFOOTBALL</code> &amp; <code>GOALKEEPER</code> NFTs, buy <code>$EFOO</code> directly, or mint new Squad NFTs on-chain!
+          Connect with <strong>xPortal (WalletConnect v2)</strong>, <strong>MultiversX DeFi Extension</strong>, or <strong>MultiversX Web Wallet</strong> to view your live <code>$EFOO</code> balance, inspect your <code>EFOOTBALL</code> &amp; <code>GOALKEEPER</code> NFTs, swap <code>EGLD / WEGLD / USDC ⇄ $EFOO</code> on-site, or mint Squad NFTs directly from the smart contract!
         </p>
       </div>
 
-      <!-- Connected Wallet Status Bar -->
+      <!-- Connected Wallet Command Bar -->
       <div class="wallet-status-bar" id="wallet-status-bar">
         <div class="ws-left">
-          <span class="ws-dot" id="ws-dot"></span>
-          <div>
-            <div class="ws-title" id="ws-status-title" data-i18n="ws_not_connected">Not Connected — Guest Spectator Mode</div>
-            <div class="ws-sub" id="ws-address-display" data-i18n="ws_connect_prompt">Connect your MultiversX wallet or load the Club Treasury demo wallet to unlock full squad controls.</div>
+          <div class="ws-avatar-wrap">
+            <img src="branding/rebranded/efoo-degen-crest-200x200.png" alt="Club Crest" class="ws-avatar" />
+            <span class="ws-dot" id="ws-dot"></span>
+          </div>
+          <div class="ws-info-block">
+            <div class="ws-title-row">
+              <span class="ws-title" id="ws-status-title" data-i18n="ws_not_connected">Spectator Mode — Wallet Not Connected</span>
+              <span class="ws-provider-pill hidden" id="ws-provider-pill">xPortal</span>
+              <span class="ws-shard-pill hidden" id="ws-shard-pill">Shard 0</span>
+            </div>
+            <div class="ws-sub" id="ws-address-display" data-i18n="ws_connect_prompt">Connect xPortal, DeFi Wallet Extension, or Web Wallet — or preview the Club Treasury wallet below.</div>
           </div>
         </div>
         <div class="ws-actions">
           <button type="button" id="ws-connect-btn" class="btn btn-primary btn-sm">
-            ⚡ <span data-i18n="btn_connect_wallet">Connect xPortal / WebWallet / Extension</span>
+            ⚡ <span data-i18n="btn_connect_wallet">Connect Wallet</span>
           </button>
-          <button type="button" id="ws-demo-btn" class="btn btn-secondary btn-sm" title="Inspect Club Owner Wallet (1.91B EFOO + 13 NFTs)">
-            🏆 <span data-i18n="btn_demo_wallet">Demo: Club Owner Wallet</span>
+          <button type="button" id="ws-demo-btn" class="btn btn-secondary btn-sm" title="Load Club Treasury Wallet (1.91B EFOO + 11 Players + 2 Keepers)">
+            🏆 <span data-i18n="btn_demo_wallet">Demo: Club Treasury</span>
+          </button>
+          <button type="button" id="ws-refresh-btn" class="btn btn-outline btn-sm hidden" title="Refresh On-Chain Balances">
+            🔄
           </button>
           <button type="button" id="ws-disconnect-btn" class="btn btn-outline btn-sm hidden">
             🚪 <span data-i18n="btn_disconnect">Disconnect</span>
@@ -200,151 +210,259 @@
         </div>
       </div>
 
-      <!-- 4 Live Wallet Balances & Squad Counters -->
+      <!-- 4 Live Wallet Telemetry & Squad Cards -->
       <div class="wallet-balances-grid">
         <div class="wb-card highlight-efoo">
-          <span class="wb-label" data-i18n="wb_efoo_label">⚽ MY $EFOO BALANCE</span>
-          <strong class="wb-val" id="wallet-efoo-bal">—</strong>
-          <small id="wallet-efoo-usd">Ticker: EFOO-8fe2d4</small>
+          <div class="wb-card-top">
+            <span class="wb-label" data-i18n="wb_efoo_label">⚽ MY $EFOO BALANCE</span>
+            <img src="branding/original/assests-2022/logo.png" alt="EFOO" class="wb-mini-icon" />
+          </div>
+          <strong class="wb-val" id="wallet-efoo-bal">0 EFOO</strong>
+          <div class="wb-foot">
+            <small id="wallet-efoo-usd">Ticker: EFOO-8fe2d4</small>
+            <span class="wb-badge" id="wallet-efoo-tier">Spectator</span>
+          </div>
         </div>
+
         <div class="wb-card">
-          <span class="wb-label" data-i18n="wb_egld_label">⚡ MY EGLD &amp; WEGLD</span>
-          <strong class="wb-val" id="wallet-egld-bal">—</strong>
-          <small id="wallet-wegld-bal">WEGLD: 0.00 | USDC: 0.00</small>
+          <div class="wb-card-top">
+            <span class="wb-label" data-i18n="wb_egld_label">⚡ EGLD &amp; DEX TOKENS</span>
+            <span class="wb-token-dot">MultiversX</span>
+          </div>
+          <strong class="wb-val" id="wallet-egld-bal">0.000 EGLD</strong>
+          <div class="wb-foot">
+            <small id="wallet-wegld-bal">WEGLD: 0.000 • USDC: 0.00</small>
+          </div>
         </div>
+
         <div class="wb-card">
-          <span class="wb-label" data-i18n="wb_players_label">👕 MY EFOOTBALL PLAYERS</span>
+          <div class="wb-card-top">
+            <span class="wb-label" data-i18n="wb_players_label">👕 OUTFIELD PLAYERS</span>
+            <img src="branding/original/EFOOTBALL-91a4eb/logo.png" alt="Players" class="wb-mini-icon" />
+          </div>
           <strong class="wb-val" id="wallet-players-count">0 NFTs</strong>
-          <small data-i18n="wb_players_sub">Collection: EFOOTBALL-91a4eb</small>
+          <div class="wb-foot">
+            <small data-i18n="wb_players_sub">EFOOTBALL-91a4eb</small>
+            <span class="wb-badge green">+15% Acc / 2xPts</span>
+          </div>
         </div>
+
         <div class="wb-card">
-          <span class="wb-label" data-i18n="wb_keepers_label">🧤 MY GOALKEEPERS</span>
+          <div class="wb-card-top">
+            <span class="wb-label" data-i18n="wb_keepers_label">🧤 GOALKEEPERS</span>
+            <img src="branding/original/GOALKEEPER-cb9e3e/logo.png" alt="Keepers" class="wb-mini-icon" />
+          </div>
           <strong class="wb-val" id="wallet-keepers-count">0 NFTs</strong>
-          <small id="wallet-ultras-rank" data-i18n="wb_keepers_sub">Collection: GOALKEEPER-cb9e3e</small>
-        </div>
-      </div>
-
-      <!-- Owned NFT Squad Gallery (Appears when wallet holds NFTs or shows preview) -->
-      <div class="my-squad-panel">
-        <div class="my-squad-header">
-          <div>
-            <h3 data-i18n="squad_gallery_title">🏟️ MY ON-CHAIN FOOTBALL &amp; GOALKEEPER NFT SQUAD</h3>
-            <p id="squad-gallery-sub" data-i18n="squad_gallery_sub">Connect your wallet to display your personal EFOOTBALL-91a4eb &amp; GOALKEEPER-cb9e3e NFTs here.</p>
+          <div class="wb-foot">
+            <small id="wallet-ultras-rank" data-i18n="wb_keepers_sub">GOALKEEPER-cb9e3e</small>
+            <span class="wb-badge gold">Save Shield / 3x</span>
           </div>
-          <span class="vip-Multiplier-pill" id="squad-bonus-badge">🎮 Game Bonus: 1.0x Standard</span>
-        </div>
-        <div class="my-squad-grid" id="my-squad-grid">
-          <!-- Populated dynamically with user's owned NFTs -->
         </div>
       </div>
 
-      <!-- Direct On-Site Buy $EFOO & Direct On-Site Mint NFTs -->
+      <!-- Direct On-Site DEX Swap & Official NFT Minter -->
       <div class="trade-mint-grid">
-        <!-- LEFT: Direct Buy $EFOO Terminal -->
-        <div class="terminal-card">
+        <!-- LEFT: High-Craft MultiversX DEX Swap Terminal -->
+        <div class="terminal-card dex-card">
           <div class="terminal-head">
-            <span class="terminal-badge">🟡 ON-CHAIN DEX ROUTER</span>
-            <h3 data-i18n="swap_title">BUY $EFOO DIRECTLY ON-SITE</h3>
-            <p data-i18n="swap_subtitle">Execute an instant on-chain swap via OneDex (`EFOO/WEGLD`) or xExchange (`EFOO/USDC`) smart contracts using your connected wallet.</p>
+            <div class="terminal-top-bar">
+              <span class="terminal-badge">⚡ ON-CHAIN DEX ROUTER</span>
+              <div class="dex-mode-tabs" role="tablist">
+                <button type="button" class="dex-tab active" data-dex-mode="buy" data-i18n="tab_buy_efoo">🟢 Buy $EFOO</button>
+                <button type="button" class="dex-tab" data-dex-mode="sell" data-i18n="tab_sell_efoo">🔴 Sell $EFOO</button>
+              </div>
+            </div>
+            <h3 data-i18n="swap_title">INSTANT $EFOO SWAP TERMINAL</h3>
+            <p data-i18n="swap_subtitle">Swap native <code>EGLD</code> (automatic 2-tx Wrap + Swap), <code>WEGLD</code>, or <code>USDC</code> directly through the verified OneDex &amp; xExchange smart contracts.</p>
           </div>
 
-          <div class="swap-form">
-            <div class="swap-row">
-              <label data-i18n="swap_pay_label">You Pay</label>
-              <div class="swap-input-group">
-                <input type="number" id="swap-input-amount" class="input-field" value="0.1" min="0.001" step="0.05" />
-                <select id="swap-input-token" class="input-field token-select">
-                  <option value="WEGLD">⚡ WEGLD / EGLD (OneDex)</option>
-                  <option value="USDC">💵 USDC (xExchange)</option>
-                </select>
+          <div class="swap-widget-box">
+            <!-- YOU PAY BOX -->
+            <div class="swap-token-box">
+              <div class="swap-box-header">
+                <span data-i18n="swap_pay_label" id="swap-pay-title">YOU PAY</span>
+                <span class="swap-bal-hint" id="swap-pay-balance">Balance: —</span>
+              </div>
+              <div class="swap-box-main">
+                <input type="number" id="swap-input-amount" class="swap-big-input" value="0.1" min="0.001" step="any" placeholder="0.0" />
+                <div id="swap-pay-selector-wrap">
+                  <select id="swap-input-token" class="swap-token-select">
+                    <option value="EGLD">⚡ EGLD (Native)</option>
+                    <option value="WEGLD">🟡 WEGLD (OneDex)</option>
+                    <option value="USDC">💵 USDC (xExchange)</option>
+                  </select>
+                </div>
+                <div id="swap-sell-pill-wrap" class="token-pill-fixed hidden">
+                  <img src="branding/original/assests-2022/logo.png" alt="EFOO" width="20" height="20" />
+                  <span>$EFOO</span>
+                </div>
+              </div>
+              <div class="swap-quick-amounts" id="swap-quick-amounts">
+                <button type="button" class="quick-amt-btn" data-amt="0.1">0.1</button>
+                <button type="button" class="quick-amt-btn" data-amt="0.5">0.5</button>
+                <button type="button" class="quick-amt-btn" data-amt="1">1.0</button>
+                <button type="button" class="quick-amt-btn" data-amt="5">5.0</button>
+                <button type="button" class="quick-amt-btn" data-amt="max">MAX</button>
               </div>
             </div>
 
-            <div class="swap-arrow-divider">⬇️ <span id="swap-rate-label">1 WEGLD ≈ 29,950,000 $EFOO</span></div>
+            <!-- SWAP DIRECTION FLIPPER -->
+            <div class="swap-divider-row">
+              <button type="button" id="swap-flip-btn" class="swap-flip-circle" title="Flip Buy / Sell Direction">⇅</button>
+              <span class="swap-rate-pill" id="swap-rate-label">1 EGLD ≈ 29,950,000 $EFOO</span>
+            </div>
 
-            <div class="swap-row">
-              <label data-i18n="swap_receive_label">You Receive (Estimated $EFOO)</label>
-              <div class="swap-input-group">
-                <input type="text" id="swap-output-efoo" class="input-field readonly-field" value="~2,995,000 EFOO" readonly />
-                <span class="token-pill-fixed">⚽ $EFOO</span>
+            <!-- YOU RECEIVE BOX -->
+            <div class="swap-token-box receive-box">
+              <div class="swap-box-header">
+                <span data-i18n="swap_receive_label">YOU RECEIVE (ESTIMATED)</span>
+                <span class="swap-route-tag" id="swap-route-tag">Route: OneDex SC</span>
+              </div>
+              <div class="swap-box-main">
+                <input type="text" id="swap-output-efoo" class="swap-big-input output-green" value="~2,995,000" readonly />
+                <div id="swap-receive-pill" class="token-pill-fixed">
+                  <img src="branding/original/assests-2022/logo.png" alt="EFOO" width="22" height="22" />
+                  <span id="swap-receive-token-label">$EFOO</span>
+                </div>
+              </div>
+              <div class="swap-slippage-row">
+                <span>Slippage Tolerance:</span>
+                <div class="slippage-pills">
+                  <button type="button" class="slip-btn active" data-slip="1">1%</button>
+                  <button type="button" class="slip-btn" data-slip="3">3%</button>
+                  <button type="button" class="slip-btn" data-slip="5">5%</button>
+                </div>
               </div>
             </div>
 
+            <!-- CONTRACT TELEMETRY -->
             <div class="swap-Pool-info">
-              <span>Pool SC: <code>erd1qqqq...su3sujc</code></span>
-              <span>Slippage: <strong>1% Safe</strong></span>
+              <span id="swap-sc-label">Smart Contract: <code>erd1qqqq...su3sujc</code></span>
+              <span id="swap-tx-mode-note">⚡ Auto-Wrap + Swap (2 Tx)</span>
             </div>
 
+            <!-- SWAP ACTIONS -->
             <div class="terminal-actions">
-              <button type="button" id="direct-swap-btn" class="btn btn-primary full-width">
-                ⚡ <span data-i18n="btn_exec_swap">Sign &amp; Buy $EFOO On-Chain Now</span>
+              <button type="button" id="direct-swap-btn" class="btn btn-primary full-width btn-lg-action">
+                ⚡ <span id="direct-swap-btn-text" data-i18n="btn_exec_swap">Swap EGLD for $EFOO On-Chain</span>
               </button>
               <div class="sub-action-row">
-                <button type="button" id="wrap-egld-btn" class="btn btn-outline btn-sm" title="Convert native EGLD to WEGLD 1:1 on MultiversX Wrapper SC">
-                  🔄 <span data-i18n="btn_wrap_egld">1-Click Wrap EGLD ➔ WEGLD</span>
+                <button type="button" id="wrap-egld-btn" class="btn btn-outline btn-sm" title="Wrap Native EGLD to WEGLD 1:1 on your Shard Wrapper SC">
+                  🔄 <span data-i18n="btn_wrap_egld">Wrap EGLD ➔ WEGLD Only</span>
                 </button>
                 <a href="https://swap.onedex.app/swap?firstToken=EGLD&secondToken=EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
-                  🟡 OneDex UI ↗
+                  🟡 OneDex App ↗
+                </a>
+                <a href="https://xexchange.com/trade?firstToken=USDC-c76f1f&secondToken=EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
+                  🔵 xExchange ↗
                 </a>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- RIGHT: Direct On-Site NFT Minter & Box Office -->
-        <div class="terminal-card">
+        <!-- RIGHT: Official On-Chain NFT Minter & Box Office -->
+        <div class="terminal-card minter-card">
           <div class="terminal-head">
-            <span class="terminal-badge gold">🃏 OFFICIAL MINTER SMART CONTRACT</span>
-            <h3 data-i18n="mint_title">MINT &amp; RECRUIT SQUAD NFTs</h3>
-            <p data-i18n="mint_subtitle">Mint directly from the official EFootball-X Minter contract (<code>erd1qqqq...9evzym</code>) or snipe verified floor players on XOXNO!</p>
+            <div class="terminal-top-bar">
+              <span class="terminal-badge gold">🃏 VERIFIED NFT MINTER SC</span>
+              <a href="https://explorer.multiversx.com/accounts/erd1qqqqqqqqqqqqqpgq78frnmw5sep0q4r2qd96y3d6f6p7ujwcys5s9evzym" target="_blank" rel="noopener noreferrer" class="sc-mini-link">SC: erd1qqqq...9evzym ↗</a>
+            </div>
+            <h3 data-i18n="mint_title">RECRUIT &amp; MINT SQUAD NFTs</h3>
+            <p data-i18n="mint_subtitle">Mint new generative NFTs directly from the official EFootball-X Minter contract or snipe verified floor players on XOXNO Marketplace!</p>
           </div>
 
           <div class="mint-packs-list">
             <!-- Outfield Player Mint Card -->
-            <div class="mint-pack-item">
-              <img src="branding/original/EFOOTBALL-91a4eb/logo.png" alt="Player NFT" class="mint-pack-icon" />
+            <div class="mint-showcase-card">
+              <div class="mint-card-visual">
+                <img src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2FQmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb%2F9734.png&w=240&h=240&fit=cover" alt="EFOOTBALL Player NFT" class="mint-pack-icon" />
+                <span class="mint-rarity-badge">2x SCORE BOOST</span>
+              </div>
               <div class="mint-pack-info">
-                <h4>⚽ EFOOTBALL-91a4eb Outfield Player</h4>
-                <p data-i18n="mint_player_desc">Generative Liga 1 &amp; UCL Striker/Midfielder NFT (+15% Accuracy &amp; 2x Score in EFOO FOMO!)</p>
-                <div class="mint-price-row">
-                  <span class="price-tag">0.08 EGLD / NFT</span>
-                  <select id="mint-player-qty" class="qty-select">
-                    <option value="1">1x Player (0.08 EGLD)</option>
-                    <option value="3">3x Hat-Trick Pack (0.24 EGLD)</option>
-                    <option value="5">5x Ultras Squad (0.40 EGLD)</option>
-                  </select>
+                <div class="mint-title-row">
+                  <h4>⚽ Outfield Player NFT</h4>
+                  <code class="coll-code">EFOOTBALL-91a4eb</code>
+                </div>
+                <p data-i18n="mint_player_desc">Generative Liga 1 &amp; Champions League Striker/Midfielder. Unlocks <strong>+15% Shot Accuracy &amp; 2x Multiplier</strong> in EFOO FOMO!</p>
+                
+                <div class="mint-progress-row">
+                  <div class="mint-progress-labels">
+                    <span>Minted Squad: <strong>628 NFTs</strong></span>
+                    <span class="price-tag" id="player-mint-total-price">0.08 EGLD</span>
+                  </div>
+                  <div class="mint-mini-bar"><div class="mint-mini-fill" style="width: 63%;"></div></div>
+                </div>
+
+                <div class="mint-controls-row">
+                  <div class="qty-stepper" aria-label="Mint Quantity">
+                    <button type="button" class="step-btn" id="qty-minus-btn">−</button>
+                    <input type="number" id="mint-player-qty" value="1" min="1" max="10" readonly />
+                    <button type="button" class="step-btn" id="qty-plus-btn">+</button>
+                  </div>
+                  <button type="button" id="mint-player-btn" class="btn btn-primary btn-sm mint-main-btn">
+                    ⚡ <span data-i18n="btn_mint_player">Mint Player (0.08 EGLD)</span>
+                  </button>
+                  <a href="https://xoxno.com/collection/EFOOTBALL-91a4eb" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" title="Buy on XOXNO Secondary Market">
+                    🛒 XOXNO ↗
+                  </a>
                 </div>
               </div>
-              <button type="button" id="mint-player-btn" class="btn btn-primary btn-sm">
-                ⚡ <span data-i18n="btn_mint_player">Mint Player</span>
-              </button>
             </div>
 
             <!-- Goalkeeper Mint Card -->
-            <div class="mint-pack-item">
-              <img src="branding/original/GOALKEEPER-cb9e3e/logo.png" alt="Goalkeeper NFT" class="mint-pack-icon" />
+            <div class="mint-showcase-card keeper-card">
+              <div class="mint-card-visual">
+                <img src="branding/original/GOALKEEPER-cb9e3e/logo.png" alt="GOALKEEPER NFT" class="mint-pack-icon gold-border" />
+                <span class="mint-rarity-badge gold">ULTRA RARE • 3x</span>
+              </div>
               <div class="mint-pack-info">
-                <h4>🧤 GOALKEEPER-cb9e3e Ultra-Rare Keeper</h4>
-                <p data-i18n="mint_keeper_desc">Only 51 Goalkeepers exist! Unlocks Goalkeeper Save Shield &amp; 3x Multiplier in EFOO FOMO!</p>
-                <div class="mint-price-row">
-                  <span class="price-tag gold-text">0.35 EGLD / NFT</span>
-                  <span class="supply-note">51 Total Supply</span>
+                <div class="mint-title-row">
+                  <h4>🧤 Goalkeeper Titan NFT</h4>
+                  <code class="coll-code gold">GOALKEEPER-cb9e3e</code>
+                </div>
+                <p data-i18n="mint_keeper_desc">Only 51 Goalkeepers in the stadium! Grants <strong>Reflex Save Shield (1 Free Miss Protection) &amp; 3x Score Multiplier</strong>!</p>
+
+                <div class="mint-progress-row">
+                  <div class="mint-progress-labels">
+                    <span>Minted Keepers: <strong>51 / 51 Supply</strong></span>
+                    <span class="price-tag gold-text">0.35 EGLD</span>
+                  </div>
+                  <div class="mint-mini-bar"><div class="mint-mini-fill gold" style="width: 98%;"></div></div>
+                </div>
+
+                <div class="mint-controls-row">
+                  <button type="button" id="mint-keeper-btn" class="btn btn-secondary btn-sm mint-main-btn">
+                    🧤 <span data-i18n="btn_mint_keeper">Mint Keeper (0.35 EGLD)</span>
+                  </button>
+                  <a href="https://xoxno.com/collection/GOALKEEPER-cb9e3e" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+                    🛒 <span data-i18n="btn_xoxno_keepers">Buy on XOXNO ↗</span>
+                  </a>
                 </div>
               </div>
-              <button type="button" id="mint-keeper-btn" class="btn btn-secondary btn-sm">
-                🧤 <span data-i18n="btn_mint_keeper">Mint Keeper</span>
-              </button>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div class="sub-action-row" style="margin-top: 14px;">
-            <a href="https://xoxno.com/collection/EFOOTBALL-91a4eb" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
-              🛒 <span data-i18n="btn_xoxno_players">Buy Players on XOXNO ↗</span>
-            </a>
-            <a href="https://xoxno.com/collection/GOALKEEPER-cb9e3e" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
-              🧤 <span data-i18n="btn_xoxno_keepers">Buy Keepers on XOXNO ↗</span>
-            </a>
+      <!-- Owned NFT Squad Gallery (Always looks sleek — shows user's NFTs or Club Showcase) -->
+      <div class="my-squad-panel">
+        <div class="my-squad-header">
+          <div>
+            <h3 data-i18n="squad_gallery_title">🏟️ MY LOCKER ROOM — ON-CHAIN NFT SQUAD</h3>
+            <p id="squad-gallery-sub" data-i18n="squad_gallery_sub">Connect your wallet to manage your personal EFOOTBALL-91a4eb &amp; GOALKEEPER-cb9e3e NFTs, or click any card to load in the Meme Studio &amp; Penalty Game.</p>
           </div>
+          <div class="squad-header-right">
+            <div class="squad-filter-pills">
+              <button type="button" class="sq-filter active" data-sq-filter="all">All</button>
+              <button type="button" class="sq-filter" data-sq-filter="player">⚽ Players</button>
+              <button type="button" class="sq-filter" data-sq-filter="keeper">🧤 Keepers</button>
+            </div>
+            <span class="vip-Multiplier-pill" id="squad-bonus-badge">🎮 Game Bonus: 1.0x Standard</span>
+          </div>
+        </div>
+        <div class="my-squad-grid" id="my-squad-grid">
+          <!-- Populated dynamically with user's owned NFTs or featured preview -->
         </div>
       </div>
     </div>
@@ -874,46 +992,62 @@
   </footer>
 
   <!-- =====================================================================
-       MULTIVERSX WALLET CONNECT MODAL (xPortal, Web Wallet, Extension, erd1)
+       MULTIVERSX WALLET CONNECT MODAL (xPortal WC v2, DeFi Extension, Web Wallet)
        ===================================================================== -->
   <div id="wallet-modal-backdrop" class="modal-backdrop hidden">
     <div class="wallet-modal">
       <div class="modal-head">
         <div>
-          <span class="section-kicker">⚡ MULTIVERSX AUTHENTICATION</span>
+          <span class="section-kicker">⚡ MULTIVERSX WEB3 AUTHENTICATION</span>
           <h3 data-i18n="modal_title">CONNECT YOUR MULTIVERSX WALLET</h3>
         </div>
-        <button type="button" id="close-wallet-modal-btn" class="modal-close-btn">✕</button>
+        <button type="button" id="close-wallet-modal-btn" class="modal-close-btn" aria-label="Close Modal">✕</button>
       </div>
 
       <p class="modal-desc" data-i18n="modal_desc">
-        Choose how you want to enter the Sunday League Degen FC Locker Room. View your <code>$EFOO</code> &amp; NFTs, sign swaps/mints, and unlock NFT bonuses in EFOO FOMO!
+        Choose your official MultiversX wallet provider to view your live <code>$EFOO</code> &amp; NFTs, sign DEX swaps &amp; NFT mints, and unlock EFOO FOMO perks!
       </p>
 
       <div class="wallet-provider-list">
-        <!-- 1. xPortal App (QR / Official Hook) -->
-        <button type="button" id="login-xportal-btn" class="provider-btn">
+        <!-- 1. xPortal Mobile App (WalletConnect v2) -->
+        <button type="button" id="login-xportal-btn" class="provider-btn highlight-provider">
           <span class="prov-icon">📱</span>
           <div class="prov-text">
-            <strong>xPortal Mobile App (QR / Deep Link)</strong>
-            <small data-i18n="prov_xportal_sub">Scan QR code with xPortal App via MultiversX Gateway</small>
+            <div class="prov-title-row">
+              <strong>xPortal Mobile App</strong>
+              <span class="prov-tag">WalletConnect v2</span>
+            </div>
+            <small data-i18n="prov_xportal_sub">Scan official wc: QR code in xPortal App or tap Deep Link on mobile</small>
           </div>
           <span class="prov-arrow">→</span>
         </button>
 
-        <!-- Toggleable inline QR Preview for xPortal -->
+        <!-- Toggleable inline WalletConnect v2 QR Preview for xPortal -->
         <div id="xportal-qr-box" class="xportal-qr-box hidden">
-          <img id="xportal-qr-img" src="" alt="xPortal Login QR" width="180" height="180" />
-          <p data-i18n="qr_instructions">Scan with your phone camera or xPortal App to open the official MultiversX Login Bridge, or click below:</p>
-          <a id="xportal-bridge-link" href="#" class="btn btn-primary btn-sm">⚡ Open MultiversX xPortal Bridge ↗</a>
+          <div class="wc-status-pill" id="wc-status-pill">⏳ Initializing WalletConnect v2 Relay...</div>
+          <div class="qr-frame">
+            <img id="xportal-qr-img" src="" alt="xPortal WalletConnect v2 QR" width="210" height="210" />
+          </div>
+          <p data-i18n="qr_instructions">Open <strong>xPortal App</strong> on your phone ➔ tap the <strong>QR Scanner icon</strong> (top right) ➔ scan this code and approve connection:</p>
+          <div class="wc-action-btns">
+            <a id="xportal-bridge-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
+              📱 Open in xPortal App (Mobile) ↗
+            </a>
+            <button type="button" id="copy-wc-uri-btn" class="btn btn-outline btn-sm">
+              📋 Copy wc: URI
+            </button>
+          </div>
         </div>
 
         <!-- 2. MultiversX DeFi Wallet Extension -->
         <button type="button" id="login-extension-btn" class="provider-btn">
           <span class="prov-icon">🧩</span>
           <div class="prov-text">
-            <strong>MultiversX DeFi Wallet Extension</strong>
-            <small id="ext-status-sub" data-i18n="prov_ext_sub">Connect Chrome / Brave / Edge Browser Extension</small>
+            <div class="prov-title-row">
+              <strong>MultiversX DeFi Wallet Extension</strong>
+              <span class="prov-tag" id="ext-detect-badge">Browser Ext</span>
+            </div>
+            <small id="ext-status-sub" data-i18n="prov_ext_sub">Connect Chrome / Brave / Edge MultiversX Extension popup</small>
           </div>
           <span class="prov-arrow">→</span>
         </button>
@@ -922,24 +1056,27 @@
         <button type="button" id="login-webwallet-btn" class="provider-btn">
           <span class="prov-icon">🌐</span>
           <div class="prov-text">
-            <strong>MultiversX Web Wallet (wallet.multiversx.com)</strong>
-            <small data-i18n="prov_web_sub">Official redirect login (Keystore, Ledger, Passkey, PEM)</small>
+            <div class="prov-title-row">
+              <strong>MultiversX Web Wallet</strong>
+              <span class="prov-tag">wallet.multiversx.com</span>
+            </div>
+            <small data-i18n="prov_web_sub">Official Web Wallet redirect (Keystore, Ledger, Passkey, PEM, xPortal QR)</small>
           </div>
           <span class="prov-arrow">→</span>
         </button>
       </div>
 
-      <div class="modal-divider"><span data-i18n="modal_or">OR INSTANT WALLET INSPECTOR</span></div>
+      <div class="modal-divider"><span data-i18n="modal_or">OR INSTANT WALLET EXPLORER / DEMO</span></div>
 
       <!-- 4. Direct erd1 Address Input -->
       <div class="direct-erd-box">
-        <label for="manual-erd-input" data-i18n="manual_erd_label">Paste any MultiversX address (<code>erd1...</code>) to load your NFTs &amp; balance instantly:</label>
+        <label for="manual-erd-input" data-i18n="manual_erd_label">Paste any MultiversX address (<code>erd1...</code>) to inspect its NFTs &amp; balance instantly:</label>
         <div class="erd-input-row">
           <input type="text" id="manual-erd-input" class="input-field" placeholder="erd1..." />
           <button type="button" id="login-manual-btn" class="btn btn-secondary btn-sm" data-i18n="btn_load_wallet">Connect</button>
         </div>
         <button type="button" id="modal-demo-owner-btn" class="demo-link-btn">
-          🏆 <span data-i18n="modal_demo_owner">Load Club Owner Wallet (1.91B $EFOO + 11 Players + 2 Keepers)</span>
+          🏆 <span data-i18n="modal_demo_owner">Load Club Treasury Wallet (1.91B $EFOO + 11 Players + 2 Keepers)</span>
         </button>
       </div>
     </div>
