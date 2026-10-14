@@ -551,21 +551,21 @@ body.arcade-body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 24px;
+  margin-bottom: 14px;
 }
 
 .svs-pill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 6px 14px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.16);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   font-weight: 700;
   color: #f1f5f9;
 }
@@ -574,22 +574,147 @@ body.arcade-body {
   color: #a8ff00;
 }
 
+/* ============================================================================
+   WALLET & MINIMUM 1,000,000 $EFOO ENTRY GATE CARD
+   ============================================================================ */
+.entry-gate-card {
+  width: 100%;
+  max-width: 560px;
+  padding: 14px 18px;
+  border-radius: 20px;
+  background: linear-gradient(155deg, rgba(10, 24, 16, 0.94), rgba(4, 10, 7, 0.98));
+  border: 2px solid rgba(255, 184, 0, 0.6);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.75), 0 0 28px rgba(255, 184, 0, 0.18);
+  margin-bottom: 16px;
+  transition: all 0.25s ease;
+}
+
+.entry-gate-card.unlocked {
+  border-color: #a8ff00;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.75), 0 0 32px rgba(168, 255, 0, 0.28);
+}
+
+.entry-gate-card.insufficient {
+  border-color: #ef4444;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.75), 0 0 30px rgba(239, 68, 68, 0.28);
+}
+
+.entry-gate-card.shake {
+  animation: gateShake 0.42s ease;
+}
+
+@keyframes gateShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-7px); }
+  80% { transform: translateX(7px); }
+}
+
+.eg-status-header {
+  margin-bottom: 6px;
+}
+
+.eg-lock-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 184, 0, 0.16);
+  border: 1px solid rgba(255, 184, 0, 0.55);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #ffb800;
+  letter-spacing: 0.03em;
+}
+
+.entry-gate-card.unlocked .eg-lock-badge {
+  background: rgba(168, 255, 0, 0.16);
+  border-color: #a8ff00;
+  color: #a8ff00;
+}
+
+.entry-gate-card.insufficient .eg-lock-badge {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+.eg-wallet-stats {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: #e2e8f0;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.eg-wallet-stats strong {
+  color: #a8ff00;
+}
+
+.eg-buy-offer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 184, 0, 0.08);
+  border: 1px solid rgba(255, 184, 0, 0.35);
+}
+
+.eg-buy-info strong {
+  display: block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+  color: #ffb800;
+  line-height: 1.05;
+}
+
+.eg-buy-info small {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: #cbd5e1;
+  margin-top: 2px;
+}
+
+.eg-buy-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.eg-buy-actions .arcade-btn {
+  padding: 9px 14px;
+  font-size: 0.74rem;
+}
+
 .btn-play-arcade {
-  padding: 18px 54px;
+  padding: 15px 46px;
   border-radius: 999px;
   border: none;
   background: linear-gradient(90deg, #a8ff00 0%, #ffb800 100%);
   color: #040906;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 2.3rem;
+  font-size: 2.1rem;
   letter-spacing: 0.08em;
   cursor: pointer;
   box-shadow: 0 0 45px rgba(168, 255, 0, 0.65);
-  transition: transform 0.18s ease;
+  transition: all 0.18s ease;
 }
 
 .btn-play-arcade:hover {
-  transform: scale(1.06);
+  transform: scale(1.05);
+}
+
+.btn-play-arcade.locked {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.28), rgba(127, 29, 29, 0.45));
+  border: 2px solid #ef4444;
+  color: #fca5a5;
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.3);
 }
 
 /* ============================================================================

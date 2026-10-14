@@ -71,10 +71,10 @@
         <span class="fomo-pot-val" id="fomo-pot-amount">🏆 25,400,000 $EFOO</span>
       </div>
 
-      <!-- Right: God-Mode Preview, Sound, Lang, Wallet -->
+      <!-- Right: Live Verified $EFOO Balance, Sound, Lang, Wallet & Logout -->
       <div class="hud-right-group">
-        <button type="button" id="godmode-toggle-btn" class="btn-godmode" title="Simulate 11 Player NFTs + 2 Keeper NFTs + 1.9B $EFOO">
-          👑 <span id="godmode-label" data-i18n="btn_godmode">TRY 11x NFT GOD-MODE</span>
+        <button type="button" id="hud-efoo-badge" class="btn-godmode" title="Your verified on-chain $EFOO balance (Click to buy $EFOO)">
+          🔥 <span id="hud-efoo-balance-label" data-i18n="hud_no_wallet">MIN 1M $EFOO</span>
         </button>
 
         <button type="button" id="sfx-toggle-btn" class="hud-icon-btn">
@@ -87,6 +87,10 @@
 
         <button type="button" id="open-wallet-modal-btn" class="btn-wallet-pill">
           ⚡ <span id="nav-wallet-label" data-i18n="btn_connect">CONNECT</span>
+        </button>
+
+        <button type="button" id="disconnect-wallet-btn" class="hud-icon-btn hidden" title="Disconnect Wallet">
+          🚪
         </button>
       </div>
     </header>
@@ -152,7 +156,7 @@
     </footer>
 
     <!-- ===================================================================
-         OVERLAY 1: CLEAN ARCADE START SCREEN ("Legyen játék indítás gomb")
+         OVERLAY 1: GATED ARCADE START SCREEN (LOGIN + MIN 1,000,000 $EFOO)
          =================================================================== -->
     <div class="arcade-overlay" id="start-screen-overlay">
       <div class="start-hero-cards">
@@ -179,8 +183,38 @@
         <div class="svs-pill">🏆 <span data-i18n="step_3">Pot: <strong>25,400,000 $EFOO</strong></span></div>
       </div>
 
+      <!-- WALLET & MINIMUM 1,000,000 $EFOO ENTRY GATE CARD -->
+      <div class="entry-gate-card" id="entry-gate-card">
+        <div class="eg-status-header" id="eg-status-header">
+          <span class="eg-lock-badge" id="eg-lock-badge">🔒 ENTRY REQUIREMENT: WALLET LOGIN + MIN. 1,000,000 $EFOO</span>
+        </div>
+
+        <div class="eg-wallet-stats" id="eg-wallet-stats">
+          <span id="eg-wallet-line" data-i18n="gate_connect_desc">Connect your MultiversX wallet to verify your $EFOO balance &amp; Club NFTs.</span>
+        </div>
+
+        <!-- Instant Purchase Box (Always accessible when balance < 1M $EFOO) -->
+        <div class="eg-buy-offer" id="eg-buy-offer">
+          <div class="eg-buy-info">
+            <strong>🔥 INSTANT PASS: ~2,835,000 $EFOO</strong>
+            <small id="eg-buy-sub" data-i18n="gate_buy_sub">Only 0.1 EGLD (~$0.36) • Unlocks Stadium Entry + Flaming Rocket Ball!</small>
+          </div>
+          <div class="eg-buy-actions">
+            <button type="button" id="gate-buy-efoo-btn" class="arcade-btn gold">
+              ⚡ <span data-i18n="btn_buy_gate">BUY ~2.84M $EFOO (0.1 EGLD)</span>
+            </button>
+            <button type="button" id="gate-mint-nft-btn" class="arcade-btn">
+              🃏 <span data-i18n="btn_mint_nft">MINT NFT (0.08 EGLD)</span>
+            </button>
+            <button type="button" id="gate-refresh-btn" class="arcade-btn hidden" title="Re-check Wallet Balance">
+              🔄
+            </button>
+          </div>
+        </div>
+      </div>
+
       <button type="button" id="btn-start-match" class="btn-play-arcade">
-        ⚽ <span data-i18n="btn_play_now">START MATCH</span>
+        ⚡ <span id="btn-start-match-label" data-i18n="btn_connect_to_play">CONNECT WALLET TO PLAY</span>
       </button>
     </div>
 
@@ -396,14 +430,10 @@
           </button>
         </div>
 
-        <div class="manual-wallet-box" style="margin-top:14px;">
-          <div class="manual-input-row">
-            <input type="text" id="manual-erd-input" placeholder="erd1..." autocomplete="off" />
-            <button type="button" id="login-manual-btn" class="btn btn-primary btn-sm">Load</button>
-          </div>
-          <button type="button" id="modal-demo-owner-btn" class="btn btn-outline btn-sm full-width" style="margin-top:8px;">
-            👑 Load Club Whale Wallet (11 Players + 2 Keepers + 1.9B $EFOO)
-          </button>
+        <div class="manual-wallet-box" style="margin-top:14px; text-align:center;">
+          <small style="color:#94a3b8; font-family:'JetBrains Mono',monospace; font-size:0.74rem;">
+            🔒 Verified MultiversX login + min. <strong style="color:#a8ff00;">1,000,000 $EFOO</strong> required to enter the Arena.
+          </small>
         </div>
       </div>
     </div>

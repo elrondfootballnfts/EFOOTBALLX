@@ -741,11 +741,37 @@ function scrollToHeroAct(targetAct) {
 
 function shootHeroMiniPenalty(direction) {
   if (heroMiniShotBusy) return;
+
+  const statusEl = document.getElementById("hfw-shot-status");
+  const isRealWallet =
+    connectedAddress && ["xportal", "extension", "webwallet"].includes(connectedProvider);
+
+  if (!isRealWallet) {
+    if (statusEl) {
+      statusEl.innerHTML =
+        currentLang === "ro"
+          ? "🔒 <strong>AUTENTIFICARE NECESARĂ:</strong> Conectează portofelul MultiversX (minim 1.000.000 $EFOO) pentru a juca!"
+          : "🔒 <strong>LOGIN REQUIRED:</strong> Connect your MultiversX wallet (min. 1,000,000 $EFOO) to play!";
+    }
+    openWalletModal();
+    return;
+  }
+
+  if (walletState.efooBalance < 1000000) {
+    if (statusEl) {
+      statusEl.innerHTML =
+        currentLang === "ro"
+          ? `🔒 <strong>SOLD INSUFICIENT (${Math.floor(walletState.efooBalance).toLocaleString("en-US")} $EFOO):</strong> Minim 1.000.000 $EFOO necesar! <a href="#wallet-hub" style="color:#ffb800;text-decoration:underline;">Cumpără ~2.84M $EFOO (0.1 EGLD) ↓</a>`
+          : `🔒 <strong>INSUFFICIENT $EFOO (${Math.floor(walletState.efooBalance).toLocaleString("en-US")} $EFOO):</strong> Min. 1,000,000 $EFOO required! <a href="#wallet-hub" style="color:#ffb800;text-decoration:underline;">Buy ~2.84M $EFOO (0.1 EGLD) ↓</a>`;
+    }
+    document.getElementById("wallet-hub")?.scrollIntoView({ behavior: "smooth" });
+    return;
+  }
+
   heroMiniShotBusy = true;
 
   const ball = document.getElementById("hfw-ball");
   const keeper = document.getElementById("hfw-keeper");
-  const statusEl = document.getElementById("hfw-shot-status");
 
   const dirs = ["left", "center", "right"];
   const posMap = {

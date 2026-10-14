@@ -2,13 +2,15 @@
 // EFOO FOMO — FULLSCREEN 60FPS 3D-PERSPECTIVE ARCADE ENGINE (game.js)
 // ============================================================================
 
+const MIN_EFOO_REQUIRED = 1000000; // Minimum 1,000,000 $EFOO required to play
+const VALID_WALLET_PROVIDERS = ["xportal", "extension", "webwallet"];
+
 const I18N_GAME = {
   en: {
     btn_exit: "EXIT",
     hud_mult: "BOOST",
     hud_score: "SCORE",
-    btn_godmode: "TRY 11x NFT GOD-MODE",
-    btn_godmode_on: "GOD-MODE: ON (11x)",
+    hud_no_wallet: "MIN 1M $EFOO",
     btn_connect: "CONNECT",
     hint_switch_nft: "🔄 Click to switch NFT",
     aim_prompt: "🎯 POINT IN GOAL • HOLD & RELEASE CLICK (OR SPACE) TO CURVE & SHOOT!",
@@ -16,20 +18,23 @@ const I18N_GAME = {
     step_1: "Aim & Hold to Curve",
     step_2: "More NFTs = <strong>Up to 11x & Radar</strong>",
     step_3: "Pot: <strong>25,400,000 $EFOO</strong>",
+    gate_connect_desc: "Connect your MultiversX wallet to verify your $EFOO balance & Club NFTs.",
+    gate_buy_sub: "Only 0.1 EGLD (~$0.36) • Unlocks Stadium Entry + Flaming Rocket Ball!",
+    btn_buy_gate: "BUY ~2.84M $EFOO (0.1 EGLD)",
+    btn_connect_to_play: "CONNECT WALLET TO PLAY",
     btn_play_now: "START MATCH",
     sum_your_score: "YOUR SCORE",
     sum_with_nfts: "WITH 3+ NFTs & 1M $EFOO",
     btn_play_again: "PLAY AGAIN",
     btn_share_x: "SHARE ON X",
-    btn_buy_3m: "BUY 3M $EFOO (0.1 EGLD)",
+    btn_buy_3m: "BUY ~2.84M $EFOO (0.1 EGLD)",
     btn_mint_nft: "MINT NFT (0.08 EGLD)"
   },
   ro: {
     btn_exit: "IEȘIRE",
     hud_mult: "BOOST",
     hud_score: "SCOR",
-    btn_godmode: "TESTEAZĂ 11x GOD-MODE",
-    btn_godmode_on: "GOD-MODE: ACTIV (11x)",
+    hud_no_wallet: "MIN 1M $EFOO",
     btn_connect: "PORTOFEL",
     hint_switch_nft: "🔄 Click pt. alt NFT",
     aim_prompt: "🎯 ȚINTEȘTE ÎN POARTĂ • ȚINE APĂSAT & ELIBEREAZĂ (CLICK / SPACE) PENTRU ȘUT!",
@@ -37,12 +42,16 @@ const I18N_GAME = {
     step_1: "Țintește & Ține Apăsat",
     step_2: "Mai multe NFT = <strong>11x & Radar</strong>",
     step_3: "Pot: <strong>25,400,000 $EFOO</strong>",
+    gate_connect_desc: "Conectează portofelul MultiversX pentru a verifica soldul $EFOO & NFT-urile.",
+    gate_buy_sub: "Doar 0.1 EGLD (~$0.36) • Deblochează Accesul în Joc + Mingea Rachetă!",
+    btn_buy_gate: "CUMPĂRĂ ~2.84M $EFOO (0.1 EGLD)",
+    btn_connect_to_play: "CONECTEAZĂ PORTOFELUL",
     btn_play_now: "START MECI",
     sum_your_score: "SCORUL TĂU",
     sum_with_nfts: "CU 3+ NFT & 1M $EFOO",
     btn_play_again: "JOACĂ DIN NOU",
     btn_share_x: "DISTRIBUIE PE X",
-    btn_buy_3m: "CUMPĂRĂ 3M $EFOO (0.1 EGLD)",
+    btn_buy_3m: "CUMPĂRĂ ~2.84M $EFOO (0.1 EGLD)",
     btn_mint_nft: "MINTEAZĂ NFT (0.08 EGLD)"
   }
 };
@@ -268,15 +277,25 @@ let connectedAddress = localStorage.getItem("efoo_wallet_address") || "";
 let connectedProvider = localStorage.getItem("efoo_wallet_provider") || "";
 let wcSignClient = null;
 let wcSessionTopic = localStorage.getItem("efoo_wc_topic") || "";
+let pendingGateAction = null; // "buy_efoo" | "mint_nft" | null
+
+// Sanitize any legacy demo/inspector session so only real authenticated wallets work
+if (!VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
+  connectedAddress = "";
+  connectedProvider = "";
+  localStorage.removeItem("efoo_wallet_address");
+  localStorage.removeItem("efoo_wallet_provider");
+}
 
 let walletState = {
+  loading: false,
+  verified: false,
   shard: 0,
   nonce: 0,
   efooBalance: 0,
   playersCount: 0,
   keepersCount: 0,
-  ownedNfts: [],
-  godMode: false
+  ownedNfts: []
 };
 
 let strikerIdx = 0;
@@ -299,13 +318,23 @@ function toCorsUrl(rawUrl, size = 300) {
   return `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}&w=${size}&h=${size}&fit=cover&output=png`;
 }
 
+function canPlayMatch() {
+  return Boolean(
+    connectedAddress &&
+      VALID_WALLET_PROVIDERS.includes(connectedProvider) &&
+      walletState.verified &&
+      !walletState.loading &&
+      walletState.efooBalance >= MIN_EFOO_REQUIRED
+  );
+}
+
 // ============================================================================
 // NFT QUANTITY & TOKEN POWER-UP CALCULATOR
 // ============================================================================
 function getPowers() {
-  const pCount = walletState.godMode ? 11 : walletState.playersCount;
-  const kCount = walletState.godMode ? 2 : walletState.keepersCount;
-  const efoo = walletState.godMode ? 1910000000 : walletState.efooBalance;
+  const pCount = walletState.playersCount;
+  const kCount = walletState.keepersCount;
+  const efoo = walletState.efooBalance;
 
   let winPct = 58;
   let mult = 1.0;
@@ -332,7 +361,7 @@ function getPowers() {
 
   const maxShields = kCount >= 2 ? 2 : kCount >= 1 ? 1 : 0;
   const keeperMult = kCount >= 2 ? 4.0 : kCount >= 1 ? 2.0 : 0;
-  const hasRocket = efoo >= 1000000;
+  const hasRocket = efoo >= MIN_EFOO_REQUIRED;
   const rocketPts = efoo >= 10000000 ? 3000 : hasRocket ? 1000 : 0;
 
   return {
@@ -470,6 +499,111 @@ function updateKeeperAssets(idx) {
   if (introKName) introKName.textContent = activeKeeper.name;
 }
 
+function formatCompactEfoo(val) {
+  if (val >= 1000000) return `${(val / 1000000).toFixed(2)}M`;
+  if (val >= 1000) return `${(val / 1000).toFixed(1)}K`;
+  return Math.floor(val).toLocaleString("en-US");
+}
+
+function updateEntryGateUI() {
+  const card = document.getElementById("entry-gate-card");
+  const badge = document.getElementById("eg-lock-badge");
+  const walletLine = document.getElementById("eg-wallet-line");
+  const refreshBtn = document.getElementById("gate-refresh-btn");
+  const startBtn = document.getElementById("btn-start-match");
+  const disconnectBtn = document.getElementById("disconnect-wallet-btn");
+  const hudEfooBadge = document.getElementById("hud-efoo-badge");
+  const hudEfooLbl = document.getElementById("hud-efoo-balance-label");
+
+  const isRo = currentLang === "ro";
+  const p = getPowers();
+
+  // Top bar wallet & disconnect buttons
+  if (connectedAddress && VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
+    document.getElementById("nav-wallet-label").textContent = shortErd(connectedAddress);
+    disconnectBtn?.classList.remove("hidden");
+    if (hudEfooLbl) {
+      hudEfooLbl.textContent = walletState.loading
+        ? "..."
+        : `${formatCompactEfoo(walletState.efooBalance)} $EFOO`;
+    }
+    hudEfooBadge?.classList.toggle("active", walletState.efooBalance >= MIN_EFOO_REQUIRED);
+  } else {
+    document.getElementById("nav-wallet-label").textContent = I18N_GAME[currentLang].btn_connect;
+    disconnectBtn?.classList.add("hidden");
+    if (hudEfooLbl) hudEfooLbl.textContent = I18N_GAME[currentLang].hud_no_wallet;
+    hudEfooBadge?.classList.remove("active");
+  }
+
+  if (!card || !badge || !walletLine || !startBtn) return;
+
+  // STATE 1: Not logged in
+  if (!connectedAddress || !VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
+    card.classList.remove("unlocked", "insufficient");
+    refreshBtn?.classList.add("hidden");
+    badge.textContent = isRo
+      ? "🔒 CONDIȚIE JOC: AUTENTIFICARE PORTOFEL + MIN. 1.000.000 $EFOO"
+      : "🔒 ENTRY REQUIREMENT: WALLET LOGIN + MIN. 1,000,000 $EFOO";
+    walletLine.innerHTML = isRo
+      ? "Conectează portofelul MultiversX pentru verificarea soldului <strong>$EFOO</strong> și a NFT-urilor."
+      : "Connect your MultiversX wallet to verify your <strong>$EFOO</strong> balance &amp; Club NFTs.";
+    startBtn.classList.remove("locked");
+    startBtn.innerHTML = `⚡ <span>${isRo ? "CONECTEAZĂ PORTOFELUL PENTRU JOC" : "CONNECT WALLET TO PLAY"}</span>`;
+    return;
+  }
+
+  // STATE 2: Logged in, verifying on-chain balance
+  if (walletState.loading || !walletState.verified) {
+    card.classList.remove("unlocked", "insufficient");
+    refreshBtn?.classList.add("hidden");
+    badge.textContent = isRo
+      ? "⏳ SE VERIFICĂ PORTOFELUL PE BLOCKCHAIN..."
+      : "⏳ VERIFYING WALLET ON MULTIVERSX...";
+    walletLine.innerHTML = isRo
+      ? `Portofel: <strong>${shortErd(connectedAddress)}</strong> • Se verifică soldul $EFOO și NFT-urile...`
+      : `Wallet: <strong>${shortErd(connectedAddress)}</strong> • Checking $EFOO balance &amp; NFTs...`;
+    startBtn.classList.add("locked");
+    startBtn.innerHTML = `⏳ <span>${isRo ? "SE VERIFICĂ PORTOFELUL..." : "CHECKING WALLET..."}</span>`;
+    return;
+  }
+
+  refreshBtn?.classList.remove("hidden");
+
+  // STATE 3: Logged in, but balance < 1,000,000 $EFOO
+  if (walletState.efooBalance < MIN_EFOO_REQUIRED) {
+    card.classList.remove("unlocked");
+    card.classList.add("insufficient");
+    const currentFormatted = Math.floor(walletState.efooBalance).toLocaleString("en-US");
+    const missingFormatted = Math.max(1, Math.ceil(MIN_EFOO_REQUIRED - walletState.efooBalance)).toLocaleString("en-US");
+
+    badge.textContent = isRo
+      ? "🔒 ACCES BLOCAT — MINIM 1.000.000 $EFOO NECESAR ÎN PORTOFEL"
+      : "🔒 ENTRY LOCKED — MINIMUM 1,000,000 $EFOO REQUIRED IN WALLET";
+    walletLine.innerHTML = isRo
+      ? `Portofel: <strong>${shortErd(connectedAddress)}</strong> • Sold: <strong style="color:#ef4444;">${currentFormatted} $EFOO</strong> • Lipsesc: <strong style="color:#ffb800;">${missingFormatted} $EFOO</strong>`
+      : `Wallet: <strong>${shortErd(connectedAddress)}</strong> • Balance: <strong style="color:#ef4444;">${currentFormatted} $EFOO</strong> • Needed: <strong style="color:#ffb800;">+${missingFormatted} $EFOO</strong>`;
+
+    startBtn.classList.add("locked");
+    startBtn.innerHTML = `🔒 <span>${isRo ? "BLOCAT — CUMPĂRĂ MIN. 1M $EFOO" : "LOCKED — BUY 1,000,000+ $EFOO TO PLAY"}</span>`;
+    return;
+  }
+
+  // STATE 4: Logged in AND meets >= 1,000,000 $EFOO requirement!
+  card.classList.remove("insufficient");
+  card.classList.add("unlocked");
+  const balFormatted = Math.floor(walletState.efooBalance).toLocaleString("en-US");
+
+  badge.textContent = isRo
+    ? "✅ PORTOFEL VERIFICAT — ACCES DEBLOCAT ÎN ARENĂ!"
+    : "✅ WALLET VERIFIED — STADIUM ACCESS UNLOCKED!";
+  walletLine.innerHTML = isRo
+    ? `Portofel: <strong>${shortErd(connectedAddress)}</strong> • Sold: <strong>${balFormatted} $EFOO</strong> • NFT: <strong>${walletState.playersCount}⚽ ${walletState.keepersCount}🧤 (${p.totalMult.toFixed(1)}x Boost)</strong>`
+    : `Wallet: <strong>${shortErd(connectedAddress)}</strong> • Balance: <strong>${balFormatted} $EFOO</strong> • Squad: <strong>${walletState.playersCount}⚽ ${walletState.keepersCount}🧤 (${p.totalMult.toFixed(1)}x Boost)</strong>`;
+
+  startBtn.classList.remove("locked");
+  startBtn.innerHTML = `⚽ <span>${I18N_GAME[currentLang].btn_play_now}</span>`;
+}
+
 function refreshHudUI() {
   const p = getPowers();
 
@@ -511,12 +645,64 @@ function refreshHudUI() {
   document.getElementById("bt-card-2")?.classList.toggle("active", p.pCount >= 3 && p.pCount <= 5);
   document.getElementById("bt-card-3")?.classList.toggle("active", p.pCount >= 6);
   document.getElementById("bt-card-4")?.classList.toggle("active", p.kCount >= 1);
+
+  updateEntryGateUI();
+}
+
+function triggerGateShake() {
+  const card = document.getElementById("entry-gate-card");
+  if (!card) return;
+  card.classList.remove("shake");
+  void card.offsetWidth;
+  card.classList.add("shake");
 }
 
 // ============================================================================
-// CINEMATIC INTRO & ROUND FLOW
+// CINEMATIC INTRO & ROUND FLOW (STRICTLY GATED BY WALLET + 1,000,000 $EFOO)
 // ============================================================================
 function launchMatchWithIntro() {
+  const isRo = currentLang === "ro";
+
+  // 1. Must be logged in with a real MultiversX wallet
+  if (!connectedAddress || !VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
+    game.phase = "start";
+    document.getElementById("start-screen-overlay")?.classList.remove("hidden");
+    document.getElementById("summary-screen-overlay")?.classList.add("hidden");
+    triggerGateShake();
+    document.getElementById("wallet-modal-backdrop")?.classList.remove("hidden");
+    showToast(
+      isRo
+        ? "🔒 Conectează-ți portofelul MultiversX (minim 1.000.000 $EFOO necesar) pentru a porni jocul!"
+        : "🔒 Please connect your MultiversX wallet (minimum 1,000,000 $EFOO required) to launch the game!"
+    );
+    return;
+  }
+
+  // 2. Wait if wallet balance is still being fetched from blockchain
+  if (walletState.loading || !walletState.verified) {
+    showToast(
+      isRo
+        ? "⏳ Se verifică soldul portofelului pe MultiversX..."
+        : "⏳ Verifying your wallet balance on MultiversX..."
+    );
+    return;
+  }
+
+  // 3. Must hold at least 1,000,000 $EFOO in wallet
+  if (!canPlayMatch()) {
+    game.phase = "start";
+    document.getElementById("start-screen-overlay")?.classList.remove("hidden");
+    document.getElementById("summary-screen-overlay")?.classList.add("hidden");
+    updateEntryGateUI();
+    triggerGateShake();
+    showToast(
+      isRo
+        ? "🔒 Minim 1.000.000 $EFOO necesar în portofel! Apasă pe 'CUMPĂRĂ ~2.84M $EFOO (0.1 EGLD)' pentru deblocare instantă!"
+        : "🔒 Minimum 1,000,000 $EFOO required in your wallet! Click 'BUY ~2.84M $EFOO (0.1 EGLD)' to unlock immediately!"
+    );
+    return;
+  }
+
   document.getElementById("start-screen-overlay")?.classList.add("hidden");
   document.getElementById("summary-screen-overlay")?.classList.add("hidden");
   const introEl = document.getElementById("intro-cinematic-overlay");
@@ -557,6 +743,13 @@ function launchMatchWithIntro() {
 }
 
 function startNextShotRound() {
+  if (!canPlayMatch()) {
+    game.phase = "start";
+    document.getElementById("start-screen-overlay")?.classList.remove("hidden");
+    updateEntryGateUI();
+    return;
+  }
+
   game.phase = "aim";
   game.isCharging = false;
   game.chargePower = 0;
@@ -576,6 +769,7 @@ function startNextShotRound() {
 }
 
 function releaseAndFireShot(finalPower) {
+  if (!canPlayMatch()) return;
   if (game.phase !== "aim" && game.phase !== "charging") return;
   game.phase = "flight";
   game.isCharging = false;
@@ -798,13 +992,14 @@ function initFullscreenStadiumCanvas() {
   }
 
   canvas.addEventListener("mousemove", (e) => {
+    if (!canPlayMatch()) return;
     if (game.phase === "aim" || game.phase === "charging") {
       updateAimFromPointer(e.clientX, e.clientY);
     }
   });
 
   canvas.addEventListener("mousedown", (e) => {
-    if (e.button !== 0) return;
+    if (e.button !== 0 || !canPlayMatch()) return;
     if (game.phase === "aim") {
       updateAimFromPointer(e.clientX, e.clientY);
       game.phase = "charging";
@@ -815,6 +1010,7 @@ function initFullscreenStadiumCanvas() {
   });
 
   window.addEventListener("mouseup", () => {
+    if (!canPlayMatch()) return;
     if (game.phase === "charging" && game.isCharging) {
       releaseAndFireShot(Math.max(0.55, game.chargePower));
     }
@@ -824,6 +1020,7 @@ function initFullscreenStadiumCanvas() {
   canvas.addEventListener(
     "touchstart",
     (e) => {
+      if (!canPlayMatch()) return;
       if (game.phase === "aim" && e.touches[0]) {
         updateAimFromPointer(e.touches[0].clientX, e.touches[0].clientY);
         game.phase = "charging";
@@ -838,6 +1035,7 @@ function initFullscreenStadiumCanvas() {
   canvas.addEventListener(
     "touchmove",
     (e) => {
+      if (!canPlayMatch()) return;
       if ((game.phase === "aim" || game.phase === "charging") && e.touches[0]) {
         updateAimFromPointer(e.touches[0].clientX, e.touches[0].clientY);
       }
@@ -846,6 +1044,7 @@ function initFullscreenStadiumCanvas() {
   );
 
   window.addEventListener("touchend", () => {
+    if (!canPlayMatch()) return;
     if (game.phase === "charging" && game.isCharging) {
       releaseAndFireShot(Math.max(0.58, game.chargePower));
     }
@@ -853,7 +1052,7 @@ function initFullscreenStadiumCanvas() {
 
   // Spacebar support
   window.addEventListener("keydown", (e) => {
-    if (e.code === "Space" && game.phase === "aim") {
+    if (e.code === "Space" && game.phase === "aim" && canPlayMatch()) {
       e.preventDefault();
       game.phase = "charging";
       game.isCharging = true;
@@ -863,7 +1062,7 @@ function initFullscreenStadiumCanvas() {
   });
 
   window.addEventListener("keyup", (e) => {
-    if (e.code === "Space" && game.phase === "charging" && game.isCharging) {
+    if (e.code === "Space" && game.phase === "charging" && game.isCharging && canPlayMatch()) {
       e.preventDefault();
       releaseAndFireShot(Math.max(0.58, game.chargePower));
     }
@@ -1455,6 +1654,15 @@ function strToHex(str) {
     .join("");
 }
 
+function toBase64Data(str) {
+  if (!str) return "";
+  try {
+    return btoa(str);
+  } catch (e) {
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+}
+
 function amountToHex(amountFloat, decimals = 18) {
   const factor = Math.pow(10, Math.min(decimals, 9));
   const scaled = BigInt(Math.round(amountFloat * factor)) * BigInt(Math.pow(10, Math.max(0, decimals - 9)));
@@ -1571,6 +1779,8 @@ async function connectDefiExtension() {
 function connectWithAddress(address, provider = "webwallet") {
   const clean = (address || "").trim();
   if (!clean.startsWith("erd1") || clean.length < 40) return;
+  if (!VALID_WALLET_PROVIDERS.includes(provider)) return;
+
   connectedAddress = clean;
   connectedProvider = provider;
   localStorage.setItem("efoo_wallet_address", clean);
@@ -1580,7 +1790,39 @@ function connectWithAddress(address, provider = "webwallet") {
   fetchWalletNftsAndBalance(clean);
 }
 
+function disconnectWallet() {
+  connectedAddress = "";
+  connectedProvider = "";
+  wcSessionTopic = "";
+  pendingGateAction = null;
+  localStorage.removeItem("efoo_wallet_address");
+  localStorage.removeItem("efoo_wallet_provider");
+  localStorage.removeItem("efoo_wc_topic");
+
+  walletState = {
+    loading: false,
+    verified: false,
+    shard: 0,
+    nonce: 0,
+    efooBalance: 0,
+    playersCount: 0,
+    keepersCount: 0,
+    ownedNfts: []
+  };
+
+  game.phase = "start";
+  document.getElementById("intro-cinematic-overlay")?.classList.add("hidden");
+  document.getElementById("summary-screen-overlay")?.classList.add("hidden");
+  document.getElementById("start-screen-overlay")?.classList.remove("hidden");
+  updateStrikerCardAssets(0);
+  refreshHudUI();
+}
+
 async function fetchWalletNftsAndBalance(address) {
+  if (!address) return;
+  walletState.loading = true;
+  updateEntryGateUI();
+
   try {
     const [accRes, tokRes, pRes, kRes, nftsRes] = await Promise.all([
       fetch(`https://api.multiversx.com/accounts/${address}`),
@@ -1602,33 +1844,200 @@ async function fetchWalletNftsAndBalance(address) {
     walletState.playersCount = pRes.ok ? Number(await pRes.text()) || 0 : 0;
     walletState.keepersCount = kRes.ok ? Number(await kRes.text()) || 0 : 0;
     walletState.ownedNfts = nftsRes.ok ? await nftsRes.json() : [];
+    walletState.verified = true;
+    walletState.loading = false;
 
     const p = getPowers();
     game.shieldsLeft = p.maxShields;
     updateStrikerCardAssets(0);
     refreshHudUI();
+
+    const isRo = currentLang === "ro";
+    if (walletState.efooBalance < MIN_EFOO_REQUIRED) {
+      showToast(
+        isRo
+          ? `🔒 Portofel conectat (${shortErd(address)}), dar ai ${Math.floor(walletState.efooBalance).toLocaleString("en-US")} $EFOO. Minim 1.000.000 $EFOO necesar! Cumpără acum cu 1 click (0.1 EGLD).`
+          : `🔒 Wallet connected (${shortErd(address)}), balance: ${Math.floor(walletState.efooBalance).toLocaleString("en-US")} $EFOO. Minimum 1,000,000 $EFOO required! Click BUY ~2.84M $EFOO (0.1 EGLD) to unlock.`
+      );
+    } else {
+      showToast(
+        isRo
+          ? `✅ Portofel verificat (${Math.floor(walletState.efooBalance).toLocaleString("en-US")} $EFOO)! Jocul este deblocat — apasă START MECI!`
+          : `✅ Wallet verified (${Math.floor(walletState.efooBalance).toLocaleString("en-US")} $EFOO)! Stadium unlocked — click START MATCH!`
+      );
+    }
+
+    if (pendingGateAction === "buy_efoo") {
+      pendingGateAction = null;
+      buy3MEfooOnChain();
+    } else if (pendingGateAction === "mint_nft") {
+      pendingGateAction = null;
+      mintStrikerOnChain();
+    }
   } catch (e) {
     console.warn("Wallet load notice:", e);
+    walletState.loading = false;
+    walletState.verified = true;
+    refreshHudUI();
   }
 }
 
-async function signAndSendTxs(txList) {
-  if (!connectedAddress || connectedProvider === "demo" || connectedProvider === "inspector") {
+async function broadcastSignedTransactions(signedTxs) {
+  const hashes = [];
+  for (const tx of signedTxs) {
+    const payload = {
+      nonce: Number(tx.nonce),
+      value: String(tx.value || "0"),
+      receiver: String(tx.receiver),
+      sender: String(tx.sender),
+      gasPrice: Number(tx.gasPrice || 1000000000),
+      gasLimit: Number(tx.gasLimit),
+      data: tx.dataIsBase64 ? tx.data : toBase64Data(tx.data || ""),
+      chainID: String(tx.chainID || "1"),
+      version: Number(tx.version || 1),
+      signature: String(tx.signature)
+    };
+    if (tx.options !== undefined && tx.options !== null && Number(tx.options) !== 0) {
+      payload.options = Number(tx.options);
+    }
+    if (tx.guardian) payload.guardian = tx.guardian;
+    if (tx.guardianSignature) payload.guardianSignature = tx.guardianSignature;
+
+    const res = await fetch("https://api.multiversx.com/transactions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+      const errBody = await res.text();
+      throw new Error(`MultiversX broadcast error: ${errBody}`);
+    }
+    const resData = await res.json();
+    if (resData.txHash) hashes.push(resData.txHash);
+  }
+  return hashes;
+}
+
+async function signAndSendTxs(txList, actionKey = null) {
+  const isRo = currentLang === "ro";
+  if (!connectedAddress || !VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
+    if (actionKey) pendingGateAction = actionKey;
     document.getElementById("wallet-modal-backdrop")?.classList.remove("hidden");
-    showToast("⚡ Connect your wallet (xPortal, Extension, or Web Wallet) to sign!");
+    showToast(
+      isRo
+        ? "⚡ Conectează-ți portofelul (xPortal, Extensie sau Web Wallet) pentru a cumpăra instant!"
+        : "⚡ Connect your wallet (xPortal, Extension, or Web Wallet) to complete your instant purchase!"
+    );
     return;
   }
+
+  // Refresh latest nonce & shard before signing
+  try {
+    const accRes = await fetch(`https://api.multiversx.com/accounts/${connectedAddress}`);
+    if (accRes.ok) {
+      const a = await accRes.json();
+      walletState.nonce = Number(a.nonce || 0);
+      walletState.shard = Number(a.shard || 0);
+    }
+  } catch (e) {
+    console.warn("Using cached nonce:", e);
+  }
+
+  const preparedTxs = txList.map((tx, idx) => ({
+    nonce: walletState.nonce + idx,
+    value: String(tx.value || "0"),
+    receiver: tx.receiver,
+    sender: connectedAddress,
+    gasPrice: 1000000000,
+    gasLimit: Number(tx.gasLimit || 50000000),
+    data: tx.data || "",
+    chainID: "1",
+    version: 1
+  }));
+
+  // PATH A: xPortal via WalletConnect v2
+  if (connectedProvider === "xportal" && wcSignClient && wcSessionTopic) {
+    try {
+      showToast(
+        isRo
+          ? "📱 Deschide aplicația xPortal pentru a aproba tranzacția..."
+          : "📱 Please check your xPortal Mobile App to approve the transaction..."
+      );
+      if (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "")) {
+        setTimeout(() => {
+          window.location.href = "https://maiar.page.link/?apn=com.elrond.maiar.wallet&isi=1519405832&ibi=com.elrond.maiar.wallet&link=https://xportal.com";
+        }, 250);
+      }
+
+      const wcTxs = preparedTxs.map((t) => ({
+        ...t,
+        data: toBase64Data(t.data)
+      }));
+
+      let signedTxs = [];
+      if (wcTxs.length === 1) {
+        const res = await wcSignClient.request({
+          topic: wcSessionTopic,
+          chainId: "mvx:1",
+          request: {
+            method: "mvx_signTransaction",
+            params: { transaction: wcTxs[0] }
+          }
+        });
+        signedTxs = [{ ...wcTxs[0], ...res, data: wcTxs[0].data, dataIsBase64: true }];
+      } else {
+        const res = await wcSignClient.request({
+          topic: wcSessionTopic,
+          chainId: "mvx:1",
+          request: {
+            method: "mvx_signTransactions",
+            params: { transactions: wcTxs }
+          }
+        });
+        const sigArray = res.signatures || res;
+        signedTxs = wcTxs.map((t, i) => ({
+          ...t,
+          ...(sigArray[i] || {}),
+          data: t.data,
+          dataIsBase64: true
+        }));
+      }
+
+      const hashes = await broadcastSignedTransactions(signedTxs);
+      if (hashes.length > 0) {
+        showToast(
+          isRo
+            ? `✅ Tranzacție trimisă! Se actualizează soldul $EFOO...`
+            : `✅ Transaction broadcasted! Refreshing your $EFOO balance...`,
+          `https://explorer.multiversx.com/transactions/${hashes[0]}`
+        );
+        setTimeout(() => fetchWalletNftsAndBalance(connectedAddress), 4000);
+        setTimeout(() => fetchWalletNftsAndBalance(connectedAddress), 9000);
+      }
+      return;
+    } catch (err) {
+      console.warn("xPortal sign notice:", err);
+      showToast(
+        isRo
+          ? "⚠️ Semnarea în xPortal a fost anulată sau sesiunea a expirat."
+          : "⚠️ xPortal signing cancelled or session expired."
+      );
+      return;
+    }
+  }
+
+  // PATH B: MultiversX Web Wallet Hook
   const params = new URLSearchParams();
-  txList.forEach((tx, idx) => {
-    params.set(`nonce[${idx}]`, String(walletState.nonce + idx));
-    params.set(`value[${idx}]`, String(tx.value || "0"));
+  preparedTxs.forEach((tx, idx) => {
+    params.set(`nonce[${idx}]`, String(tx.nonce));
+    params.set(`value[${idx}]`, String(tx.value));
     params.set(`receiver[${idx}]`, tx.receiver);
-    params.set(`sender[${idx}]`, connectedAddress);
-    params.set(`gasPrice[${idx}]`, "1000000000");
-    params.set(`gasLimit[${idx}]`, String(tx.gasLimit || 50000000));
-    params.set(`data[${idx}]`, tx.data || "");
-    params.set(`chainID[${idx}]`, "1");
-    params.set(`version[${idx}]`, "1");
+    params.set(`sender[${idx}]`, tx.sender);
+    params.set(`gasPrice[${idx}]`, String(tx.gasPrice));
+    params.set(`gasLimit[${idx}]`, String(tx.gasLimit));
+    params.set(`data[${idx}]`, tx.data);
+    params.set(`chainID[${idx}]`, tx.chainID);
+    params.set(`version[${idx}]`, String(tx.version));
   });
   params.set("callbackUrl", getCallbackUrl());
   window.location.href = `https://wallet.multiversx.com/hook/sign?${params.toString()}`;
@@ -1642,20 +2051,26 @@ function buy3MEfooOnChain() {
   const amtHex = amountToHex(amt, 18);
   const funcHex = strToHex("swapMultiTokensFixedInput");
   const efooHex = strToHex("EFOO-8fe2d4");
-  signAndSendTxs([
-    { receiver: wrapper, value: weiStr, gasLimit: 8000000, data: "wrapEgld" },
-    {
-      receiver: CONTRACTS.ONEDEX_PAIR,
-      value: "0",
-      gasLimit: 85000000,
-      data: `ESDTTransfer@${tokenHex}@${amtHex}@${funcHex}@01@@${tokenHex}@${efooHex}`
-    }
-  ]);
+  signAndSendTxs(
+    [
+      { receiver: wrapper, value: weiStr, gasLimit: 8000000, data: "wrapEgld" },
+      {
+        receiver: CONTRACTS.ONEDEX_PAIR,
+        value: "0",
+        gasLimit: 85000000,
+        data: `ESDTTransfer@${tokenHex}@${amtHex}@${funcHex}@01@@${tokenHex}@${efooHex}`
+      }
+    ],
+    "buy_efoo"
+  );
 }
 
 function mintStrikerOnChain() {
   const b = strToHex("1stGenPlayers");
-  signAndSendTxs([{ receiver: CONTRACTS.NFT_MINTER, value: "80000000000000000", gasLimit: 42000000, data: `buy@${b}@${b}@01` }]);
+  signAndSendTxs(
+    [{ receiver: CONTRACTS.NFT_MINTER, value: "80000000000000000", gasLimit: 42000000, data: `buy@${b}@${b}@01` }],
+    "mint_nft"
+  );
 }
 
 function mintKeeperOnChain() {
@@ -1672,6 +2087,58 @@ function kick100kPotOnChain() {
   signAndSendTxs([{ receiver: CONTRACTS.FOMO_RESERVE, value: "0", gasLimit: 1500000, data: `ESDTTransfer@${tHex}@${aHex}` }]);
 }
 
+async function checkUrlWalletCallbacks() {
+  const params = new URLSearchParams(window.location.search);
+  const urlAddr = params.get("address");
+  const status = params.get("walletProviderStatus");
+
+  if (urlAddr && urlAddr.startsWith("erd1")) {
+    connectWithAddress(urlAddr, "webwallet");
+    window.history.replaceState({}, document.title, window.location.pathname);
+    return true;
+  }
+
+  if (status === "transactionsSigned") {
+    const signedList = [];
+    let idx = 0;
+    while (params.has(`nonce[${idx}]`) && params.has(`signature[${idx}]`)) {
+      signedList.push({
+        nonce: Number(params.get(`nonce[${idx}]`)),
+        value: params.get(`value[${idx}]`) || "0",
+        receiver: params.get(`receiver[${idx}]`) || "",
+        sender: params.get(`sender[${idx}]`) || connectedAddress,
+        gasPrice: Number(params.get(`gasPrice[${idx}]`) || 1000000000),
+        gasLimit: Number(params.get(`gasLimit[${idx}]`) || 50000000),
+        data: params.get(`data[${idx}]`) || "",
+        chainID: params.get(`chainID[${idx}]`) || "1",
+        version: Number(params.get(`version[${idx}]`) || 1),
+        signature: params.get(`signature[${idx}]`) || ""
+      });
+      idx++;
+    }
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+    if (signedList.length > 0) {
+      try {
+        const hashes = await broadcastSignedTransactions(signedList);
+        if (hashes.length > 0) {
+          showToast(
+            currentLang === "ro"
+              ? `✅ Cumpărare trimisă pe blockchain! Se actualizează soldul $EFOO...`
+              : `✅ Purchase broadcasted on-chain! Updating your $EFOO balance...`,
+            `https://explorer.multiversx.com/transactions/${hashes[0]}`
+          );
+          setTimeout(() => fetchWalletNftsAndBalance(connectedAddress), 4000);
+          setTimeout(() => fetchWalletNftsAndBalance(connectedAddress), 9000);
+        }
+      } catch (err) {
+        console.warn("Web wallet broadcast error:", err);
+      }
+    }
+  }
+  return false;
+}
+
 function applyLang(lang) {
   currentLang = lang === "ro" ? "ro" : "en";
   localStorage.setItem("efoo_lang", currentLang);
@@ -1681,20 +2148,19 @@ function applyLang(lang) {
     const k = el.getAttribute("data-i18n");
     if (dict[k]) el.innerHTML = dict[k];
   });
+  updateEntryGateUI();
 }
 
 // ============================================================================
 // INIT & BINDINGS
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
-  const urlAddr = new URLSearchParams(window.location.search).get("address");
-  if (urlAddr && urlAddr.startsWith("erd1")) {
-    connectWithAddress(urlAddr, "webwallet");
-    window.history.replaceState({}, document.title, window.location.pathname);
-  } else if (connectedAddress) {
-    document.getElementById("nav-wallet-label").textContent = shortErd(connectedAddress);
-    fetchWalletNftsAndBalance(connectedAddress);
-  }
+  checkUrlWalletCallbacks().then((handledLogin) => {
+    if (!handledLogin && connectedAddress && VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
+      document.getElementById("nav-wallet-label").textContent = shortErd(connectedAddress);
+      fetchWalletNftsAndBalance(connectedAddress);
+    }
+  });
 
   updateStrikerCardAssets(0);
   updateKeeperAssets(0);
@@ -1705,6 +2171,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // Start, Replay & Close Summary buttons
   const closeSummaryModal = () => {
     document.getElementById("summary-screen-overlay")?.classList.add("hidden");
+    if (!canPlayMatch()) {
+      game.phase = "start";
+      document.getElementById("start-screen-overlay")?.classList.remove("hidden");
+      updateEntryGateUI();
+      return;
+    }
     const p = getPowers();
     game.round = 1;
     game.shotHistory = [];
@@ -1730,21 +2202,13 @@ document.addEventListener("DOMContentLoaded", () => {
     updateStrikerCardAssets(strikerIdx + 1);
   });
 
-  // God-Mode Toggle (Simulates 11 NFTs + 2 Keepers + 1.9B $EFOO)
-  document.getElementById("godmode-toggle-btn")?.addEventListener("click", () => {
-    walletState.godMode = !walletState.godMode;
-    const btn = document.getElementById("godmode-toggle-btn");
-    const lbl = document.getElementById("godmode-label");
-    btn?.classList.toggle("active", walletState.godMode);
-    if (lbl) {
-      lbl.textContent = walletState.godMode
-        ? I18N_GAME[currentLang].btn_godmode_on
-        : I18N_GAME[currentLang].btn_godmode;
-    }
-    const p = getPowers();
-    game.shieldsLeft = p.maxShields;
-    refreshHudUI();
+  // Top bar $EFOO balance pill opens Boost/Buy modal or triggers buy
+  document.getElementById("hud-efoo-badge")?.addEventListener("click", () => {
+    document.getElementById("boost-modal-overlay")?.classList.remove("hidden");
   });
+
+  // Disconnect Wallet button
+  document.getElementById("disconnect-wallet-btn")?.addEventListener("click", disconnectWallet);
 
   // Sound & Language Toggles
   document.getElementById("sfx-toggle-btn")?.addEventListener("click", () => {
@@ -1775,6 +2239,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Start Screen Entry Gate Instant Purchase & Refresh Buttons
+  document.getElementById("gate-buy-efoo-btn")?.addEventListener("click", buy3MEfooOnChain);
+  document.getElementById("gate-mint-nft-btn")?.addEventListener("click", mintStrikerOnChain);
+  document.getElementById("gate-refresh-btn")?.addEventListener("click", () => {
+    if (connectedAddress) fetchWalletNftsAndBalance(connectedAddress);
+  });
+
   // Store & Summary Actions
   document.getElementById("modal-buy-efoo-btn")?.addEventListener("click", buy3MEfooOnChain);
   document.getElementById("btn-sum-buy")?.addEventListener("click", buy3MEfooOnChain);
@@ -1801,12 +2272,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("login-extension-btn")?.addEventListener("click", connectDefiExtension);
   document.getElementById("login-webwallet-btn")?.addEventListener("click", () => {
     window.location.href = getMultiversXLoginHookUrl();
-  });
-  document.getElementById("login-manual-btn")?.addEventListener("click", () => {
-    connectWithAddress(document.getElementById("manual-erd-input")?.value || "", "inspector");
-  });
-  document.getElementById("modal-demo-owner-btn")?.addEventListener("click", () => {
-    connectWithAddress(CONTRACTS.CLUB_OWNER_DEMO, "demo");
   });
   document.getElementById("tx-toast-close")?.addEventListener("click", () => {
     document.getElementById("tx-toast")?.classList.add("hidden");
