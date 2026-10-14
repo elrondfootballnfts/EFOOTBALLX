@@ -406,8 +406,12 @@ let walletState = {
 let dexState = {
   mode: "buy", // "buy" | "sell"
   slippage: 1,
-  efooPerWegld: 29950000,
-  efooPerUsdc: 8050000,
+  efooPerWegld: 30004200,
+  efooPerUsdc: 8100300,
+  onedexEfooReserve: 62137838,
+  onedexWegldReserve: 2.071,
+  xexEfooReserve: 185570612,
+  xexUsdcReserve: 22.909,
   squadFilter: "all"
 };
 
@@ -1779,25 +1783,85 @@ function renderOwnedNftsGallery() {
 // ============================================================================
 // DIRECT ON-SITE SWAP (BUY / SELL / AUTO-WRAP) & ON-CHAIN NFT MINTER
 // ============================================================================
+function decodeBase64BigInt(b64) {
+  if (!b64) return 0n;
+  const bin = atob(b64);
+  if (!bin.length) return 0n;
+  let hex = "";
+  for (let i = 0; i < bin.length; i++) {
+    hex += bin.charCodeAt(i).toString(16).padStart(2, "0");
+  }
+  return BigInt("0x" + hex);
+}
+
 async function fetchLiveDexReserves() {
   try {
-    const res = await fetch(
-      `https://api.multiversx.com/accounts/${CONTRACTS.ONEDEX_PAIR}/tokens?identifiers=EFOO-8fe2d4,WEGLD-bd4d79`
+    // 1. Query dedicated xExchange EFOO/USDC Pair SC (erd1qqqq...du5qhw)
+    const xexRes = await fetch(
+      `https://api.multiversx.com/accounts/${CONTRACTS.XEXCHANGE_PAIR}/tokens?identifiers=EFOO-8fe2d4,USDC-c76f1f`
     );
-    if (!res.ok) return;
-    const tokens = await res.json();
-    let efooRes = 0;
-    let wegldRes = 0;
-    tokens.forEach((t) => {
-      if (t.identifier === "EFOO-8fe2d4") efooRes = Number(t.balance) / 1e18;
-      if (t.identifier === "WEGLD-bd4d79") wegldRes = Number(t.balance) / 1e18;
-    });
-    if (efooRes > 0 && wegldRes > 0) {
-      dexState.efooPerWegld = Math.floor(efooRes / wegldRes);
-      updateSwapEstimate();
+    if (xexRes.ok) {
+      const xexTokens = await xexRes.json();
+      let efooXex = 0;
+      let usdcXex = 0;
+      xexTokens.forEach((t) => {
+        if (t.identifier === "EFOO-8fe2d4") efooXex = Number(t.balance) / 1e18;
+        if (t.identifier === "USDC-c76f1f") usdcXex = Number(t.balance) / 1e6;
+      });
+      if (efooXex > 0 && usdcXex > 0) {
+        dexState.xexEfooReserve = efooXex;
+        dexState.xexUsdcReserve = usdcXex;
+        dexState.efooPerUsdc = Math.floor(efooXex / usdcXex);
+      }
     }
+
+    // 2. Query OneDex EFOO-8fe2d4 reserve + VM getAmountOut(WEGLD, EFOO, 1 EGLD)
+    // Note: OneDex SC holds WEGLD for 500+ pools in a single contract, so we query its VM getAmountOut directly!
+    const [onedexTokRes, vmRes] = await Promise.all([
+      fetch(`https://api.multiversx.com/accounts/${CONTRACTS.ONEDEX_PAIR}/tokens?identifiers=EFOO-8fe2d4`),
+      fetch("https://api.multiversx.com/vm-values/query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          scAddress: CONTRACTS.ONEDEX_PAIR,
+          funcName: "getAmountOut",
+          args: [
+            strToHex("WEGLD-bd4d79"),
+            strToHex("EFOO-8fe2d4"),
+            "0de0b6b3a7640000" // 1.0 WEGLD (10^18)
+          ]
+        })
+      })
+    ]);
+
+    if (onedexTokRes.ok) {
+      const odTokens = await onedexTokRes.json();
+      if (odTokens.length > 0 && odTokens[0].identifier === "EFOO-8fe2d4") {
+        const efooOd = Number(odTokens[0].balance) / 1e18;
+        if (efooOd > 0) dexState.onedexEfooReserve = efooOd;
+      }
+    }
+
+    if (vmRes.ok) {
+      const vmJson = await vmRes.json();
+      const retB64 = vmJson?.data?.returnData?.[0];
+      const outWeiFor1Egld = decodeBase64BigInt(retB64);
+      const outEfooFor1Egld = Number(outWeiFor1Egld) / 1e18;
+      if (outEfooFor1Egld > 100000 && dexState.onedexEfooReserve > outEfooFor1Egld) {
+        // Derive exact WEGLD reserve in the EFOO/WEGLD pool from x*y=k (with 1% OneDex fee):
+        // out = R_efoo * 0.99 / (R_wegld + 0.99)  =>  R_wegld = (R_efoo * 0.99 / out) - 0.99
+        const derivedWegldRes = (dexState.onedexEfooReserve * 0.99) / outEfooFor1Egld - 0.99;
+        if (derivedWegldRes > 0.05) {
+          dexState.onedexWegldReserve = derivedWegldRes;
+          dexState.efooPerWegld = Math.floor(dexState.onedexEfooReserve / derivedWegldRes);
+        }
+      }
+    }
+
+    updateSwapEstimate();
   } catch (err) {
     console.warn("Using default DEX rate estimate:", err);
+    updateSwapEstimate();
   }
 }
 
@@ -1858,14 +1922,30 @@ function updateSwapEstimate() {
   const txModeNote = document.getElementById("swap-tx-mode-note");
   const actionBtnText = document.getElementById("direct-swap-btn-text");
 
-  const slipFactor = 1 - dexState.slippage / 100;
-
   if (dexState.mode === "buy") {
-    const rate = tok === "USDC" ? dexState.efooPerUsdc : dexState.efooPerWegld;
-    const estOut = Math.floor(amt * rate * slipFactor);
+    let estOut = 0;
+    let spotRate = 0;
+
+    if (tok === "USDC") {
+      // Constant-Product AMM formula on xExchange EFOO/USDC pool (0.3% fee)
+      spotRate = dexState.efooPerUsdc;
+      const amtInWithFee = amt * 0.997;
+      estOut =
+        amt > 0
+          ? Math.floor((dexState.xexEfooReserve * amtInWithFee) / (dexState.xexUsdcReserve + amtInWithFee))
+          : 0;
+    } else {
+      // Constant-Product AMM formula on OneDex EFOO/WEGLD pool (1% fee)
+      spotRate = dexState.efooPerWegld;
+      const amtInWithFee = amt * 0.99;
+      estOut =
+        amt > 0
+          ? Math.floor((dexState.onedexEfooReserve * amtInWithFee) / (dexState.onedexWegldReserve + amtInWithFee))
+          : 0;
+    }
 
     if (rateLabel) {
-      rateLabel.textContent = `1 ${tok} ≈ ${rate.toLocaleString("en-US")} $EFOO`;
+      rateLabel.textContent = `1 ${tok} ≈ ${spotRate.toLocaleString("en-US")} $EFOO`;
     }
     if (outField) {
       outField.value = `~${estOut.toLocaleString("en-US")} EFOO`;
@@ -1880,7 +1960,10 @@ function updateSwapEstimate() {
       balHint.textContent = `Balance: ${userBal}`;
     }
     if (routeTag) {
-      routeTag.textContent = tok === "USDC" ? "Route: xExchange SC" : "Route: OneDex Pool SC";
+      routeTag.textContent =
+        tok === "USDC"
+          ? "Route: xExchange SC (185.6M EFOO Pool)"
+          : "Route: OneDex Pool SC (62.1M EFOO Pool)";
     }
     if (scLabel) {
       scLabel.innerHTML =
@@ -1901,8 +1984,12 @@ function updateSwapEstimate() {
           : `Swap ${amt || 0} ${tok} ➔ $EFOO On-Chain`;
     }
   } else {
-    // SELL $EFOO -> Native EGLD
-    const estEgld = (amt / dexState.efooPerWegld) * slipFactor;
+    // SELL $EFOO -> Native EGLD on OneDex AMM
+    const amtInWithFee = amt * 0.99;
+    const estEgld =
+      amt > 0
+        ? (dexState.onedexWegldReserve * amtInWithFee) / (dexState.onedexEfooReserve + amtInWithFee)
+        : 0;
     if (rateLabel) {
       rateLabel.textContent = `${dexState.efooPerWegld.toLocaleString("en-US")} $EFOO ≈ 1 EGLD`;
     }
