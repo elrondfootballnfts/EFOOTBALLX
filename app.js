@@ -984,7 +984,7 @@ async function initXPortalWalletConnect() {
           name: "Sunday League Degen FC ($EFOO)",
           description: "MultiversX Football Meme Coin, DEX Swap, NFT Minter & EFOO FOMO Game",
           url: window.location.origin,
-          icons: ["https://elrondfootballnfts.github.io/EFOOTBALLX/branding/rebranded/efoo-degen-crest-200x200.png"]
+          icons: ["https://efoo.optibase.ro/branding/rebranded/efoo-degen-crest-200x200.png"]
         }
       });
     }
@@ -2399,8 +2399,8 @@ function updateTweetShareLink() {
 
   const text =
     currentLang === "ro"
-      ? `⚽ ${topText} — ${bottomText}!\n\n🔥 92.91% $EFOO ARȘI | 10,328 Holderi pe #MultiversX\n👕 ${currentNftMeta.name}\n🌐 https://elrondfootballnfts.github.io/EFOOTBALLX/\n\n@EFootball_X #EFOO #EGLD`
-      : `⚽ ${topText} — ${bottomText}!\n\n🔥 92.91% $EFOO BURNED | 10,328 Holders on #MultiversX\n👕 ${currentNftMeta.name}\n🌐 https://elrondfootballnfts.github.io/EFOOTBALLX/\n\n@EFootball_X #EFOO #EGLD`;
+      ? `⚽ ${topText} — ${bottomText}!\n\n🔥 92.91% $EFOO ARȘI | 10,328 Holderi pe #MultiversX\n👕 ${currentNftMeta.name}\n🌐 https://efoo.optibase.ro/\n\n@EFootball_X #EFOO #EGLD`
+      : `⚽ ${topText} — ${bottomText}!\n\n🔥 92.91% $EFOO BURNED | 10,328 Holders on #MultiversX\n👕 ${currentNftMeta.name}\n🌐 https://efoo.optibase.ro/\n\n@EFootball_X #EFOO #EGLD`;
 
   tweetBtn.href = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`;
 }
@@ -2632,8 +2632,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("share-score-x-btn")?.addEventListener("click", () => {
     const shareTxt =
       currentLang === "ro"
-        ? `⚽ Am marcat ${gameState.goals} goluri (${gameState.score.toLocaleString()} puncte) în jocul #EFOO FOMO Penalty Shootout pe #MultiversX! 🔥\n\nJoacă acum cu NFT-urile tale: https://elrondfootballnfts.github.io/EFOOTBALLX/#efoo-fomo-game\n@EFootball_X`
-        : `⚽ I just scored ${gameState.goals} goals (${gameState.score.toLocaleString()} pts) in the #EFOO FOMO Penalty Shootout on #MultiversX! 🔥\n\nPlay now with your NFTs: https://elrondfootballnfts.github.io/EFOOTBALLX/#efoo-fomo-game\n@EFootball_X`;
+        ? `⚽ Am marcat ${gameState.goals} goluri (${gameState.score.toLocaleString()} puncte) în jocul #EFOO FOMO Penalty Shootout pe #MultiversX! 🔥\n\nJoacă acum cu NFT-urile tale: https://efoo.optibase.ro/game.html\n@EFootball_X`
+        : `⚽ I just scored ${gameState.goals} goals (${gameState.score.toLocaleString()} pts) in the #EFOO FOMO Penalty Shootout on #MultiversX! 🔥\n\nPlay now with your NFTs: https://efoo.optibase.ro/game.html\n@EFootball_X`;
     window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(shareTxt)}`, "_blank");
   });
 

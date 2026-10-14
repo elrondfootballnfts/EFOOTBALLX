@@ -1510,7 +1510,7 @@ async function initXPortalWalletConnect() {
           name: "EFOO FOMO Arena",
           description: "90+5' Fullscreen NFT Penalty Shootout",
           url: window.location.origin,
-          icons: ["https://elrondfootballnfts.github.io/EFOOTBALLX/branding/original/assests-2022/logo.png"]
+          icons: ["https://efoo.optibase.ro/branding/original/assests-2022/logo.png"]
         }
       });
     }
@@ -1750,7 +1750,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Share on X
   document.getElementById("btn-sum-share")?.addEventListener("click", () => {
     const p = getPowers();
-    const txt = `⚽ Scored ${game.goals} goals & ${game.score.toLocaleString()} pts (${p.totalMult.toFixed(1)}x NFT Boost) in #EFOO FOMO Arena on #MultiversX! 🔥\n\nPlay now: https://elrondfootballnfts.github.io/EFOOTBALLX/game.html\n@EFootball_X`;
+    const txt = `⚽ Scored ${game.goals} goals & ${game.score.toLocaleString()} pts (${p.totalMult.toFixed(1)}x NFT Boost) in #EFOO FOMO Arena on #MultiversX! 🔥\n\nPlay now: https://efoo.optibase.ro/game.html\n@EFootball_X`;
     window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(txt)}`, "_blank");
   });
 
