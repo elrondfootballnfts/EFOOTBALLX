@@ -1079,3 +1079,978 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ==========================================================================
+   WEB3 WALLET LOCKER ROOM, SWAP, MINT & MODAL
+   ========================================================================== */
+.tx-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  background: #0b1e14;
+  border: 2px solid var(--pitch-green);
+  border-radius: 12px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+  font-size: 0.92rem;
+}
+
+.tx-toast a {
+  color: var(--pitch-green);
+  font-weight: 700;
+}
+
+.toast-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+.wallet-status-bar {
+  background: var(--bg-card);
+  border: 1px solid rgba(168, 255, 0, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.ws-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ws-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ff5500;
+  box-shadow: 0 0 10px #ff5500;
+  flex-shrink: 0;
+}
+
+.ws-dot.connected {
+  background: var(--pitch-green);
+  box-shadow: 0 0 12px var(--pitch-green);
+}
+
+.ws-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.ws-sub {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.ws-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wallet-balances-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.wb-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wb-card.highlight-efoo {
+  border-color: var(--pitch-green);
+  background: linear-gradient(145deg, rgba(168, 255, 0, 0.09), rgba(10, 18, 14, 0.95));
+}
+
+.wb-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.wb-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.1rem;
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+.wb-card.highlight-efoo .wb-val {
+  color: var(--pitch-green);
+}
+
+.wb-card small {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* My Squad NFT Gallery */
+.my-squad-panel {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 28px;
+}
+
+.my-squad-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.my-squad-header h3 {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+.my-squad-header p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.vip-Multiplier-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 215, 0, 0.14);
+  color: #ffd700;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+}
+
+.my-squad-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+  gap: 16px;
+}
+
+.squad-nft-card {
+  background: rgba(5, 10, 14, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.squad-nft-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--pitch-green);
+}
+
+.squad-nft-card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: #08120c;
+}
+
+.squad-nft-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.squad-nft-body h4 {
+  font-size: 0.92rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.squad-nft-type {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--pitch-green);
+}
+
+.squad-nft-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.squad-nft-actions button {
+  flex: 1;
+  font-size: 0.74rem;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  border: 1px solid rgba(168, 255, 0, 0.35);
+  background: rgba(168, 255, 0, 0.1);
+  color: #ffffff;
+  transition: background 0.15s ease;
+}
+
+.squad-nft-actions button:hover {
+  background: var(--pitch-green);
+  color: #05080c;
+}
+
+/* Trade & Mint Grid */
+.trade-mint-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.terminal-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.terminal-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--pitch-green);
+  background: rgba(168, 255, 0, 0.12);
+  padding: 4px 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.terminal-badge.gold {
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.12);
+}
+
+.terminal-head h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.9rem;
+  letter-spacing: 0.8px;
+  margin-bottom: 6px;
+}
+
+.terminal-head p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+.swap-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.swap-row label {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.swap-input-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.token-select {
+  max-width: 220px;
+}
+
+.readonly-field {
+  color: var(--pitch-green);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+}
+
+.token-pill-fixed {
+  background: rgba(168, 255, 0, 0.14);
+  border: 1px solid rgba(168, 255, 0, 0.35);
+  color: var(--pitch-green);
+  padding: 11px 16px;
+  border-radius: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.swap-arrow-divider {
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: #ffd700;
+  padding: 4px 0;
+}
+
+.swap-Pool-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  padding: 6px 2px;
+}
+
+.full-width {
+  width: 100%;
+  justify-content: center;
+}
+
+.sub-action-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.sub-action-row > * {
+  flex: 1;
+  justify-content: center;
+}
+
+/* Mint Packs */
+.mint-packs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mint-pack-item {
+  background: rgba(5, 10, 14, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.mint-pack-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid rgba(168, 255, 0, 0.3);
+}
+
+.mint-pack-info {
+  flex: 1;
+}
+
+.mint-pack-info h4 {
+  font-size: 0.98rem;
+  margin-bottom: 4px;
+}
+
+.mint-pack-info p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.mint-price-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.price-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--pitch-green);
+}
+
+.gold-text {
+  color: #ffd700;
+}
+
+.qty-select {
+  background: #0b141a;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.78rem;
+}
+
+.supply-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   PLAYABLE EFOO FOMO PENALTY SHOOTOUT & INJURY TIME POT
+   ========================================================================== */
+.powerups-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.powerup-chip {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0.65;
+  transition: all 0.2s ease;
+}
+
+.powerup-chip.unlocked {
+  opacity: 1;
+  border-color: var(--pitch-green);
+  background: linear-gradient(135deg, rgba(168, 255, 0, 0.12), rgba(10, 20, 14, 0.92));
+  box-shadow: 0 0 20px rgba(168, 255, 0, 0.12);
+}
+
+.perk-icon {
+  font-size: 1.8rem;
+}
+
+.powerup-chip strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.powerup-chip small {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.fomo-game-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 0.85fr;
+  gap: 24px;
+}
+
+.penalty-pitch-card,
+.fomo-pot-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(168, 255, 0, 0.25);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.pitch-scoreboard {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.ps-box {
+  background: rgba(5, 10, 14, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.ps-box.highlight {
+  border-color: #ffd700;
+}
+
+.ps-box span {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.ps-box strong {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.9rem;
+  color: #ffffff;
+}
+
+.ps-box.highlight strong {
+  color: #ffd700;
+}
+
+.goal-arena {
+  background: radial-gradient(circle at 50% 80%, #143822 0%, #07140c 75%, #040906 100%);
+  border: 2px solid rgba(168, 255, 0, 0.3);
+  border-radius: 14px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stadium-crowd-banner {
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #ffd700;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 5px;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  letter-spacing: 1.5px;
+}
+
+.goal-frame {
+  position: relative;
+  width: 92%;
+  height: 250px;
+  margin: 0 auto 75px;
+  border-top: 8px solid #ffffff;
+  border-left: 8px solid #ffffff;
+  border-right: 8px solid #ffffff;
+  border-radius: 6px 6px 0 0;
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6) inset;
+}
+
+.goal-net {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none;
+}
+
+.shot-target {
+  position: absolute;
+  width: 78px;
+  height: 64px;
+  border-radius: 12px;
+  border: 2px dashed rgba(168, 255, 0, 0.75);
+  background: rgba(8, 20, 12, 0.68);
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.shot-target:hover {
+  transform: scale(1.08);
+  background: rgba(168, 255, 0, 0.28);
+  border-color: #ffd700;
+}
+
+.shot-target span {
+  font-size: 1.3rem;
+}
+
+.shot-target small {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--pitch-green);
+}
+
+.target-tl { top: 12px; left: 14px; }
+.target-tr { top: 12px; right: 14px; }
+.target-c  { top: 24px; left: calc(50% - 39px); }
+.target-bl { bottom: 10px; left: 14px; }
+.target-br { bottom: 10px; right: 14px; }
+
+.goalie-sprite {
+  position: absolute;
+  bottom: 6px;
+  left: calc(50% - 45px);
+  width: 90px;
+  height: 90px;
+  z-index: 4;
+  transition: all 0.36s cubic-bezier(0.2, 0.85, 0.35, 1.15);
+  pointer-events: none;
+}
+
+.goalie-sprite img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid #ffd700;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+}
+
+.ball-sprite {
+  position: absolute;
+  bottom: -62px;
+  left: calc(50% - 28px);
+  width: 56px;
+  height: 56px;
+  z-index: 6;
+  transition: all 0.38s cubic-bezier(0.18, 0.89, 0.32, 1.2);
+  pointer-events: none;
+}
+
+.ball-sprite img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 12px rgba(255, 90, 0, 0.65));
+}
+
+.penalty-spot-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: rgba(5, 10, 14, 0.86);
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.active-striker-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.active-striker-pill img {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--pitch-green);
+}
+
+.active-striker-pill span {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.active-striker-pill strong {
+  font-size: 0.9rem;
+  color: var(--pitch-green);
+}
+
+.commentary-box {
+  margin-top: 14px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(168, 255, 0, 0.08);
+  border: 1px solid rgba(168, 255, 0, 0.25);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* FOMO Pot Right Card */
+.fomo-live-tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ff6b00;
+  background: rgba(255, 107, 0, 0.14);
+  padding: 5px 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.fomo-pot-header h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.9rem;
+  margin-bottom: 6px;
+}
+
+.fomo-pot-header p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+.fomo-clock-box {
+  background: rgba(5, 10, 14, 0.9);
+  border: 2px solid #ffd700;
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.clock-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.clock-digits {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3.6rem;
+  color: #ffd700;
+  letter-spacing: 3px;
+  line-height: 1.05;
+  margin: 6px 0;
+}
+
+.pot-amount-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.92rem;
+}
+
+.pot-amount-row strong {
+  color: var(--pitch-green);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.fomo-leader-box {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 0.82rem;
+}
+
+.fomo-leader-box span {
+  display: block;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.fomo-leader-box code {
+  color: #ffffff;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+}
+
+.fomo-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.fomo-rules-mini {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.banner-dl-btns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   WALLET CONNECT MODAL
+   ========================================================================== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 6, 9, 0.82);
+  backdrop-filter: blur(8px);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.wallet-modal {
+  background: #0a1218;
+  border: 1px solid rgba(168, 255, 0, 0.4);
+  border-radius: 18px;
+  max-width: 540px;
+  width: 100%;
+  padding: 28px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+  max-height: 92vh;
+  overflow-y: auto;
+}
+
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.modal-head h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 1px;
+}
+
+.modal-close-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #ffffff;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+.modal-desc {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+.wallet-provider-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.provider-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.provider-btn:hover {
+  border-color: var(--pitch-green);
+  background: rgba(168, 255, 0, 0.09);
+  transform: translateX(3px);
+}
+
+.prov-icon {
+  font-size: 1.6rem;
+}
+
+.prov-text {
+  flex: 1;
+}
+
+.prov-text strong {
+  display: block;
+  font-size: 0.98rem;
+}
+
+.prov-text small {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.prov-arrow {
+  color: var(--pitch-green);
+  font-weight: 700;
+}
+
+.xportal-qr-box {
+  background: rgba(5, 10, 14, 0.95);
+  border: 1px solid rgba(168, 255, 0, 0.35);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.xportal-qr-box img {
+  background: #ffffff;
+  padding: 8px;
+  border-radius: 10px;
+}
+
+.xportal-qr-box p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.modal-divider {
+  text-align: center;
+  margin: 18px 0 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.direct-erd-box label {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.erd-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.demo-link-btn {
+  width: 100%;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px dashed rgba(255, 215, 0, 0.45);
+  color: #ffd700;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.demo-link-btn:hover {
+  background: rgba(255, 215, 0, 0.2);
+}
+
+@media (max-width: 960px) {
+  .wallet-balances-grid,
+  .trade-mint-grid,
+  .powerups-bar,
+  .fomo-game-grid {
+    grid-template-columns: 1fr;
+  }
+  .pitch-scoreboard {
+    grid-template-columns: 1fr 1fr;
+  }
+}

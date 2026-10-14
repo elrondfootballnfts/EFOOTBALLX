@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>$EFOO | Sunday League Degen FC – MultiversX Meme Token</title>
-  <meta name="description" content="Too broke for Champions League, too degen for FIFA. 92.9% Burned, 10,300+ Holders, 679 Verified NFTs on MultiversX. Welcome to Sunday League Degen FC ($EFOO)." />
-  <link rel="icon" type="image/svg+xml" href="branding/rebranded/efoo-degen-crest.svg" />
+  <title>$EFOO | Sunday League Degen FC – MultiversX Meme Token, Web3 Hub & FOMO Game</title>
+  <meta name="description" content="Too broke for Champions League, too degen for FIFA. 92.9% Burned, 10,300+ Holders, 679 Verified NFTs on MultiversX. Connect xPortal/WebWallet, Swap $EFOO, Mint NFTs & Play EFOO FOMO!" />
+  <link rel="icon" type="image/png" href="branding/rebranded/efoo-degen-crest-200x200.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
@@ -18,8 +18,8 @@
       <span>⚽ $EFOO-8fe2d4 ON MULTIVERSX</span>
       <span>🔥 92,915,321,677 EFOO BURNED (92.91%)</span>
       <span>🏟️ 10,328+ DEGEN HOLDERS IN THE STADIUM</span>
-      <span>🍺 NO FAKE iPHONE 14 PROMISES — JUST PURE SUNDAY LEAGUE VIBES</span>
-      <span>🇷🇴 LIGA 1 + CHAMPIONS LEAGUE DEGEN NFTs</span>
+      <span>🧤 CONNECT XPORTAL / DEFI EXTENSION / WEB WALLET</span>
+      <span>🎮 PLAY EFOO FOMO PENALTY SHOOTOUT WITH YOUR NFTs</span>
       <span>🔒 MINTING PERMANENTLY DISABLED (FIXED SUPPLY)</span>
       <span>⚽ $EFOO-8fe2d4 ON MULTIVERSX</span>
       <span>🔥 92,915,321,677 EFOO BURNED (92.91%)</span>
@@ -30,7 +30,7 @@
   <header class="navbar">
     <div class="container nav-inner">
       <a href="#" class="brand">
-        <img src="branding/rebranded/efoo-degen-crest.svg" alt="EFOO Logo" class="brand-logo" />
+        <img src="branding/rebranded/efoo-degen-crest-200x200.png" alt="EFOO Logo" class="brand-logo" />
         <div class="brand-text">
           <span class="brand-title">$EFOO</span>
           <span class="brand-sub" data-i18n="nav_sub">SUNDAY LEAGUE DEGEN FC</span>
@@ -38,10 +38,11 @@
       </a>
 
       <nav class="nav-links">
-        <a href="#var-check" data-i18n="nav_manifesto">VAR Review</a>
-        <a href="#meme-locker" data-i18n="nav_locker">Meme Locker Room</a>
-        <a href="#tokenomics" data-i18n="nav_tokenomics">92.9% Burn</a>
-        <a href="#brand-kit" data-i18n="nav_brandkit">Brand Kit</a>
+        <a href="#wallet-hub" data-i18n="nav_wallethub">🧤 Wallet &amp; Swap/Mint</a>
+        <a href="#efoo-fomo-game" data-i18n="nav_game">⚽ EFOO FOMO Game</a>
+        <a href="#meme-locker" data-i18n="nav_locker">🎨 Meme Studio</a>
+        <a href="#tokenomics" data-i18n="nav_tokenomics">🔥 92.9% Burn</a>
+        <a href="#brand-kit" data-i18n="nav_brandkit">🛡️ Brand Kit</a>
       </nav>
 
       <div class="nav-actions">
@@ -49,12 +50,19 @@
           <button type="button" class="lang-btn active" data-set-lang="en">🇬🇧 EN</button>
           <button type="button" class="lang-btn" data-set-lang="ro">🇷🇴 RO</button>
         </div>
-        <a href="https://swap.onedex.app/swap?firstToken=EGLD&secondToken=EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" data-i18n="nav_buy">
-          ⚽ Buy $EFOO
-        </a>
+        <button type="button" id="open-wallet-modal-btn" class="btn btn-primary btn-sm">
+          ⚡ <span id="nav-wallet-label" data-i18n="nav_connect">Connect Wallet</span>
+        </button>
       </div>
     </div>
   </header>
+
+  <!-- Tx Notification Banner (Shown after Web Wallet / xPortal callback) -->
+  <div id="tx-toast" class="tx-toast hidden">
+    <span id="tx-toast-text">Transaction submitted on MultiversX!</span>
+    <a id="tx-toast-link" href="https://explorer.multiversx.com" target="_blank" rel="noopener noreferrer">View on Explorer ↗</a>
+    <button type="button" id="tx-toast-close" class="toast-close">✕</button>
+  </div>
 
   <!-- Hero Section -->
   <section class="hero">
@@ -63,7 +71,7 @@
       <div class="hero-content">
         <div class="badge-pill">
           <span class="pulse-dot"></span>
-          <span data-i18n="hero_badge">BORN IN 2022 • REBORN AS 100% CULT MEME ON MULTIVERSX</span>
+          <span data-i18n="hero_badge">BORN IN 2022 • REBORN AS 100% CULT MEME &amp; WEB3 CLUB ON MULTIVERSX</span>
         </div>
 
         <h1 class="hero-title" data-i18n="hero_title">
@@ -82,11 +90,11 @@
         </div>
 
         <div class="hero-cta-group">
-          <a href="https://swap.onedex.app/swap?firstToken=EGLD&secondToken=EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
-            🟡 <span data-i18n="cta_onedex">Swap on OneDex (EGLD/EFOO)</span>
+          <a href="#wallet-hub" class="btn btn-primary">
+            ⚡ <span data-i18n="cta_connect_buy">Connect Wallet • Buy $EFOO &amp; Mint NFT</span>
           </a>
-          <a href="https://xexchange.com/trade?firstToken=USDC-c76f1f&secondToken=EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
-            🔵 <span data-i18n="cta_xexchange">Swap on xExchange (USDC/EFOO)</span>
+          <a href="#efoo-fomo-game" class="btn btn-secondary">
+            ⚽ <span data-i18n="cta_play_fomo">Play EFOO FOMO Shootout</span>
           </a>
           <a href="#meme-locker" class="btn btn-outline">
             🎨 <span data-i18n="cta_meme_studio">Open NFT Meme Studio</span>
@@ -101,7 +109,7 @@
             <span class="ovr-badge">99 DEGEN</span>
           </div>
           <div class="player-img-box">
-            <img id="hero-nft-img" src="https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/9734.png" alt="EFOO Degen Player NFT" crossorigin="anonymous" />
+            <img id="hero-nft-img" src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2FQmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb%2F9734.png&w=600&h=600&fit=cover" alt="EFOO Degen Player NFT" />
           </div>
           <div class="player-card-meta">
             <div class="player-name-row">
@@ -157,8 +165,348 @@
     </div>
   </section>
 
+  <!-- =====================================================================
+       WEB3 WALLET LOCKER ROOM, DIRECT ON-SITE EFOO SWAP & NFT MINTER
+       ===================================================================== -->
+  <section id="wallet-hub" class="section section-alt">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-kicker" data-i18n="wh_kicker">⚡ MULTIVERSX WEB3 PLAYER TERMINAL</span>
+        <h2 class="section-title" data-i18n="wh_title">MY LOCKER ROOM, DIRECT $EFOO SWAP &amp; NFT MINTER</h2>
+        <p class="section-desc" data-i18n="wh_desc">
+          Connect with <strong>xPortal</strong>, <strong>MultiversX DeFi Extension</strong>, or <strong>Web Wallet</strong> to view your live <code>$EFOO</code> balance, inspect your <code>EFOOTBALL</code> &amp; <code>GOALKEEPER</code> NFTs, buy <code>$EFOO</code> directly, or mint new Squad NFTs on-chain!
+        </p>
+      </div>
+
+      <!-- Connected Wallet Status Bar -->
+      <div class="wallet-status-bar" id="wallet-status-bar">
+        <div class="ws-left">
+          <span class="ws-dot" id="ws-dot"></span>
+          <div>
+            <div class="ws-title" id="ws-status-title" data-i18n="ws_not_connected">Not Connected — Guest Spectator Mode</div>
+            <div class="ws-sub" id="ws-address-display" data-i18n="ws_connect_prompt">Connect your MultiversX wallet or load the Club Treasury demo wallet to unlock full squad controls.</div>
+          </div>
+        </div>
+        <div class="ws-actions">
+          <button type="button" id="ws-connect-btn" class="btn btn-primary btn-sm">
+            ⚡ <span data-i18n="btn_connect_wallet">Connect xPortal / WebWallet / Extension</span>
+          </button>
+          <button type="button" id="ws-demo-btn" class="btn btn-secondary btn-sm" title="Inspect Club Owner Wallet (1.91B EFOO + 13 NFTs)">
+            🏆 <span data-i18n="btn_demo_wallet">Demo: Club Owner Wallet</span>
+          </button>
+          <button type="button" id="ws-disconnect-btn" class="btn btn-outline btn-sm hidden">
+            🚪 <span data-i18n="btn_disconnect">Disconnect</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 Live Wallet Balances & Squad Counters -->
+      <div class="wallet-balances-grid">
+        <div class="wb-card highlight-efoo">
+          <span class="wb-label" data-i18n="wb_efoo_label">⚽ MY $EFOO BALANCE</span>
+          <strong class="wb-val" id="wallet-efoo-bal">—</strong>
+          <small id="wallet-efoo-usd">Ticker: EFOO-8fe2d4</small>
+        </div>
+        <div class="wb-card">
+          <span class="wb-label" data-i18n="wb_egld_label">⚡ MY EGLD &amp; WEGLD</span>
+          <strong class="wb-val" id="wallet-egld-bal">—</strong>
+          <small id="wallet-wegld-bal">WEGLD: 0.00 | USDC: 0.00</small>
+        </div>
+        <div class="wb-card">
+          <span class="wb-label" data-i18n="wb_players_label">👕 MY EFOOTBALL PLAYERS</span>
+          <strong class="wb-val" id="wallet-players-count">0 NFTs</strong>
+          <small data-i18n="wb_players_sub">Collection: EFOOTBALL-91a4eb</small>
+        </div>
+        <div class="wb-card">
+          <span class="wb-label" data-i18n="wb_keepers_label">🧤 MY GOALKEEPERS</span>
+          <strong class="wb-val" id="wallet-keepers-count">0 NFTs</strong>
+          <small id="wallet-ultras-rank" data-i18n="wb_keepers_sub">Collection: GOALKEEPER-cb9e3e</small>
+        </div>
+      </div>
+
+      <!-- Owned NFT Squad Gallery (Appears when wallet holds NFTs or shows preview) -->
+      <div class="my-squad-panel">
+        <div class="my-squad-header">
+          <div>
+            <h3 data-i18n="squad_gallery_title">🏟️ MY ON-CHAIN FOOTBALL &amp; GOALKEEPER NFT SQUAD</h3>
+            <p id="squad-gallery-sub" data-i18n="squad_gallery_sub">Connect your wallet to display your personal EFOOTBALL-91a4eb &amp; GOALKEEPER-cb9e3e NFTs here.</p>
+          </div>
+          <span class="vip-Multiplier-pill" id="squad-bonus-badge">🎮 Game Bonus: 1.0x Standard</span>
+        </div>
+        <div class="my-squad-grid" id="my-squad-grid">
+          <!-- Populated dynamically with user's owned NFTs -->
+        </div>
+      </div>
+
+      <!-- Direct On-Site Buy $EFOO & Direct On-Site Mint NFTs -->
+      <div class="trade-mint-grid">
+        <!-- LEFT: Direct Buy $EFOO Terminal -->
+        <div class="terminal-card">
+          <div class="terminal-head">
+            <span class="terminal-badge">🟡 ON-CHAIN DEX ROUTER</span>
+            <h3 data-i18n="swap_title">BUY $EFOO DIRECTLY ON-SITE</h3>
+            <p data-i18n="swap_subtitle">Execute an instant on-chain swap via OneDex (`EFOO/WEGLD`) or xExchange (`EFOO/USDC`) smart contracts using your connected wallet.</p>
+          </div>
+
+          <div class="swap-form">
+            <div class="swap-row">
+              <label data-i18n="swap_pay_label">You Pay</label>
+              <div class="swap-input-group">
+                <input type="number" id="swap-input-amount" class="input-field" value="0.1" min="0.001" step="0.05" />
+                <select id="swap-input-token" class="input-field token-select">
+                  <option value="WEGLD">⚡ WEGLD / EGLD (OneDex)</option>
+                  <option value="USDC">💵 USDC (xExchange)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="swap-arrow-divider">⬇️ <span id="swap-rate-label">1 WEGLD ≈ 29,950,000 $EFOO</span></div>
+
+            <div class="swap-row">
+              <label data-i18n="swap_receive_label">You Receive (Estimated $EFOO)</label>
+              <div class="swap-input-group">
+                <input type="text" id="swap-output-efoo" class="input-field readonly-field" value="~2,995,000 EFOO" readonly />
+                <span class="token-pill-fixed">⚽ $EFOO</span>
+              </div>
+            </div>
+
+            <div class="swap-Pool-info">
+              <span>Pool SC: <code>erd1qqqq...su3sujc</code></span>
+              <span>Slippage: <strong>1% Safe</strong></span>
+            </div>
+
+            <div class="terminal-actions">
+              <button type="button" id="direct-swap-btn" class="btn btn-primary full-width">
+                ⚡ <span data-i18n="btn_exec_swap">Sign &amp; Buy $EFOO On-Chain Now</span>
+              </button>
+              <div class="sub-action-row">
+                <button type="button" id="wrap-egld-btn" class="btn btn-outline btn-sm" title="Convert native EGLD to WEGLD 1:1 on MultiversX Wrapper SC">
+                  🔄 <span data-i18n="btn_wrap_egld">1-Click Wrap EGLD ➔ WEGLD</span>
+                </button>
+                <a href="https://swap.onedex.app/swap?firstToken=EGLD&secondToken=EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
+                  🟡 OneDex UI ↗
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Direct On-Site NFT Minter & Box Office -->
+        <div class="terminal-card">
+          <div class="terminal-head">
+            <span class="terminal-badge gold">🃏 OFFICIAL MINTER SMART CONTRACT</span>
+            <h3 data-i18n="mint_title">MINT &amp; RECRUIT SQUAD NFTs</h3>
+            <p data-i18n="mint_subtitle">Mint directly from the official EFootball-X Minter contract (<code>erd1qqqq...9evzym</code>) or snipe verified floor players on XOXNO!</p>
+          </div>
+
+          <div class="mint-packs-list">
+            <!-- Outfield Player Mint Card -->
+            <div class="mint-pack-item">
+              <img src="branding/original/EFOOTBALL-91a4eb/logo.png" alt="Player NFT" class="mint-pack-icon" />
+              <div class="mint-pack-info">
+                <h4>⚽ EFOOTBALL-91a4eb Outfield Player</h4>
+                <p data-i18n="mint_player_desc">Generative Liga 1 &amp; UCL Striker/Midfielder NFT (+15% Accuracy &amp; 2x Score in EFOO FOMO!)</p>
+                <div class="mint-price-row">
+                  <span class="price-tag">0.08 EGLD / NFT</span>
+                  <select id="mint-player-qty" class="qty-select">
+                    <option value="1">1x Player (0.08 EGLD)</option>
+                    <option value="3">3x Hat-Trick Pack (0.24 EGLD)</option>
+                    <option value="5">5x Ultras Squad (0.40 EGLD)</option>
+                  </select>
+                </div>
+              </div>
+              <button type="button" id="mint-player-btn" class="btn btn-primary btn-sm">
+                ⚡ <span data-i18n="btn_mint_player">Mint Player</span>
+              </button>
+            </div>
+
+            <!-- Goalkeeper Mint Card -->
+            <div class="mint-pack-item">
+              <img src="branding/original/GOALKEEPER-cb9e3e/logo.png" alt="Goalkeeper NFT" class="mint-pack-icon" />
+              <div class="mint-pack-info">
+                <h4>🧤 GOALKEEPER-cb9e3e Ultra-Rare Keeper</h4>
+                <p data-i18n="mint_keeper_desc">Only 51 Goalkeepers exist! Unlocks Goalkeeper Save Shield &amp; 3x Multiplier in EFOO FOMO!</p>
+                <div class="mint-price-row">
+                  <span class="price-tag gold-text">0.35 EGLD / NFT</span>
+                  <span class="supply-note">51 Total Supply</span>
+                </div>
+              </div>
+              <button type="button" id="mint-keeper-btn" class="btn btn-secondary btn-sm">
+                🧤 <span data-i18n="btn_mint_keeper">Mint Keeper</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="sub-action-row" style="margin-top: 14px;">
+            <a href="https://xoxno.com/collection/EFOOTBALL-91a4eb" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+              🛒 <span data-i18n="btn_xoxno_players">Buy Players on XOXNO ↗</span>
+            </a>
+            <a href="https://xoxno.com/collection/GOALKEEPER-cb9e3e" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+              🧤 <span data-i18n="btn_xoxno_keepers">Buy Keepers on XOXNO ↗</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       PLAYABLE GAME: EFOO FOMO — 90TH MINUTE PENALTY SHOOTOUT & POT
+       ===================================================================== -->
+  <section id="efoo-fomo-game" class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-kicker" data-i18n="game_kicker">🎮 PLAYABLE UTILITY FOR YOUR NFTs &amp; $EFOO</span>
+        <h2 class="section-title" data-i18n="game_title">EFOO FOMO: 90th-MINUTE PENALTY SHOOTOUT &amp; INJURY TIME POT</h2>
+        <p class="section-desc" data-i18n="game_desc">
+          Your <strong>EFOOTBALL Player NFTs</strong>, <strong>GOALKEEPER NFTs</strong>, and <strong>$EFOO balance</strong> give you real superpowers on the pitch! Score penalties to climb the Ultras Leaderboard, or kick <code>100,000 $EFOO</code> into the 90+5' Injury Time FOMO Pot!
+        </p>
+      </div>
+
+      <!-- Active NFT & Token Power-Up Perks Bar -->
+      <div class="powerups-bar">
+        <div class="powerup-chip" id="perk-player">
+          <span class="perk-icon">👕</span>
+          <div>
+            <strong data-i18n="perk_1_title">Striker NFT Boost</strong>
+            <small id="perk-player-status" data-i18n="perk_1_sub">Hold 1+ Player NFT: +15% Shot Accuracy &amp; 2x Score</small>
+          </div>
+        </div>
+        <div class="powerup-chip" id="perk-keeper">
+          <span class="perk-icon">🧤</span>
+          <div>
+            <strong data-i18n="perk_2_title">Goalkeeper Reflex Shield</strong>
+            <small id="perk-keeper-status" data-i18n="perk_2_sub">Hold 1+ Keeper NFT: 1 Free Save Shield &amp; 3x Score</small>
+          </div>
+        </div>
+        <div class="powerup-chip" id="perk-efoo">
+          <span class="perk-icon">🔥</span>
+          <div>
+            <strong data-i18n="perk_3_title">1M+ $EFOO Rocket Ball</strong>
+            <small id="perk-efoo-status" data-i18n="perk_3_sub">Hold 1M+ $EFOO: Unlocks Flaming Rocket Shot (+500 pts)</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="fomo-game-grid">
+        <!-- LEFT: Interactive Penalty Shootout Pitch -->
+        <div class="penalty-pitch-card">
+          <div class="pitch-scoreboard">
+            <div class="ps-box">
+              <span data-i18n="ps_goals">⚽ GOALS</span>
+              <strong id="game-goals">0</strong>
+            </div>
+            <div class="ps-box">
+              <span data-i18n="ps_streak">🔥 STREAK</span>
+              <strong id="game-streak">0</strong>
+            </div>
+            <div class="ps-box highlight">
+              <span data-i18n="ps_score">🏆 $EFOO SCORE</span>
+              <strong id="game-score">0</strong>
+            </div>
+            <div class="ps-box">
+              <span data-i18n="ps_best">⭐ HIGH SCORE</span>
+              <strong id="game-best">0</strong>
+            </div>
+          </div>
+
+          <!-- Interactive Goal Frame -->
+          <div class="goal-arena" id="goal-arena">
+            <div class="stadium-crowd-banner">SUNDAY LEAGUE ULTRAS ARENA • 92.9% BURN DERBY</div>
+            
+            <div class="goal-frame">
+              <div class="goal-net"></div>
+
+              <!-- 5 Clickable Target Zones -->
+              <button type="button" class="shot-target target-tl" data-shot="tl" title="Shoot Top-Left Vinclu">
+                <span>🎯</span><small>TOP LEFT</small>
+              </button>
+              <button type="button" class="shot-target target-tr" data-shot="tr" title="Shoot Top-Right Vinclu">
+                <span>🎯</span><small>TOP RIGHT</small>
+              </button>
+              <button type="button" class="shot-target target-c" data-shot="c" title="Shoot Center Panenka">
+                <span>🍺</span><small>PANENKA</small>
+              </button>
+              <button type="button" class="shot-target target-bl" data-shot="bl" title="Shoot Bottom-Left Corner">
+                <span>🎯</span><small>LOW LEFT</small>
+              </button>
+              <button type="button" class="shot-target target-br" data-shot="br" title="Shoot Bottom-Right Corner">
+                <span>🎯</span><small>LOW RIGHT</small>
+              </button>
+
+              <!-- Animated Goalkeeper Sprite -->
+              <div class="goalie-sprite" id="goalie-sprite">
+                <img src="branding/original/GOALKEEPER-cb9e3e/logo.png" alt="Goalkeeper" />
+              </div>
+
+              <!-- Animated Rocket Football Sprite -->
+              <div class="ball-sprite" id="ball-sprite">
+                <img src="branding/original/assests-2022/logo.png" alt="Rocket Ball" />
+              </div>
+            </div>
+
+            <!-- Penalty Spot & Active Striker Badge -->
+            <div class="penalty-spot-bar">
+              <div class="active-striker-pill">
+                <img id="active-striker-img" src="branding/original/EFOOTBALL-91a4eb/logo.png" alt="Striker" />
+                <div>
+                  <span data-i18n="active_striker_label">ACTIVE STRIKER ON PITCH:</span>
+                  <strong id="active-striker-name">Sunday League Loan Player #99</strong>
+                </div>
+              </div>
+              <button type="button" id="reset-game-btn" class="btn btn-outline btn-sm">🔄 Reset Match</button>
+            </div>
+          </div>
+
+          <div class="commentary-box" id="game-commentary" data-i18n="game_commentary_init">
+            🎙️ Click any of the 5 🎯 targets in the goal to kick your penalty shot!
+          </div>
+        </div>
+
+        <!-- RIGHT: EFOO FOMO 90+5' Injury Time On-Chain Jackpot -->
+        <div class="fomo-pot-card">
+          <div class="fomo-pot-header">
+            <span class="fomo-live-tag">⏱️ 90+5' INJURY TIME FOMO POT</span>
+            <h3 data-i18n="fomo_pot_title">LAST STRIKER TAKES THE STADIUM POT!</h3>
+            <p data-i18n="fomo_pot_desc">
+              Inspired by Fomo3D: every <strong>100,000 $EFOO</strong> kicked into the pot resets the Injury Time clock back to <code>05:00</code>! When the referee blows the final whistle (<code>00:00</code>), the <strong>Last Striker wins 50% of the Pot</strong> and <strong>50% is burned forever</strong>!
+            </p>
+          </div>
+
+          <div class="fomo-clock-box">
+            <span class="clock-label" data-i18n="fomo_clock_label">⏱️ INJURY TIME REMAINING</span>
+            <div class="clock-digits" id="fomo-countdown">04:42</div>
+            <div class="pot-amount-row">
+              <span data-i18n="fomo_current_pot">🏆 ACTIVE STADIUM POT:</span>
+              <strong id="fomo-pot-amount">25,400,000 $EFOO</strong>
+            </div>
+          </div>
+
+          <div class="fomo-leader-box">
+            <span data-i18n="fomo_last_striker">👟 CURRENT LAST STRIKER (LEADER):</span>
+            <code id="fomo-last-striker">erd1gyw9...96j8gq (ElrondFootball #619)</code>
+          </div>
+
+          <div class="fomo-actions">
+            <button type="button" id="kick-fomo-pot-btn" class="btn btn-primary full-width">
+              🔥 <span data-i18n="btn_kick_fomo">Kick 100,000 $EFOO Into Pot (Reset Clock)</span>
+            </button>
+            <button type="button" id="share-score-x-btn" class="btn btn-secondary full-width">
+              🐦 <span data-i18n="btn_share_score">Share My Penalty Score on X</span>
+            </button>
+          </div>
+
+          <div class="fomo-rules-mini">
+            <div data-i18n="fomo_rule_1">🔥 <strong>50% Mega Burn:</strong> Half of every FOMO pot goes straight to the dead address.</div>
+            <div data-i18n="fomo_rule_2">🃏 <strong>NFT Holder Edge:</strong> Holding 3+ EFOOTBALL NFTs doubles your ticket weight!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- VAR Check: 2022 vs Degen Era Manifesto -->
-  <section id="var-check" class="section">
+  <section id="var-check" class="section section-alt">
     <div class="container">
       <div class="section-header">
         <span class="section-kicker" data-i18n="var_kicker">📺 OFFICIAL VAR REVIEW</span>
@@ -175,7 +523,7 @@
           </div>
           <ul class="var-list">
             <li data-i18n="var_old_1">❌ "Win 1x iPhone 14 for every 1,000 NFTs sold"</li>
-            <li data-i18n="var_old_2">❌ "Complicated passive income APR math & project stocks"</li>
+            <li data-i18n="var_old_2">❌ "Complicated passive income APR math &amp; project stocks"</li>
             <li data-i18n="var_old_3">❌ "Corporate whitepapers nobody ever read"</li>
             <li data-i18n="var_old_4">❌ "Waiting for UEFA or FIFA to call us back"</li>
           </ul>
@@ -188,22 +536,22 @@
           <ul class="var-list">
             <li data-i18n="var_new_1">✅ 92.91% of total supply ALREADY BURNED on-chain</li>
             <li data-i18n="var_new_2">✅ 10,328 wallets already holding $EFOO across MultiversX</li>
-            <li data-i18n="var_new_3">✅ 628 hilarious Liga 1 & UCL Player NFTs + 51 Goalkeepers</li>
-            <li data-i18n="var_new_4">✅ Matchday Goal Burns, sunflower seeds, cold beer & pure football memes</li>
+            <li data-i18n="var_new_3">✅ 628 hilarious Liga 1 &amp; UCL Player NFTs + 51 Goalkeepers</li>
+            <li data-i18n="var_new_4">✅ Web3 Locker Room, On-Site Swap/Mint &amp; EFOO FOMO Shootout</li>
           </ul>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Interactive Locker Room & NFT Meme Generator -->
-  <section id="meme-locker" class="section section-alt">
+  <!-- Interactive Locker Room & NFT Meme Generator (100% CORS-Fixed) -->
+  <section id="meme-locker" class="section">
     <div class="container">
       <div class="section-header">
         <span class="section-kicker" data-i18n="locker_kicker">👕 THE LOCKER ROOM (LIVE ON-CHAIN STUDIO)</span>
         <h2 class="section-title" data-i18n="locker_title">CREATE YOUR SUNDAY LEAGUE $EFOO MEME</h2>
         <p class="section-desc" data-i18n="locker_desc">
-          Pull any real <strong>EFOOTBALL-91a4eb</strong> (#1–#628) or <strong>GOALKEEPER-cb9e3e</strong> (#1–#51) NFT live from the MultiversX blockchain, slap a degen caption on it, and post it on X!
+          Pull any real <strong>EFOOTBALL-91a4eb</strong> (#1–#628) or <strong>GOALKEEPER-cb9e3e</strong> (#1–#51) NFT live from the MultiversX blockchain (or pick directly from your connected wallet!), slap a degen caption on it, and download the PNG!
         </p>
       </div>
 
@@ -211,7 +559,7 @@
         <!-- Controls -->
         <div class="locker-controls">
           <div class="control-group">
-            <label data-i18n="ctrl_collection">1. Select Squad Collection & Number</label>
+            <label data-i18n="ctrl_collection">1. Select Squad Collection &amp; Jersey Number</label>
             <div class="squad-selector">
               <select id="nft-collection-select" class="input-field">
                 <option value="EFOOTBALL-91a4eb" data-i18n="opt_players">⚽ Outfield Players (#1 – #628)</option>
@@ -225,8 +573,8 @@
 
           <div class="nft-traits-panel" id="nft-traits-panel">
             <div class="traits-header">
-              <strong id="loaded-nft-name">ElrondFootball #619</strong>
-              <a id="loaded-nft-link" href="https://explorer.multiversx.com/collections/EFOOTBALL-91a4eb" target="_blank" rel="noopener noreferrer">View on Explorer ↗</a>
+              <strong id="loaded-nft-name">ElrondFootball #619 (EFOOTBALL-91a4eb-026b)</strong>
+              <a id="loaded-nft-link" href="https://explorer.multiversx.com/nfts/EFOOTBALL-91a4eb-026b" target="_blank" rel="noopener noreferrer">View on Explorer ↗</a>
             </div>
             <div class="traits-chips" id="traits-chips">
               <!-- Populated dynamically from MultiversX API -->
@@ -242,12 +590,12 @@
 
           <div class="control-group">
             <label for="meme-top-input" data-i18n="ctrl_top_text">3. Top Text</label>
-            <input type="text" id="meme-top-input" class="input-field" value="WHEN THE COACH SAYS PLAY TIKI-TAKA" maxlength="60" />
+            <input type="text" id="meme-top-input" class="input-field" value="PROMISED AN IPHONE 14 IN 2022" maxlength="60" />
           </div>
 
           <div class="control-group">
             <label for="meme-bottom-input" data-i18n="ctrl_bottom_text">4. Bottom Text</label>
-            <input type="text" id="meme-bottom-input" class="input-field" value="BUT YOU ARE ALL-IN ON $EFOO AT 99% BURN" maxlength="60" />
+            <input type="text" id="meme-bottom-input" class="input-field" value="STAYED FOR THE 92.9% BURN & WARM BEER" maxlength="60" />
           </div>
 
           <div class="locker-action-row">
@@ -272,7 +620,7 @@
   </section>
 
   <!-- Tokenomics & The 92.9% Mega Burn -->
-  <section id="tokenomics" class="section">
+  <section id="tokenomics" class="section section-alt">
     <div class="container">
       <div class="section-header">
         <span class="section-kicker" data-i18n="tok_kicker">🔥 DEFLATIONARY DEGENOMICS</span>
@@ -317,8 +665,121 @@
           <div class="feature-icon">🃏</div>
           <h3 data-i18n="feat_3_title">Ultras NFT VIP Club</h3>
           <p data-i18n="feat_3_desc">
-            Holding 3+ EFOOTBALL Player NFTs or 1+ Goalkeeper NFT makes you part of the Sunday League Board: vote on which match triggers the next burn & join meme raids!
+            Holding 3+ EFOOTBALL Player NFTs or 1+ Goalkeeper NFT makes you part of the Sunday League Board: unlock 3x multipliers in EFOO FOMO &amp; vote on Goal Burn matches!
           </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Official Brand & GitHub mx-assets Rebranding Kit -->
+  <section id="brand-kit" class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-kicker" data-i18n="brand_kicker">🎨 OFFICIAL BRAND &amp; GITHUB MX-ASSETS KIT</span>
+        <h2 class="section-title" data-i18n="brand_title">THE ROCKET BALL &amp; SUNDAY LEAGUE IDENTITY</h2>
+        <p class="section-desc" data-i18n="brand_desc">
+          High-resolution PNG &amp; Vector SVG assets ready for X (Twitter), Linktree, xPortal, and MultiversX Explorer!
+        </p>
+      </div>
+
+      <!-- X / Twitter 1500x500 Banner Showcase (High-Res PNG) -->
+      <div class="banner-showcase-card">
+        <div class="banner-showcase-head">
+          <div>
+            <h3 data-i18n="brand_banner_title">Official X (Twitter) &amp; Community Header Banner (1500×500 PNG &amp; SVG)</h3>
+            <p data-i18n="brand_banner_sub">High-Res Rocket-Flaming Football + Bilingual EN/RO Sunday League Degen FC Tagline</p>
+          </div>
+          <div class="banner-dl-btns">
+            <a href="branding/rebranded/x-header-banner-1500x500.png" download="EFOO-X-Header-1500x500.png" class="btn btn-primary btn-sm">
+              ⬇️ <span data-i18n="btn_dl_banner_png">Download 1500×500 PNG (For X/Twitter)</span>
+            </a>
+            <a href="branding/rebranded/x-header-banner.svg" download="EFOO-X-Header-Banner.svg" class="btn btn-outline btn-sm">
+              ⬇️ SVG
+            </a>
+          </div>
+        </div>
+        <div class="banner-preview-frame">
+          <img src="branding/rebranded/x-header-banner-1500x500.png" alt="EFOO Sunday League Degen FC 1500x500 Banner" />
+        </div>
+      </div>
+
+      <!-- Logos & MultiversX mx-assets Grid -->
+      <div class="brand-assets-grid">
+        <div class="brand-asset-card">
+          <div class="brand-logo-preview dark-checker">
+            <img src="branding/rebranded/efoo-degen-crest-512x512.png" alt="Sunday League Degen FC Crest" />
+          </div>
+          <h4>$EFOO Degen FC Crest</h4>
+          <p data-i18n="asset_crest_desc">Rebranded Dark Neon Stadium Crest with the original Rocket Football &amp; Degen FC badge.</p>
+          <div class="asset-links">
+            <a href="branding/rebranded/efoo-degen-crest-512x512.png" download="EFOO-Degen-Crest-512.png" class="pill-link">512×512 PNG</a>
+            <a href="branding/rebranded/efoo-degen-crest-200x200.png" download="EFOO-Degen-Crest-200.png" class="pill-link">200×200 PNG</a>
+            <a href="branding/rebranded/efoo-degen-crest.svg" download="EFOO-Degen-Crest.svg" class="pill-link">SVG</a>
+          </div>
+        </div>
+
+        <div class="brand-asset-card">
+          <div class="brand-logo-preview dark-checker">
+            <img src="branding/original/assests-2022/logo.png" alt="EFOO-8fe2d4 Rocket Ball" />
+          </div>
+          <h4>EFOO-8fe2d4 (Token Logo)</h4>
+          <p data-i18n="asset_efoo_desc">Original iconic Rocket-Flaming Football from <code>mx-assets</code> (PR #4811).</p>
+          <div class="asset-links">
+            <a href="branding/original/assests-2022/logo.png" download="EFOO-highres.png" class="pill-link">High-Res PNG</a>
+            <a href="branding/original/EFOO-8fe2d4/logo.svg" download="EFOO-logo.svg" class="pill-link">logo.svg</a>
+            <a href="branding/mx-assets-rebrand/tokens/EFOO-8fe2d4/info.json" target="_blank" class="pill-link">info.json</a>
+          </div>
+        </div>
+
+        <div class="brand-asset-card">
+          <div class="brand-logo-preview dark-checker">
+            <img src="branding/original/EFOOTBALL-91a4eb/logo.png" alt="EFOOTBALL-91a4eb Collection" />
+          </div>
+          <h4>EFOOTBALL-91a4eb (628 NFTs)</h4>
+          <p data-i18n="asset_players_desc">Verified Outfield Players Collection emblem + updated metadata (PR #4812).</p>
+          <div class="asset-links">
+            <a href="branding/original/EFOOTBALL-91a4eb/logo.png" download="EFOOTBALL-91a4eb.png" class="pill-link">200×200 PNG</a>
+            <a href="branding/original/EFOOTBALL-91a4eb/logo.svg" download="EFOOTBALL-91a4eb.svg" class="pill-link">logo.svg</a>
+            <a href="branding/mx-assets-rebrand/tokens/EFOOTBALL-91a4eb/info.json" target="_blank" class="pill-link">info.json</a>
+          </div>
+        </div>
+
+        <div class="brand-asset-card">
+          <div class="brand-logo-preview dark-checker">
+            <img src="branding/original/GOALKEEPER-cb9e3e/logo.png" alt="GOALKEEPER-cb9e3e Collection" />
+          </div>
+          <h4>GOALKEEPER-cb9e3e (51 NFTs)</h4>
+          <p data-i18n="asset_keepers_desc">Verified Goalkeepers Collection emblem + updated metadata (PR #4813).</p>
+          <div class="asset-links">
+            <a href="branding/original/GOALKEEPER-cb9e3e/logo.png" download="GOALKEEPER-cb9e3e.png" class="pill-link">200×200 PNG</a>
+            <a href="branding/original/GOALKEEPER-cb9e3e/logo.svg" download="GOALKEEPER-cb9e3e.svg" class="pill-link">logo.svg</a>
+            <a href="branding/mx-assets-rebrand/tokens/GOALKEEPER-cb9e3e/info.json" target="_blank" class="pill-link">info.json</a>
+          </div>
+        </div>
+
+        <div class="brand-asset-card">
+          <div class="brand-logo-preview dark-checker">
+            <img src="branding/original/EFOOWEGLD-462fa9/logo.png" alt="EFOOWEGLD-462fa9 LP" />
+          </div>
+          <h4>EFOOWEGLD-462fa9 (OneDex LP)</h4>
+          <p data-i18n="asset_lp1_desc">Official OneDex EFOO/WEGLD Liquidity Pool token branding.</p>
+          <div class="asset-links">
+            <a href="branding/original/EFOOWEGLD-462fa9/logo.png" download="EFOOWEGLD.png" class="pill-link">200×200 PNG</a>
+            <a href="branding/mx-assets-rebrand/tokens/EFOOWEGLD-462fa9/info.json" target="_blank" class="pill-link">info.json</a>
+          </div>
+        </div>
+
+        <div class="brand-asset-card">
+          <div class="brand-logo-preview dark-checker">
+            <img src="branding/original/EFOOUSDC-a9af40/logo.png" alt="EFOOUSDC-a9af40 LP" />
+          </div>
+          <h4>EFOOUSDC-a9af40 (xExchange LP)</h4>
+          <p data-i18n="asset_lp2_desc">Official xExchange EFOO/USDC Liquidity Pool token branding.</p>
+          <div class="asset-links">
+            <a href="branding/original/EFOOUSDC-a9af40/logo.png" download="EFOOUSDC.png" class="pill-link">200×200 PNG</a>
+            <a href="branding/mx-assets-rebrand/tokens/EFOOUSDC-a9af40/info.json" target="_blank" class="pill-link">info.json</a>
+          </div>
         </div>
       </div>
     </div>
@@ -373,7 +834,7 @@
           <span class="hub-emoji">🔍</span>
           <div>
             <h4>MultiversX Explorer</h4>
-            <p data-i18n="hub_explorer">Verify 10,328 holders & 92.9% burn on-chain</p>
+            <p data-i18n="hub_explorer">Verify 10,328 holders &amp; 92.9% burn on-chain</p>
           </div>
           <span class="hub-arrow">↗</span>
         </a>
@@ -381,118 +842,11 @@
         <a href="https://x.com/EFootball_X" target="_blank" rel="noopener noreferrer" class="hub-card">
           <span class="hub-emoji">🐦</span>
           <div>
-            <h4>X (@EFootball_X) & Telegram</h4>
-            <p data-i18n="hub_socials">Join the Sunday League Ultras & Matchday Raids</p>
+            <h4>X (@EFootball_X) &amp; Telegram</h4>
+            <p data-i18n="hub_socials">Join the Sunday League Ultras &amp; Matchday Raids</p>
           </div>
           <span class="hub-arrow">↗</span>
         </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Official Brand & GitHub mx-assets Rebranding Kit -->
-  <section id="brand-kit" class="section">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-kicker" data-i18n="brand_kicker">🎨 OFFICIAL BRAND &amp; GITHUB MX-ASSETS KIT</span>
-        <h2 class="section-title" data-i18n="brand_title">THE ROCKET BALL &amp; SUNDAY LEAGUE IDENTITY</h2>
-        <p class="section-desc" data-i18n="brand_desc">
-          Pulled directly from our official MultiversX <code>mx-assets</code> repository and upgraded for the Sunday League Degen FC era. Ready for X, Linktree, xPortal, and Explorer!
-        </p>
-      </div>
-
-      <!-- X / Twitter 1500x500 Banner Showcase -->
-      <div class="banner-showcase-card">
-        <div class="banner-showcase-head">
-          <div>
-            <h3 data-i18n="brand_banner_title">Official X (Twitter) &amp; Community Header Banner (1500×500)</h3>
-            <p data-i18n="brand_banner_sub">Vector Rocket-Flaming Football + Bilingual EN/RO Sunday League Degen FC Tagline</p>
-          </div>
-          <a href="branding/rebranded/x-header-banner.svg" download="EFOO-X-Header-Banner.svg" class="btn btn-secondary btn-sm">
-            ⬇️ <span data-i18n="btn_dl_banner">Download Banner SVG</span>
-          </a>
-        </div>
-        <div class="banner-preview-frame">
-          <img src="branding/rebranded/x-header-banner.svg" alt="EFOO Sunday League Degen FC Banner" />
-        </div>
-      </div>
-
-      <!-- Logos & MultiversX mx-assets Grid -->
-      <div class="brand-assets-grid">
-        <div class="brand-asset-card">
-          <div class="brand-logo-preview dark-checker">
-            <img src="branding/rebranded/efoo-degen-crest.svg" alt="Sunday League Degen FC Crest" />
-          </div>
-          <h4>$EFOO Degen FC Crest</h4>
-          <p data-i18n="asset_crest_desc">Rebranded Dark Neon Stadium Crest with the original Rocket Football &amp; 92.9% Burn badge.</p>
-          <div class="asset-links">
-            <a href="branding/rebranded/efoo-degen-crest.svg" download="EFOO-Degen-Crest.svg" class="pill-link">SVG</a>
-            <a href="branding/mx-assets-rebrand/tokens/EFOO-8fe2d4/info.json" target="_blank" class="pill-link">info.json</a>
-          </div>
-        </div>
-
-        <div class="brand-asset-card">
-          <div class="brand-logo-preview dark-checker">
-            <img src="branding/original/EFOO-8fe2d4/logo.svg" alt="EFOO-8fe2d4 Rocket Ball" />
-          </div>
-          <h4>EFOO-8fe2d4 (Token Logo)</h4>
-          <p data-i18n="asset_efoo_desc">Original iconic Rocket-Flaming Football vector from <code>hlnagy/mx-assets</code>.</p>
-          <div class="asset-links">
-            <a href="branding/original/EFOO-8fe2d4/logo.svg" download="EFOO-logo.svg" class="pill-link">logo.svg</a>
-            <a href="branding/original/assests-2022/logo.png" download="EFOO-highres.png" class="pill-link">High-Res PNG</a>
-            <a href="branding/mx-assets-rebrand/tokens/EFOO-8fe2d4/info.json" target="_blank" class="pill-link">New info.json</a>
-          </div>
-        </div>
-
-        <div class="brand-asset-card">
-          <div class="brand-logo-preview dark-checker">
-            <img src="branding/original/EFOOTBALL-91a4eb/logo.svg" alt="EFOOTBALL-91a4eb Collection" />
-          </div>
-          <h4>EFOOTBALL-91a4eb (628 NFTs)</h4>
-          <p data-i18n="asset_players_desc">Verified Outfield Players Collection emblem + updated meme ecosystem metadata.</p>
-          <div class="asset-links">
-            <a href="branding/original/EFOOTBALL-91a4eb/logo.svg" download="EFOOTBALL-91a4eb.svg" class="pill-link">logo.svg</a>
-            <a href="branding/original/EFOOTBALL-91a4eb/logo.png" download="EFOOTBALL-91a4eb.png" class="pill-link">200×200 PNG</a>
-            <a href="branding/mx-assets-rebrand/tokens/EFOOTBALL-91a4eb/info.json" target="_blank" class="pill-link">New info.json</a>
-          </div>
-        </div>
-
-        <div class="brand-asset-card">
-          <div class="brand-logo-preview dark-checker">
-            <img src="branding/original/GOALKEEPER-cb9e3e/logo.svg" alt="GOALKEEPER-cb9e3e Collection" />
-          </div>
-          <h4>GOALKEEPER-cb9e3e (51 NFTs)</h4>
-          <p data-i18n="asset_keepers_desc">Verified Goalkeepers Collection emblem + updated Sunday League metadata.</p>
-          <div class="asset-links">
-            <a href="branding/original/GOALKEEPER-cb9e3e/logo.svg" download="GOALKEEPER-cb9e3e.svg" class="pill-link">logo.svg</a>
-            <a href="branding/original/GOALKEEPER-cb9e3e/logo.png" download="GOALKEEPER-cb9e3e.png" class="pill-link">200×200 PNG</a>
-            <a href="branding/mx-assets-rebrand/tokens/GOALKEEPER-cb9e3e/info.json" target="_blank" class="pill-link">New info.json</a>
-          </div>
-        </div>
-
-        <div class="brand-asset-card">
-          <div class="brand-logo-preview dark-checker">
-            <img src="branding/original/EFOOWEGLD-462fa9/logo.svg" alt="EFOOWEGLD-462fa9 LP" />
-          </div>
-          <h4>EFOOWEGLD-462fa9 (OneDex LP)</h4>
-          <p data-i18n="asset_lp1_desc">Official OneDex EFOO/WEGLD Liquidity Pool token branding.</p>
-          <div class="asset-links">
-            <a href="branding/original/EFOOWEGLD-462fa9/logo.svg" download="EFOOWEGLD.svg" class="pill-link">logo.svg</a>
-            <a href="branding/mx-assets-rebrand/tokens/EFOOWEGLD-462fa9/info.json" target="_blank" class="pill-link">New info.json</a>
-          </div>
-        </div>
-
-        <div class="brand-asset-card">
-          <div class="brand-logo-preview dark-checker">
-            <img src="branding/original/EFOOUSDC-a9af40/logo.svg" alt="EFOOUSDC-a9af40 LP" />
-          </div>
-          <h4>EFOOUSDC-a9af40 (xExchange LP)</h4>
-          <p data-i18n="asset_lp2_desc">Official xExchange EFOO/USDC Liquidity Pool token branding.</p>
-          <div class="asset-links">
-            <a href="branding/original/EFOOUSDC-a9af40/logo.svg" download="EFOOUSDC.svg" class="pill-link">logo.svg</a>
-            <a href="branding/mx-assets-rebrand/tokens/EFOOUSDC-a9af40/info.json" target="_blank" class="pill-link">New info.json</a>
-          </div>
-        </div>
       </div>
     </div>
   </section>
@@ -501,7 +855,7 @@
   <footer class="footer">
     <div class="container footer-inner">
       <div class="footer-brand">
-        <img src="branding/rebranded/efoo-degen-crest.svg" alt="EFOO" width="42" height="42" />
+        <img src="branding/rebranded/efoo-degen-crest-200x200.png" alt="EFOO" width="42" height="42" />
         <span><strong>$EFOO</strong> • SUNDAY LEAGUE DEGEN FC</span>
       </div>
       <p class="footer-disclaimer" data-i18n="footer_disclaimer">
@@ -518,6 +872,78 @@
       </div>
     </div>
   </footer>
+
+  <!-- =====================================================================
+       MULTIVERSX WALLET CONNECT MODAL (xPortal, Web Wallet, Extension, erd1)
+       ===================================================================== -->
+  <div id="wallet-modal-backdrop" class="modal-backdrop hidden">
+    <div class="wallet-modal">
+      <div class="modal-head">
+        <div>
+          <span class="section-kicker">⚡ MULTIVERSX AUTHENTICATION</span>
+          <h3 data-i18n="modal_title">CONNECT YOUR MULTIVERSX WALLET</h3>
+        </div>
+        <button type="button" id="close-wallet-modal-btn" class="modal-close-btn">✕</button>
+      </div>
+
+      <p class="modal-desc" data-i18n="modal_desc">
+        Choose how you want to enter the Sunday League Degen FC Locker Room. View your <code>$EFOO</code> &amp; NFTs, sign swaps/mints, and unlock NFT bonuses in EFOO FOMO!
+      </p>
+
+      <div class="wallet-provider-list">
+        <!-- 1. xPortal App (QR / Official Hook) -->
+        <button type="button" id="login-xportal-btn" class="provider-btn">
+          <span class="prov-icon">📱</span>
+          <div class="prov-text">
+            <strong>xPortal Mobile App (QR / Deep Link)</strong>
+            <small data-i18n="prov_xportal_sub">Scan QR code with xPortal App via MultiversX Gateway</small>
+          </div>
+          <span class="prov-arrow">→</span>
+        </button>
+
+        <!-- Toggleable inline QR Preview for xPortal -->
+        <div id="xportal-qr-box" class="xportal-qr-box hidden">
+          <img id="xportal-qr-img" src="" alt="xPortal Login QR" width="180" height="180" />
+          <p data-i18n="qr_instructions">Scan with your phone camera or xPortal App to open the official MultiversX Login Bridge, or click below:</p>
+          <a id="xportal-bridge-link" href="#" class="btn btn-primary btn-sm">⚡ Open MultiversX xPortal Bridge ↗</a>
+        </div>
+
+        <!-- 2. MultiversX DeFi Wallet Extension -->
+        <button type="button" id="login-extension-btn" class="provider-btn">
+          <span class="prov-icon">🧩</span>
+          <div class="prov-text">
+            <strong>MultiversX DeFi Wallet Extension</strong>
+            <small id="ext-status-sub" data-i18n="prov_ext_sub">Connect Chrome / Brave / Edge Browser Extension</small>
+          </div>
+          <span class="prov-arrow">→</span>
+        </button>
+
+        <!-- 3. MultiversX Web Wallet -->
+        <button type="button" id="login-webwallet-btn" class="provider-btn">
+          <span class="prov-icon">🌐</span>
+          <div class="prov-text">
+            <strong>MultiversX Web Wallet (wallet.multiversx.com)</strong>
+            <small data-i18n="prov_web_sub">Official redirect login (Keystore, Ledger, Passkey, PEM)</small>
+          </div>
+          <span class="prov-arrow">→</span>
+        </button>
+      </div>
+
+      <div class="modal-divider"><span data-i18n="modal_or">OR INSTANT WALLET INSPECTOR</span></div>
+
+      <!-- 4. Direct erd1 Address Input -->
+      <div class="direct-erd-box">
+        <label for="manual-erd-input" data-i18n="manual_erd_label">Paste any MultiversX address (<code>erd1...</code>) to load your NFTs &amp; balance instantly:</label>
+        <div class="erd-input-row">
+          <input type="text" id="manual-erd-input" class="input-field" placeholder="erd1..." />
+          <button type="button" id="login-manual-btn" class="btn btn-secondary btn-sm" data-i18n="btn_load_wallet">Connect</button>
+        </div>
+        <button type="button" id="modal-demo-owner-btn" class="demo-link-btn">
+          🏆 <span data-i18n="modal_demo_owner">Load Club Owner Wallet (1.91B $EFOO + 11 Players + 2 Keepers)</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
