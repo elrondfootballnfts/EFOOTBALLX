@@ -717,6 +717,7 @@ body.arcade-body {
    OVERLAY 3: MATCH SUMMARY & VISUAL FOMO BOOST MODAL
    ============================================================================ */
 .summary-modal-card {
+  position: relative;
   width: 100%;
   max-width: 540px;
   padding: 26px;
@@ -724,6 +725,32 @@ body.arcade-body {
   background: linear-gradient(155deg, rgba(12, 28, 19, 0.97), rgba(4, 10, 7, 0.99));
   border: 2px solid #ffb800;
   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9);
+}
+
+.summary-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.summary-close-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #fca5a5;
+  transform: scale(1.06);
 }
 
 .sum-compare-grid {

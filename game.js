@@ -1697,9 +1697,28 @@ document.addEventListener("DOMContentLoaded", () => {
   refreshHudUI();
   initFullscreenStadiumCanvas();
 
-  // Start & Replay buttons
+  // Start, Replay & Close Summary buttons
+  const closeSummaryModal = () => {
+    document.getElementById("summary-screen-overlay")?.classList.add("hidden");
+    const p = getPowers();
+    game.round = 1;
+    game.shotHistory = [];
+    game.goals = 0;
+    game.streak = 0;
+    game.score = 0;
+    game.rawBaseScore = 0;
+    game.shieldsLeft = p.maxShields;
+    startNextShotRound();
+  };
+
   document.getElementById("btn-start-match")?.addEventListener("click", launchMatchWithIntro);
   document.getElementById("btn-sum-replay")?.addEventListener("click", launchMatchWithIntro);
+  document.getElementById("close-summary-modal-btn")?.addEventListener("click", closeSummaryModal);
+  document.getElementById("summary-screen-overlay")?.addEventListener("click", (e) => {
+    if (e.target && e.target.id === "summary-screen-overlay") {
+      closeSummaryModal();
+    }
+  });
 
   // Click FUT Striker Card to cycle active NFT
   document.getElementById("fut-striker-dock")?.addEventListener("click", () => {
@@ -1738,6 +1757,18 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("open-pot-pill")?.addEventListener("click", openBoost);
   document.querySelectorAll(".vp-icon-slot").forEach((el) => el.addEventListener("click", openBoost));
   document.getElementById("close-boost-modal-btn")?.addEventListener("click", closeBoost);
+  document.getElementById("boost-modal-overlay")?.addEventListener("click", (e) => {
+    if (e.target && e.target.id === "boost-modal-overlay") closeBoost();
+  });
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (!document.getElementById("summary-screen-overlay")?.classList.contains("hidden")) {
+        closeSummaryModal();
+      }
+      closeBoost();
+      document.getElementById("wallet-modal-backdrop")?.classList.add("hidden");
+    }
+  });
 
   // Store & Summary Actions
   document.getElementById("modal-buy-efoo-btn")?.addEventListener("click", buy3MEfooOnChain);
