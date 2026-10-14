@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>$EFOO | Sunday League Degen FC – MultiversX Meme Token</title>
+  <meta name="description" content="Too broke for Champions League, too degen for FIFA. 92.9% Burned, 10,300+ Holders, 679 Verified NFTs on MultiversX. Welcome to Sunday League Degen FC ($EFOO)." />
+  <link rel="icon" type="image/svg+xml" href="branding/rebranded/efoo-degen-crest.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Top Live Ticker Banner -->
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <span>⚽ $EFOO-8fe2d4 ON MULTIVERSX</span>
+      <span>🔥 92,915,321,677 EFOO BURNED (92.91%)</span>
+      <span>🏟️ 10,328+ DEGEN HOLDERS IN THE STADIUM</span>
+      <span>🍺 NO FAKE iPHONE 14 PROMISES — JUST PURE SUNDAY LEAGUE VIBES</span>
+      <span>🇷🇴 LIGA 1 + CHAMPIONS LEAGUE DEGEN NFTs</span>
+      <span>🔒 MINTING PERMANENTLY DISABLED (FIXED SUPPLY)</span>
+      <span>⚽ $EFOO-8fe2d4 ON MULTIVERSX</span>
+      <span>🔥 92,915,321,677 EFOO BURNED (92.91%)</span>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="#" class="brand">
+        <img src="branding/rebranded/efoo-degen-crest.svg" alt="EFOO Logo" class="brand-logo" />
+        <div class="brand-text">
+          <span class="brand-title">$EFOO</span>
+          <span class="brand-sub" data-i18n="nav_sub">SUNDAY LEAGUE DEGEN FC</span>
+        </div>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#var-check" data-i18n="nav_manifesto">VAR Review</a>
+        <a href="#meme-locker" data-i18n="nav_locker">Meme Locker Room</a>
+        <a href="#tokenomics" data-i18n="nav_tokenomics">92.9% Burn</a>
+        <a href="#brand-kit" data-i18n="nav_brandkit">Brand Kit</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div class="lang-switch" role="group" aria-label="Language Switcher">
+          <button type="button" class="lang-btn active" data-set-lang="en">🇬🇧 EN</button>
+          <button type="button" class="lang-btn" data-set-lang="ro">🇷🇴 RO</button>
+        </div>
+        <a href="https://swap.onedex.app/swap?firstToken=EGLD&secondToken=EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" data-i18n="nav_buy">
+          ⚽ Buy $EFOO
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="pitch-lines"></div>
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="badge-pill">
+          <span class="pulse-dot"></span>
+          <span data-i18n="hero_badge">BORN IN 2022 • REBORN AS 100% CULT MEME ON MULTIVERSX</span>
+        </div>
+
+        <h1 class="hero-title" data-i18n="hero_title">
+          TOO BROKE FOR CHAMPIONS LEAGUE.<br />
+          <span class="neon-text">TOO DEGEN FOR FIFA.</span>
+        </h1>
+
+        <p class="hero-lead" data-i18n="hero_lead">
+          Welcome to <strong>Sunday League Degen FC ($EFOO)</strong> — where the pitch is synthetic, the referee is bribed with warm beer, our striker has Alien skin in a Liga 1 jersey, and <strong>92.91% of the token supply is already burned to ashes</strong>.
+        </p>
+
+        <div class="contract-box">
+          <span class="contract-label" data-i18n="token_id_label">ESDT TOKEN ID:</span>
+          <code id="token-id-code">EFOO-8fe2d4</code>
+          <button type="button" id="copy-token-btn" class="copy-btn" data-i18n="copy_btn">📋 Copy</button>
+        </div>
+
+        <div class="hero-cta-group">
+          <a href="https://swap.onedex.app/swap?firstToken=EGLD&secondToken=EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+            🟡 <span data-i18n="cta_onedex">Swap on OneDex (EGLD/EFOO)</span>
+          </a>
+          <a href="https://xexchange.com/trade?firstToken=USDC-c76f1f&secondToken=EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+            🔵 <span data-i18n="cta_xexchange">Swap on xExchange (USDC/EFOO)</span>
+          </a>
+          <a href="#meme-locker" class="btn btn-outline">
+            🎨 <span data-i18n="cta_meme_studio">Open NFT Meme Studio</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-card-wrap">
+        <div class="player-card">
+          <div class="player-card-header">
+            <span class="club-tag">SUNDAY LEAGUE DEGEN FC</span>
+            <span class="ovr-badge">99 DEGEN</span>
+          </div>
+          <div class="player-img-box">
+            <img id="hero-nft-img" src="https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/9734.png" alt="EFOO Degen Player NFT" crossorigin="anonymous" />
+          </div>
+          <div class="player-card-meta">
+            <div class="player-name-row">
+              <h3 id="hero-nft-title">ElrondFootball #619</h3>
+              <span class="verified-pill">✔ Verified NFT</span>
+            </div>
+            <p class="player-quote" id="hero-nft-quote" data-i18n="hero_card_quote">
+              "Coach subbed me in at the 88th minute, I checked the 1m chart and kicked a beach ball into the parking lot."
+            </p>
+            <div class="player-stats-mini">
+              <div><span>BURN</span><strong>92.9%</strong></div>
+              <div><span>HOLDERS</span><strong id="mini-holders">10,328</strong></div>
+              <div><span>MINTABLE</span><strong>NO 🔒</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live On-Chain Scoreboard -->
+  <section class="scoreboard-section">
+    <div class="container">
+      <div class="scoreboard">
+        <div class="score-header">
+          <span class="live-indicator">● LIVE MULTIVERSX API</span>
+          <span class="score-stadium" data-i18n="scoreboard_title">STADIUM TELEMETRY — EFOO-8fe2d4</span>
+          <a href="https://explorer.multiversx.com/tokens/EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="explorer-link">Explorer ↗</a>
+        </div>
+        <div class="score-grid">
+          <div class="score-item highlight-burn">
+            <span class="score-label" data-i18n="stat_burned_label">🔥 TOTAL BURNED SUPPLY</span>
+            <strong class="score-val" id="stat-burned">92.91B (92.91%)</strong>
+            <small data-i18n="stat_burned_sub">Out of 100,000,000,000 initial supply</small>
+          </div>
+          <div class="score-item">
+            <span class="score-label" data-i18n="stat_supply_label">⚽ REMAINING TOTAL SUPPLY</span>
+            <strong class="score-val" id="stat-supply">7,084,678,323</strong>
+            <small data-i18n="stat_supply_sub">canMint: false (Hard Capped Forever)</small>
+          </div>
+          <div class="score-item">
+            <span class="score-label" data-i18n="stat_holders_label">🏟️ ON-CHAIN ULTRAS (HOLDERS)</span>
+            <strong class="score-val" id="stat-holders">10,328</strong>
+            <small id="stat-transfers">39,258+ on-chain transfers</small>
+          </div>
+          <div class="score-item">
+            <span class="score-label" data-i18n="stat_nfts_label">🃏 VERIFIED CLUB NFTs</span>
+            <strong class="score-val" id="stat-nfts">679 NFTs</strong>
+            <small data-i18n="stat_nfts_sub">628 Players + 51 Goalkeepers</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VAR Check: 2022 vs Degen Era Manifesto -->
+  <section id="var-check" class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-kicker" data-i18n="var_kicker">📺 OFFICIAL VAR REVIEW</span>
+        <h2 class="section-title" data-i18n="var_title">NO MORE 2022 BS. WELCOME TO THE DEGEN ERA.</h2>
+        <p class="section-desc" data-i18n="var_desc">
+          In 2022 we tried to build a serious suit-and-tie football project. Then the bear market two-footed us in the penalty box. We checked the VAR monitor, fired the suits, kept the 92.9% token burn, and turned $EFOO into the purest football meme coin on MultiversX.
+        </p>
+      </div>
+
+      <div class="var-grid">
+        <div class="var-card var-old">
+          <div class="var-card-head">
+            <span class="red-card-badge">🟥 RED CARD (2022 ILLUSIONS)</span>
+          </div>
+          <ul class="var-list">
+            <li data-i18n="var_old_1">❌ "Win 1x iPhone 14 for every 1,000 NFTs sold"</li>
+            <li data-i18n="var_old_2">❌ "Complicated passive income APR math & project stocks"</li>
+            <li data-i18n="var_old_3">❌ "Corporate whitepapers nobody ever read"</li>
+            <li data-i18n="var_old_4">❌ "Waiting for UEFA or FIFA to call us back"</li>
+          </ul>
+        </div>
+
+        <div class="var-card var-new">
+          <div class="var-card-head">
+            <span class="green-card-badge">🟩 GOAL STANDS (SUNDAY LEAGUE DEGEN FC)</span>
+          </div>
+          <ul class="var-list">
+            <li data-i18n="var_new_1">✅ 92.91% of total supply ALREADY BURNED on-chain</li>
+            <li data-i18n="var_new_2">✅ 10,328 wallets already holding $EFOO across MultiversX</li>
+            <li data-i18n="var_new_3">✅ 628 hilarious Liga 1 & UCL Player NFTs + 51 Goalkeepers</li>
+            <li data-i18n="var_new_4">✅ Matchday Goal Burns, sunflower seeds, cold beer & pure football memes</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Locker Room & NFT Meme Generator -->
+  <section id="meme-locker" class="section section-alt">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-kicker" data-i18n="locker_kicker">👕 THE LOCKER ROOM (LIVE ON-CHAIN STUDIO)</span>
+        <h2 class="section-title" data-i18n="locker_title">CREATE YOUR SUNDAY LEAGUE $EFOO MEME</h2>
+        <p class="section-desc" data-i18n="locker_desc">
+          Pull any real <strong>EFOOTBALL-91a4eb</strong> (#1–#628) or <strong>GOALKEEPER-cb9e3e</strong> (#1–#51) NFT live from the MultiversX blockchain, slap a degen caption on it, and post it on X!
+        </p>
+      </div>
+
+      <div class="locker-grid">
+        <!-- Controls -->
+        <div class="locker-controls">
+          <div class="control-group">
+            <label data-i18n="ctrl_collection">1. Select Squad Collection & Number</label>
+            <div class="squad-selector">
+              <select id="nft-collection-select" class="input-field">
+                <option value="EFOOTBALL-91a4eb" data-i18n="opt_players">⚽ Outfield Players (#1 – #628)</option>
+                <option value="GOALKEEPER-cb9e3e" data-i18n="opt_keepers">🧤 Goalkeepers (#1 – #51)</option>
+              </select>
+              <input type="number" id="nft-nonce-input" class="input-field nonce-input" value="619" min="1" max="628" />
+              <button type="button" id="load-nft-btn" class="btn btn-secondary btn-sm" data-i18n="btn_load_nft">Load NFT</button>
+              <button type="button" id="random-nft-btn" class="btn btn-primary btn-sm" data-i18n="btn_random_nft">🎲 Random</button>
+            </div>
+          </div>
+
+          <div class="nft-traits-panel" id="nft-traits-panel">
+            <div class="traits-header">
+              <strong id="loaded-nft-name">ElrondFootball #619</strong>
+              <a id="loaded-nft-link" href="https://explorer.multiversx.com/collections/EFOOTBALL-91a4eb" target="_blank" rel="noopener noreferrer">View on Explorer ↗</a>
+            </div>
+            <div class="traits-chips" id="traits-chips">
+              <!-- Populated dynamically from MultiversX API -->
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label data-i18n="ctrl_presets">2. Quick Sunday League Meme Presets (EN / RO)</label>
+            <div class="preset-buttons" id="preset-buttons">
+              <!-- Populated by JS based on current language -->
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label for="meme-top-input" data-i18n="ctrl_top_text">3. Top Text</label>
+            <input type="text" id="meme-top-input" class="input-field" value="WHEN THE COACH SAYS PLAY TIKI-TAKA" maxlength="60" />
+          </div>
+
+          <div class="control-group">
+            <label for="meme-bottom-input" data-i18n="ctrl_bottom_text">4. Bottom Text</label>
+            <input type="text" id="meme-bottom-input" class="input-field" value="BUT YOU ARE ALL-IN ON $EFOO AT 99% BURN" maxlength="60" />
+          </div>
+
+          <div class="locker-action-row">
+            <button type="button" id="download-meme-btn" class="btn btn-primary">
+              💾 <span data-i18n="btn_download_meme">Download Meme PNG</span>
+            </button>
+            <a id="tweet-meme-btn" href="https://x.com/intent/tweet" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+              🐦 <span data-i18n="btn_share_x">Post on X (Twitter)</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Canvas Preview -->
+        <div class="locker-preview">
+          <div class="canvas-frame">
+            <canvas id="meme-canvas" width="700" height="700"></canvas>
+            <div id="canvas-loading" class="canvas-loading hidden" data-i18n="loading_nft">⚽ Scouting player from MultiversX blockchain...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tokenomics & The 92.9% Mega Burn -->
+  <section id="tokenomics" class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-kicker" data-i18n="tok_kicker">🔥 DEFLATIONARY DEGENOMICS</span>
+        <h2 class="section-title" data-i18n="tok_title">92.91% ALREADY BURNED. ZERO MINTING.</h2>
+        <p class="section-desc" data-i18n="tok_desc">
+          Most meme coins start with 100% supply and dump on you. $EFOO already torched nearly 93 Billion tokens out of the initial 100 Billion.
+        </p>
+      </div>
+
+      <div class="burn-meter-card">
+        <div class="burn-meter-labels">
+          <span class="burn-fire-text">🔥 92,915,321,677 EFOO BURNED (92.91%)</span>
+          <span class="burn-rem-text">⚽ 7,084,678,323 EFOO SURVIVING (7.09%)</span>
+        </div>
+        <div class="burn-progress-track">
+          <div class="burn-progress-fill" style="width: 92.91%"></div>
+        </div>
+        <div class="burn-sub-pills">
+          <span class="pill">Ticker: <strong>EFOO-8fe2d4</strong></span>
+          <span class="pill">canMint: <strong>false 🔒</strong></span>
+          <span class="pill">canFreeze: <strong>false 🛡️</strong></span>
+          <span class="pill">canWipe: <strong>false 🛡️</strong></span>
+        </div>
+      </div>
+
+      <div class="matchday-grid" id="matchday">
+        <div class="feature-box">
+          <div class="feature-icon">🔥</div>
+          <h3 data-i18n="feat_1_title">Matchday Goal Burns</h3>
+          <p data-i18n="feat_1_desc">
+            Every major derby (Liga 1, Champions League, El Clásico), we host live Goal Burns! Every goal scored on TV = millions of $EFOO burned live from the Reserve Wallet.
+          </p>
+        </div>
+        <div class="feature-box">
+          <div class="feature-icon">🏟️</div>
+          <h3 data-i18n="feat_2_title">10,328 Wallets Strong</h3>
+          <p data-i18n="feat_2_desc">
+            With over 10,300 MultiversX addresses already holding $EFOO, our stadium is built. One spark of volume turns a micro-cap chart into a vertical green candle.
+          </p>
+        </div>
+        <div class="feature-box">
+          <div class="feature-icon">🃏</div>
+          <h3 data-i18n="feat_3_title">Ultras NFT VIP Club</h3>
+          <p data-i18n="feat_3_desc">
+            Holding 3+ EFOOTBALL Player NFTs or 1+ Goalkeeper NFT makes you part of the Sunday League Board: vote on which match triggers the next burn & join meme raids!
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Verified Ecosystem Links Hub -->
+  <section class="section section-alt">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-kicker" data-i18n="links_kicker">🔗 OFFICIAL VERIFIED LINKS</span>
+        <h2 class="section-title" data-i18n="links_title">ENTER THE STADIUM</h2>
+      </div>
+
+      <div class="links-hub-grid">
+        <a href="https://swap.onedex.app/swap?firstToken=EGLD&secondToken=EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="hub-card">
+          <span class="hub-emoji">🟡</span>
+          <div>
+            <h4>OneDex Swap</h4>
+            <p data-i18n="hub_onedex">Trade EGLD / EFOO directly</p>
+          </div>
+          <span class="hub-arrow">↗</span>
+        </a>
+
+        <a href="https://xexchange.com/trade?firstToken=USDC-c76f1f&secondToken=EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="hub-card">
+          <span class="hub-emoji">🔵</span>
+          <div>
+            <h4>xExchange</h4>
+            <p data-i18n="hub_xex">Trade USDC / EFOO (Enable Experimental)</p>
+          </div>
+          <span class="hub-arrow">↗</span>
+        </a>
+
+        <a href="https://xoxno.com/collection/EFOOTBALL-91a4eb" target="_blank" rel="noopener noreferrer" class="hub-card">
+          <span class="hub-emoji">👕</span>
+          <div>
+            <h4>XOXNO — Players NFT</h4>
+            <p data-i18n="hub_players">628 Verified Outfield Players (EFOOTBALL-91a4eb)</p>
+          </div>
+          <span class="hub-arrow">↗</span>
+        </a>
+
+        <a href="https://xoxno.com/collection/GOALKEEPER-cb9e3e" target="_blank" rel="noopener noreferrer" class="hub-card">
+          <span class="hub-emoji">🧤</span>
+          <div>
+            <h4>XOXNO — Goalkeepers NFT</h4>
+            <p data-i18n="hub_keepers">51 Verified Goalkeepers (GOALKEEPER-cb9e3e)</p>
+          </div>
+          <span class="hub-arrow">↗</span>
+        </a>
+
+        <a href="https://explorer.multiversx.com/tokens/EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="hub-card">
+          <span class="hub-emoji">🔍</span>
+          <div>
+            <h4>MultiversX Explorer</h4>
+            <p data-i18n="hub_explorer">Verify 10,328 holders & 92.9% burn on-chain</p>
+          </div>
+          <span class="hub-arrow">↗</span>
+        </a>
+
+        <a href="https://x.com/EFootball_X" target="_blank" rel="noopener noreferrer" class="hub-card">
+          <span class="hub-emoji">🐦</span>
+          <div>
+            <h4>X (@EFootball_X) & Telegram</h4>
+            <p data-i18n="hub_socials">Join the Sunday League Ultras & Matchday Raids</p>
+          </div>
+          <span class="hub-arrow">↗</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Official Brand & GitHub mx-assets Rebranding Kit -->
+  <section id="brand-kit" class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-kicker" data-i18n="brand_kicker">🎨 OFFICIAL BRAND &amp; GITHUB MX-ASSETS KIT</span>
+        <h2 class="section-title" data-i18n="brand_title">THE ROCKET BALL &amp; SUNDAY LEAGUE IDENTITY</h2>
+        <p class="section-desc" data-i18n="brand_desc">
+          Pulled directly from our official MultiversX <code>mx-assets</code> repository and upgraded for the Sunday League Degen FC era. Ready for X, Linktree, xPortal, and Explorer!
+        </p>
+      </div>
+
+      <!-- X / Twitter 1500x500 Banner Showcase -->
+      <div class="banner-showcase-card">
+        <div class="banner-showcase-head">
+          <div>
+            <h3 data-i18n="brand_banner_title">Official X (Twitter) &amp; Community Header Banner (1500×500)</h3>
+            <p data-i18n="brand_banner_sub">Vector Rocket-Flaming Football + Bilingual EN/RO Sunday League Degen FC Tagline</p>
+          </div>
+          <a href="branding/rebranded/x-header-banner.svg" download="EFOO-X-Header-Banner.svg" class="btn btn-secondary btn-sm">
+            ⬇️ <span data-i18n="btn_dl_banner">Download Banner SVG</span>
+          </a>
+        </div>
+        <div class="banner-preview-frame">
+          <img src="branding/rebranded/x-header-banner.svg" alt="EFOO Sunday League Degen FC Banner" />
+        </div>
+      </div>
+
+      <!-- Logos & MultiversX mx-assets Grid -->
+      <div class="brand-assets-grid">
+        <div class="brand-asset-card">
+          <div class="brand-logo-preview dark-checker">
+            <img src="branding/rebranded/efoo-degen-crest.svg" alt="Sunday League Degen FC Crest" />
+          </div>
+          <h4>$EFOO Degen FC Crest</h4>
+          <p data-i18n="asset_crest_desc">Rebranded Dark Neon Stadium Crest with the original Rocket Football &amp; 92.9% Burn badge.</p>
+          <div class="asset-links">
+            <a href="branding/rebranded/efoo-degen-crest.svg" download="EFOO-Degen-Crest.svg" class="pill-link">SVG</a>
+            <a href="branding/mx-assets-rebrand/tokens/EFOO-8fe2d4/info.json" target="_blank" class="pill-link">info.json</a>
+          </div>
+        </div>
+
+        <div class="brand-asset-card">
+          <div class="brand-logo-preview dark-checker">
+            <img src="branding/original/EFOO-8fe2d4/logo.svg" alt="EFOO-8fe2d4 Rocket Ball" />
+          </div>
+          <h4>EFOO-8fe2d4 (Token Logo)</h4>
+          <p data-i18n="asset_efoo_desc">Original iconic Rocket-Flaming Football vector from <code>hlnagy/mx-assets</code>.</p>
+          <div class="asset-links">
+            <a href="branding/original/EFOO-8fe2d4/logo.svg" download="EFOO-logo.svg" class="pill-link">logo.svg</a>
+            <a href="branding/original/assests-2022/logo.png" download="EFOO-highres.png" class="pill-link">High-Res PNG</a>
+            <a href="branding/mx-assets-rebrand/tokens/EFOO-8fe2d4/info.json" target="_blank" class="pill-link">New info.json</a>
+          </div>
+        </div>
+
+        <div class="brand-asset-card">
+          <div class="brand-logo-preview dark-checker">
+            <img src="branding/original/EFOOTBALL-91a4eb/logo.svg" alt="EFOOTBALL-91a4eb Collection" />
+          </div>
+          <h4>EFOOTBALL-91a4eb (628 NFTs)</h4>
+          <p data-i18n="asset_players_desc">Verified Outfield Players Collection emblem + updated meme ecosystem metadata.</p>
+          <div class="asset-links">
+            <a href="branding/original/EFOOTBALL-91a4eb/logo.svg" download="EFOOTBALL-91a4eb.svg" class="pill-link">logo.svg</a>
+            <a href="branding/original/EFOOTBALL-91a4eb/logo.png" download="EFOOTBALL-91a4eb.png" class="pill-link">200×200 PNG</a>
+            <a href="branding/mx-assets-rebrand/tokens/EFOOTBALL-91a4eb/info.json" target="_blank" class="pill-link">New info.json</a>
+          </div>
+        </div>
+
+        <div class="brand-asset-card">
+          <div class="brand-logo-preview dark-checker">
+            <img src="branding/original/GOALKEEPER-cb9e3e/logo.svg" alt="GOALKEEPER-cb9e3e Collection" />
+          </div>
+          <h4>GOALKEEPER-cb9e3e (51 NFTs)</h4>
+          <p data-i18n="asset_keepers_desc">Verified Goalkeepers Collection emblem + updated Sunday League metadata.</p>
+          <div class="asset-links">
+            <a href="branding/original/GOALKEEPER-cb9e3e/logo.svg" download="GOALKEEPER-cb9e3e.svg" class="pill-link">logo.svg</a>
+            <a href="branding/original/GOALKEEPER-cb9e3e/logo.png" download="GOALKEEPER-cb9e3e.png" class="pill-link">200×200 PNG</a>
+            <a href="branding/mx-assets-rebrand/tokens/GOALKEEPER-cb9e3e/info.json" target="_blank" class="pill-link">New info.json</a>
+          </div>
+        </div>
+
+        <div class="brand-asset-card">
+          <div class="brand-logo-preview dark-checker">
+            <img src="branding/original/EFOOWEGLD-462fa9/logo.svg" alt="EFOOWEGLD-462fa9 LP" />
+          </div>
+          <h4>EFOOWEGLD-462fa9 (OneDex LP)</h4>
+          <p data-i18n="asset_lp1_desc">Official OneDex EFOO/WEGLD Liquidity Pool token branding.</p>
+          <div class="asset-links">
+            <a href="branding/original/EFOOWEGLD-462fa9/logo.svg" download="EFOOWEGLD.svg" class="pill-link">logo.svg</a>
+            <a href="branding/mx-assets-rebrand/tokens/EFOOWEGLD-462fa9/info.json" target="_blank" class="pill-link">New info.json</a>
+          </div>
+        </div>
+
+        <div class="brand-asset-card">
+          <div class="brand-logo-preview dark-checker">
+            <img src="branding/original/EFOOUSDC-a9af40/logo.svg" alt="EFOOUSDC-a9af40 LP" />
+          </div>
+          <h4>EFOOUSDC-a9af40 (xExchange LP)</h4>
+          <p data-i18n="asset_lp2_desc">Official xExchange EFOO/USDC Liquidity Pool token branding.</p>
+          <div class="asset-links">
+            <a href="branding/original/EFOOUSDC-a9af40/logo.svg" download="EFOOUSDC.svg" class="pill-link">logo.svg</a>
+            <a href="branding/mx-assets-rebrand/tokens/EFOOUSDC-a9af40/info.json" target="_blank" class="pill-link">New info.json</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <img src="branding/rebranded/efoo-degen-crest.svg" alt="EFOO" width="42" height="42" />
+        <span><strong>$EFOO</strong> • SUNDAY LEAGUE DEGEN FC</span>
+      </div>
+      <p class="footer-disclaimer" data-i18n="footer_disclaimer">
+        Disclaimer: $EFOO (EFOO-8fe2d4) is a community meme token on the MultiversX blockchain created for entertainment, football culture, and degen camaraderie. Nothing on this website is financial advice. Don't bet your rent money on Sunday League football.
+      </p>
+      <div class="footer-bottom">
+        <span>Built on MultiversX ⚡</span>
+        <span>•</span>
+        <a href="https://t.me/elrondfootball" target="_blank" rel="noopener noreferrer">Telegram</a>
+        <span>•</span>
+        <a href="https://x.com/EFootball_X" target="_blank" rel="noopener noreferrer">X (@EFootball_X)</a>
+        <span>•</span>
+        <a href="https://linktr.ee/EFootballX" target="_blank" rel="noopener noreferrer">Linktree</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
