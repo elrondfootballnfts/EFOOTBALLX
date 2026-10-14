@@ -64,67 +64,263 @@
     <button type="button" id="tx-toast-close" class="toast-close">✕</button>
   </div>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="pitch-lines"></div>
-    <div class="container hero-grid">
-      <div class="hero-content">
-        <div class="badge-pill">
-          <span class="pulse-dot"></span>
-          <span data-i18n="hero_badge">BORN IN 2022 • REBORN AS 100% CULT MEME &amp; WEB3 CLUB ON MULTIVERSX</span>
+  <!-- =====================================================================
+       SCROLL-DRIVEN CINEMATIC REBIRTH & EFOO FOMO HERO (4 ACTS ON SCROLL)
+       ===================================================================== -->
+  <section id="hero-scroll-track" class="hero-scroll-track" data-act="1">
+    <div class="hero-sticky-stage" id="hero-sticky-stage">
+      <!-- Interactive Background Particle & Fire/Floodlight Canvas -->
+      <canvas id="hero-fx-canvas" class="hero-fx-canvas"></canvas>
+      <div class="hero-stadium-vignette"></div>
+
+      <!-- Top Broadcast Telemetry Ribbon inside Sticky Viewport -->
+      <div class="container hero-top-ribbon">
+        <div class="broadcast-pill">
+          <span class="broadcast-dot" id="hero-broadcast-dot"></span>
+          <span id="hero-match-clock">⏱️ 2022 ERA • 45:00</span>
         </div>
 
-        <h1 class="hero-title" data-i18n="hero_title">
-          TOO BROKE FOR CHAMPIONS LEAGUE.<br />
-          <span class="neon-text">TOO DEGEN FOR FIFA.</span>
-        </h1>
-
-        <p class="hero-lead" data-i18n="hero_lead">
-          Welcome to <strong>Sunday League Degen FC ($EFOO)</strong> — where the pitch is synthetic, the referee is bribed with warm beer, our striker has Alien skin in a Liga 1 jersey, and <strong>92.91% of the token supply is already burned to ashes</strong>.
-        </p>
-
-        <div class="contract-box">
-          <span class="contract-label" data-i18n="token_id_label">ESDT TOKEN ID:</span>
-          <code id="token-id-code">EFOO-8fe2d4</code>
-          <button type="button" id="copy-token-btn" class="copy-btn" data-i18n="copy_btn">📋 Copy</button>
+        <div class="scroll-burn-live-pill">
+          <span class="sbl-item">🔥 <strong id="hero-live-burn-pct">0.00%</strong> BURNED</span>
+          <span class="sbl-sep">|</span>
+          <span class="sbl-item">⚽ <strong id="hero-live-supply-num">100,000,000,000</strong> $EFOO</span>
         </div>
 
-        <div class="hero-cta-group">
-          <a href="#wallet-hub" class="btn btn-primary">
-            ⚡ <span data-i18n="cta_connect_buy">Connect Wallet • Buy $EFOO &amp; Mint NFT</span>
-          </a>
-          <a href="#efoo-fomo-game" class="btn btn-secondary">
-            ⚽ <span data-i18n="cta_play_fomo">Play EFOO FOMO Shootout</span>
-          </a>
-          <a href="#meme-locker" class="btn btn-outline">
-            🎨 <span data-i18n="cta_meme_studio">Open NFT Meme Studio</span>
-          </a>
+        <a href="#wallet-hub" class="skip-scroll-pill" data-i18n="hero_skip_btn">
+          ⚡ Skip to Swap &amp; Mint ⤵
+        </a>
+      </div>
+
+      <!-- Center 2-Column Transformation Stage -->
+      <div class="container hero-stage-grid">
+        <!-- LEFT: Dynamic Scroll-Morphing Narrative & Furnace Meter -->
+        <div class="hero-narrative-col">
+          <div class="badge-pill" id="hero-act-badge">
+            <span class="pulse-dot" id="hero-pulse-dot"></span>
+            <span id="hero-act-kicker" data-i18n="hero_badge">ACT I (2022) • THE CORPORATE ILLUSION &amp; BEAR TACKLE</span>
+          </div>
+
+          <h1 class="hero-title" id="hero-act-title" data-i18n="hero_title">
+            TOO BROKE FOR CHAMPIONS LEAGUE.<br />
+            <span class="neon-text">TOO DEGEN FOR FIFA.</span>
+          </h1>
+
+          <p class="hero-lead" id="hero-act-desc" data-i18n="hero_lead">
+            Scroll down to witness the on-chain metamorphosis: how we fired the 2022 suits, torched <strong>92,915,321,677 $EFOO (92.91%)</strong> in the furnace, and reborn as <strong>Sunday League Degen FC</strong> with 10,328+ Ultras &amp; live <strong>EFOO FOMO</strong>!
+          </p>
+
+          <!-- Interactive Scroll-Driven Burn & Rebirth Furnace Meter -->
+          <div class="hero-furnace-box">
+            <div class="hf-head">
+              <span id="hf-stage-label">🔥 METAMORPHOSIS FURNACE</span>
+              <span class="hf-burn-count" id="hf-burned-exact">0 / 92,915,321,677 EFOO TORCHED</span>
+            </div>
+            <div class="hf-track">
+              <div class="hf-fill" id="hf-progress-fill" style="width: 8%;"></div>
+              <img src="branding/original/assests-2022/logo.png" alt="Rocket Ball" class="hf-rocket-ball" id="hf-rocket-ball" style="left: 8%;" />
+            </div>
+            <div class="hf-sub-row">
+              <span>Initial: <code>100B EFOO</code></span>
+              <span id="hf-lock-status">🔒 canMint: <strong>false (Forever)</strong></span>
+              <span>Surviving: <code id="hf-surviving-code">7,084,678,323 EFOO</code></span>
+            </div>
+          </div>
+
+          <!-- Token ID & Action CTAs -->
+          <div class="hero-controls-bar">
+            <div class="contract-box">
+              <span class="contract-label" data-i18n="token_id_label">ESDT ID:</span>
+              <code id="token-id-code">EFOO-8fe2d4</code>
+              <button type="button" id="copy-token-btn" class="copy-btn" data-i18n="copy_btn">📋 Copy</button>
+            </div>
+
+            <div class="hero-cta-group">
+              <a href="#wallet-hub" class="btn btn-primary">
+                ⚡ <span data-i18n="cta_connect_buy">Connect • Buy $EFOO &amp; Mint</span>
+              </a>
+              <a href="#efoo-fomo-game" class="btn btn-secondary">
+                ⚽ <span data-i18n="cta_play_fomo">Full FOMO Arena</span>
+              </a>
+              <a href="#meme-locker" class="btn btn-outline">
+                🎨 <span data-i18n="cta_meme_studio">Meme Studio</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: 3D Morphing Visual Core (4 Scroll-Driven Transformation Layers) -->
+        <div class="hero-morph-core" id="hero-morph-core">
+          
+          <!-- LAYER 1 (ACT I: 0% - 25%): 2022 Corporate Blueprint & VAR Red Card Shatter -->
+          <div class="morph-layer layer-act-1 active" id="morph-layer-1">
+            <div class="corp-2022-card" id="corp-2022-card">
+              <div class="corp-header">
+                <span class="corp-year-tag">📁 ARCHIVE: 2022 WHITEPAPER v1.0</span>
+                <span class="corp-supply-tag">100,000,000,000 SUPPLY</span>
+              </div>
+              <div class="corp-body">
+                <div class="corp-logo-row">
+                  <img src="branding/original/EFOO-8fe2d4/logo.svg" alt="2022 EFOO" class="corp-old-logo" />
+                  <div>
+                    <h3>"SERIOUS CORPORATE FOOTBALL"</h3>
+                    <p>Suit-and-tie roadmap before the Bear Market two-footed us in the penalty box:</p>
+                  </div>
+                </div>
+                <ul class="corp-promises-list">
+                  <li>❌ "Win 1x iPhone 14 per 1,000 NFTs Sold"</li>
+                  <li>❌ "Complicated Project Stocks &amp; APR Spreadsheets"</li>
+                  <li>❌ "Waiting for FIFA &amp; UEFA Officials to Call Back"</li>
+                  <li>❌ "100 Billion Unburned Token Supply"</li>
+                </ul>
+              </div>
+              <!-- VAR Red Card Stamp that Slams Down on Scroll -->
+              <div class="var-redcard-stamp" id="var-redcard-stamp">
+                <span class="rc-icon">🟥</span>
+                <div>
+                  <strong>VAR REVIEW: RED CARD!</strong>
+                  <small>2022 CORPORATE ILLUSIONS EJECTED — IGNITING 92.9% BURN!</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LAYER 2 (ACT II: 25% - 55%): The 92.91% Rocket Ball Incinerator -->
+          <div class="morph-layer layer-act-2" id="morph-layer-2">
+            <div class="furnace-orb-card">
+              <div class="orb-fire-ring"></div>
+              <div class="orb-center-ball" id="orb-center-ball">
+                <img src="branding/original/assests-2022/logo.png" alt="Flaming Rocket Football" />
+              </div>
+              <div class="furnace-telemetry">
+                <span class="ft-kicker">🔥 ON-CHAIN GREAT INCINERATION</span>
+                <div class="ft-big-pct" id="orb-burn-pct">92.91% BURNED</div>
+                <p class="ft-sub"><strong>92,915,321,677 $EFOO</strong> permanently destroyed on MultiversX.</p>
+                <div class="ft-badges">
+                  <span>🔒 canMint: false</span>
+                  <span>🛡️ 0% Tax</span>
+                  <span>⚡ Only 7.08B Left</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LAYER 3 (ACT III: 55% - 82%): Reborn Sunday League Degen FC & 3D NFT Squad Fan -->
+          <div class="morph-layer layer-act-3" id="morph-layer-3">
+            <div class="reborn-squad-showcase">
+              <!-- Back Left Card: Goalkeeper Titan -->
+              <div class="fan-card fan-left">
+                <img src="branding/original/GOALKEEPER-cb9e3e/logo.png" alt="Goalkeeper NFT" />
+                <div class="fan-meta">
+                  <span class="gold">🧤 51 KEEPERS</span>
+                  <strong>3x FOMO Boost + Shield</strong>
+                </div>
+              </div>
+
+              <!-- Center Hero Card: Alien Striker #619 + Rebranded Crest -->
+              <div class="player-card main-reborn-card">
+                <div class="player-card-header">
+                  <span class="club-tag">⚡ SUNDAY LEAGUE DEGEN FC</span>
+                  <span class="ovr-badge">99 DEGEN</span>
+                </div>
+                <div class="player-img-box">
+                  <img id="hero-nft-img" src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2FQmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb%2F9734.png&w=600&h=600&fit=cover" alt="EFOO Degen Player NFT" />
+                  <img src="branding/rebranded/efoo-degen-crest-200x200.png" alt="Reborn Crest" class="reborn-crest-floating" />
+                </div>
+                <div class="player-card-meta">
+                  <div class="player-name-row">
+                    <h3 id="hero-nft-title">ElrondFootball #619</h3>
+                    <span class="verified-pill">✔ 679 Verified NFTs</span>
+                  </div>
+                  <p class="player-quote" id="hero-nft-quote" data-i18n="hero_card_quote">
+                    "Coach subbed me in at the 88th minute, I checked the 1m chart and kicked a flaming rocket ball into the top corner."
+                  </p>
+                  <div class="player-stats-mini">
+                    <div><span>BURN</span><strong>92.9%</strong></div>
+                    <div><span>HOLDERS</span><strong id="mini-holders">10,328</strong></div>
+                    <div><span>MINTABLE</span><strong>NO 🔒</strong></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LAYER 4 (ACT IV: 82% - 100%): Built-in Interactive 90+5' EFOO FOMO Climax Widget -->
+          <div class="morph-layer layer-act-4" id="morph-layer-4">
+            <div class="hero-fomo-widget">
+              <div class="hfw-top">
+                <span class="hfw-live-badge">🚨 90+5' INJURY TIME • LIVE EFOO FOMO</span>
+                <span class="hfw-timer" id="hero-fomo-timer">04:42</span>
+              </div>
+
+              <div class="hfw-pot-banner">
+                <div>
+                  <small data-i18n="hfw_pot_label">🏆 ACTIVE STADIUM JACKPOT (50% WIN / 50% BURN)</small>
+                  <strong id="hero-fomo-pot-val">25,400,000 $EFOO</strong>
+                </div>
+                <span class="hfw-leader-tag" id="hero-fomo-leader">Leader: erd1gyw9...8gq</span>
+              </div>
+
+              <!-- Mini Interactive Penalty Goal Inside the Hero! -->
+              <div class="hfw-mini-pitch" id="hfw-mini-pitch">
+                <div class="hfw-goal-post">
+                  <button type="button" class="hfw-target" data-hero-shot="left">
+                    🎯 <span>TOP LEFT</span>
+                  </button>
+                  <button type="button" class="hfw-target" data-hero-shot="center">
+                    🍺 <span>PANENKA</span>
+                  </button>
+                  <button type="button" class="hfw-target" data-hero-shot="right">
+                    🎯 <span>TOP RIGHT</span>
+                  </button>
+                  <div class="hfw-keeper" id="hfw-keeper">🧤</div>
+                  <img src="branding/original/assests-2022/logo.png" alt="Rocket Ball" class="hfw-ball" id="hfw-ball" />
+                </div>
+                <div class="hfw-shot-status" id="hfw-shot-status" data-i18n="hfw_prompt">
+                  ⚡ Click a 🎯 corner above to fire a 90+5' Rocket Shot right now!
+                </div>
+              </div>
+
+              <div class="hfw-actions">
+                <button type="button" id="hero-kick-pot-btn" class="btn btn-primary btn-sm full-width">
+                  🔥 <span data-i18n="btn_kick_fomo">Kick 100,000 $EFOO Into Pot (Reset Clock to 05:00)</span>
+                </button>
+                <div class="hfw-sub-btns">
+                  <a href="#wallet-hub" class="btn btn-secondary btn-sm">⚡ Buy $EFOO / Mint NFT</a>
+                  <a href="#efoo-fomo-game" class="btn btn-outline btn-sm">🏟️ Full Pitch Arena ⤵</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <div class="hero-card-wrap">
-        <div class="player-card">
-          <div class="player-card-header">
-            <span class="club-tag">SUNDAY LEAGUE DEGEN FC</span>
-            <span class="ovr-badge">99 DEGEN</span>
+      <!-- Bottom Interactive 4-Act Scrollytelling Timeline Scrubber -->
+      <div class="container hero-timeline-wrap">
+        <div class="hero-timeline-bar" role="navigation" aria-label="Rebirth Story Chapters">
+          <button type="button" class="ht-step active" data-goto-act="1">
+            <span class="ht-num">01</span>
+            <span class="ht-label" data-i18n="act_1_nav">2022 Red Card 🟥</span>
+          </button>
+          <button type="button" class="ht-step" data-goto-act="2">
+            <span class="ht-num">02</span>
+            <span class="ht-label" data-i18n="act_2_nav">92.91% Mega Burn 🔥</span>
+          </button>
+          <button type="button" class="ht-step" data-goto-act="3">
+            <span class="ht-num">03</span>
+            <span class="ht-label" data-i18n="act_3_nav">Degen FC Rebirth ⚽</span>
+          </button>
+          <button type="button" class="ht-step" data-goto-act="4">
+            <span class="ht-num">04</span>
+            <span class="ht-label" data-i18n="act_4_nav">90+5' EFOO FOMO 🏆</span>
+          </button>
+          <div class="ht-progress-line">
+            <div class="ht-progress-fill" id="ht-progress-fill" style="width: 12%;"></div>
           </div>
-          <div class="player-img-box">
-            <img id="hero-nft-img" src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2FQmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb%2F9734.png&w=600&h=600&fit=cover" alt="EFOO Degen Player NFT" />
-          </div>
-          <div class="player-card-meta">
-            <div class="player-name-row">
-              <h3 id="hero-nft-title">ElrondFootball #619</h3>
-              <span class="verified-pill">✔ Verified NFT</span>
-            </div>
-            <p class="player-quote" id="hero-nft-quote" data-i18n="hero_card_quote">
-              "Coach subbed me in at the 88th minute, I checked the 1m chart and kicked a beach ball into the parking lot."
-            </p>
-            <div class="player-stats-mini">
-              <div><span>BURN</span><strong>92.9%</strong></div>
-              <div><span>HOLDERS</span><strong id="mini-holders">10,328</strong></div>
-              <div><span>MINTABLE</span><strong>NO 🔒</strong></div>
-            </div>
-          </div>
+        </div>
+        <div class="scroll-hint-pill" id="scroll-hint-pill">
+          <span class="mouse-wheel-icon">🖱️</span>
+          <span data-i18n="scroll_hint_text">Scroll down to transform $EFOO through all 4 Acts</span>
         </div>
       </div>
     </div>

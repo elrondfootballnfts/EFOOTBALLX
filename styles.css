@@ -219,20 +219,159 @@ body {
   color: var(--pitch-green);
 }
 
-/* Hero Section */
-.hero {
+/* ==========================================================================
+   SCROLL-DRIVEN CINEMATIC REBIRTH & EFOO FOMO HERO (4 ACTS ON SCROLL)
+   ========================================================================== */
+.hero-scroll-track {
   position: relative;
-  padding: 64px 0 48px;
-  overflow: hidden;
-  background: radial-gradient(circle at 20% 20%, rgba(168, 255, 0, 0.12), transparent 55%),
-              radial-gradient(circle at 80% 60%, rgba(35, 247, 221, 0.08), transparent 50%);
+  height: 360vh;
 }
 
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 44px;
+.hero-sticky-stage {
+  position: sticky;
+  top: 70px;
+  height: calc(100vh - 70px);
+  min-height: 620px;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px 0 16px;
+  transition: background 0.55s ease;
+  background:
+    radial-gradient(circle at 20% 25%, rgba(90, 120, 150, 0.14), transparent 55%),
+    radial-gradient(circle at 80% 65%, rgba(255, 50, 50, 0.1), transparent 55%),
+    #06090b;
+}
+
+.hero-scroll-track[data-act="2"] .hero-sticky-stage {
+  background:
+    radial-gradient(circle at 25% 30%, rgba(255, 94, 0, 0.22), transparent 55%),
+    radial-gradient(circle at 78% 55%, rgba(255, 190, 0, 0.18), transparent 55%),
+    #0b0705;
+}
+
+.hero-scroll-track[data-act="3"] .hero-sticky-stage {
+  background:
+    radial-gradient(circle at 22% 28%, rgba(168, 255, 0, 0.18), transparent 55%),
+    radial-gradient(circle at 80% 60%, rgba(35, 247, 221, 0.12), transparent 55%),
+    #060c08;
+}
+
+.hero-scroll-track[data-act="4"] .hero-sticky-stage {
+  background:
+    radial-gradient(circle at 20% 25%, rgba(255, 215, 0, 0.2), transparent 55%),
+    radial-gradient(circle at 80% 60%, rgba(168, 255, 0, 0.18), transparent 55%),
+    #080d07;
+}
+
+.hero-fx-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hero-stadium-vignette {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Top Broadcast Ribbon */
+.hero-top-ribbon {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.broadcast-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(8, 14, 11, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.broadcast-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ff3b3b;
+  box-shadow: 0 0 10px #ff3b3b;
+  animation: pulse-glow 1.2s infinite alternate;
+}
+
+@keyframes pulse-glow {
+  from { opacity: 0.45; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1.15); }
+}
+
+.scroll-burn-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(10, 18, 14, 0.9);
+  border: 1px solid rgba(168, 255, 0, 0.35);
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+}
+
+.sbl-item strong {
+  color: var(--pitch-green);
+}
+
+.sbl-sep {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.skip-scroll-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  padding: 6px 14px;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.skip-scroll-pill:hover {
+  background: #ffd700;
+  color: #050806;
+}
+
+/* Main 2-Column Stage Grid */
+.hero-stage-grid {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 1.12fr 0.88fr;
+  gap: 36px;
+  align-items: center;
+  margin: auto 0;
 }
 
 .badge-pill {
@@ -244,10 +383,11 @@ body {
   color: var(--pitch-green);
   padding: 6px 14px;
   border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.05em;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
+  transition: all 0.3s ease;
 }
 
 .pulse-dot {
@@ -260,10 +400,11 @@ body {
 
 .hero-title {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(3rem, 6vw, 5.2rem);
+  font-size: clamp(2.6rem, 4.8vw, 4.5rem);
   line-height: 0.96;
   letter-spacing: 1px;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
+  transition: transform 0.25s ease;
 }
 
 .neon-text {
@@ -271,33 +412,126 @@ body {
   text-shadow: 0 0 25px rgba(168, 255, 0, 0.35);
 }
 
+.fire-text {
+  color: #ff6b00;
+  text-shadow: 0 0 25px rgba(255, 107, 0, 0.45);
+}
+
+.gold-glow-text {
+  color: #ffd700;
+  text-shadow: 0 0 25px rgba(255, 215, 0, 0.45);
+}
+
 .hero-lead {
-  font-size: 1.12rem;
+  font-size: 1.02rem;
   color: var(--text-muted);
-  margin-bottom: 24px;
+  margin-bottom: 18px;
   max-width: 600px;
+  min-height: 3.2em;
 }
 
 .hero-lead strong {
   color: var(--text-main);
 }
 
+/* Interactive Scroll Furnace Meter */
+.hero-furnace-box {
+  background: rgba(8, 15, 11, 0.9);
+  border: 1px solid rgba(255, 110, 0, 0.38);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+}
+
+.hf-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+#hf-stage-label {
+  color: #ff7b00;
+}
+
+.hf-burn-count {
+  color: var(--pitch-green);
+}
+
+.hf-track {
+  position: relative;
+  width: 100%;
+  height: 14px;
+  background: #040705;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  margin-bottom: 10px;
+}
+
+.hf-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff2a00 0%, #ff9900 55%, var(--pitch-green) 100%);
+  box-shadow: 0 0 16px rgba(255, 102, 0, 0.6);
+  transition: width 0.08s linear;
+}
+
+.hf-rocket-ball {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px #ff6600);
+  transition: left 0.08s linear;
+  pointer-events: none;
+}
+
+.hf-sub-row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.71rem;
+  color: var(--text-muted);
+}
+
+.hf-sub-row code {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* Controls & CTAs */
+.hero-controls-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .contract-box {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  padding: 10px 16px;
+  padding: 8px 14px;
   border-radius: var(--radius-md);
-  margin-bottom: 26px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  width: fit-content;
 }
 
 .contract-label {
   color: var(--text-muted);
-  font-size: 0.8rem;
+  font-size: 0.76rem;
 }
 
 .contract-box code {
@@ -309,11 +543,11 @@ body {
   background: var(--bg-card-alt);
   color: var(--text-main);
   border: 1px solid var(--border-color);
-  padding: 5px 10px;
+  padding: 4px 10px;
   border-radius: 8px;
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
@@ -325,25 +559,311 @@ body {
 .hero-cta-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
 }
 
-/* Hero Player Card */
+/* ==========================================================================
+   RIGHT COLUMN: 4-LAYER 3D MORPHING VISUAL CORE
+   ========================================================================== */
+.hero-morph-core {
+  position: relative;
+  min-height: 450px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+}
+
+.morph-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(28px) scale(0.92) rotateY(-12deg);
+  transition: opacity 0.42s cubic-bezier(0.2, 0.85, 0.3, 1),
+              transform 0.48s cubic-bezier(0.2, 0.85, 0.3, 1);
+}
+
+.morph-layer.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1) rotateY(0deg);
+}
+
+/* LAYER 1: 2022 Corporate Blueprint & VAR Red Card Shatter */
+.corp-2022-card {
+  width: 100%;
+  max-width: 450px;
+  background: linear-gradient(155deg, #161d24 0%, #0b1015 100%);
+  border: 2px solid rgba(140, 165, 190, 0.35);
+  border-radius: 18px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.corp-2022-card.shattered {
+  border-color: #ff2e2e;
+  box-shadow: 0 24px 60px rgba(255, 30, 30, 0.28);
+}
+
+.corp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: #8fa6bc;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 16px;
+}
+
+.corp-supply-tag {
+  background: rgba(255, 60, 60, 0.15);
+  color: #ff6b6b;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-weight: 700;
+}
+
+.corp-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.corp-old-logo {
+  width: 58px;
+  height: 58px;
+  filter: grayscale(0.55);
+}
+
+.corp-logo-row h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.55rem;
+  color: #cfdbe6;
+  letter-spacing: 0.8px;
+}
+
+.corp-logo-row p {
+  font-size: 0.8rem;
+  color: #8fa6bc;
+}
+
+.corp-promises-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 14px;
+}
+
+.corp-promises-list li {
+  background: rgba(0, 0, 0, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 9px 12px;
+  border-radius: 9px;
+  font-size: 0.84rem;
+  color: #b0c0d0;
+  text-decoration: line-through;
+  text-decoration-color: #ff3b3b;
+}
+
+.var-redcard-stamp {
+  background: linear-gradient(135deg, rgba(220, 20, 20, 0.95), rgba(130, 5, 5, 0.96));
+  border: 2px solid #ff8080;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #ffffff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.75);
+  transform: rotate(-2deg);
+}
+
+.rc-icon {
+  font-size: 2rem;
+}
+
+.var-redcard-stamp strong {
+  display: block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: 1px;
+}
+
+.var-redcard-stamp small {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: #ffd6d6;
+}
+
+/* LAYER 2: The 92.91% Rocket Ball Incinerator Orb */
+.furnace-orb-card {
+  width: 100%;
+  max-width: 450px;
+  background: radial-gradient(circle at 50% 32%, rgba(255, 94, 0, 0.28), rgba(10, 8, 6, 0.96) 72%);
+  border: 2px solid #ff6b00;
+  border-radius: 22px;
+  padding: 26px 22px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(255, 94, 0, 0.25);
+}
+
+.orb-fire-ring {
+  width: 185px;
+  height: 185px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  border: 3px dashed rgba(255, 145, 0, 0.75);
+  box-shadow: 0 0 35px rgba(255, 80, 0, 0.45), inset 0 0 25px rgba(255, 80, 0, 0.35);
+  animation: spin-orb 10s linear infinite;
+}
+
+@keyframes spin-orb {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.orb-center-ball {
+  position: absolute;
+  top: 34px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 155px;
+  height: 155px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orb-center-ball img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 24px rgba(255, 100, 0, 0.85));
+}
+
+.ft-kicker {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #ff9900;
+  background: rgba(255, 110, 0, 0.14);
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 6px;
+}
+
+.ft-big-pct {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3.4rem;
+  line-height: 1;
+  color: #ffffff;
+  text-shadow: 0 0 24px rgba(255, 94, 0, 0.8);
+  margin-bottom: 6px;
+}
+
+.ft-sub {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.ft-badges {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ft-badges span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 140, 0, 0.35);
+  color: #ffd700;
+}
+
+/* LAYER 3: Reborn Sunday League Degen FC 3D Squad Fan */
+.reborn-squad-showcase {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  justify-content: center;
+}
+
+.fan-card {
+  position: absolute;
+  top: 22px;
+  left: -26px;
+  width: 170px;
+  background: #0a140f;
+  border: 2px solid #ffd700;
+  border-radius: 14px;
+  padding: 10px;
+  transform: rotate(-11deg);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8);
+  z-index: 1;
+}
+
+.fan-card img {
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+
+.fan-meta span {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #ffd700;
+}
+
+.fan-meta strong {
+  font-size: 0.75rem;
+  color: #ffffff;
+}
+
 .player-card {
   background: linear-gradient(145deg, #122118 0%, #09100c 100%);
   border: 2px solid var(--pitch-green);
   border-radius: var(--radius-lg);
-  padding: 18px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 30px rgba(168, 255, 0, 0.15);
+  padding: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 30px rgba(168, 255, 0, 0.18);
+}
+
+.main-reborn-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 350px;
+  margin-left: 36px;
 }
 
 .player-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
@@ -359,12 +879,13 @@ body {
 }
 
 .player-img-box {
+  position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  height: 215px;
   border-radius: var(--radius-md);
   overflow: hidden;
   background: #050806;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -375,53 +896,356 @@ body {
   display: block;
 }
 
+.reborn-crest-floating {
+  position: absolute !important;
+  bottom: 8px;
+  right: 8px;
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 50%;
+  border: 2px solid var(--pitch-green);
+  background: #050a07;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.8);
+}
+
 .player-name-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .player-name-row h3 {
-  font-size: 1.2rem;
+  font-size: 1.12rem;
 }
 
 .verified-pill {
   background: rgba(35, 247, 221, 0.14);
   color: var(--mvx-cyan);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   padding: 3px 8px;
   border-radius: 6px;
 }
 
 .player-quote {
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-style: italic;
   color: var(--text-muted);
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .player-stats-mini {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 10px;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 8px;
   border-radius: 10px;
   text-align: center;
 }
 
 .player-stats-mini span {
   display: block;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   color: var(--text-muted);
 }
 
 .player-stats-mini strong {
   font-family: 'JetBrains Mono', monospace;
   color: var(--pitch-green);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+}
+
+/* LAYER 4: Built-In Interactive 90+5' EFOO FOMO Climax Widget */
+.hero-fomo-widget {
+  width: 100%;
+  max-width: 460px;
+  background: linear-gradient(160deg, #102115 0%, #070e09 100%);
+  border: 2px solid #ffd700;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 36px rgba(255, 215, 0, 0.22);
+}
+
+.hfw-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.hfw-live-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #ff6b00;
+  background: rgba(255, 107, 0, 0.15);
+  border: 1px solid rgba(255, 107, 0, 0.4);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.hfw-timer {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  color: #ffd700;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.hfw-pot-banner {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(168, 255, 0, 0.3);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.hfw-pot-banner small {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.hfw-pot-banner strong {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.7rem;
+  color: var(--pitch-green);
+  letter-spacing: 0.8px;
+}
+
+.hfw-leader-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.hfw-mini-pitch {
+  background: radial-gradient(circle at 50% 85%, #163d24 0%, #07150c 80%);
+  border: 1px solid rgba(168, 255, 0, 0.35);
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.hfw-goal-post {
+  position: relative;
+  height: 118px;
+  border-top: 5px solid #ffffff;
+  border-left: 5px solid #ffffff;
+  border-right: 5px solid #ffffff;
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px;
+  margin-bottom: 8px;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.hfw-target {
+  background: rgba(5, 12, 8, 0.82);
+  border: 1.5px dashed var(--pitch-green);
+  color: #ffffff;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  z-index: 3;
+  transition: all 0.15s ease;
+}
+
+.hfw-target:hover {
+  background: var(--pitch-green);
+  color: #050806;
+  transform: scale(1.06);
+}
+
+.hfw-keeper {
+  position: absolute;
+  bottom: 4px;
+  left: calc(50% - 18px);
+  font-size: 2rem;
+  transition: all 0.32s ease;
+  pointer-events: none;
+}
+
+.hfw-ball {
+  position: absolute;
+  bottom: -10px;
+  left: calc(50% - 18px);
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  transition: all 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  pointer-events: none;
+  z-index: 4;
+}
+
+.hfw-shot-status {
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  color: var(--pitch-green);
+  font-weight: 700;
+}
+
+.hfw-sub-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.hfw-sub-btns > * {
+  flex: 1;
+  justify-content: center;
+}
+
+/* Bottom 4-Act Scrollytelling Timeline Bar */
+.hero-timeline-wrap {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-timeline-bar {
+  position: relative;
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  background: rgba(8, 14, 11, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 10px 12px 14px;
+  overflow: hidden;
+}
+
+.ht-step {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9px;
+  padding: 7px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.ht-step:hover {
+  border-color: rgba(168, 255, 0, 0.4);
+  color: #ffffff;
+}
+
+.ht-step.active {
+  background: rgba(168, 255, 0, 0.15);
+  border-color: var(--pitch-green);
+  color: #ffffff;
+}
+
+.ht-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--pitch-green);
+  background: rgba(168, 255, 0, 0.12);
+  padding: 2px 6px;
+  border-radius: 5px;
+}
+
+.ht-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ht-progress-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ht-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff3b00, #ffd700, var(--pitch-green));
+  transition: width 0.08s linear;
+}
+
+.scroll-hint-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  background: rgba(8, 14, 11, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 14px;
+  border-radius: 999px;
+}
+
+.mouse-wheel-icon {
+  display: inline-block;
+  animation: wheel-bob 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes wheel-bob {
+  from { transform: translateY(-2px); }
+  to { transform: translateY(3px); }
+}
+
+@media (max-width: 960px) {
+  .hero-scroll-track {
+    height: auto;
+  }
+  .hero-sticky-stage {
+    position: relative;
+    top: 0;
+    height: auto;
+    min-height: unset;
+    padding: 28px 0;
+    gap: 24px;
+  }
+  .hero-stage-grid {
+    grid-template-columns: 1fr;
+  }
+  .hero-morph-core {
+    min-height: 430px;
+  }
+  .hero-timeline-bar {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 /* Scoreboard */

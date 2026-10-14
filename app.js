@@ -17,6 +17,14 @@ const I18N = {
     cta_play_fomo: "Play EFOO FOMO Shootout",
     cta_meme_studio: "Open NFT Meme Studio",
     hero_card_quote: "\"Coach subbed me in at the 88th minute, I checked the 1m chart and kicked a beach ball into the parking lot.\"",
+    hero_skip_btn: "Skip to Swap & Mint ⤵",
+    hfw_pot_label: "ACTIVE STADIUM POT",
+    hfw_prompt: "🎯 Take an instant Penalty Shot right here in the Hero:",
+    act_1_nav: "2022 Corporate Illusion",
+    act_2_nav: "92.91% Supply Incineration",
+    act_3_nav: "Sunday League Degen Rebirth",
+    act_4_nav: "EFOO FOMO 90+5' Climax",
+    scroll_hint_text: "SCROLL TO IGNITE THE 92.91% REBIRTH",
     scoreboard_title: "STADIUM TELEMETRY — EFOO-8fe2d4",
     stat_burned_label: "🔥 TOTAL BURNED SUPPLY",
     stat_burned_sub: "Out of 100,000,000,000 initial supply",
@@ -169,6 +177,14 @@ const I18N = {
     cta_play_fomo: "Joacă EFOO FOMO Penalty",
     cta_meme_studio: "Deschide Generatorul Meme NFT",
     hero_card_quote: "\"M-a băgat antrenorul în minutul 88, am verificat graficul de 1 minut și am șutat mingea de plajă direct în parcare.\"",
+    hero_skip_btn: "Sari la Swap & Mint ⤵",
+    hfw_pot_label: "POTUL ACTIV AL STADIONULUI",
+    hfw_prompt: "🎯 Execută un Penalty instant chiar aici în Hero:",
+    act_1_nav: "Iluzia Corporatistă 2022",
+    act_2_nav: "Incinerarea a 92.91% din Ofertă",
+    act_3_nav: "Renașterea Sunday League Degen",
+    act_4_nav: "Punctul Culminant EFOO FOMO 90+5'",
+    scroll_hint_text: "DERULEAZĂ PENTRU A APRINDE RENAȘTEREA DE 92.91%",
     scoreboard_title: "TABELA DE MARCAJ ON-CHAIN — EFOO-8fe2d4",
     stat_burned_label: "🔥 TOKENI ARȘI (TOTAL BURN)",
     stat_burned_sub: "Din 100,000,000,000 oferta inițială",
@@ -502,6 +518,427 @@ function setLanguage(lang) {
   updateSwapEstimate();
   renderMemePresets();
   updateTweetShareLink();
+  updateHeroActCopy(currentHeroAct);
+}
+
+// ============================================================================
+// 4-ACT SCROLL-DRIVEN HERO REBIRTH & BUILT-IN EFOO FOMO ENGINE
+// ============================================================================
+const HERO_ACTS = {
+  en: {
+    1: {
+      clock: "⚽ 12:00' — 2022 WINTER BEAR MARKET",
+      kicker: "ACT I • 2022: THE CORPORATE ILLUSION & VAR RED CARD",
+      title: "TOO BROKE FOR CHAMPIONS LEAGUE.<br /><span class='neon-text'>TOO DEGEN FOR FIFA.</span>",
+      desc: "In 2022 we wore suits, wrote corporate whitepapers, and promised iPhone 14 giveaways while the bear market two-footed us in the penalty box. <strong>Scroll down</strong> to watch the VAR Referee blow the whistle and throw the 2022 roadmap into the furnace."
+    },
+    2: {
+      clock: "🔥 45:00' — THE 92.91% TOKEN FURNACE",
+      kicker: "ACT II • THE GREAT 92.91% SUPPLY INCINERATION",
+      title: "92,915,321,677 $EFOO<br /><span class='fire-text'>BURNED TO ASHES ON-CHAIN.</span>",
+      desc: "Out of <strong>100,000,000,000</strong> initial tokens, we torched <strong>92.91%</strong> forever on MultiversX! Only <strong>7.08 Billion $EFOO</strong> survived, with <code>canMint: false</code> locked in stone and <strong>10,328 wallets</strong> holding in the stands."
+    },
+    3: {
+      clock: "⚡ 75:00' — FLOODLIGHTS ON • DEGEN REBIRTH",
+      kicker: "ACT III • REBORN AS SUNDAY LEAGUE DEGEN FC",
+      title: "628 ALIEN STRIKERS.<br /><span class='neon-text'>51 GOD-TIER GOALKEEPERS.</span>",
+      desc: "From the ashes of 2022 rose <strong>Sunday League Degen FC ($EFOO)</strong>! Our verified <code>EFOOTBALL-91a4eb</code> &amp; <code>GOALKEEPER-cb9e3e</code> NFTs now unlock real utility: 2x–3x score multipliers, Goalkeeper Save Shields, and instant on-site DEX swaps!"
+    },
+    4: {
+      clock: "🏆 90+5' — INJURY TIME EFOO FOMO POT",
+      kicker: "ACT IV • 90+5' INJURY TIME: EFOO FOMO CLIMAX",
+      title: "90+5' INJURY TIME.<br /><span class='gold-text'>LAST STRIKER WINS THE POT!</span>",
+      desc: "The transformation is complete! Take an instant penalty shot right here in the Hero or kick <strong>100,000 $EFOO</strong> into the Injury Time Pot to reset the <code>05:00</code> clock — <strong>50% goes to the Last Striker</strong> and <strong>50% is burned forever</strong>!"
+    }
+  },
+  ro: {
+    1: {
+      clock: "⚽ 12:00' — IARNA BEAR MARKET 2022",
+      kicker: "ACTUL I • 2022: ILUZIA CORPORATISTĂ & CARTONAȘ ROȘU VAR",
+      title: "PREA SĂRACI PENTRU CHAMPIONS LEAGUE.<br /><span class='neon-text'>PREA DEGEN PENTRU FIFA.</span>",
+      desc: "În 2022 am încercat să fim proiect serios la costum și promiteam iPhone 14 în plin bear market. <strong>Derulează în jos</strong> să vezi cum arbitrul scoate Cartonașul Roșu VAR și aruncă whitepaper-ul direct în furnal!"
+    },
+    2: {
+      clock: "🔥 45:00' — FURNALUL DE 92.91% BURN",
+      kicker: "ACTUL II • MAREA INCINERARE A 92.91% DIN OFERTĂ",
+      title: "92,915,321,677 $EFOO<br /><span class='fire-text'>ARȘI DEFINITIV PE BLOCKCHAIN.</span>",
+      desc: "Din oferta inițială de <strong>100 de Miliarde</strong>, am incinerat <strong>92.91%</strong> pentru totdeauna! Doar <strong>7.08 Miliarde $EFOO</strong> au supraviețuit în circulație (<code>canMint: false</code>), cu <strong>10,328 portofele</strong> deja în tribune."
+    },
+    3: {
+      clock: "⚡ 75:00' — NOCTURNA APRINSĂ • RENAȘTEREA DEGEN",
+      kicker: "ACTUL III • RENĂSCUT CA SUNDAY LEAGUE DEGEN FC",
+      title: "628 ATACANȚI EXTRATEREȘTRI.<br /><span class='neon-text'>51 PORTARI DE LEGENDĂ.</span>",
+      desc: "Din cenușa anului 2022 s-a născut <strong>Sunday League Degen FC ($EFOO)</strong>! Colecțiile verificate <code>EFOOTBALL-91a4eb</code> și <code>GOALKEEPER-cb9e3e</code> îți oferă acum super-puteri: multiplicatoare 2x–3x, Scutul Portarului și Swap/Mint direct pe site!"
+    },
+    4: {
+      clock: "🏆 90+5' — POTUL DE PRELUNGIRI EFOO FOMO",
+      kicker: "ACTUL IV • MINUTUL 90+5': PUNCTUL CULMINANT EFOO FOMO",
+      title: "MINUTUL 90+5' PRELUNGIRI.<br /><span class='gold-text'>ULTIMUL MARCATOR IA TOT POTUL!</span>",
+      desc: "Transformarea e completă! Execută un penalty chiar acum în Hero sau șutează <strong>100,000 $EFOO</strong> în Potul de Prelungiri pentru a reseta ceasul la <code>05:00</code> — <strong>50% merge la Ultimul Marcator</strong>, iar <strong>50% se ard pe loc</strong>!"
+    }
+  }
+};
+
+let currentHeroAct = 1;
+let currentHeroProgress = 0;
+let heroMiniShotBusy = false;
+
+function updateHeroActCopy(actNum) {
+  const actData = (HERO_ACTS[currentLang] && HERO_ACTS[currentLang][actNum]) || HERO_ACTS.en[actNum];
+  if (!actData) return;
+
+  const clockEl = document.getElementById("hero-match-clock");
+  const kickerEl = document.getElementById("hero-act-kicker");
+  const titleEl = document.getElementById("hero-act-title");
+  const descEl = document.getElementById("hero-act-desc");
+
+  if (clockEl) clockEl.textContent = actData.clock;
+  if (kickerEl) kickerEl.innerHTML = actData.kicker;
+  if (titleEl) titleEl.innerHTML = actData.title;
+  if (descEl) descEl.innerHTML = actData.desc;
+}
+
+function setHeroActState(actNum) {
+  const clampedAct = Math.max(1, Math.min(4, actNum));
+  const track = document.getElementById("hero-scroll-track");
+  if (track) track.setAttribute("data-act", String(clampedAct));
+
+  if (currentHeroAct !== clampedAct) {
+    currentHeroAct = clampedAct;
+    updateHeroActCopy(clampedAct);
+  }
+
+  for (let i = 1; i <= 4; i++) {
+    const layer = document.getElementById(`morph-layer-${i}`);
+    if (layer) layer.classList.toggle("active", i === clampedAct);
+  }
+
+  document.querySelectorAll(".ht-step").forEach((btn) => {
+    const stepAct = Number(btn.getAttribute("data-goto-act") || 1);
+    btn.classList.toggle("active", stepAct === clampedAct);
+  });
+}
+
+function updateHeroScrollyState(progress) {
+  const p = Math.max(0, Math.min(1, progress));
+  currentHeroProgress = p;
+
+  // Determine which of the 4 Acts we are in based on scroll progress:
+  // Act 1: 0.00 - 0.24
+  // Act 2: 0.24 - 0.54
+  // Act 3: 0.54 - 0.80
+  // Act 4: 0.80 - 1.00
+  let act = 1;
+  if (p >= 0.80) act = 4;
+  else if (p >= 0.54) act = 3;
+  else if (p >= 0.24) act = 2;
+
+  setHeroActState(act);
+
+  // Progress bars & rocket ball slider
+  const pct100 = (p * 100).toFixed(1);
+  const hfFill = document.getElementById("hf-progress-fill");
+  const hfBall = document.getElementById("hf-rocket-ball");
+  const htFill = document.getElementById("ht-progress-fill");
+  if (hfFill) hfFill.style.width = `${pct100}%`;
+  if (hfBall) hfBall.style.left = `${pct100}%`;
+  if (htFill) htFill.style.width = `${pct100}%`;
+
+  // Continuous Burn & Supply Interpolation (completes 0% -> 92.91% across Acts 1 & 2, i.e., p: 0.02 -> 0.54)
+  const burnRatio = Math.max(0, Math.min(1, (p - 0.02) / 0.50));
+  // Ease-out cubic so the numbers roar up dramatically as you enter the furnace
+  const easedBurn = 1 - Math.pow(1 - burnRatio, 2.6);
+
+  const TOTAL_INITIAL = 100000000000;
+  const TARGET_BURNED = 92915321677;
+  const curBurned = Math.round(TARGET_BURNED * easedBurn);
+  const curSurviving = TOTAL_INITIAL - curBurned;
+  const curBurnPct = (92.91 * easedBurn).toFixed(2);
+  const curSurvivingBillions = (curSurviving / 1e9).toFixed(2);
+
+  const topBurnEl = document.getElementById("hero-live-burn-pct");
+  const topSupEl = document.getElementById("hero-live-supply-num");
+  const orbBurnEl = document.getElementById("orb-burn-pct");
+  const hfBurnExact = document.getElementById("hf-burned-exact");
+  const hfSurvCode = document.getElementById("hf-surviving-code");
+
+  if (topBurnEl) topBurnEl.textContent = `${curBurnPct}%`;
+  if (orbBurnEl) orbBurnEl.textContent = `${curBurnPct}%`;
+  if (topSupEl) topSupEl.textContent = `${curSurvivingBillions}B $EFOO`;
+  if (hfBurnExact) hfBurnExact.textContent = `${curBurned.toLocaleString("en-US")} $EFOO`;
+  if (hfSurvCode) hfSurvCode.textContent = curSurviving.toLocaleString("en-US");
+
+  // Act 1 specific micro-animation: VAR Red Card Stamp slams onto the 2022 Whitepaper as p goes 0.03 -> 0.18
+  const stamp = document.getElementById("var-redcard-stamp");
+  if (stamp) {
+    const stampProg = Math.max(0, Math.min(1, (p - 0.03) / 0.14));
+    const scale = 1.65 - 0.65 * stampProg;
+    stamp.style.opacity = String(stampProg);
+    stamp.style.transform = `translate(-50%, -50%) rotate(-14deg) scale(${scale.toFixed(3)})`;
+  }
+
+  // Act 2 specific micro-animation: Rocket Ball spins and scales inside the Furnace Orb
+  const orbBall = document.getElementById("orb-center-ball");
+  if (orbBall && act === 2) {
+    const act2Local = Math.max(0, Math.min(1, (p - 0.24) / 0.30));
+    const deg = Math.round(act2Local * 360);
+    const s = (0.92 + Math.sin(act2Local * Math.PI) * 0.18).toFixed(3);
+    orbBall.style.transform = `rotate(${deg}deg) scale(${s})`;
+  }
+}
+
+function scrollToHeroAct(targetAct) {
+  const track = document.getElementById("hero-scroll-track");
+  if (!track) return;
+
+  const targetProgressMap = {
+    1: 0.08,
+    2: 0.38,
+    3: 0.66,
+    4: 0.92
+  };
+  const targetP = targetProgressMap[targetAct] ?? 0;
+
+  const rect = track.getBoundingClientRect();
+  const trackTopAbs = window.scrollY + rect.top;
+  const scrollableDist = track.offsetHeight - window.innerHeight;
+
+  if (scrollableDist > 120) {
+    window.scrollTo({
+      top: trackTopAbs + scrollableDist * targetP,
+      behavior: "smooth"
+    });
+  } else {
+    // Mobile or compact viewport fallback: switch Act directly
+    updateHeroScrollyState(targetP);
+  }
+}
+
+function shootHeroMiniPenalty(direction) {
+  if (heroMiniShotBusy) return;
+  heroMiniShotBusy = true;
+
+  const ball = document.getElementById("hfw-ball");
+  const keeper = document.getElementById("hfw-keeper");
+  const statusEl = document.getElementById("hfw-shot-status");
+
+  const dirs = ["left", "center", "right"];
+  const posMap = {
+    left: "18%",
+    center: "50%",
+    right: "82%"
+  };
+
+  let keeperDir = dirs[Math.floor(Math.random() * dirs.length)];
+  // Give player a fun 70% chance to score in the Hero mini-widget
+  if (keeperDir === direction && Math.random() < 0.55) {
+    keeperDir = dirs.find((d) => d !== direction) || "center";
+  }
+
+  if (ball) {
+    ball.style.left = posMap[direction] || "50%";
+    ball.style.bottom = "74px";
+    ball.style.transform = "translateX(-50%) scale(0.75) rotate(360deg)";
+  }
+  if (keeper) {
+    keeper.style.left = posMap[keeperDir] || "50%";
+    keeper.style.bottom = "46px";
+  }
+
+  setTimeout(() => {
+    const isGoal = direction !== keeperDir;
+    if (isGoal) {
+      gameState.goals += 1;
+      gameState.streak += 1;
+      const pts = 1500 + gameState.streak * 250;
+      gameState.score += pts;
+      if (gameState.score > gameState.bestScore) {
+        gameState.bestScore = gameState.score;
+        localStorage.setItem("efoo_fomo_best", String(gameState.bestScore));
+      }
+      if (statusEl) {
+        statusEl.innerHTML =
+          currentLang === "ro"
+            ? `⚽🔥 <strong>GOOOOL ÎN VINCLU!</strong> +${pts.toLocaleString()} puncte $EFOO! (Serie: ${gameState.streak}x)`
+            : `⚽🔥 <strong>TOP BINS GOOOL!</strong> +${pts.toLocaleString()} $EFOO pts! (Streak: ${gameState.streak}x)`;
+      }
+    } else {
+      gameState.streak = 0;
+      if (statusEl) {
+        statusEl.innerHTML =
+          currentLang === "ro"
+            ? `🧤❌ <strong>APĂRĂ PORTARUL #51!</strong> Mai șutează o dată sau intră în Potul de 100k $EFOO!`
+            : `🧤❌ <strong>SAVED BY KEEPER #51!</strong> Shoot again or kick 100k $EFOO into the Pot!`;
+      }
+    }
+
+    // Sync main game scoreboard too
+    const gGoals = document.getElementById("game-goals");
+    const gStreak = document.getElementById("game-streak");
+    const gScore = document.getElementById("game-score");
+    const gBest = document.getElementById("game-best");
+    if (gGoals) gGoals.textContent = String(gameState.goals);
+    if (gStreak) gStreak.textContent = String(gameState.streak);
+    if (gScore) gScore.textContent = gameState.score.toLocaleString("en-US");
+    if (gBest) gBest.textContent = gameState.bestScore.toLocaleString("en-US");
+
+    setTimeout(() => {
+      if (ball) {
+        ball.style.left = "50%";
+        ball.style.bottom = "6px";
+        ball.style.transform = "translateX(-50%) scale(1) rotate(0deg)";
+      }
+      if (keeper) {
+        keeper.style.left = "50%";
+        keeper.style.bottom = "38px";
+      }
+      heroMiniShotBusy = false;
+    }, 750);
+  }, 380);
+}
+
+function initHeroFxCanvas() {
+  const canvas = document.getElementById("hero-fx-canvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+
+  let width = 0;
+  let height = 0;
+  const particles = [];
+  const PARTICLE_COUNT = 55;
+
+  function resize() {
+    width = canvas.width = canvas.parentElement?.clientWidth || window.innerWidth;
+    height = canvas.height = canvas.parentElement?.clientHeight || window.innerHeight;
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: 1.2 + Math.random() * 2.8,
+      vx: (Math.random() - 0.5) * 0.8,
+      vy: (Math.random() - 0.5) * 1.2,
+      alpha: 0.2 + Math.random() * 0.65
+    });
+  }
+
+  function renderFrame() {
+    ctx.clearRect(0, 0, width, height);
+
+    particles.forEach((pt) => {
+      if (currentHeroAct === 1) {
+        // Act 1: Cold 2022 Winter Bear Market Rain falling down
+        pt.x += -0.4;
+        pt.y += 3.2 + pt.r * 0.8;
+        ctx.strokeStyle = `rgba(148, 163, 184, ${pt.alpha * 0.45})`;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(pt.x, pt.y);
+        ctx.lineTo(pt.x + 2, pt.y - 11);
+        ctx.stroke();
+      } else if (currentHeroAct === 2) {
+        // Act 2: 92.91% Furnace Fire Embers rising rapidly
+        pt.x += Math.sin(pt.y * 0.03) * 0.9;
+        pt.y -= 1.8 + pt.r * 0.75;
+        ctx.fillStyle = pt.r > 2.6 ? `rgba(255, 85, 0, ${pt.alpha})` : `rgba(255, 190, 0, ${pt.alpha})`;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.r * 1.15, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (currentHeroAct === 3) {
+        // Act 3: Neon Turf Floodlight Fireflies
+        pt.x += pt.vx;
+        pt.y -= 0.65 + pt.r * 0.2;
+        ctx.fillStyle = `rgba(168, 255, 0, ${pt.alpha * 0.8})`;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // Act 4: 90+5' Golden FOMO Confetti Sparks
+        pt.x += Math.cos(pt.y * 0.02) * 0.7;
+        pt.y -= 1.1 + pt.r * 0.35;
+        ctx.fillStyle = pt.r > 2.4 ? `rgba(255, 184, 0, ${pt.alpha})` : `rgba(168, 255, 0, ${pt.alpha})`;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.r * 1.1, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Wrap around edges
+      if (pt.y < -15) {
+        pt.y = height + 10;
+        pt.x = Math.random() * width;
+      } else if (pt.y > height + 15) {
+        pt.y = -10;
+        pt.x = Math.random() * width;
+      }
+      if (pt.x < -15) pt.x = width + 10;
+      if (pt.x > width + 15) pt.x = -10;
+    });
+
+    requestAnimationFrame(renderFrame);
+  }
+
+  requestAnimationFrame(renderFrame);
+}
+
+function initHeroScrollytelling() {
+  const track = document.getElementById("hero-scroll-track");
+  if (!track) return;
+
+  function onScroll() {
+    const rect = track.getBoundingClientRect();
+    const scrollable = track.offsetHeight - window.innerHeight;
+    if (scrollable <= 60) return;
+    const scrolled = -rect.top;
+    const progress = Math.max(0, Math.min(1, scrolled / scrollable));
+    updateHeroScrollyState(progress);
+  }
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  // Bind 4-Act Timeline Scrubber buttons
+  document.querySelectorAll(".ht-step").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const actNum = Number(btn.getAttribute("data-goto-act") || 1);
+      scrollToHeroAct(actNum);
+    });
+  });
+
+  // Bind 3D Mouse Tilt on the Morph Core
+  const morphCore = document.getElementById("hero-morph-core");
+  if (morphCore) {
+    morphCore.addEventListener("mousemove", (e) => {
+      const r = morphCore.getBoundingClientRect();
+      const nx = (e.clientX - r.left) / r.width - 0.5;
+      const ny = (e.clientY - r.top) / r.height - 0.5;
+      const activeLayer = morphCore.querySelector(".morph-layer.active");
+      if (activeLayer) {
+        activeLayer.style.transform = `translateY(0) scale(1) rotateY(${(nx * 10).toFixed(2)}deg) rotateX(${(-ny * 8).toFixed(2)}deg)`;
+      }
+    });
+    morphCore.addEventListener("mouseleave", () => {
+      const activeLayer = morphCore.querySelector(".morph-layer.active");
+      if (activeLayer) {
+        activeLayer.style.transform = "";
+      }
+    });
+  }
+
+  // Bind Hero Mini Penalty Shootout buttons
+  document.querySelectorAll("[data-hero-shot]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      shootHeroMiniPenalty(btn.getAttribute("data-hero-shot") || "center");
+    });
+  });
+
+  // Bind Hero Kick 100k $EFOO Into Pot button
+  document.getElementById("hero-kick-pot-btn")?.addEventListener("click", kickEfooIntoFomoPot);
+
+  // Initialize state & particle canvas
+  initHeroFxCanvas();
+  onScroll();
 }
 
 // ============================================================================
@@ -1708,8 +2145,11 @@ function kickEfooIntoFomoPot() {
   // Also reset local clock & update leader immediately for instant feedback
   gameState.fomoSeconds = 300;
   gameState.fomoPot += 100000;
-  document.getElementById("fomo-pot-amount").textContent =
-    `${gameState.fomoPot.toLocaleString("en-US")} $EFOO`;
+  const formattedPot = `${gameState.fomoPot.toLocaleString("en-US")} $EFOO`;
+  const potEl = document.getElementById("fomo-pot-amount");
+  const heroPotEl = document.getElementById("hero-fomo-pot-val");
+  if (potEl) potEl.textContent = formattedPot;
+  if (heroPotEl) heroPotEl.textContent = formattedPot;
   if (connectedAddress) {
     document.getElementById("fomo-last-striker").textContent = shortErd(connectedAddress);
   }
@@ -2205,8 +2645,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const mins = String(Math.floor(gameState.fomoSeconds / 60)).padStart(2, "0");
     const secs = String(gameState.fomoSeconds % 60).padStart(2, "0");
+    const timeStr = `${mins}:${secs}`;
     const clockEl = document.getElementById("fomo-countdown");
-    if (clockEl) clockEl.textContent = `${mins}:${secs}`;
+    const heroClockEl = document.getElementById("hero-fomo-timer");
+    if (clockEl) clockEl.textContent = timeStr;
+    if (heroClockEl) heroClockEl.textContent = timeStr;
   }, 1000);
 
   // Meme Studio Controls
@@ -2241,7 +2684,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("download-meme-btn")?.addEventListener("click", downloadMemePng);
 
-  // Initial Data Loads
+  // Initial Data Loads & Hero Scrollytelling Engine
+  initHeroScrollytelling();
   setLanguage("en");
   fetchLiveTokenStats();
   fetchLiveDexReserves();
