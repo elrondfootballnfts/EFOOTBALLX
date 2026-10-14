@@ -668,13 +668,14 @@ function updateHeroScrollyState(progress) {
   if (hfBurnExact) hfBurnExact.textContent = `${curBurned.toLocaleString("en-US")} $EFOO`;
   if (hfSurvCode) hfSurvCode.textContent = curSurviving.toLocaleString("en-US");
 
-  // Act 1 specific micro-animation: VAR Red Card Stamp slams onto the 2022 Whitepaper as p goes 0.03 -> 0.18
+  // Act 1 specific micro-animation: VAR Red Card Stamp stays centered & unclipped inside the 2022 Whitepaper card
   const stamp = document.getElementById("var-redcard-stamp");
   if (stamp) {
-    const stampProg = Math.max(0, Math.min(1, (p - 0.03) / 0.14));
-    const scale = 1.65 - 0.65 * stampProg;
-    stamp.style.opacity = String(stampProg);
-    stamp.style.transform = `translate(-50%, -50%) rotate(-14deg) scale(${scale.toFixed(3)})`;
+    const stampProg = Math.max(0, Math.min(1, p / 0.14));
+    const scale = 1.05 - 0.05 * stampProg;
+    const tilt = -1.2 - 1.3 * stampProg;
+    stamp.style.opacity = "1";
+    stamp.style.transform = `rotate(${tilt.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
   }
 
   // Act 2 specific micro-animation: Rocket Ball spins and scales inside the Furnace Orb
