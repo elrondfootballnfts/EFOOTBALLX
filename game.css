@@ -1,322 +1,31 @@
 /* ============================================================================
-   EFOO FOMO — STANDALONE STADIUM ARENA & CINEMATIC GAME STYLES (game.css)
+   EFOO FOMO — FULLSCREEN 60FPS ARCADE STADIUM (ZERO TEXT BLOAT)
    ============================================================================ */
 
-.game-page-body {
-  background: #040806;
-  color: #f8fafc;
-  overflow-x: hidden;
-}
-
-/* TOP GAME NAVBAR */
-.game-navbar {
-  position: sticky;
-  top: 0;
-  z-index: 900;
-  background: rgba(5, 11, 8, 0.92);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(168, 255, 0, 0.22);
-}
-
-.game-nav-inner {
-  max-width: 1360px;
-  margin: 0 auto;
-  padding: 12px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-
-.back-home-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: #e2e8f0;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.back-home-btn:hover {
-  border-color: var(--neon);
-  color: var(--neon);
-  transform: translateX(-2px);
-}
-
-.game-nav-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.game-nav-brand img {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  box-shadow: 0 0 14px rgba(168, 255, 0, 0.45);
-}
-
-.game-nav-brand-title {
-  font-family: var(--font-display);
-  font-size: 1.45rem;
-  letter-spacing: 0.05em;
-  color: #fff;
-  line-height: 1;
-}
-
-.game-nav-brand-sub {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  color: var(--neon);
-  letter-spacing: 0.08em;
-}
-
-.game-nav-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.sound-toggle-btn {
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: rgba(168, 255, 0, 0.08);
-  border: 1px solid rgba(168, 255, 0, 0.25);
-  color: var(--neon);
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.sound-toggle-btn:hover {
-  background: rgba(168, 255, 0, 0.18);
-}
-
-/* ============================================================================
-   ULTRA-SIMPLE 3-STEP VISUAL RULES STRIP
-   ============================================================================ */
-.quick-rules-strip {
-  max-width: 1360px;
-  margin: 18px auto 12px;
-  padding: 0 20px;
-}
-
-.quick-rules-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-}
-
-.qr-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 18px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(14, 29, 20, 0.9), rgba(7, 14, 10, 0.95));
-  border: 1px solid rgba(168, 255, 0, 0.2);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
-}
-
-.qr-step-badge {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
-  background: rgba(168, 255, 0, 0.12);
-  border: 1px solid rgba(168, 255, 0, 0.38);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.45rem;
-  flex-shrink: 0;
-}
-
-.qr-card.gold .qr-step-badge {
-  background: rgba(255, 184, 0, 0.14);
-  border-color: rgba(255, 184, 0, 0.45);
-}
-
-.qr-text h3 {
-  font-family: var(--font-display);
-  font-size: 1.2rem;
-  letter-spacing: 0.04em;
-  color: #fff;
-  margin: 0 0 2px;
-}
-
-.qr-text p {
-  font-size: 0.82rem;
-  color: #cbd5e1;
+* {
+  box-sizing: border-box;
   margin: 0;
-  line-height: 1.35;
+  padding: 0;
 }
 
-/* ============================================================================
-   MAIN GAME LAYOUT: STADIUM STAGE (LEFT) + LIVE FOMO POT & QUICK BOOST (RIGHT)
-   ============================================================================ */
-.game-main-container {
-  max-width: 1360px;
-  margin: 0 auto 36px;
-  padding: 0 20px;
-  display: grid;
-  grid-template-columns: 1.55fr 0.85fr;
-  gap: 22px;
-  align-items: start;
-}
-
-/* STADIUM ARENA SHELL */
-.stadium-arena-shell {
-  position: relative;
-  border-radius: 24px;
-  background: radial-gradient(circle at 50% 20%, #102a1b 0%, #050c08 80%);
-  border: 2px solid rgba(168, 255, 0, 0.32);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.85), 0 0 40px rgba(168, 255, 0, 0.1);
+html,
+body.arcade-body {
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
-}
-
-/* TOP TELEMETRY SCOREBOARD BAR */
-.arena-hud-top {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
-  padding: 12px 16px;
-  background: rgba(4, 9, 6, 0.92);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.hud-stat-box {
-  padding: 8px 10px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  text-align: center;
-}
-
-.hud-stat-box.neon {
-  background: rgba(168, 255, 0, 0.1);
-  border-color: rgba(168, 255, 0, 0.38);
-}
-
-.hud-stat-box.gold {
-  background: rgba(255, 184, 0, 0.1);
-  border-color: rgba(255, 184, 0, 0.38);
-}
-
-.hud-stat-label {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.hud-stat-val {
-  display: block;
-  font-family: var(--font-display);
-  font-size: 1.55rem;
-  letter-spacing: 0.04em;
-  color: #fff;
-  line-height: 1.05;
-  margin-top: 2px;
-}
-
-.hud-stat-box.neon .hud-stat-val {
-  color: var(--neon);
-}
-
-.hud-stat-box.gold .hud-stat-val {
-  color: var(--gold);
-}
-
-/* ACTIVE SUPERPOWERS STATUS RIBBON */
-.arena-superpowers-ribbon {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px 16px;
-  background: rgba(10, 22, 15, 0.95);
-  border-bottom: 1px solid rgba(168, 255, 0, 0.18);
-  flex-wrap: wrap;
-}
-
-.sp-badges-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.sp-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #64748b;
-  transition: all 0.25s ease;
-}
-
-.sp-pill.active {
-  background: rgba(168, 255, 0, 0.14);
-  border-color: rgba(168, 255, 0, 0.5);
-  color: var(--neon);
-  box-shadow: 0 0 12px rgba(168, 255, 0, 0.22);
-}
-
-.sp-pill.active.gold {
-  background: rgba(255, 184, 0, 0.16);
-  border-color: rgba(255, 184, 0, 0.55);
-  color: var(--gold);
-  box-shadow: 0 0 12px rgba(255, 184, 0, 0.25);
-}
-
-.demo-whale-toggle-btn {
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(255, 184, 0, 0.2), rgba(255, 77, 0, 0.2));
-  border: 1px solid rgba(255, 184, 0, 0.5);
-  color: #fde047;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.demo-whale-toggle-btn:hover {
-  background: rgba(255, 184, 0, 0.32);
-  transform: translateY(-1px);
-}
-
-/* ============================================================================
-   INTERACTIVE 60FPS STADIUM STAGE & OVERLAYS
-   ============================================================================ */
-.pitch-viewport {
-  position: relative;
-  width: 100%;
-  height: 520px;
-  background: #050f09;
-  overflow: hidden;
+  background: #030705;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #ffffff;
   user-select: none;
+  -webkit-user-select: none;
+}
+
+/* FULLSCREEN VIEWPORT STAGE */
+.arcade-viewport {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
 
 #stadium-canvas {
@@ -326,935 +35,885 @@
   height: 100%;
   display: block;
   z-index: 1;
-}
-
-/* TELEPATHY KEEPER RADAR BANNER (3+ NFTs) */
-.telepathy-radar-alert {
-  position: absolute;
-  top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 12;
-  padding: 6px 16px;
-  border-radius: 999px;
-  background: rgba(8, 18, 12, 0.9);
-  border: 1px solid var(--neon);
-  color: var(--neon);
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
-  font-weight: 700;
-  box-shadow: 0 0 18px rgba(168, 255, 0, 0.35);
-  pointer-events: none;
-  animation: pulseRadar 1.2s infinite alternate;
-}
-
-@keyframes pulseRadar {
-  0% { transform: translateX(-50%) scale(0.98); }
-  100% { transform: translateX(-50%) scale(1.03); }
-}
-
-/* 6 INTERACTIVE GOAL TARGET BUTTONS OVERLAY */
-.goal-targets-layer {
-  position: absolute;
-  top: 66px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 68%;
-  max-width: 540px;
-  height: 215px;
-  z-index: 10;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap: 12px;
-  padding: 12px;
-}
-
-.goal-zone-btn {
-  position: relative;
-  border-radius: 16px;
-  background: rgba(168, 255, 0, 0.08);
-  border: 2px dashed rgba(168, 255, 0, 0.42);
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.18s ease;
-  backdrop-filter: blur(2px);
-}
-
-.goal-zone-btn:hover {
-  background: rgba(168, 255, 0, 0.24);
-  border-style: solid;
-  border-color: var(--neon);
-  transform: scale(1.05);
-  box-shadow: 0 0 22px rgba(168, 255, 0, 0.45);
-}
-
-.goal-zone-btn.selected {
-  background: rgba(168, 255, 0, 0.32);
-  border: 2px solid #fff;
-  box-shadow: 0 0 28px rgba(168, 255, 0, 0.8);
-}
-
-.goal-zone-btn.golden-bullseye {
-  background: rgba(255, 184, 0, 0.18);
-  border: 2px solid #ffb800;
-  box-shadow: 0 0 24px rgba(255, 184, 0, 0.5);
-  animation: bullseyePulse 1s infinite alternate;
-}
-
-@keyframes bullseyePulse {
-  0% { transform: scale(0.98); box-shadow: 0 0 14px rgba(255, 184, 0, 0.4); }
-  100% { transform: scale(1.04); box-shadow: 0 0 28px rgba(255, 184, 0, 0.85); }
-}
-
-.gz-icon {
-  font-size: 1.35rem;
-  line-height: 1;
-}
-
-.gz-label {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  margin-top: 3px;
-  text-shadow: 0 2px 6px #000;
-}
-
-.gz-bonus-tag {
-  position: absolute;
-  top: -9px;
-  right: -6px;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #ffb800, #ff4d00);
-  color: #050a07;
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  font-weight: 900;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+  cursor: crosshair;
 }
 
 /* ============================================================================
-   PHASE 2: ARCADE POWER & CURVE TIMING METER OVERLAY
+   FLOATING TOP BROADCAST SCOREBOARD HUD (MINIMAL, PRO EA-FC STYLE)
    ============================================================================ */
-.timing-meter-hud {
+.hud-top-bar {
   position: absolute;
-  bottom: 22px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 88%;
-  max-width: 580px;
-  z-index: 15;
-  padding: 14px 18px;
-  border-radius: 18px;
-  background: rgba(5, 12, 8, 0.94);
-  border: 2px solid rgba(168, 255, 0, 0.55);
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.85), 0 0 30px rgba(168, 255, 0, 0.25);
-  text-align: center;
-}
-
-.tm-header {
+  top: 16px;
+  left: 20px;
+  right: 20px;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.tm-title {
-  color: var(--neon);
-}
-
-.tm-sweet-hint {
-  color: var(--gold);
-}
-
-.tm-track {
-  position: relative;
-  height: 26px;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    #3b82f6 0%,
-    #22c55e 32%,
-    #a8ff00 50%,
-    #ffb800 68%,
-    #ef4444 92%
-  );
-  border: 2px solid rgba(255, 255, 255, 0.25);
-  overflow: hidden;
-  cursor: pointer;
-}
-
-/* Highlighted Sweet Spot Zone */
-.tm-sweet-zone {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 52%;
-  width: 22%;
-  background: repeating-linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.35),
-    rgba(255, 255, 255, 0.35) 6px,
-    rgba(168, 255, 0, 0.55) 6px,
-    rgba(168, 255, 0, 0.55) 12px
-  );
-  border-left: 2px solid #fff;
-  border-right: 2px solid #fff;
-  box-shadow: 0 0 18px #fff;
-}
-
-.tm-cursor {
-  position: absolute;
-  top: -3px;
-  bottom: -3px;
-  left: 10%;
-  width: 10px;
-  border-radius: 6px;
-  background: #ffffff;
-  border: 2px solid #000;
-  box-shadow: 0 0 14px #fff;
-  transform: translateX(-50%);
-}
-
-.tm-shoot-btn {
-  margin-top: 10px;
-  width: 100%;
-  padding: 11px 18px;
-  border-radius: 12px;
-  border: none;
-  background: linear-gradient(90deg, #a8ff00, #ffb800);
-  color: #040906;
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-  box-shadow: 0 8px 24px rgba(168, 255, 0, 0.4);
-  transition: transform 0.12s ease;
-}
-
-.tm-shoot-btn:hover {
-  transform: scale(1.02);
-}
-
-/* ============================================================================
-   1. PRE-MATCH START LOBBY OVERLAY ("Legyen játék indítás gomb, ne egyből induljon")
-   ============================================================================ */
-.game-start-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 30;
-  background: radial-gradient(circle at 50% 35%, rgba(12, 32, 20, 0.92) 0%, rgba(4, 9, 6, 0.97) 85%);
-  backdrop-filter: blur(8px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  text-align: center;
-}
-
-.start-lobby-crest-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  margin-bottom: 14px;
-}
-
-.lobby-nft-preview {
-  width: 78px;
-  height: 78px;
-  border-radius: 16px;
-  object-fit: cover;
-  border: 2px solid var(--neon);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.65);
-}
-
-.lobby-nft-preview.keeper {
-  border-color: var(--gold);
-}
-
-.lobby-efoo-ball {
-  width: 86px;
-  height: 86px;
-  border-radius: 50%;
-  border: 2px solid #ff5500;
-  box-shadow: 0 0 32px rgba(255, 85, 0, 0.65);
-  animation: floatBall 2.4s ease-in-out infinite alternate;
-}
-
-@keyframes floatBall {
-  0% { transform: translateY(-4px) rotate(-6deg); }
-  100% { transform: translateY(6px) rotate(8deg); }
-}
-
-.start-lobby-kicker {
-  display: inline-block;
-  padding: 5px 14px;
-  border-radius: 999px;
-  background: rgba(168, 255, 0, 0.14);
-  border: 1px solid rgba(168, 255, 0, 0.4);
-  color: var(--neon);
-  font-family: var(--font-mono);
-  font-size: 0.74rem;
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-
-.start-lobby-title {
-  font-family: var(--font-display);
-  font-size: clamp(2.2rem, 4.2vw, 3.4rem);
-  line-height: 0.96;
-  letter-spacing: 0.03em;
-  color: #fff;
-  margin: 0 0 10px;
-}
-
-.start-lobby-sub {
-  max-width: 540px;
-  font-size: 0.92rem;
-  color: #cbd5e1;
-  margin: 0 0 18px;
-  line-height: 1.45;
-}
-
-.start-power-summary {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
+  pointer-events: none;
 }
 
-.sps-chip {
-  padding: 7px 14px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  color: #e2e8f0;
+.hud-top-bar > * {
+  pointer-events: auto;
 }
 
-.sps-chip strong {
-  color: var(--neon);
-}
-
-.btn-start-match-mega {
-  padding: 16px 38px;
-  border-radius: 16px;
-  border: none;
-  background: linear-gradient(90deg, #a8ff00 0%, #ffb800 100%);
-  color: #040906;
-  font-family: var(--font-display);
-  font-size: 1.85rem;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-  box-shadow: 0 0 38px rgba(168, 255, 0, 0.55);
-  transition: all 0.2s ease;
-  animation: startBtnPulse 1.5s infinite alternate;
-}
-
-@keyframes startBtnPulse {
-  0% { transform: scale(1); box-shadow: 0 0 26px rgba(168, 255, 0, 0.45); }
-  100% { transform: scale(1.04); box-shadow: 0 0 46px rgba(255, 184, 0, 0.75); }
-}
-
-.btn-start-match-mega:hover {
-  transform: scale(1.06);
-}
-
-/* ============================================================================
-   2. 3.8-SECOND CINEMATIC INTRO SEQUENCE OVERLAY
-   ("Indításkor legyen egy pár másodperces intro, ahol az NFT-k, és EFOO token logója is megjelenik")
-   ============================================================================ */
-.game-cinematic-intro {
-  position: absolute;
-  inset: 0;
-  z-index: 40;
-  background: radial-gradient(circle at 50% 50%, #153823 0%, #030705 85%);
+/* Left: Exit + TV Broadcast Scorebug */
+.hud-left-group {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.hud-icon-btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  gap: 6px;
+  height: 42px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: rgba(6, 14, 10, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f8fafc;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.hud-icon-btn:hover {
+  border-color: #a8ff00;
+  color: #a8ff00;
+  transform: translateY(-1px);
+}
+
+/* TV Broadcast Scorebug */
+.tv-scorebug {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(5, 12, 8, 0.9);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(168, 255, 0, 0.35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
   overflow: hidden;
 }
 
-.intro-floodlight-beam {
-  position: absolute;
-  top: -30%;
-  width: 320px;
-  height: 160%;
-  background: linear-gradient(180deg, rgba(168, 255, 0, 0.26) 0%, transparent 80%);
-  transform: rotate(25deg);
-  pointer-events: none;
-  animation: sweepBeam 2.4s ease-in-out infinite alternate;
-}
-
-.intro-floodlight-beam.right {
-  right: 10%;
-  background: linear-gradient(180deg, rgba(255, 184, 0, 0.24) 0%, transparent 80%);
-  transform: rotate(-25deg);
-}
-
-@keyframes sweepBeam {
-  0% { transform: rotate(-18deg) translateX(-30px); }
-  100% { transform: rotate(22deg) translateX(30px); }
-}
-
-.intro-stage-box {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  width: 100%;
-  max-width: 720px;
-}
-
-.intro-kicker-pill {
-  display: inline-block;
-  padding: 6px 16px;
-  border-radius: 999px;
-  background: rgba(255, 85, 0, 0.2);
-  border: 1px solid #ff5500;
-  color: #ffb800;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  margin-bottom: 16px;
-}
-
-.intro-versus-cards {
+.sb-club {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 22px;
-  margin: 10px 0 18px;
+  gap: 8px;
+  padding: 0 14px;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(168, 255, 0, 0.2), transparent);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: 0.05em;
 }
 
-.intro-nft-fighter {
-  width: 165px;
-  padding: 10px;
-  border-radius: 18px;
-  background: rgba(9, 20, 14, 0.92);
-  border: 2px solid var(--neon);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8), 0 0 28px rgba(168, 255, 0, 0.35);
-  animation: slamLeft 0.55s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+.sb-club img {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
 }
 
-.intro-nft-fighter.keeper {
-  border-color: var(--gold);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8), 0 0 28px rgba(255, 184, 0, 0.35);
-  animation: slamRight 0.55s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
-}
-
-@keyframes slamLeft {
-  0% { opacity: 0; transform: translateX(-120px) scale(0.7) rotate(-12deg); }
-  100% { opacity: 1; transform: translateX(0) scale(1) rotate(-3deg); }
-}
-
-@keyframes slamRight {
-  0% { opacity: 0; transform: translateX(120px) scale(0.7) rotate(12deg); }
-  100% { opacity: 1; transform: translateX(0) scale(1) rotate(3deg); }
-}
-
-.intro-nft-fighter img {
-  width: 100%;
-  height: 145px;
-  object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 6px;
-}
-
-.intro-nft-fighter strong {
-  display: block;
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  letter-spacing: 0.04em;
-  color: #fff;
-}
-
-.intro-nft-fighter small {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  color: var(--neon);
-}
-
-.intro-nft-fighter.keeper small {
-  color: var(--gold);
-}
-
-.intro-center-logo {
+.sb-shots-dots {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 6px;
-  animation: popCenter 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+  padding: 0 14px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-@keyframes popCenter {
-  0% { transform: scale(0.2) rotate(-180deg); opacity: 0; }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
-}
-
-.intro-center-logo img {
-  width: 92px;
-  height: 92px;
+.shot-dot {
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  border: 3px solid #ffb800;
-  box-shadow: 0 0 40px rgba(255, 85, 0, 0.85);
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  transition: all 0.25s ease;
 }
 
-.intro-vs-badge {
-  padding: 4px 12px;
+.shot-dot.goal {
+  background: #a8ff00;
+  border-color: #ffffff;
+  box-shadow: 0 0 10px #a8ff00;
+}
+
+.shot-dot.miss {
+  background: #ef4444;
+  border-color: #fca5a5;
+}
+
+.shot-dot.current {
+  transform: scale(1.25);
+  border-color: #ffb800;
+  box-shadow: 0 0 8px #ffb800;
+}
+
+.sb-metric {
+  padding: 0 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1;
+}
+
+.sb-metric span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem;
+  color: #94a3b8;
+  letter-spacing: 0.06em;
+}
+
+.sb-metric strong {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.35rem;
+  color: #a8ff00;
+  letter-spacing: 0.04em;
+}
+
+.sb-metric.gold strong {
+  color: #ffb800;
+}
+
+/* Center: Live 90+5' FOMO Jackpot Pill */
+.hud-fomo-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 44px;
+  padding: 0 16px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #ff4d00, #ffb800);
-  color: #050a07;
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  letter-spacing: 0.08em;
+  background: rgba(12, 10, 4, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 184, 0, 0.5);
+  box-shadow: 0 0 25px rgba(255, 184, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.18s ease;
 }
 
-.intro-headline {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 3rem);
-  letter-spacing: 0.05em;
-  color: #fff;
-  margin: 0 0 8px;
-  text-shadow: 0 0 24px rgba(168, 255, 0, 0.5);
+.hud-fomo-pill:hover {
+  transform: scale(1.03);
+  border-color: #a8ff00;
 }
 
-.intro-progress-bar {
-  width: 260px;
-  height: 8px;
+.fomo-timer-badge {
+  padding: 3px 9px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  margin: 12px auto 0;
-  overflow: hidden;
+  background: rgba(255, 77, 0, 0.28);
+  border: 1px solid #ff4d00;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #ffb800;
 }
 
-.intro-progress-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #a8ff00, #ffb800, #ff4d00);
-  transition: width 0.1s linear;
+.fomo-pot-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 0.04em;
+  color: #a8ff00;
+}
+
+/* Right: Power-Up Store, Whale Mode, SFX, Wallet */
+.hud-right-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-godmode {
+  height: 42px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(255, 184, 0, 0.22), rgba(255, 77, 0, 0.22));
+  border: 1px solid #ffb800;
+  color: #fde047;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.btn-godmode.active {
+  background: linear-gradient(90deg, #ffb800, #ff5500);
+  color: #040906;
+  box-shadow: 0 0 22px rgba(255, 184, 0, 0.7);
+}
+
+.btn-wallet-pill {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #a8ff00, #65a30d);
+  border: none;
+  color: #040906;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 0 18px rgba(168, 255, 0, 0.35);
 }
 
 /* ============================================================================
-   3. POST-MATCH SUMMARY & FOMO UPSELL OVERLAY
-   ("Legyen egy feltételei is a játéknak ami ösztönzi pl NFT-k vagy EFOO token vásárlását")
+   BOTTOM FUT-STYLE HOLOGRAPHIC NFT CARD & VISUAL POWER BAR
    ============================================================================ */
-.match-summary-overlay {
+.hud-bottom-bar {
+  position: absolute;
+  bottom: 16px;
+  left: 20px;
+  right: 20px;
+  z-index: 20;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  pointer-events: none;
+}
+
+.hud-bottom-bar > * {
+  pointer-events: auto;
+}
+
+/* Left: FUT Holographic Active Striker Card (Click to switch NFT!) */
+.fut-striker-dock {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(10, 26, 17, 0.92), rgba(4, 10, 7, 0.96));
+  backdrop-filter: blur(14px);
+  border: 2px solid #a8ff00;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.75), 0 0 22px rgba(168, 255, 0, 0.25);
+  cursor: pointer;
+  transition: transform 0.18s ease;
+}
+
+.fut-striker-dock:hover {
+  transform: translateY(-3px);
+}
+
+.fut-card-avatar {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #ffb800;
+  flex-shrink: 0;
+}
+
+.fut-card-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fut-ovr-badge {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #ffb800;
+  color: #040906;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.fut-card-info strong {
+  display: block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  line-height: 1.05;
+}
+
+.fut-card-info small {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: #a8ff00;
+  margin-top: 2px;
+}
+
+.fut-switch-hint {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  color: #cbd5e1;
+}
+
+/* Center: Minimal Action Prompt Pill */
+.hud-aim-hint {
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: rgba(4, 10, 7, 0.88);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(168, 255, 0, 0.4);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #f8fafc;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.65);
+  text-align: center;
+}
+
+/* Right: Visual Icon Power-Up Tiers (Zero Paragraphs!) */
+.visual-perks-dock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 16px;
+  background: rgba(5, 12, 8, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.vp-icon-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 56px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  opacity: 0.42;
+  transition: all 0.22s ease;
+  cursor: pointer;
+}
+
+.vp-icon-slot.unlocked {
+  opacity: 1;
+  background: rgba(168, 255, 0, 0.15);
+  border-color: #a8ff00;
+  box-shadow: 0 0 15px rgba(168, 255, 0, 0.3);
+}
+
+.vp-icon-slot.unlocked.gold {
+  background: rgba(255, 184, 0, 0.18);
+  border-color: #ffb800;
+  box-shadow: 0 0 15px rgba(255, 184, 0, 0.35);
+}
+
+.vp-emoji {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.vp-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-top: 3px;
+}
+
+.vp-req {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.52rem;
+  color: #a8ff00;
+}
+
+.vp-icon-slot.gold .vp-req {
+  color: #ffb800;
+}
+
+.btn-open-boost {
+  height: 56px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid #ffb800;
+  background: linear-gradient(135deg, rgba(255, 184, 0, 0.25), rgba(255, 85, 0, 0.25));
+  color: #ffb800;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.btn-open-boost:hover {
+  background: #ffb800;
+  color: #040906;
+}
+
+/* ============================================================================
+   OVERLAY 1: ULTRA-CLEAN START SCREEN (MINIMAL TEXT, VISUAL IMPACT)
+   ============================================================================ */
+.arcade-overlay {
   position: absolute;
   inset: 0;
-  z-index: 35;
-  background: rgba(4, 10, 7, 0.95);
+  z-index: 50;
+  background: radial-gradient(circle at 50% 40%, rgba(10, 32, 19, 0.86) 0%, rgba(3, 8, 5, 0.96) 85%);
   backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 22px;
+  padding: 20px;
   text-align: center;
 }
 
-.ms-card {
+.hidden {
+  display: none !important;
+}
+
+.start-hero-cards {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  margin-bottom: 18px;
+}
+
+.sh-nft-card {
+  width: 118px;
+  padding: 6px;
+  border-radius: 16px;
+  background: rgba(8, 20, 13, 0.95);
+  border: 2px solid #a8ff00;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(168, 255, 0, 0.3);
+  transform: rotate(-5deg);
+}
+
+.sh-nft-card.keeper {
+  border-color: #ffb800;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 184, 0, 0.3);
+  transform: rotate(5deg);
+}
+
+.sh-nft-card img {
   width: 100%;
-  max-width: 600px;
-  padding: 22px;
-  border-radius: 22px;
-  background: linear-gradient(145deg, rgba(13, 29, 20, 0.96), rgba(6, 14, 10, 0.98));
-  border: 2px solid rgba(255, 184, 0, 0.45);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
-}
-
-.ms-title {
-  font-family: var(--font-display);
-  font-size: 2.3rem;
-  color: #fff;
-  margin: 0 0 6px;
-}
-
-.ms-score-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin: 12px 0;
-}
-
-.ms-score-box {
-  padding: 12px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.ms-score-box.missed-fomo {
-  background: rgba(255, 85, 0, 0.14);
-  border: 1px solid rgba(255, 184, 0, 0.55);
-}
-
-.ms-score-box span {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: #94a3b8;
-}
-
-.ms-score-box strong {
-  display: block;
-  font-family: var(--font-display);
-  font-size: 1.9rem;
-  color: #fff;
-  margin-top: 2px;
-}
-
-.ms-score-box.missed-fomo strong {
-  color: var(--gold);
-}
-
-.ms-fomo-hook {
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(168, 255, 0, 0.09);
-  border: 1px solid rgba(168, 255, 0, 0.32);
-  font-size: 0.84rem;
-  color: #e2e8f0;
-  margin-bottom: 14px;
-  line-height: 1.4;
-}
-
-.ms-cta-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-/* ============================================================================
-   BOTTOM PITCH BAR: LIVE COMMENTARY & NFT SQUAD SELECTOR
-   ============================================================================ */
-.arena-commentary-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 18px;
-  background: rgba(6, 14, 10, 0.96);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.9rem;
-  color: #f1f5f9;
-}
-
-.squad-picker-strip {
-  padding: 14px 18px;
-  background: rgba(4, 9, 6, 0.98);
-  border-top: 1px solid rgba(168, 255, 0, 0.18);
-}
-
-.sps-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: #94a3b8;
-}
-
-.squad-cards-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.striker-pick-card {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 7px 11px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: all 0.18s ease;
-}
-
-.striker-pick-card:hover,
-.striker-pick-card.active {
-  background: rgba(168, 255, 0, 0.14);
-  border-color: var(--neon);
-  box-shadow: 0 0 15px rgba(168, 255, 0, 0.25);
-}
-
-.striker-pick-card img {
-  width: 42px;
-  height: 42px;
-  border-radius: 9px;
+  height: 106px;
+  border-radius: 11px;
   object-fit: cover;
 }
 
-.striker-pick-card strong {
+.sh-nft-card span {
   display: block;
-  font-size: 0.8rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  margin-top: 4px;
   color: #fff;
 }
 
-.striker-pick-card small {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  color: var(--neon);
+.sh-center-ball {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: 3px solid #ffb800;
+  box-shadow: 0 0 45px rgba(255, 85, 0, 0.85);
+  animation: pulseBall 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulseBall {
+  0% { transform: scale(0.96) rotate(-6deg); }
+  100% { transform: scale(1.06) rotate(8deg); }
+}
+
+.start-mega-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3rem, 6vw, 5.2rem);
+  line-height: 0.92;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  text-shadow: 0 0 35px rgba(168, 255, 0, 0.45);
+  margin-bottom: 14px;
+}
+
+.start-mega-title span {
+  color: #a8ff00;
+}
+
+/* 3 Ultra-Short Visual Pills (Max 4 words each!) */
+.start-visual-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.svs-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.svs-pill strong {
+  color: #a8ff00;
+}
+
+.btn-play-arcade {
+  padding: 18px 54px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(90deg, #a8ff00 0%, #ffb800 100%);
+  color: #040906;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.3rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  box-shadow: 0 0 45px rgba(168, 255, 0, 0.65);
+  transition: transform 0.18s ease;
+}
+
+.btn-play-arcade:hover {
+  transform: scale(1.06);
 }
 
 /* ============================================================================
-   RIGHT SIDEBAR: 90+5' INJURY TIME POT + 1-CLICK POWER-UP STORE
+   OVERLAY 2: 3.5-SECOND CINEMATIC INTRO SEQUENCE
    ============================================================================ */
-.game-sidebar {
+.intro-cinematic-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  background: radial-gradient(circle at 50% 50%, #133621 0%, #020604 85%);
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-.sidebar-pot-card,
-.sidebar-store-card {
-  padding: 20px;
-  border-radius: 22px;
-  background: linear-gradient(155deg, rgba(13, 28, 19, 0.94), rgba(5, 11, 8, 0.98));
-  border: 1px solid rgba(255, 184, 0, 0.35);
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
-}
-
-.sidebar-store-card {
-  border-color: rgba(168, 255, 0, 0.35);
-}
-
-.pot-live-header {
+.intro-versus-stage {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  justify-content: center;
+  gap: 28px;
+  margin: 18px 0;
 }
 
-.pot-badge-live {
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(255, 77, 0, 0.2);
-  border: 1px solid #ff4d00;
+.intro-fighter-card {
+  width: 190px;
+  padding: 10px;
+  border-radius: 20px;
+  background: rgba(7, 18, 12, 0.95);
+  border: 3px solid #a8ff00;
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.9), 0 0 35px rgba(168, 255, 0, 0.45);
+  animation: fighterInLeft 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
+
+.intro-fighter-card.keeper {
+  border-color: #ffb800;
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.9), 0 0 35px rgba(255, 184, 0, 0.45);
+  animation: fighterInRight 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
+
+@keyframes fighterInLeft {
+  0% { opacity: 0; transform: translateX(-160px) scale(0.6) rotate(-14deg); }
+  100% { opacity: 1; transform: translateX(0) scale(1) rotate(-4deg); }
+}
+
+@keyframes fighterInRight {
+  0% { opacity: 0; transform: translateX(160px) scale(0.6) rotate(14deg); }
+  100% { opacity: 1; transform: translateX(0) scale(1) rotate(4deg); }
+}
+
+.intro-fighter-card img {
+  width: 100%;
+  height: 168px;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+.intro-fighter-card strong {
+  display: block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+  margin-top: 6px;
+}
+
+.intro-fighter-card small {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: #a8ff00;
+}
+
+.intro-fighter-card.keeper small {
   color: #ffb800;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 800;
 }
 
-.pot-timer-box {
+.intro-vs-orb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: orbPop 0.55s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
+
+@keyframes orbPop {
+  0% { opacity: 0; transform: scale(0.1) rotate(-180deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+.intro-vs-orb img {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  border: 3px solid #ffb800;
+  box-shadow: 0 0 50px rgba(255, 85, 0, 0.9);
+}
+
+.intro-vs-tag {
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff4d00, #ffb800);
+  color: #040906;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 0.08em;
+}
+
+.intro-bar-wrap {
+  width: 280px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+  margin-top: 14px;
+}
+
+.intro-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #a8ff00, #ffb800, #ff4d00);
+}
+
+/* ============================================================================
+   OVERLAY 3: MATCH SUMMARY & VISUAL FOMO BOOST MODAL
+   ============================================================================ */
+.summary-modal-card {
+  width: 100%;
+  max-width: 540px;
+  padding: 26px;
+  border-radius: 24px;
+  background: linear-gradient(155deg, rgba(12, 28, 19, 0.97), rgba(4, 10, 7, 0.99));
+  border: 2px solid #ffb800;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9);
+}
+
+.sum-compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.sum-box {
   padding: 14px;
   border-radius: 16px;
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 184, 0, 0.3);
-  text-align: center;
-  margin: 12px 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.pot-timer-digits {
-  font-family: var(--font-display);
-  font-size: 3.1rem;
-  line-height: 1;
-  color: var(--gold);
-  letter-spacing: 0.06em;
-  text-shadow: 0 0 24px rgba(255, 184, 0, 0.45);
+.sum-box.fomo-gold {
+  background: rgba(255, 184, 0, 0.14);
+  border: 2px solid #ffb800;
+  box-shadow: 0 0 24px rgba(255, 184, 0, 0.25);
 }
 
-.pot-jackpot-amount {
-  font-family: var(--font-display);
-  font-size: 1.8rem;
-  color: var(--neon);
+.sum-box span {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: #94a3b8;
+}
+
+.sum-box strong {
+  display: block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.3rem;
+  color: #fff;
+  line-height: 1.05;
   margin-top: 4px;
 }
 
-.eligibility-gate-box {
-  padding: 12px 14px;
+.sum-box.fomo-gold strong {
+  color: #ffb800;
+}
+
+.sum-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.arcade-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 18px;
   border-radius: 14px;
-  background: rgba(255, 85, 0, 0.1);
-  border: 1px solid rgba(255, 184, 0, 0.38);
-  margin-bottom: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.18s ease;
 }
 
-.eligibility-gate-box.unlocked {
-  background: rgba(168, 255, 0, 0.12);
-  border-color: rgba(168, 255, 0, 0.5);
+.arcade-btn.neon {
+  background: linear-gradient(90deg, #a8ff00, #65a30d);
+  border-color: #a8ff00;
+  color: #040906;
 }
 
-.store-pack-item {
+.arcade-btn.gold {
+  background: linear-gradient(90deg, #ffb800, #ff5500);
+  border-color: #ffb800;
+  color: #040906;
+}
+
+.arcade-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ============================================================================
+   OVERLAY 4: 1-CLICK POWER-UP & FOMO POT DRAWER MODAL
+   ============================================================================ */
+.boost-modal-card {
+  width: 100%;
+  max-width: 620px;
+  padding: 24px;
+  border-radius: 24px;
+  background: linear-gradient(155deg, rgba(10, 24, 16, 0.98), rgba(4, 9, 6, 0.99));
+  border: 2px solid #a8ff00;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.92);
+  text-align: left;
+}
+
+.boost-tiers-visual {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.bt-mini-card {
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  text-align: center;
+}
+
+.bt-mini-card.active {
+  background: rgba(168, 255, 0, 0.16);
+  border-color: #a8ff00;
+}
+
+.bt-mini-card strong {
+  display: block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.35rem;
+  color: #a8ff00;
+}
+
+.bt-mini-card small {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.64rem;
+  color: #e2e8f0;
+}
+
+.boost-pack-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px;
+  padding: 11px 14px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: 10px;
+  margin-bottom: 8px;
 }
 
-.store-pack-left {
+.boost-pack-left {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.store-pack-left img {
-  width: 46px;
-  height: 46px;
+.boost-pack-left img {
+  width: 44px;
+  height: 44px;
   border-radius: 10px;
   object-fit: cover;
 }
 
-.store-pack-left strong {
+.boost-pack-left strong {
   display: block;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   color: #fff;
 }
 
-.store-pack-left small {
+.boost-pack-left small {
   display: block;
-  font-size: 0.74rem;
-  color: var(--neon);
-}
-
-/* ============================================================================
-   NFT QUANTITY & $EFOO SUPERPOWER MATRIX SECTION
-   ("Egyértelmű legyen, hogy az NFT-k és annak számai növelik az esélyt és a szuperképességet")
-   ============================================================================ */
-.nft-matrix-section {
-  max-width: 1360px;
-  margin: 0 auto 60px;
-  padding: 0 20px;
-}
-
-.matrix-card {
-  padding: 28px;
-  border-radius: 24px;
-  background: linear-gradient(145deg, rgba(11, 25, 17, 0.95), rgba(5, 11, 8, 0.98));
-  border: 1px solid rgba(168, 255, 0, 0.25);
-}
-
-.tier-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-top: 20px;
-}
-
-.nft-tier-card {
-  position: relative;
-  padding: 18px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.22s ease;
-}
-
-.nft-tier-card.current-tier {
-  background: rgba(168, 255, 0, 0.1);
-  border: 2px solid var(--neon);
-  box-shadow: 0 0 30px rgba(168, 255, 0, 0.22);
-}
-
-.nft-tier-card.gold-tier {
-  border-color: rgba(255, 184, 0, 0.45);
-  background: rgba(255, 184, 0, 0.06);
-}
-
-.tier-qty-badge {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(168, 255, 0, 0.16);
-  color: var(--neon);
-  font-family: var(--font-mono);
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.72rem;
-  font-weight: 800;
-  margin-bottom: 8px;
-}
-
-.nft-tier-card.gold-tier .tier-qty-badge {
-  background: rgba(255, 184, 0, 0.2);
-  color: var(--gold);
-}
-
-.nft-tier-card h4 {
-  font-family: var(--font-display);
-  font-size: 1.45rem;
-  color: #fff;
-  margin: 0 0 10px;
-}
-
-.tier-perks-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  font-size: 0.82rem;
-  color: #cbd5e1;
-}
-
-.tier-perks-list strong {
-  color: #fff;
+  color: #a8ff00;
 }
 
 /* RESPONSIVE */
-@media (max-width: 1080px) {
-  .game-main-container {
-    grid-template-columns: 1fr;
+@media (max-width: 900px) {
+  .hud-fomo-pill {
+    display: none;
   }
-  .quick-rules-grid {
-    grid-template-columns: 1fr;
+  .visual-perks-dock .vp-icon-slot {
+    width: 50px;
+    height: 48px;
   }
-  .tier-cards-grid {
+  .boost-tiers-visual {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 640px) {
-  .arena-hud-top {
-    grid-template-columns: repeat(3, 1fr);
+@media (max-width: 600px) {
+  .hud-aim-hint {
+    display: none;
   }
-  .pitch-viewport {
-    height: 460px;
+  .intro-fighter-card {
+    width: 130px;
   }
-  .goal-targets-layer {
-    width: 90%;
-    height: 180px;
-  }
-  .tier-cards-grid {
-    grid-template-columns: 1fr;
-  }
-  .intro-versus-cards {
-    gap: 10px;
-  }
-  .intro-nft-fighter {
-    width: 120px;
-  }
-  .intro-nft-fighter img {
-    height: 100px;
+  .intro-fighter-card img {
+    height: 110px;
   }
 }
