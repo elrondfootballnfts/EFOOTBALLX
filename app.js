@@ -992,6 +992,16 @@ function getMultiversXLoginHookUrl() {
   return `https://wallet.multiversx.com/hook/login?callbackUrl=${encodeURIComponent(getCallbackUrl())}`;
 }
 
+function isMobileDevice() {
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
+}
+
+function buildXPortalDeepLink(wcUri) {
+  const base = "https://maiar.page.link/?apn=com.elrond.maiar.wallet&isi=1519405832&ibi=com.elrond.maiar.wallet&link=https://xportal.com/";
+  if (!wcUri) return base;
+  return `${base}?wallet-connect=${encodeURIComponent(wcUri)}`;
+}
+
 // 1. xPortal Mobile App via Official WalletConnect v2 SignClient
 async function initXPortalWalletConnect() {
   const qrBox = document.getElementById("xportal-qr-box");
@@ -1000,11 +1010,19 @@ async function initXPortalWalletConnect() {
   const bridgeLink = document.getElementById("xportal-bridge-link");
 
   if (qrBox) qrBox.classList.remove("hidden");
+  if (bridgeLink) {
+    bridgeLink.style.opacity = "0.65";
+    bridgeLink.style.pointerEvents = "none";
+    bridgeLink.textContent =
+      currentLang === "ro"
+        ? "⏳ Se pregătește linkul xPortal..."
+        : "⏳ Preparing xPortal App Link...";
+  }
   if (statusPill) {
     statusPill.textContent =
       currentLang === "ro"
-        ? "⏳ Se generează codul QR oficial WalletConnect v2 pentru xPortal..."
-        : "⏳ Generating official WalletConnect v2 pairing QR for xPortal...";
+        ? "⏳ Se generează sesiunea oficială WalletConnect v2 pentru xPortal..."
+        : "⏳ Generating official WalletConnect v2 session for xPortal...";
   }
 
   try {
@@ -1046,20 +1064,33 @@ async function initXPortalWalletConnect() {
 
     if (uri) {
       currentWcUri = uri;
+      const deepLinkUrl = buildXPortalDeepLink(uri);
       if (qrImg) {
         qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(uri)}`;
       }
       if (bridgeLink) {
-        // Official xPortal Dynamic Deep Link with WalletConnect v2 URI
-        bridgeLink.href = `https://maiar.page.link/?apn=com.elrond.maiar.wallet&isi=1519405832&ibi=com.elrond.maiar.wallet&link=${encodeURIComponent(
-          `https://xportal.com/?wallet-connect=${encodeURIComponent(uri)}`
-        )}`;
+        bridgeLink.href = deepLinkUrl;
+        bridgeLink.removeAttribute("target");
+        bridgeLink.style.opacity = "1";
+        bridgeLink.style.pointerEvents = "auto";
+        bridgeLink.textContent =
+          currentLang === "ro"
+            ? "📱 Apasă aici: Deschide în xPortal App ↗"
+            : "📱 Tap Here: Open in xPortal App ↗";
       }
       if (statusPill) {
-        statusPill.textContent =
-          currentLang === "ro"
-            ? "📱 Scanează codul QR din aplicația xPortal și aprobă conectarea!"
-            : "📱 Scan QR code inside your xPortal App & approve on your phone!";
+        statusPill.textContent = isMobileDevice()
+          ? currentLang === "ro"
+            ? "📱 Apasă butonul verde de mai jos pentru a deschide aplicația xPortal!"
+            : "📱 Tap the green button below to open xPortal App & approve!"
+          : currentLang === "ro"
+          ? "📱 Scanează codul QR din aplicația xPortal și aprobă conectarea!"
+          : "📱 Scan QR code inside your xPortal App & approve on your phone!";
+      }
+
+      // On mobile phone, automatically launch the xPortal deep link as soon as URI is ready
+      if (isMobileDevice()) {
+        window.location.href = deepLinkUrl;
       }
     }
 
@@ -1234,6 +1265,12 @@ async function signAndBroadcastTransactions(rawTxList) {
           ? "📱 Deschide aplicația xPortal pe telefon pentru a aproba și semna tranzacția..."
           : "📱 Please check your xPortal Mobile App to approve & sign the transaction..."
       );
+
+      if (isMobileDevice()) {
+        setTimeout(() => {
+          window.location.href = buildXPortalDeepLink();
+        }, 250);
+      }
 
       const wcTxs = preparedTxs.map((t) => ({
         ...t,

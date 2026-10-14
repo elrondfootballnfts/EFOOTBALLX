@@ -1527,8 +1527,13 @@ async function initXPortalWalletConnect() {
       if (qrImg) {
         qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=210x210&margin=10&color=050a07&bgcolor=a8ff00&data=${encodeURIComponent(uri)}`;
       }
+      const deepLinkUrl = `https://maiar.page.link/?apn=com.elrond.maiar.wallet&isi=1519405832&ibi=com.elrond.maiar.wallet&link=https://xportal.com/?wallet-connect=${encodeURIComponent(uri)}`;
       if (bridge) {
-        bridge.href = `https://maiar.page.link/?apn=com.elrond.maiar.wallet&isi=1519405832&ibi=com.elrond.maiar.wallet&link=${encodeURIComponent("https://maiar.com/?wallet-connect=" + encodeURIComponent(uri))}`;
+        bridge.href = deepLinkUrl;
+        bridge.removeAttribute("target");
+      }
+      if (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "")) {
+        window.location.href = deepLinkUrl;
       }
     }
     const session = await approval();
