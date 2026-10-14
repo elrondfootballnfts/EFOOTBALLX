@@ -39,7 +39,7 @@
 
       <nav class="nav-links">
         <a href="#wallet-hub" data-i18n="nav_wallethub">🧤 Wallet &amp; Swap/Mint</a>
-        <a href="#efoo-fomo-game" data-i18n="nav_game">⚽ EFOO FOMO Game</a>
+        <a href="game.html" data-i18n="nav_game" style="color:#a8ff00; font-weight:800;">⚽ Play EFOO FOMO ↗</a>
         <a href="#meme-locker" data-i18n="nav_locker">🎨 Meme Studio</a>
         <a href="#tokenomics" data-i18n="nav_tokenomics">🔥 92.9% Burn</a>
         <a href="#brand-kit" data-i18n="nav_brandkit">🛡️ Brand Kit</a>
@@ -138,8 +138,8 @@
               <a href="#wallet-hub" class="btn btn-primary">
                 ⚡ <span data-i18n="cta_connect_buy">Connect • Buy $EFOO &amp; Mint</span>
               </a>
-              <a href="#efoo-fomo-game" class="btn btn-secondary">
-                ⚽ <span data-i18n="cta_play_fomo">Full FOMO Arena</span>
+              <a href="game.html" class="btn btn-secondary">
+                ⚽ <span data-i18n="cta_play_fomo">Play EFOO FOMO Arena ↗</span>
               </a>
               <a href="#meme-locker" class="btn btn-outline">
                 🎨 <span data-i18n="cta_meme_studio">Meme Studio</span>
@@ -281,12 +281,12 @@
               </div>
 
               <div class="hfw-actions">
-                <button type="button" id="hero-kick-pot-btn" class="btn btn-primary btn-sm full-width">
-                  🔥 <span data-i18n="btn_kick_fomo">Kick 100,000 $EFOO Into Pot (Reset Clock to 05:00)</span>
-                </button>
+                <a href="game.html" class="btn btn-primary btn-sm full-width" style="justify-content:center;">
+                  ⚽ <span>ENTER FULL EFOO FOMO STADIUM GAME ↗</span>
+                </a>
                 <div class="hfw-sub-btns">
-                  <a href="#wallet-hub" class="btn btn-secondary btn-sm">⚡ Buy $EFOO / Mint NFT</a>
-                  <a href="#efoo-fomo-game" class="btn btn-outline btn-sm">🏟️ Full Pitch Arena ⤵</a>
+                  <button type="button" id="hero-kick-pot-btn" class="btn btn-secondary btn-sm">🔥 Kick 100k $EFOO to Pot</button>
+                  <a href="#wallet-hub" class="btn btn-outline btn-sm">⚡ Buy $EFOO / Mint NFT</a>
                 </div>
               </div>
             </div>
@@ -665,15 +665,15 @@
   </section>
 
   <!-- =====================================================================
-       PLAYABLE GAME: EFOO FOMO — 90TH MINUTE PENALTY SHOOTOUT & POT
+       EFOO FOMO STADIUM PORTAL (LAUNCHES DEDICATED GAME.HTML ARENA)
        ===================================================================== -->
   <section id="efoo-fomo-game" class="section">
     <div class="container">
       <div class="section-header">
-        <span class="section-kicker" data-i18n="game_kicker">🎮 PLAYABLE UTILITY FOR YOUR NFTs &amp; $EFOO</span>
-        <h2 class="section-title" data-i18n="game_title">EFOO FOMO: 90th-MINUTE PENALTY SHOOTOUT &amp; INJURY TIME POT</h2>
+        <span class="section-kicker" data-i18n="game_kicker">🎮 STANDALONE 60FPS WEB3 STADIUM GAME</span>
+        <h2 class="section-title" data-i18n="game_title">EFOO FOMO ARENA: 90+5' NFT PENALTY &amp; JACKPOT</h2>
         <p class="section-desc" data-i18n="game_desc">
-          Your <strong>EFOOTBALL Player NFTs</strong>, <strong>GOALKEEPER NFTs</strong>, and <strong>$EFOO balance</strong> give you real superpowers on the pitch! Score penalties to climb the Ultras Leaderboard, or kick <code>100,000 $EFOO</code> into the 90+5' Injury Time FOMO Pot!
+          Your <strong>EFOOTBALL-91a4eb</strong> &amp; <strong>GOALKEEPER-cb9e3e</strong> NFTs and <strong>$EFOO tokens</strong> unlock real superpowers in our dedicated 60FPS Stadium Arena! The more NFTs you hold, the higher your Goal Chance (up to <strong>90%</strong>) and Score Multiplier (up to <strong>11.0x</strong>)!
         </p>
       </div>
 
@@ -682,138 +682,54 @@
         <div class="powerup-chip" id="perk-player">
           <span class="perk-icon">👕</span>
           <div>
-            <strong data-i18n="perk_1_title">Striker NFT Boost</strong>
-            <small id="perk-player-status" data-i18n="perk_1_sub">Hold 1+ Player NFT: +15% Shot Accuracy &amp; 2x Score</small>
+            <strong>1 to 6+ Striker NFTs</strong>
+            <small>Up to 90% Goal Chance, Banana Curve, Alien Radar &amp; 7.0x Score!</small>
           </div>
         </div>
         <div class="powerup-chip" id="perk-keeper">
           <span class="perk-icon">🧤</span>
           <div>
-            <strong data-i18n="perk_2_title">Goalkeeper Reflex Shield</strong>
-            <small id="perk-keeper-status" data-i18n="perk_2_sub">Hold 1+ Keeper NFT: 1 Free Save Shield &amp; 3x Score</small>
+            <strong>1 to 2+ Goalkeeper NFTs</strong>
+            <small>Up to 2x Free Post-Ricochet Save Shields, Slow-Mo Bar &amp; +4.0x Boost!</small>
           </div>
         </div>
         <div class="powerup-chip" id="perk-efoo">
           <span class="perk-icon">🔥</span>
           <div>
-            <strong data-i18n="perk_3_title">1M+ $EFOO Rocket Ball</strong>
-            <small id="perk-efoo-status" data-i18n="perk_3_sub">Hold 1M+ $EFOO: Unlocks Flaming Rocket Shot (+500 pts)</small>
+            <strong>1M+ $EFOO Rocket Ball</strong>
+            <small>Unlocks Flaming Rocket Shot (+1,000 pts/goal) &amp; 25.4M $EFOO Jackpot Gate!</small>
           </div>
         </div>
       </div>
 
-      <div class="fomo-game-grid">
-        <!-- LEFT: Interactive Penalty Shootout Pitch -->
-        <div class="penalty-pitch-card">
-          <div class="pitch-scoreboard">
-            <div class="ps-box">
-              <span data-i18n="ps_goals">⚽ GOALS</span>
-              <strong id="game-goals">0</strong>
-            </div>
-            <div class="ps-box">
-              <span data-i18n="ps_streak">🔥 STREAK</span>
-              <strong id="game-streak">0</strong>
-            </div>
-            <div class="ps-box highlight">
-              <span data-i18n="ps_score">🏆 $EFOO SCORE</span>
-              <strong id="game-score">0</strong>
-            </div>
-            <div class="ps-box">
-              <span data-i18n="ps_best">⭐ HIGH SCORE</span>
-              <strong id="game-best">0</strong>
-            </div>
-          </div>
-
-          <!-- Interactive Goal Frame -->
-          <div class="goal-arena" id="goal-arena">
-            <div class="stadium-crowd-banner">SUNDAY LEAGUE ULTRAS ARENA • 92.9% BURN DERBY</div>
-            
-            <div class="goal-frame">
-              <div class="goal-net"></div>
-
-              <!-- 5 Clickable Target Zones -->
-              <button type="button" class="shot-target target-tl" data-shot="tl" title="Shoot Top-Left Vinclu">
-                <span>🎯</span><small>TOP LEFT</small>
-              </button>
-              <button type="button" class="shot-target target-tr" data-shot="tr" title="Shoot Top-Right Vinclu">
-                <span>🎯</span><small>TOP RIGHT</small>
-              </button>
-              <button type="button" class="shot-target target-c" data-shot="c" title="Shoot Center Panenka">
-                <span>🍺</span><small>PANENKA</small>
-              </button>
-              <button type="button" class="shot-target target-bl" data-shot="bl" title="Shoot Bottom-Left Corner">
-                <span>🎯</span><small>LOW LEFT</small>
-              </button>
-              <button type="button" class="shot-target target-br" data-shot="br" title="Shoot Bottom-Right Corner">
-                <span>🎯</span><small>LOW RIGHT</small>
-              </button>
-
-              <!-- Animated Goalkeeper Sprite -->
-              <div class="goalie-sprite" id="goalie-sprite">
-                <img src="branding/original/GOALKEEPER-cb9e3e/logo.png" alt="Goalkeeper" />
-              </div>
-
-              <!-- Animated Rocket Football Sprite -->
-              <div class="ball-sprite" id="ball-sprite">
-                <img src="branding/original/assests-2022/logo.png" alt="Rocket Ball" />
-              </div>
-            </div>
-
-            <!-- Penalty Spot & Active Striker Badge -->
-            <div class="penalty-spot-bar">
-              <div class="active-striker-pill">
-                <img id="active-striker-img" src="branding/original/EFOOTBALL-91a4eb/logo.png" alt="Striker" />
-                <div>
-                  <span data-i18n="active_striker_label">ACTIVE STRIKER ON PITCH:</span>
-                  <strong id="active-striker-name">Sunday League Loan Player #99</strong>
-                </div>
-              </div>
-              <button type="button" id="reset-game-btn" class="btn btn-outline btn-sm">🔄 Reset Match</button>
-            </div>
-          </div>
-
-          <div class="commentary-box" id="game-commentary" data-i18n="game_commentary_init">
-            🎙️ Click any of the 5 🎯 targets in the goal to kick your penalty shot!
-          </div>
+      <!-- High-Converting Standalone Game Launchpad Card -->
+      <div style="margin-top:22px; padding:32px; border-radius:26px; background:radial-gradient(circle at 50% 20%, rgba(20,56,34,0.95), rgba(5,12,8,0.98)); border:2px solid rgba(168,255,0,0.45); box-shadow:0 24px 65px rgba(0,0,0,0.85), 0 0 40px rgba(168,255,0,0.14); text-align:center;">
+        <div style="display:flex; align-items:center; justify-content:center; gap:20px; flex-wrap:wrap; margin-bottom:18px;">
+          <img src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2FQmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb%2F9734.png&w=220&h=220&fit=cover" alt="Striker #619" style="width:88px; height:88px; border-radius:18px; border:2px solid #a8ff00; object-fit:cover;" />
+          <img src="branding/original/assests-2022/logo.png" alt="$EFOO Rocket Ball" style="width:96px; height:96px; border-radius:50%; border:3px solid #ffb800; box-shadow:0 0 34px rgba(255,85,0,0.75);" />
+          <img src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2Fbafybeicbszzifxxcpnq3zrndfdtf45wouhyjbklwk4ffio365icb2ylgg4%2F230.png&w=220&h=220&fit=cover" alt="Goalkeeper #2" style="width:88px; height:88px; border-radius:18px; border:2px solid #ffb800; object-fit:cover;" />
         </div>
 
-        <!-- RIGHT: EFOO FOMO 90+5' Injury Time On-Chain Jackpot -->
-        <div class="fomo-pot-card">
-          <div class="fomo-pot-header">
-            <span class="fomo-live-tag">⏱️ 90+5' INJURY TIME FOMO POT</span>
-            <h3 data-i18n="fomo_pot_title">LAST STRIKER TAKES THE STADIUM POT!</h3>
-            <p data-i18n="fomo_pot_desc">
-              Inspired by Fomo3D: every <strong>100,000 $EFOO</strong> kicked into the pot resets the Injury Time clock back to <code>05:00</code>! When the referee blows the final whistle (<code>00:00</code>), the <strong>Last Striker wins 50% of the Pot</strong> and <strong>50% is burned forever</strong>!
-            </p>
-          </div>
+        <div style="display:inline-flex; align-items:center; gap:14px; padding:8px 18px; border-radius:999px; background:rgba(0,0,0,0.55); border:1px solid rgba(255,184,0,0.45); font-family:var(--font-mono); font-size:0.85rem; color:#ffb800; margin-bottom:14px;">
+          <span>⏱️ 90+5' POT CLOCK: <strong id="fomo-countdown">04:42</strong></span>
+          <span>|</span>
+          <span>🏆 ACTIVE POT: <strong id="fomo-pot-amount" style="color:#a8ff00;">25,400,000 $EFOO</strong></span>
+        </div>
 
-          <div class="fomo-clock-box">
-            <span class="clock-label" data-i18n="fomo_clock_label">⏱️ INJURY TIME REMAINING</span>
-            <div class="clock-digits" id="fomo-countdown">04:42</div>
-            <div class="pot-amount-row">
-              <span data-i18n="fomo_current_pot">🏆 ACTIVE STADIUM POT:</span>
-              <strong id="fomo-pot-amount">25,400,000 $EFOO</strong>
-            </div>
-          </div>
+        <h3 style="font-family:var(--font-display); font-size:clamp(2rem, 3.8vw, 3rem); color:#fff; margin:0 0 10px; letter-spacing:0.04em;">
+          STEP ONTO THE PITCH IN THE DEDICATED STADIUM ARENA
+        </h3>
+        <p style="max-width:680px; margin:0 auto 22px; color:#cbd5e1; font-size:0.98rem; line-height:1.5;">
+          Includes the <strong>Cinematic NFT &amp; $EFOO Broadcast Intro</strong>, <strong>60FPS Curving Rocket Physics</strong>, <strong>Real MultiversX NFT Player &amp; Keeper Graphics</strong>, and the <strong>25,400,000 $EFOO Injury Time Jackpot</strong>!
+        </p>
 
-          <div class="fomo-leader-box">
-            <span data-i18n="fomo_last_striker">👟 CURRENT LAST STRIKER (LEADER):</span>
-            <code id="fomo-last-striker">erd1gyw9...96j8gq (ElrondFootball #619)</code>
-          </div>
-
-          <div class="fomo-actions">
-            <button type="button" id="kick-fomo-pot-btn" class="btn btn-primary full-width">
-              🔥 <span data-i18n="btn_kick_fomo">Kick 100,000 $EFOO Into Pot (Reset Clock)</span>
-            </button>
-            <button type="button" id="share-score-x-btn" class="btn btn-secondary full-width">
-              🐦 <span data-i18n="btn_share_score">Share My Penalty Score on X</span>
-            </button>
-          </div>
-
-          <div class="fomo-rules-mini">
-            <div data-i18n="fomo_rule_1">🔥 <strong>50% Mega Burn:</strong> Half of every FOMO pot goes straight to the dead address.</div>
-            <div data-i18n="fomo_rule_2">🃏 <strong>NFT Holder Edge:</strong> Holding 3+ EFOOTBALL NFTs doubles your ticket weight!</div>
-          </div>
+        <div style="display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;">
+          <a href="game.html" class="btn btn-primary" style="font-size:1.25rem; padding:16px 36px; box-shadow:0 0 36px rgba(168,255,0,0.5);">
+            ⚽ LAUNCH EFOO FOMO STADIUM GAME ➔
+          </a>
+          <a href="#wallet-hub" class="btn btn-secondary" style="padding:15px 24px;">
+            ⚡ Buy $EFOO &amp; Mint NFTs First
+          </a>
         </div>
       </div>
     </div>

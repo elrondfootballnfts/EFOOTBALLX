@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EFOO FOMO Arena | 90+5' NFT Penalty Shootout &amp; Stadium Pot</title>
+  <meta name="description" content="Play EFOO FOMO on MultiversX! Use your EFOOTBALL-91a4eb & GOALKEEPER-cb9e3e NFTs and $EFOO tokens to unlock Banana Curve shots, Alien Radar, Save Shields, and win the 90+5' Stadium Pot!" />
+  <link rel="icon" type="image/png" href="branding/original/assests-2022/logo.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="game.css" />
+</head>
+<body class="game-page-body">
+
+  <!-- =====================================================================
+       TOP STADIUM GAME NAVBAR
+       ===================================================================== -->
+  <header class="game-navbar">
+    <div class="game-nav-inner">
+      <div style="display:flex; align-items:center; gap:14px;">
+        <a href="index.html" class="back-home-btn">
+          ⬅ <span data-i18n="nav_back_home">Back to Main Stadium</span>
+        </a>
+        <div class="game-nav-brand">
+          <img src="branding/original/assests-2022/logo.png" alt="$EFOO Rocket Ball" />
+          <div>
+            <span class="game-nav-brand-title">EFOO FOMO ARENA</span>
+            <span class="game-nav-brand-sub">90+5' NFT PENALTY &amp; JACKPOT ENGINE</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-nav-right">
+        <button type="button" id="sound-toggle-btn" class="sound-toggle-btn">
+          🔊 <span id="sound-toggle-label">SFX: ON</span>
+        </button>
+
+        <div class="lang-switch" role="group" aria-label="Language Switcher">
+          <button type="button" class="lang-btn active" data-set-lang="en">EN</button>
+          <button type="button" class="lang-btn" data-set-lang="ro">RO</button>
+        </div>
+
+        <button type="button" id="open-wallet-modal-btn" class="btn btn-wallet-nav">
+          <span class="wallet-dot" id="nav-wallet-dot"></span>
+          <span id="nav-wallet-label" data-i18n="nav_connect">Connect Wallet</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       ULTRA-SIMPLE 3-STEP VISUAL GAME GUIDE
+       ===================================================================== -->
+  <section class="quick-rules-strip">
+    <div class="quick-rules-grid">
+      <div class="qr-card">
+        <div class="qr-step-badge">🎯</div>
+        <div class="qr-text">
+          <h3 data-i18n="rule1_title">1. PICK A CORNER (6 ZONES)</h3>
+          <p data-i18n="rule1_desc">Click any of the 6 goal zones. Hit the moving <strong>⭐ 2x Golden Bullseye</strong> for double points!</p>
+        </div>
+      </div>
+
+      <div class="qr-card">
+        <div class="qr-step-badge">⚡</div>
+        <div class="qr-text">
+          <h3 data-i18n="rule2_title">2. LOCK THE GREEN SWEET-SPOT</h3>
+          <p data-i18n="rule2_desc">Click <strong>SHOOT (or Space)</strong> in the green bar to fire an unstoppable <strong>Flaming Rocket Curve Shot</strong>!</p>
+        </div>
+      </div>
+
+      <div class="qr-card gold">
+        <div class="qr-step-badge">🏆</div>
+        <div class="qr-text">
+          <h3 data-i18n="rule3_title">3. NFTs = GOD POWERS &amp; JACKPOT</h3>
+          <p data-i18n="rule3_desc">More <strong>NFTs &amp; $EFOO</strong> = up to <strong>90% Goal Chance, 11x Score, Free Saves</strong> &amp; <strong>25.4M $EFOO Pot</strong> entry!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       MAIN STADIUM ARENA + RIGHT FOMO POT & POWER-UP STORE
+       ===================================================================== -->
+  <main class="game-main-container">
+
+    <!-- LEFT: 60FPS INTERACTIVE STADIUM ARENA -->
+    <div class="stadium-arena-shell">
+
+      <!-- TOP 5-METRIC HUD -->
+      <div class="arena-hud-top">
+        <div class="hud-stat-box">
+          <span class="hud-stat-label" data-i18n="hud_shot">⚽ ROUND / SHOT</span>
+          <strong class="hud-stat-val" id="hud-round">1 / 5</strong>
+        </div>
+        <div class="hud-stat-box">
+          <span class="hud-stat-label" data-i18n="hud_goals">🥅 GOALS &amp; STREAK</span>
+          <strong class="hud-stat-val" id="hud-goals">0 (0x 🔥)</strong>
+        </div>
+        <div class="hud-stat-box neon">
+          <span class="hud-stat-label" data-i18n="hud_mult">⚡ NFT MULTIPLIER</span>
+          <strong class="hud-stat-val" id="hud-multiplier">1.0x</strong>
+        </div>
+        <div class="hud-stat-box gold">
+          <span class="hud-stat-label" data-i18n="hud_shields">🛡️ KEEPER SHIELDS</span>
+          <strong class="hud-stat-val" id="hud-shields">0 Left</strong>
+        </div>
+        <div class="hud-stat-box neon">
+          <span class="hud-stat-label" data-i18n="hud_score">🏆 MATCH SCORE</span>
+          <strong class="hud-stat-val" id="hud-score">0</strong>
+        </div>
+      </div>
+
+      <!-- ACTIVE SUPERPOWERS STATUS RIBBON -->
+      <div class="arena-superpowers-ribbon">
+        <div class="sp-badges-group">
+          <span class="sp-pill" id="sp-curve" title="Hold 1+ Player NFT: Banana Curve around the keeper">🌀 Banana Curve (1+ NFT)</span>
+          <span class="sp-pill" id="sp-radar" title="Hold 3+ Player NFTs: Reveals where the keeper will dive">🛸 Keeper Radar (3+ NFTs)</span>
+          <span class="sp-pill" id="sp-multiball" title="Hold 6+ Player NFTs: Double Goal on Perfect Shots">⚡ Double-Ball (6+ NFTs)</span>
+          <span class="sp-pill gold" id="sp-shield" title="Hold 1+ Goalkeeper NFT: Deflects saved shots IN off the post">🧤 Save Shield (Keeper NFT)</span>
+          <span class="sp-pill gold" id="sp-rocket" title="Hold 1M+ $EFOO: +1,000 pts/goal & wider Sweet Spot">🔥 Rocket Ball (1M+ $EFOO)</span>
+        </div>
+
+        <button type="button" id="demo-whale-btn" class="demo-whale-toggle-btn">
+          👑 <span id="demo-whale-label" data-i18n="btn_try_whale">Test Whale Squad (11 NFTs + 2 Keepers)</span>
+        </button>
+      </div>
+
+      <!-- 60FPS PITCH VIEWPORT + OVERLAYS -->
+      <div class="pitch-viewport" id="pitch-viewport">
+        <canvas id="stadium-canvas" width="900" height="520"></canvas>
+
+        <!-- Telepathy Radar Alert (Visible when holding 3+ Player NFTs) -->
+        <div class="telepathy-radar-alert hidden" id="telepathy-radar-alert">
+          🛸 ALIEN NFT RADAR: Keeper #51 is leaning <strong id="radar-dive-hint">LEFT</strong>!
+        </div>
+
+        <!-- 6 Interactive Goal Target Zones (Phase 1: Aim) -->
+        <div class="goal-targets-layer hidden" id="goal-targets-layer">
+          <button type="button" class="goal-zone-btn" data-zone="tl">
+            <span class="gz-icon">🎯</span>
+            <span class="gz-label">TOP LEFT</span>
+          </button>
+          <button type="button" class="goal-zone-btn" data-zone="tc">
+            <span class="gz-icon">🔥</span>
+            <span class="gz-label">UPPER ROOF</span>
+          </button>
+          <button type="button" class="goal-zone-btn" data-zone="tr">
+            <span class="gz-icon">🎯</span>
+            <span class="gz-label">TOP RIGHT</span>
+          </button>
+          <button type="button" class="goal-zone-btn" data-zone="bl">
+            <span class="gz-icon">👟</span>
+            <span class="gz-label">LOW LEFT</span>
+          </button>
+          <button type="button" class="goal-zone-btn" data-zone="bc">
+            <span class="gz-icon">🍺</span>
+            <span class="gz-label">PANENKA</span>
+          </button>
+          <button type="button" class="goal-zone-btn" data-zone="br">
+            <span class="gz-icon">👟</span>
+            <span class="gz-label">LOW RIGHT</span>
+          </button>
+        </div>
+
+        <!-- Phase 2: Arcade Power & Curve Timing Bar -->
+        <div class="timing-meter-hud hidden" id="timing-meter-hud">
+          <div class="tm-header">
+            <span class="tm-title" id="tm-zone-label">🎯 TARGET LOCKED: TOP LEFT</span>
+            <span class="tm-sweet-hint" id="tm-sweet-hint">⚡ Stop in GREEN ZONE for Unstoppable Rocket Curve!</span>
+          </div>
+          <div class="tm-track" id="tm-track" title="Click anywhere or press SPACE to lock power!">
+            <div class="tm-sweet-zone" id="tm-sweet-zone"></div>
+            <div class="tm-cursor" id="tm-cursor"></div>
+          </div>
+          <button type="button" id="tm-shoot-btn" class="tm-shoot-btn">
+            🔥 <span data-i18n="btn_lock_kick">KICK ROCKET SHOT NOW! (CLICK OR SPACE)</span>
+          </button>
+        </div>
+
+        <!-- OVERLAY 1: PRE-MATCH START SCREEN ("Legyen játék indítás gomb, ne egyből induljon") -->
+        <div class="game-start-overlay" id="game-start-overlay">
+          <div class="start-lobby-crest-row">
+            <img id="lobby-striker-img" src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2FQmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb%2F9734.png&w=240&h=240&fit=cover" alt="Striker NFT" class="lobby-nft-preview" />
+            <img src="branding/original/assests-2022/logo.png" alt="$EFOO Rocket Ball" class="lobby-efoo-ball" />
+            <img id="lobby-keeper-img" src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2Fbafybeicbszzifxxcpnq3zrndfdtf45wouhyjbklwk4ffio365icb2ylgg4%2F230.png&w=240&h=240&fit=cover" alt="Goalkeeper NFT" class="lobby-nft-preview keeper" />
+          </div>
+
+          <span class="start-lobby-kicker" data-i18n="lobby_kicker">🏟️ MULTIVERSX ON-CHAIN PENALTY ARENA</span>
+          <h1 class="start-lobby-title" data-i18n="lobby_title">EFOO FOMO: 90+5' SHOOTOUT</h1>
+          <p class="start-lobby-sub" data-i18n="lobby_sub">
+            Step up to the penalty spot with real <strong>EFOOTBALL-91a4eb</strong> &amp; <strong>GOALKEEPER-cb9e3e</strong> NFTs! Score 5 penalties to enter Sudden Death Overdrive and claim your share of the <strong>25,400,000 $EFOO Pot</strong>!
+          </p>
+
+          <div class="start-power-summary">
+            <div class="sps-chip">⚽ Win Chance: <strong id="lobby-win-chance">55% (Base)</strong></div>
+            <div class="sps-chip">🏆 Score Multiplier: <strong id="lobby-mult-val">1.0x</strong></div>
+            <div class="sps-chip">🛡️ Keeper Shields: <strong id="lobby-shields-val">0</strong></div>
+          </div>
+
+          <button type="button" id="start-match-btn" class="btn-start-match-mega">
+            ⚽ <span data-i18n="btn_start_match">START MATCH (LAUNCH INTRO)</span>
+          </button>
+        </div>
+
+        <!-- OVERLAY 2: 3.8-SECOND CINEMATIC BROADCAST INTRO
+             ("Indításkor legyen egy pár másodperces intro, ahol az NFT-k, és EFOO token logója is megjelenik") -->
+        <div class="game-cinematic-intro hidden" id="game-cinematic-intro">
+          <div class="intro-floodlight-beam"></div>
+          <div class="intro-floodlight-beam right"></div>
+
+          <div class="intro-stage-box">
+            <span class="intro-kicker-pill" id="intro-phase-kicker">🔥 SUNDAY LEAGUE DEGEN FC • 92.91% BURNED</span>
+            <h2 class="intro-headline" id="intro-phase-headline">MULTIVERSX STADIUM PRESENTS</h2>
+
+            <div class="intro-versus-cards">
+              <div class="intro-nft-fighter">
+                <img id="intro-striker-img" src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2FQmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb%2F9734.png&w=300&h=300&fit=cover" alt="Striker NFT" />
+                <strong id="intro-striker-name">ElrondFootball #619</strong>
+                <small id="intro-striker-boost">⚡ STRIKER NFT SQUAD</small>
+              </div>
+
+              <div class="intro-center-logo">
+                <img src="branding/original/assests-2022/logo.png" alt="$EFOO Token Logo" />
+                <span class="intro-vs-badge">$EFOO VS</span>
+              </div>
+
+              <div class="intro-nft-fighter keeper">
+                <img id="intro-keeper-img" src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2Fbafybeicbszzifxxcpnq3zrndfdtf45wouhyjbklwk4ffio365icb2ylgg4%2F230.png&w=300&h=300&fit=cover" alt="Keeper NFT" />
+                <strong id="intro-keeper-name">GoalKeeper #2</strong>
+                <small>🧤 BOSS KEEPER NFT</small>
+              </div>
+            </div>
+
+            <div class="intro-progress-bar">
+              <div class="intro-progress-fill" id="intro-progress-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- OVERLAY 3: POST-MATCH SUMMARY & FOMO UPSELL MODAL -->
+        <div class="match-summary-overlay hidden" id="match-summary-overlay">
+          <div class="ms-card">
+            <span class="start-lobby-kicker" id="ms-kicker">🏁 FULL TIME WHISTLE</span>
+            <h2 class="ms-title" id="ms-title">MATCH COMPLETED!</h2>
+
+            <div class="ms-score-row">
+              <div class="ms-score-box">
+                <span data-i18n="ms_your_score">YOUR FINAL SCORE</span>
+                <strong id="ms-final-score">4,250</strong>
+              </div>
+              <div class="ms-score-box missed-fomo">
+                <span data-i18n="ms_whale_score">WITH 3+ NFTs &amp; 1M $EFOO</span>
+                <strong id="ms-potential-score">29,750 🏆</strong>
+              </div>
+            </div>
+
+            <div class="ms-fomo-hook" id="ms-fomo-hook">
+              🔥 <strong>FOMO ALERT:</strong> Holding <strong>1+ Striker NFT (0.08 EGLD)</strong> or <strong>1M+ $EFOO</strong> unlocks <strong>Sudden Death Overdrive</strong>, boosts your score up to <strong>11x</strong>, and qualifies your wallet for the <strong>25,400,000 $EFOO Stadium Jackpot</strong>!
+            </div>
+
+            <div class="ms-cta-grid">
+              <button type="button" id="ms-play-again-btn" class="btn btn-primary full-width">
+                ⚽ <span data-i18n="btn_play_again">Play Again</span>
+              </button>
+              <button type="button" id="ms-share-x-btn" class="btn btn-secondary full-width">
+                🐦 <span data-i18n="btn_share_x">Share Score on X</span>
+              </button>
+              <button type="button" id="ms-buy-efoo-btn" class="btn btn-outline full-width">
+                🔥 <span data-i18n="btn_quick_buy_efoo">Buy 3M $EFOO (~0.1 EGLD)</span>
+              </button>
+              <button type="button" id="ms-mint-nft-btn" class="btn btn-outline full-width">
+                🃏 <span data-i18n="btn_quick_mint_nft">Mint Striker NFT (0.08 EGLD)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIVE COMMENTARY & RESET BAR -->
+      <div class="arena-commentary-bar">
+        <div id="arena-commentary-text">
+          🎙️ <strong>Stadium Broadcast:</strong> Click <strong>START MATCH</strong> above to launch the NFT Intro &amp; Penalty Shootout!
+        </div>
+        <button type="button" id="restart-match-btn" class="btn btn-outline btn-sm">
+          🔄 <span data-i18n="btn_restart">Restart</span>
+        </button>
+      </div>
+
+      <!-- REAL ON-CHAIN NFT SQUAD SELECTOR STRIP -->
+      <div class="squad-picker-strip">
+        <div class="sps-head">
+          <span data-i18n="select_striker_label">👕 SELECT ACTIVE STRIKER NFT ON PITCH (REAL MULTIVERSX NFT GRAPHICS):</span>
+          <span id="owned-nft-counter">Wallet Squad: 0 Players • 0 Keepers</span>
+        </div>
+        <div class="squad-cards-row" id="squad-cards-row">
+          <!-- Populated dynamically with real EFOOTBALL-91a4eb & GOALKEEPER-cb9e3e NFTs -->
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR: 90+5' FOMO POT + 1-CLICK POWER-UP STORE -->
+    <aside class="game-sidebar">
+
+      <!-- CARD 1: 90+5' INJURY TIME POT & HOLDER ELIGIBILITY CONDITION -->
+      <div class="sidebar-pot-card">
+        <div class="pot-live-header">
+          <span class="pot-badge-live">⏱️ 90+5' INJURY TIME POT</span>
+          <span style="font-family:var(--font-mono); font-size:0.72rem; color:var(--neon);">50% WINNER / 50% BURN</span>
+        </div>
+
+        <h3 style="font-family:var(--font-display); font-size:1.7rem; margin:0 0 6px; color:#fff;" data-i18n="pot_card_title">
+          LAST STRIKER TAKES THE POT!
+        </h3>
+        <p style="font-size:0.82rem; color:#cbd5e1; margin:0; line-height:1.4;" data-i18n="pot_card_desc">
+          Every <strong>100,000 $EFOO</strong> kicked into the pot resets the clock to <code>05:00</code>. When it hits <code>00:00</code>, the <strong>Last Striker wins 50%</strong> and <strong>50% is burned forever</strong>!
+        </p>
+
+        <div class="pot-timer-box">
+          <span style="font-family:var(--font-mono); font-size:0.68rem; color:#94a3b8;">INJURY TIME CLOCK</span>
+          <div class="pot-timer-digits" id="fomo-countdown">04:42</div>
+          <div class="pot-jackpot-amount" id="fomo-pot-amount">25,400,000 $EFOO</div>
+          <small style="font-family:var(--font-mono); font-size:0.7rem; color:#94a3b8;">
+            Leader: <strong id="fomo-last-striker" style="color:#fff;">erd1gyw9...96j8gq (#619)</strong>
+          </small>
+        </div>
+
+        <!-- MARKETING & ELIGIBILITY CONDITION BOX -->
+        <div class="eligibility-gate-box" id="eligibility-gate-box">
+          <div style="font-weight:800; color:var(--gold); margin-bottom:4px;" id="elig-status-title">
+            🔒 PRO JACKPOT &amp; SUDDEN DEATH STATUS: LOCKED
+          </div>
+          <div style="color:#cbd5e1; line-height:1.35;" id="elig-status-desc">
+            Hold <strong>1+ Squad NFT</strong> OR <strong>1,000,000+ $EFOO</strong> (or kick 100k $EFOO below) to unlock <strong>Unlimited Sudden Death Rounds</strong> &amp; qualify for the <strong>Weekly 5M $EFOO + Free NFT Prize Pool</strong>!
+          </div>
+        </div>
+
+        <button type="button" id="kick-fomo-pot-btn" class="btn btn-primary full-width" style="margin-bottom:8px;">
+          🔥 <span data-i18n="btn_kick_100k">Kick 100,000 $EFOO Into Pot (Reset 05:00)</span>
+        </button>
+      </div>
+
+      <!-- CARD 2: INSTANT IN-GAME POWER-UP STORE (DIRECT ON-CHAIN SWAP & MINT) -->
+      <div class="sidebar-store-card">
+        <span style="font-family:var(--font-mono); font-size:0.7rem; color:var(--neon); font-weight:800;">
+          ⚡ INSTANT ON-CHAIN POWER-UP LOCKER
+        </span>
+        <h3 style="font-family:var(--font-display); font-size:1.6rem; margin:4px 0 6px; color:#fff;" data-i18n="store_title">
+          BOOST YOUR WIN % &amp; MULTIPLIER NOW
+        </h3>
+        <p style="font-size:0.8rem; color:#94a3b8; margin:0 0 10px;" data-i18n="store_desc">
+          Sign a 1-click MultiversX transaction right here to unlock permanent superpowers in every match:
+        </p>
+
+        <!-- Pack 1: Buy ~3M $EFOO (0.1 EGLD) -->
+        <div class="store-pack-item">
+          <div class="store-pack-left">
+            <img src="branding/original/assests-2022/logo.png" alt="$EFOO Rocket Pack" />
+            <div>
+              <strong>~3,000,000 $EFOO Pack</strong>
+              <small>🔥 Unlocks Flaming Rocket Ball (+1,000 pts/goal)</small>
+            </div>
+          </div>
+          <button type="button" id="quick-buy-efoo-btn" class="btn btn-primary btn-sm">
+            0.1 EGLD ⚡
+          </button>
+        </div>
+
+        <!-- Pack 2: Mint 1x Outfield Player NFT (0.08 EGLD) -->
+        <div class="store-pack-item">
+          <div class="store-pack-left">
+            <img src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2FQmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb%2F9734.png&w=120&h=120&fit=cover" alt="Striker NFT" />
+            <div>
+              <strong>Mint Striker NFT</strong>
+              <small>🌀 +15% Curve Accuracy &amp; 2.0x Score Boost</small>
+            </div>
+          </div>
+          <button type="button" id="quick-mint-player-btn" class="btn btn-primary btn-sm">
+            0.08 EGLD ⚽
+          </button>
+        </div>
+
+        <!-- Pack 3: Mint 1x Goalkeeper NFT (0.35 EGLD) -->
+        <div class="store-pack-item">
+          <div class="store-pack-left">
+            <img src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2Fbafybeicbszzifxxcpnq3zrndfdtf45wouhyjbklwk4ffio365icb2ylgg4%2F230.png&w=120&h=120&fit=cover" alt="Keeper NFT" />
+            <div>
+              <strong>Mint Goalkeeper NFT</strong>
+              <small>🧤 1x Free Save Shield &amp; +2.0x Extra Multiplier</small>
+            </div>
+          </div>
+          <button type="button" id="quick-mint-keeper-btn" class="btn btn-secondary btn-sm">
+            0.35 EGLD 🧤
+          </button>
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- =====================================================================
+       NFT QUANTITY & $EFOO SUPERPOWER SCALING MATRIX
+       ("Egyértelmű legyen, hogy az NFT-k és annak számai növelik az esélyt és a szuperképességet")
+       ===================================================================== -->
+  <section class="nft-matrix-section">
+    <div class="matrix-card">
+      <span class="section-kicker" data-i18n="matrix_kicker">🃏 ON-CHAIN UTILITY &amp; QUANTITY SCALING</span>
+      <h2 class="section-title" style="margin:6px 0 8px;" data-i18n="matrix_title">
+        MORE NFTs IN YOUR WALLET = HIGHER GOAL % &amp; BIGGER SUPERPOWERS
+      </h2>
+      <p style="color:#cbd5e1; max-width:820px; margin:0;" data-i18n="matrix_desc">
+        The game engine scans your connected MultiversX wallet in real time. Both the <strong>type of NFT (`EFOOTBALL` vs `GOALKEEPER`)</strong> and the <strong>exact number of NFTs you hold</strong> stack together to multiply your score and unlock unfair stadium advantages:
+      </p>
+
+      <div class="tier-cards-grid">
+        <!-- Tier 1: 1-2 Player NFTs -->
+        <div class="nft-tier-card" id="tier-card-1">
+          <span class="tier-qty-badge">👕 HOLD 1–2 PLAYER NFTs</span>
+          <h4 data-i18n="t1_title">LIGA 1 STARTER</h4>
+          <ul class="tier-perks-list">
+            <li>🎯 <strong>Goal Chance:</strong> Boosted from 55% ➔ <strong>70%</strong></li>
+            <li>🏆 <strong>Score Multiplier:</strong> <strong>2.0x Points</strong> per goal</li>
+            <li>🌀 <strong>Banana Curve Shot:</strong> Ball bends mid-air around the diving keeper's gloves!</li>
+            <li>🔓 <strong>Unlocks:</strong> Sudden Death Overdrive &amp; Jackpot Eligibility</li>
+          </ul>
+        </div>
+
+        <!-- Tier 2: 3-5 Player NFTs -->
+        <div class="nft-tier-card" id="tier-card-2">
+          <span class="tier-qty-badge">👕👕👕 HOLD 3–5 PLAYER NFTs</span>
+          <h4 data-i18n="t2_title">ULTRAS CAPTAIN</h4>
+          <ul class="tier-perks-list">
+            <li>🎯 <strong>Goal Chance:</strong> Boosted to <strong>80%</strong></li>
+            <li>🏆 <strong>Score Multiplier:</strong> <strong>4.0x Points</strong> per goal</li>
+            <li>🛸 <strong>Alien Telepathy Radar:</strong> Shows a live warning arrow revealing which way the keeper is leaning!</li>
+            <li>🎟️ <strong>2x Jackpot Weight</strong> in the 90+5' Stadium Pot</li>
+          </ul>
+        </div>
+
+        <!-- Tier 3: 6+ Player NFTs -->
+        <div class="nft-tier-card" id="tier-card-3">
+          <span class="tier-qty-badge">👑 HOLD 6+ PLAYER NFTs</span>
+          <h4 data-i18n="t3_title">DEGEN CLUB LEGEND</h4>
+          <ul class="tier-perks-list">
+            <li>🎯 <strong>Goal Chance:</strong> Boosted to <strong>90% (Near-Unstoppable)</strong></li>
+            <li>🏆 <strong>Score Multiplier:</strong> <strong>7.0x Points</strong> per goal</li>
+            <li>⚡ <strong>Multi-Ball Overdrive:</strong> Every Green Sweet-Spot kick fires <strong>2 Rocket Balls at once</strong> (Double Goal)!</li>
+            <li>🎟️ <strong>4x Jackpot Weight</strong> + VIP Board Governance</li>
+          </ul>
+        </div>
+
+        <!-- Tier 4: Goalkeeper NFTs (1 to 2+) + 1M+ $EFOO -->
+        <div class="nft-tier-card gold-tier" id="tier-card-4">
+          <span class="tier-qty-badge">🧤 HOLD 1–2+ KEEPER NFTs (51 MAX)</span>
+          <h4 data-i18n="t4_title">GOLDEN GLOVE TITAN</h4>
+          <ul class="tier-perks-list">
+            <li>🛡️ <strong>1 Keeper NFT:</strong> <strong>1x Post-Ricochet Save Shield</strong> per match + <strong>+2.0x Bonus Multiplier</strong></li>
+            <li>🛡️🛡️ <strong>2+ Keeper NFTs:</strong> <strong>2x Save Shields</strong> + <strong>35% Slower Power Bar</strong> + <strong>+4.0x Multiplier</strong>!</li>
+            <li>🔥 <strong>Hold 1M+ $EFOO:</strong> Unlocks <strong>Flaming Rocket Ball (+1,000 pts/goal)</strong> &amp; 50% wider Sweet-Spot!</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       MULTIVERSX WALLET CONNECT MODAL (SHARED WITH MAIN SITE)
+       ===================================================================== -->
+  <div id="wallet-modal-backdrop" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="wallet-modal">
+      <div class="modal-header">
+        <div>
+          <span class="section-kicker">⚡ MULTIVERSX AUTHENTICATION</span>
+          <h3 data-i18n="modal_title">CONNECT YOUR MULTIVERSX WALLET</h3>
+        </div>
+        <button type="button" id="close-wallet-modal-btn" class="modal-close-btn" aria-label="Close">✕</button>
+      </div>
+
+      <p class="modal-desc" data-i18n="modal_desc">
+        Connect your wallet to load your live <strong>$EFOO balance</strong>, <strong>EFOOTBALL</strong> &amp; <strong>GOALKEEPER NFTs</strong> into the stadium and sign instant swaps/mints!
+      </p>
+
+      <div class="wallet-providers-list">
+        <button type="button" class="provider-btn" id="login-xportal-btn">
+          <div class="prov-icon">📱</div>
+          <div class="prov-info">
+            <strong>xPortal Mobile App</strong>
+            <small>Official WalletConnect v2 QR &amp; Deep Link</small>
+          </div>
+          <span class="prov-arrow">QR / App →</span>
+        </button>
+
+        <div id="xportal-qr-box" class="xportal-qr-box hidden">
+          <div class="wc-qr-status-pill" id="wc-status-pill">⏳ Initializing WalletConnect v2...</div>
+          <img id="xportal-qr-img" src="" alt="xPortal WalletConnect QR" width="220" height="220" />
+          <div class="wc-qr-actions">
+            <a id="xportal-bridge-link" href="https://maiar.page.link/" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
+              📱 Open in xPortal App ↗
+            </a>
+            <button type="button" id="copy-wc-uri-btn" class="btn btn-outline btn-sm">📋 Copy wc: URI</button>
+          </div>
+        </div>
+
+        <button type="button" class="provider-btn" id="login-extension-btn">
+          <div class="prov-icon">🧩</div>
+          <div class="prov-info">
+            <strong>MultiversX DeFi Wallet Extension</strong>
+            <small>Chrome / Brave / Edge Browser Extension</small>
+          </div>
+          <span class="prov-arrow" id="ext-detect-badge">Connect →</span>
+        </button>
+
+        <button type="button" class="provider-btn" id="login-webwallet-btn">
+          <div class="prov-icon">🌐</div>
+          <div class="prov-info">
+            <strong>MultiversX Web Wallet</strong>
+            <small>Official redirect login (wallet.multiversx.com)</small>
+          </div>
+          <span class="prov-arrow">Login ↗</span>
+        </button>
+      </div>
+
+      <div class="modal-divider"><span>OR INSTANT WALLET INSPECTOR / DEMO</span></div>
+
+      <div class="manual-wallet-box">
+        <div class="manual-input-row">
+          <input type="text" id="manual-erd-input" placeholder="erd1..." autocomplete="off" />
+          <button type="button" id="login-manual-btn" class="btn btn-primary btn-sm">Load Squad</button>
+        </div>
+        <button type="button" id="modal-demo-owner-btn" class="btn btn-outline btn-sm full-width" style="margin-top:8px;">
+          👑 Load Club Whale Wallet (1.91B $EFOO + 11 Players + 2 Keepers)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="tx-toast" class="tx-toast hidden">
+    <span id="tx-toast-text">⚡ Preparing MultiversX transaction...</span>
+    <a id="tx-toast-link" href="#" target="_blank" rel="noopener noreferrer" class="hidden">View on Explorer ↗</a>
+    <button type="button" id="tx-toast-close">✕</button>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

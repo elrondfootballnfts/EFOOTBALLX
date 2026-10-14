@@ -1692,8 +1692,7 @@ function renderOwnedNftsGallery() {
     });
 
     card.querySelector(".use-game-btn").addEventListener("click", () => {
-      setActiveGameStriker(nft);
-      document.getElementById("efoo-fomo-game")?.scrollIntoView({ behavior: "smooth" });
+      window.location.href = "game.html";
     });
 
     grid.appendChild(card);
@@ -2612,7 +2611,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // EFOO FOMO Penalty Shootout Bindings
-  document.getElementById("game-best").textContent = gameState.bestScore.toLocaleString("en-US");
+  const gameBestEl = document.getElementById("game-best");
+  if (gameBestEl) gameBestEl.textContent = gameState.bestScore.toLocaleString("en-US");
   document.querySelectorAll(".shot-target").forEach((btn) => {
     btn.addEventListener("click", () => shootPenalty(btn.getAttribute("data-shot")));
   });

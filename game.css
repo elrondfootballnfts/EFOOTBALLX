@@ -1,0 +1,1260 @@
+/* ============================================================================
+   EFOO FOMO — STANDALONE STADIUM ARENA & CINEMATIC GAME STYLES (game.css)
+   ============================================================================ */
+
+.game-page-body {
+  background: #040806;
+  color: #f8fafc;
+  overflow-x: hidden;
+}
+
+/* TOP GAME NAVBAR */
+.game-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  background: rgba(5, 11, 8, 0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(168, 255, 0, 0.22);
+}
+
+.game-nav-inner {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.back-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #e2e8f0;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.back-home-btn:hover {
+  border-color: var(--neon);
+  color: var(--neon);
+  transform: translateX(-2px);
+}
+
+.game-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.game-nav-brand img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  box-shadow: 0 0 14px rgba(168, 255, 0, 0.45);
+}
+
+.game-nav-brand-title {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  letter-spacing: 0.05em;
+  color: #fff;
+  line-height: 1;
+}
+
+.game-nav-brand-sub {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--neon);
+  letter-spacing: 0.08em;
+}
+
+.game-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sound-toggle-btn {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(168, 255, 0, 0.08);
+  border: 1px solid rgba(168, 255, 0, 0.25);
+  color: var(--neon);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sound-toggle-btn:hover {
+  background: rgba(168, 255, 0, 0.18);
+}
+
+/* ============================================================================
+   ULTRA-SIMPLE 3-STEP VISUAL RULES STRIP
+   ============================================================================ */
+.quick-rules-strip {
+  max-width: 1360px;
+  margin: 18px auto 12px;
+  padding: 0 20px;
+}
+
+.quick-rules-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.qr-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(14, 29, 20, 0.9), rgba(7, 14, 10, 0.95));
+  border: 1px solid rgba(168, 255, 0, 0.2);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+.qr-step-badge {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(168, 255, 0, 0.12);
+  border: 1px solid rgba(168, 255, 0, 0.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.45rem;
+  flex-shrink: 0;
+}
+
+.qr-card.gold .qr-step-badge {
+  background: rgba(255, 184, 0, 0.14);
+  border-color: rgba(255, 184, 0, 0.45);
+}
+
+.qr-text h3 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  letter-spacing: 0.04em;
+  color: #fff;
+  margin: 0 0 2px;
+}
+
+.qr-text p {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.35;
+}
+
+/* ============================================================================
+   MAIN GAME LAYOUT: STADIUM STAGE (LEFT) + LIVE FOMO POT & QUICK BOOST (RIGHT)
+   ============================================================================ */
+.game-main-container {
+  max-width: 1360px;
+  margin: 0 auto 36px;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1.55fr 0.85fr;
+  gap: 22px;
+  align-items: start;
+}
+
+/* STADIUM ARENA SHELL */
+.stadium-arena-shell {
+  position: relative;
+  border-radius: 24px;
+  background: radial-gradient(circle at 50% 20%, #102a1b 0%, #050c08 80%);
+  border: 2px solid rgba(168, 255, 0, 0.32);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.85), 0 0 40px rgba(168, 255, 0, 0.1);
+  overflow: hidden;
+}
+
+/* TOP TELEMETRY SCOREBOARD BAR */
+.arena-hud-top {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(4, 9, 6, 0.92);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hud-stat-box {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+}
+
+.hud-stat-box.neon {
+  background: rgba(168, 255, 0, 0.1);
+  border-color: rgba(168, 255, 0, 0.38);
+}
+
+.hud-stat-box.gold {
+  background: rgba(255, 184, 0, 0.1);
+  border-color: rgba(255, 184, 0, 0.38);
+}
+
+.hud-stat-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hud-stat-val {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  letter-spacing: 0.04em;
+  color: #fff;
+  line-height: 1.05;
+  margin-top: 2px;
+}
+
+.hud-stat-box.neon .hud-stat-val {
+  color: var(--neon);
+}
+
+.hud-stat-box.gold .hud-stat-val {
+  color: var(--gold);
+}
+
+/* ACTIVE SUPERPOWERS STATUS RIBBON */
+.arena-superpowers-ribbon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(10, 22, 15, 0.95);
+  border-bottom: 1px solid rgba(168, 255, 0, 0.18);
+  flex-wrap: wrap;
+}
+
+.sp-badges-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #64748b;
+  transition: all 0.25s ease;
+}
+
+.sp-pill.active {
+  background: rgba(168, 255, 0, 0.14);
+  border-color: rgba(168, 255, 0, 0.5);
+  color: var(--neon);
+  box-shadow: 0 0 12px rgba(168, 255, 0, 0.22);
+}
+
+.sp-pill.active.gold {
+  background: rgba(255, 184, 0, 0.16);
+  border-color: rgba(255, 184, 0, 0.55);
+  color: var(--gold);
+  box-shadow: 0 0 12px rgba(255, 184, 0, 0.25);
+}
+
+.demo-whale-toggle-btn {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 184, 0, 0.2), rgba(255, 77, 0, 0.2));
+  border: 1px solid rgba(255, 184, 0, 0.5);
+  color: #fde047;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-whale-toggle-btn:hover {
+  background: rgba(255, 184, 0, 0.32);
+  transform: translateY(-1px);
+}
+
+/* ============================================================================
+   INTERACTIVE 60FPS STADIUM STAGE & OVERLAYS
+   ============================================================================ */
+.pitch-viewport {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  background: #050f09;
+  overflow: hidden;
+  user-select: none;
+}
+
+#stadium-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 1;
+}
+
+/* TELEPATHY KEEPER RADAR BANNER (3+ NFTs) */
+.telepathy-radar-alert {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 12;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(8, 18, 12, 0.9);
+  border: 1px solid var(--neon);
+  color: var(--neon);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  box-shadow: 0 0 18px rgba(168, 255, 0, 0.35);
+  pointer-events: none;
+  animation: pulseRadar 1.2s infinite alternate;
+}
+
+@keyframes pulseRadar {
+  0% { transform: translateX(-50%) scale(0.98); }
+  100% { transform: translateX(-50%) scale(1.03); }
+}
+
+/* 6 INTERACTIVE GOAL TARGET BUTTONS OVERLAY */
+.goal-targets-layer {
+  position: absolute;
+  top: 66px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 68%;
+  max-width: 540px;
+  height: 215px;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 12px;
+  padding: 12px;
+}
+
+.goal-zone-btn {
+  position: relative;
+  border-radius: 16px;
+  background: rgba(168, 255, 0, 0.08);
+  border: 2px dashed rgba(168, 255, 0, 0.42);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  backdrop-filter: blur(2px);
+}
+
+.goal-zone-btn:hover {
+  background: rgba(168, 255, 0, 0.24);
+  border-style: solid;
+  border-color: var(--neon);
+  transform: scale(1.05);
+  box-shadow: 0 0 22px rgba(168, 255, 0, 0.45);
+}
+
+.goal-zone-btn.selected {
+  background: rgba(168, 255, 0, 0.32);
+  border: 2px solid #fff;
+  box-shadow: 0 0 28px rgba(168, 255, 0, 0.8);
+}
+
+.goal-zone-btn.golden-bullseye {
+  background: rgba(255, 184, 0, 0.18);
+  border: 2px solid #ffb800;
+  box-shadow: 0 0 24px rgba(255, 184, 0, 0.5);
+  animation: bullseyePulse 1s infinite alternate;
+}
+
+@keyframes bullseyePulse {
+  0% { transform: scale(0.98); box-shadow: 0 0 14px rgba(255, 184, 0, 0.4); }
+  100% { transform: scale(1.04); box-shadow: 0 0 28px rgba(255, 184, 0, 0.85); }
+}
+
+.gz-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.gz-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  margin-top: 3px;
+  text-shadow: 0 2px 6px #000;
+}
+
+.gz-bonus-tag {
+  position: absolute;
+  top: -9px;
+  right: -6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffb800, #ff4d00);
+  color: #050a07;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 900;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+/* ============================================================================
+   PHASE 2: ARCADE POWER & CURVE TIMING METER OVERLAY
+   ============================================================================ */
+.timing-meter-hud {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 88%;
+  max-width: 580px;
+  z-index: 15;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: rgba(5, 12, 8, 0.94);
+  border: 2px solid rgba(168, 255, 0, 0.55);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.85), 0 0 30px rgba(168, 255, 0, 0.25);
+  text-align: center;
+}
+
+.tm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.tm-title {
+  color: var(--neon);
+}
+
+.tm-sweet-hint {
+  color: var(--gold);
+}
+
+.tm-track {
+  position: relative;
+  height: 26px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    #3b82f6 0%,
+    #22c55e 32%,
+    #a8ff00 50%,
+    #ffb800 68%,
+    #ef4444 92%
+  );
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/* Highlighted Sweet Spot Zone */
+.tm-sweet-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 52%;
+  width: 22%;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.35),
+    rgba(255, 255, 255, 0.35) 6px,
+    rgba(168, 255, 0, 0.55) 6px,
+    rgba(168, 255, 0, 0.55) 12px
+  );
+  border-left: 2px solid #fff;
+  border-right: 2px solid #fff;
+  box-shadow: 0 0 18px #fff;
+}
+
+.tm-cursor {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  left: 10%;
+  width: 10px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 2px solid #000;
+  box-shadow: 0 0 14px #fff;
+  transform: translateX(-50%);
+}
+
+.tm-shoot-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 11px 18px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(90deg, #a8ff00, #ffb800);
+  color: #040906;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(168, 255, 0, 0.4);
+  transition: transform 0.12s ease;
+}
+
+.tm-shoot-btn:hover {
+  transform: scale(1.02);
+}
+
+/* ============================================================================
+   1. PRE-MATCH START LOBBY OVERLAY ("Legyen játék indítás gomb, ne egyből induljon")
+   ============================================================================ */
+.game-start-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: radial-gradient(circle at 50% 35%, rgba(12, 32, 20, 0.92) 0%, rgba(4, 9, 6, 0.97) 85%);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.start-lobby-crest-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.lobby-nft-preview {
+  width: 78px;
+  height: 78px;
+  border-radius: 16px;
+  object-fit: cover;
+  border: 2px solid var(--neon);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.65);
+}
+
+.lobby-nft-preview.keeper {
+  border-color: var(--gold);
+}
+
+.lobby-efoo-ball {
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+  border: 2px solid #ff5500;
+  box-shadow: 0 0 32px rgba(255, 85, 0, 0.65);
+  animation: floatBall 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes floatBall {
+  0% { transform: translateY(-4px) rotate(-6deg); }
+  100% { transform: translateY(6px) rotate(8deg); }
+}
+
+.start-lobby-kicker {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: rgba(168, 255, 0, 0.14);
+  border: 1px solid rgba(168, 255, 0, 0.4);
+  color: var(--neon);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.start-lobby-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 4.2vw, 3.4rem);
+  line-height: 0.96;
+  letter-spacing: 0.03em;
+  color: #fff;
+  margin: 0 0 10px;
+}
+
+.start-lobby-sub {
+  max-width: 540px;
+  font-size: 0.92rem;
+  color: #cbd5e1;
+  margin: 0 0 18px;
+  line-height: 1.45;
+}
+
+.start-power-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.sps-chip {
+  padding: 7px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #e2e8f0;
+}
+
+.sps-chip strong {
+  color: var(--neon);
+}
+
+.btn-start-match-mega {
+  padding: 16px 38px;
+  border-radius: 16px;
+  border: none;
+  background: linear-gradient(90deg, #a8ff00 0%, #ffb800 100%);
+  color: #040906;
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  box-shadow: 0 0 38px rgba(168, 255, 0, 0.55);
+  transition: all 0.2s ease;
+  animation: startBtnPulse 1.5s infinite alternate;
+}
+
+@keyframes startBtnPulse {
+  0% { transform: scale(1); box-shadow: 0 0 26px rgba(168, 255, 0, 0.45); }
+  100% { transform: scale(1.04); box-shadow: 0 0 46px rgba(255, 184, 0, 0.75); }
+}
+
+.btn-start-match-mega:hover {
+  transform: scale(1.06);
+}
+
+/* ============================================================================
+   2. 3.8-SECOND CINEMATIC INTRO SEQUENCE OVERLAY
+   ("Indításkor legyen egy pár másodperces intro, ahol az NFT-k, és EFOO token logója is megjelenik")
+   ============================================================================ */
+.game-cinematic-intro {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: radial-gradient(circle at 50% 50%, #153823 0%, #030705 85%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.intro-floodlight-beam {
+  position: absolute;
+  top: -30%;
+  width: 320px;
+  height: 160%;
+  background: linear-gradient(180deg, rgba(168, 255, 0, 0.26) 0%, transparent 80%);
+  transform: rotate(25deg);
+  pointer-events: none;
+  animation: sweepBeam 2.4s ease-in-out infinite alternate;
+}
+
+.intro-floodlight-beam.right {
+  right: 10%;
+  background: linear-gradient(180deg, rgba(255, 184, 0, 0.24) 0%, transparent 80%);
+  transform: rotate(-25deg);
+}
+
+@keyframes sweepBeam {
+  0% { transform: rotate(-18deg) translateX(-30px); }
+  100% { transform: rotate(22deg) translateX(30px); }
+}
+
+.intro-stage-box {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  width: 100%;
+  max-width: 720px;
+}
+
+.intro-kicker-pill {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(255, 85, 0, 0.2);
+  border: 1px solid #ff5500;
+  color: #ffb800;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+
+.intro-versus-cards {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  margin: 10px 0 18px;
+}
+
+.intro-nft-fighter {
+  width: 165px;
+  padding: 10px;
+  border-radius: 18px;
+  background: rgba(9, 20, 14, 0.92);
+  border: 2px solid var(--neon);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8), 0 0 28px rgba(168, 255, 0, 0.35);
+  animation: slamLeft 0.55s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
+
+.intro-nft-fighter.keeper {
+  border-color: var(--gold);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8), 0 0 28px rgba(255, 184, 0, 0.35);
+  animation: slamRight 0.55s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
+
+@keyframes slamLeft {
+  0% { opacity: 0; transform: translateX(-120px) scale(0.7) rotate(-12deg); }
+  100% { opacity: 1; transform: translateX(0) scale(1) rotate(-3deg); }
+}
+
+@keyframes slamRight {
+  0% { opacity: 0; transform: translateX(120px) scale(0.7) rotate(12deg); }
+  100% { opacity: 1; transform: translateX(0) scale(1) rotate(3deg); }
+}
+
+.intro-nft-fighter img {
+  width: 100%;
+  height: 145px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 6px;
+}
+
+.intro-nft-fighter strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+.intro-nft-fighter small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--neon);
+}
+
+.intro-nft-fighter.keeper small {
+  color: var(--gold);
+}
+
+.intro-center-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  animation: popCenter 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
+
+@keyframes popCenter {
+  0% { transform: scale(0.2) rotate(-180deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.intro-center-logo img {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  border: 3px solid #ffb800;
+  box-shadow: 0 0 40px rgba(255, 85, 0, 0.85);
+}
+
+.intro-vs-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff4d00, #ffb800);
+  color: #050a07;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+}
+
+.intro-headline {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: 0.05em;
+  color: #fff;
+  margin: 0 0 8px;
+  text-shadow: 0 0 24px rgba(168, 255, 0, 0.5);
+}
+
+.intro-progress-bar {
+  width: 260px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 12px auto 0;
+  overflow: hidden;
+}
+
+.intro-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #a8ff00, #ffb800, #ff4d00);
+  transition: width 0.1s linear;
+}
+
+/* ============================================================================
+   3. POST-MATCH SUMMARY & FOMO UPSELL OVERLAY
+   ("Legyen egy feltételei is a játéknak ami ösztönzi pl NFT-k vagy EFOO token vásárlását")
+   ============================================================================ */
+.match-summary-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  background: rgba(4, 10, 7, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  text-align: center;
+}
+
+.ms-card {
+  width: 100%;
+  max-width: 600px;
+  padding: 22px;
+  border-radius: 22px;
+  background: linear-gradient(145deg, rgba(13, 29, 20, 0.96), rgba(6, 14, 10, 0.98));
+  border: 2px solid rgba(255, 184, 0, 0.45);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+}
+
+.ms-title {
+  font-family: var(--font-display);
+  font-size: 2.3rem;
+  color: #fff;
+  margin: 0 0 6px;
+}
+
+.ms-score-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.ms-score-box {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ms-score-box.missed-fomo {
+  background: rgba(255, 85, 0, 0.14);
+  border: 1px solid rgba(255, 184, 0, 0.55);
+}
+
+.ms-score-box span {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.ms-score-box strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  color: #fff;
+  margin-top: 2px;
+}
+
+.ms-score-box.missed-fomo strong {
+  color: var(--gold);
+}
+
+.ms-fomo-hook {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(168, 255, 0, 0.09);
+  border: 1px solid rgba(168, 255, 0, 0.32);
+  font-size: 0.84rem;
+  color: #e2e8f0;
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+
+.ms-cta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+/* ============================================================================
+   BOTTOM PITCH BAR: LIVE COMMENTARY & NFT SQUAD SELECTOR
+   ============================================================================ */
+.arena-commentary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  background: rgba(6, 14, 10, 0.96);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  color: #f1f5f9;
+}
+
+.squad-picker-strip {
+  padding: 14px 18px;
+  background: rgba(4, 9, 6, 0.98);
+  border-top: 1px solid rgba(168, 255, 0, 0.18);
+}
+
+.sps-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.squad-cards-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.striker-pick-card {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 11px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+}
+
+.striker-pick-card:hover,
+.striker-pick-card.active {
+  background: rgba(168, 255, 0, 0.14);
+  border-color: var(--neon);
+  box-shadow: 0 0 15px rgba(168, 255, 0, 0.25);
+}
+
+.striker-pick-card img {
+  width: 42px;
+  height: 42px;
+  border-radius: 9px;
+  object-fit: cover;
+}
+
+.striker-pick-card strong {
+  display: block;
+  font-size: 0.8rem;
+  color: #fff;
+}
+
+.striker-pick-card small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--neon);
+}
+
+/* ============================================================================
+   RIGHT SIDEBAR: 90+5' INJURY TIME POT + 1-CLICK POWER-UP STORE
+   ============================================================================ */
+.game-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sidebar-pot-card,
+.sidebar-store-card {
+  padding: 20px;
+  border-radius: 22px;
+  background: linear-gradient(155deg, rgba(13, 28, 19, 0.94), rgba(5, 11, 8, 0.98));
+  border: 1px solid rgba(255, 184, 0, 0.35);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
+}
+
+.sidebar-store-card {
+  border-color: rgba(168, 255, 0, 0.35);
+}
+
+.pot-live-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.pot-badge-live {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 77, 0, 0.2);
+  border: 1px solid #ff4d00;
+  color: #ffb800;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.pot-timer-box {
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 184, 0, 0.3);
+  text-align: center;
+  margin: 12px 0;
+}
+
+.pot-timer-digits {
+  font-family: var(--font-display);
+  font-size: 3.1rem;
+  line-height: 1;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 24px rgba(255, 184, 0, 0.45);
+}
+
+.pot-jackpot-amount {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--neon);
+  margin-top: 4px;
+}
+
+.eligibility-gate-box {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 85, 0, 0.1);
+  border: 1px solid rgba(255, 184, 0, 0.38);
+  margin-bottom: 14px;
+  font-size: 0.8rem;
+}
+
+.eligibility-gate-box.unlocked {
+  background: rgba(168, 255, 0, 0.12);
+  border-color: rgba(168, 255, 0, 0.5);
+}
+
+.store-pack-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 10px;
+}
+
+.store-pack-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.store-pack-left img {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.store-pack-left strong {
+  display: block;
+  font-size: 0.88rem;
+  color: #fff;
+}
+
+.store-pack-left small {
+  display: block;
+  font-size: 0.74rem;
+  color: var(--neon);
+}
+
+/* ============================================================================
+   NFT QUANTITY & $EFOO SUPERPOWER MATRIX SECTION
+   ("Egyértelmű legyen, hogy az NFT-k és annak számai növelik az esélyt és a szuperképességet")
+   ============================================================================ */
+.nft-matrix-section {
+  max-width: 1360px;
+  margin: 0 auto 60px;
+  padding: 0 20px;
+}
+
+.matrix-card {
+  padding: 28px;
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(11, 25, 17, 0.95), rgba(5, 11, 8, 0.98));
+  border: 1px solid rgba(168, 255, 0, 0.25);
+}
+
+.tier-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.nft-tier-card {
+  position: relative;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.22s ease;
+}
+
+.nft-tier-card.current-tier {
+  background: rgba(168, 255, 0, 0.1);
+  border: 2px solid var(--neon);
+  box-shadow: 0 0 30px rgba(168, 255, 0, 0.22);
+}
+
+.nft-tier-card.gold-tier {
+  border-color: rgba(255, 184, 0, 0.45);
+  background: rgba(255, 184, 0, 0.06);
+}
+
+.tier-qty-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(168, 255, 0, 0.16);
+  color: var(--neon);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.nft-tier-card.gold-tier .tier-qty-badge {
+  background: rgba(255, 184, 0, 0.2);
+  color: var(--gold);
+}
+
+.nft-tier-card h4 {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  color: #fff;
+  margin: 0 0 10px;
+}
+
+.tier-perks-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+}
+
+.tier-perks-list strong {
+  color: #fff;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1080px) {
+  .game-main-container {
+    grid-template-columns: 1fr;
+  }
+  .quick-rules-grid {
+    grid-template-columns: 1fr;
+  }
+  .tier-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .arena-hud-top {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .pitch-viewport {
+    height: 460px;
+  }
+  .goal-targets-layer {
+    width: 90%;
+    height: 180px;
+  }
+  .tier-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .intro-versus-cards {
+    gap: 10px;
+  }
+  .intro-nft-fighter {
+    width: 120px;
+  }
+  .intro-nft-fighter img {
+    height: 100px;
+  }
+}
