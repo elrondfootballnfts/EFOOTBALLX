@@ -581,21 +581,42 @@ const HERO_ACTS = {
 
 let currentHeroAct = 1;
 let currentHeroProgress = 0;
+let targetHeroProgress = 0;
 let heroMiniShotBusy = false;
 
-function updateHeroActCopy(actNum) {
+function updateHeroActCopy(actNum, smoothFade = false) {
   const actData = (HERO_ACTS[currentLang] && HERO_ACTS[currentLang][actNum]) || HERO_ACTS.en[actNum];
   if (!actData) return;
 
   const clockEl = document.getElementById("hero-match-clock");
+  const badgeEl = document.getElementById("hero-act-badge");
   const kickerEl = document.getElementById("hero-act-kicker");
   const titleEl = document.getElementById("hero-act-title");
   const descEl = document.getElementById("hero-act-desc");
 
-  if (clockEl) clockEl.textContent = actData.clock;
-  if (kickerEl) kickerEl.innerHTML = actData.kicker;
-  if (titleEl) titleEl.innerHTML = actData.title;
-  if (descEl) descEl.innerHTML = actData.desc;
+  [badgeEl, titleEl, descEl].forEach((el) => {
+    if (el) el.classList.add("hero-copy-fade");
+  });
+
+  if (smoothFade) {
+    [badgeEl, titleEl, descEl].forEach((el) => {
+      if (el) el.classList.add("switching");
+    });
+    setTimeout(() => {
+      if (clockEl) clockEl.textContent = actData.clock;
+      if (kickerEl) kickerEl.innerHTML = actData.kicker;
+      if (titleEl) titleEl.innerHTML = actData.title;
+      if (descEl) descEl.innerHTML = actData.desc;
+      [badgeEl, titleEl, descEl].forEach((el) => {
+        if (el) el.classList.remove("switching");
+      });
+    }, 160);
+  } else {
+    if (clockEl) clockEl.textContent = actData.clock;
+    if (kickerEl) kickerEl.innerHTML = actData.kicker;
+    if (titleEl) titleEl.innerHTML = actData.title;
+    if (descEl) descEl.innerHTML = actData.desc;
+  }
 }
 
 function setHeroActState(actNum) {
@@ -605,7 +626,7 @@ function setHeroActState(actNum) {
 
   if (currentHeroAct !== clampedAct) {
     currentHeroAct = clampedAct;
-    updateHeroActCopy(clampedAct);
+    updateHeroActCopy(clampedAct, true);
   }
 
   for (let i = 1; i <= 4; i++) {
@@ -624,19 +645,19 @@ function updateHeroScrollyState(progress) {
   currentHeroProgress = p;
 
   // Determine which of the 4 Acts we are in based on scroll progress:
-  // Act 1: 0.00 - 0.24
-  // Act 2: 0.24 - 0.54
-  // Act 3: 0.54 - 0.80
+  // Act 1: 0.00 - 0.25
+  // Act 2: 0.25 - 0.55
+  // Act 3: 0.55 - 0.80
   // Act 4: 0.80 - 1.00
   let act = 1;
   if (p >= 0.80) act = 4;
-  else if (p >= 0.54) act = 3;
-  else if (p >= 0.24) act = 2;
+  else if (p >= 0.55) act = 3;
+  else if (p >= 0.25) act = 2;
 
   setHeroActState(act);
 
   // Progress bars & rocket ball slider
-  const pct100 = (p * 100).toFixed(1);
+  const pct100 = (p * 100).toFixed(2);
   const hfFill = document.getElementById("hf-progress-fill");
   const hfBall = document.getElementById("hf-rocket-ball");
   const htFill = document.getElementById("ht-progress-fill");
@@ -644,10 +665,9 @@ function updateHeroScrollyState(progress) {
   if (hfBall) hfBall.style.left = `${pct100}%`;
   if (htFill) htFill.style.width = `${pct100}%`;
 
-  // Continuous Burn & Supply Interpolation (completes 0% -> 92.91% across Acts 1 & 2, i.e., p: 0.02 -> 0.54)
-  const burnRatio = Math.max(0, Math.min(1, (p - 0.02) / 0.50));
-  // Ease-out cubic so the numbers roar up dramatically as you enter the furnace
-  const easedBurn = 1 - Math.pow(1 - burnRatio, 2.6);
+  // Smooth S-curve (smoothstep) Burn & Supply Interpolation across p: 0.06 -> 0.56
+  const burnRatio = Math.max(0, Math.min(1, (p - 0.06) / 0.50));
+  const easedBurn = burnRatio * burnRatio * (3 - 2 * burnRatio);
 
   const TOTAL_INITIAL = 100000000000;
   const TARGET_BURNED = 92915321677;
@@ -664,27 +684,27 @@ function updateHeroScrollyState(progress) {
 
   if (topBurnEl) topBurnEl.textContent = `${curBurnPct}%`;
   if (orbBurnEl) orbBurnEl.textContent = `${curBurnPct}%`;
-  if (topSupEl) topSupEl.textContent = `${curSurvivingBillions}B $EFOO`;
+  if (topSupEl) topSupEl.textContent = `${curSurvivingBillions}B`;
   if (hfBurnExact) hfBurnExact.textContent = `${curBurned.toLocaleString("en-US")} $EFOO`;
   if (hfSurvCode) hfSurvCode.textContent = curSurviving.toLocaleString("en-US");
 
   // Act 1 specific micro-animation: VAR Red Card Stamp stays centered & unclipped inside the 2022 Whitepaper card
   const stamp = document.getElementById("var-redcard-stamp");
   if (stamp) {
-    const stampProg = Math.max(0, Math.min(1, p / 0.14));
-    const scale = 1.05 - 0.05 * stampProg;
-    const tilt = -1.2 - 1.3 * stampProg;
+    const stampProg = Math.max(0, Math.min(1, p / 0.18));
+    const scale = 1.03 - 0.03 * stampProg;
+    const tilt = -1.0 - 0.8 * stampProg;
     stamp.style.opacity = "1";
     stamp.style.transform = `rotate(${tilt.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
   }
 
-  // Act 2 specific micro-animation: Rocket Ball spins and scales inside the Furnace Orb
+  // Act 2 specific micro-animation: Rocket Ball stays centered inside the Furnace Orb circle with gentle thrust pulse
   const orbBall = document.getElementById("orb-center-ball");
-  if (orbBall && act === 2) {
-    const act2Local = Math.max(0, Math.min(1, (p - 0.24) / 0.30));
-    const deg = Math.round(act2Local * 360);
-    const s = (0.92 + Math.sin(act2Local * Math.PI) * 0.18).toFixed(3);
-    orbBall.style.transform = `rotate(${deg}deg) scale(${s})`;
+  if (orbBall) {
+    const act2Local = Math.max(0, Math.min(1, (p - 0.25) / 0.30));
+    const tilt = (Math.sin(act2Local * Math.PI * 2) * 5).toFixed(2);
+    const s = (0.96 + Math.sin(act2Local * Math.PI) * 0.10).toFixed(3);
+    orbBall.style.transform = `rotate(${tilt}deg) scale(${s})`;
   }
 }
 
@@ -693,9 +713,9 @@ function scrollToHeroAct(targetAct) {
   if (!track) return;
 
   const targetProgressMap = {
-    1: 0.08,
+    1: 0.06,
     2: 0.38,
-    3: 0.66,
+    3: 0.67,
     4: 0.92
   };
   const targetP = targetProgressMap[targetAct] ?? 0;
@@ -710,7 +730,7 @@ function scrollToHeroAct(targetAct) {
       behavior: "smooth"
     });
   } else {
-    // Mobile or compact viewport fallback: switch Act directly
+    targetHeroProgress = targetP;
     updateHeroScrollyState(targetP);
   }
 }
@@ -888,16 +908,35 @@ function initHeroScrollytelling() {
   const track = document.getElementById("hero-scroll-track");
   if (!track) return;
 
-  function onScroll() {
+  let smoothP = 0;
+
+  function computeRawScrollProgress() {
     const rect = track.getBoundingClientRect();
     const scrollable = track.offsetHeight - window.innerHeight;
-    if (scrollable <= 60) return;
+    if (scrollable <= 60) return targetHeroProgress;
     const scrolled = -rect.top;
-    const progress = Math.max(0, Math.min(1, scrolled / scrollable));
-    updateHeroScrollyState(progress);
+    return Math.max(0, Math.min(1, scrolled / scrollable));
+  }
+
+  function onScroll() {
+    targetHeroProgress = computeRawScrollProgress();
+  }
+
+  function smoothScrollTick() {
+    const diff = targetHeroProgress - smoothP;
+    if (Math.abs(diff) > 0.0004) {
+      // Smooth damping (0.055) so wheel ticks glide gently across Acts
+      smoothP += diff * 0.055;
+      updateHeroScrollyState(smoothP);
+    }
+    requestAnimationFrame(smoothScrollTick);
   }
 
   window.addEventListener("scroll", onScroll, { passive: true });
+  targetHeroProgress = computeRawScrollProgress();
+  smoothP = targetHeroProgress;
+  updateHeroScrollyState(smoothP);
+  requestAnimationFrame(smoothScrollTick);
 
   // Bind 4-Act Timeline Scrubber buttons
   document.querySelectorAll(".ht-step").forEach((btn) => {
