@@ -944,14 +944,22 @@ body.arcade-body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 13px 18px;
+  padding: 11px 16px;
+  min-height: 44px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  box-sizing: border-box;
+  max-width: 100%;
   cursor: pointer;
   transition: all 0.18s ease;
 }
@@ -1553,7 +1561,10 @@ body.arcade-body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 18px;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  min-height: 52px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -1562,6 +1573,21 @@ body.arcade-body {
   transition: all 0.18s ease;
   font-family: 'Inter', sans-serif;
   text-align: left;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.var-option-btn > div {
+  flex: 1 1 200px;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.var-option-btn span {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .var-option-btn:hover {
@@ -1600,9 +1626,525 @@ body.arcade-body {
   margin-top: 8px;
   text-decoration: underline;
   transition: color 0.15s ease;
+  padding: 6px;
+  text-align: center;
 }
 
 .var-option-skip:hover {
   color: #ffffff;
+}
+
+/* ============================================================================
+   HUD LEVEL, GOALS & RANK/STREAK BUTTONS
+   ============================================================================ */
+.sb-metric.level-metric {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+.sb-metric.level-metric strong {
+  color: #38bdf8;
+}
+.sb-metric.goals-metric {
+  background: rgba(168, 255, 0, 0.1);
+  border-color: rgba(168, 255, 0, 0.35);
+}
+.sb-metric.goals-metric strong.done {
+  color: #a8ff00;
+  text-shadow: 0 0 10px #a8ff00;
+}
+
+.hud-rank-btn {
+  color: #ffb800 !important;
+  border-color: rgba(255, 184, 0, 0.4) !important;
+}
+.hud-streak-btn {
+  color: #ff5500 !important;
+  border-color: rgba(255, 85, 0, 0.4) !important;
+}
+
+/* ============================================================================
+   SUPER SKILLS DOCK & SLOTS
+   ============================================================================ */
+.hud-skills-dock {
+  position: absolute;
+  bottom: 82px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  z-index: 40;
+  pointer-events: auto;
+  max-width: 96vw;
+  box-sizing: border-box;
+}
+
+.skills-dock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 10px;
+  padding: 2px 6px;
+  box-sizing: border-box;
+}
+
+.skills-dock-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #a8ff00;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 10px rgba(168, 255, 0, 0.5);
+  white-space: nowrap;
+}
+
+.btn-skills-shop {
+  background: rgba(168, 255, 0, 0.16);
+  border: 1px solid #a8ff00;
+  color: #a8ff00;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-skills-shop:hover {
+  background: #a8ff00;
+  color: #040906;
+}
+
+.skills-slots-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px;
+  max-width: 100%;
+  scrollbar-width: none;
+}
+.skills-slots-row::-webkit-scrollbar { display: none; }
+
+.skill-slot-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 66px;
+  height: 60px;
+  background: rgba(8, 20, 14, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  box-sizing: border-box;
+  padding: 4px 2px;
+}
+
+.skill-slot-btn:hover {
+  transform: translateY(-2px);
+  border-color: #a8ff00;
+}
+
+.skill-slot-btn.armed {
+  border-color: #ffb800;
+  background: rgba(255, 184, 0, 0.24);
+  box-shadow: 0 0 18px rgba(255, 184, 0, 0.7);
+  animation: armedPulse 1.2s infinite alternate ease-in-out;
+}
+
+@keyframes armedPulse {
+  0% { transform: scale(1); box-shadow: 0 0 12px rgba(255, 184, 0, 0.5); }
+  100% { transform: scale(1.05); box-shadow: 0 0 24px rgba(255, 184, 0, 0.9); }
+}
+
+.skill-slot-btn.empty {
+  opacity: 0.5;
+  filter: grayscale(0.7);
+}
+
+.skill-slot-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.skill-slot-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.56rem;
+  font-weight: 800;
+  color: #e2e8f0;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60px;
+}
+
+.skill-slot-btn.armed .skill-slot-name {
+  color: #ffb800;
+}
+
+.skill-slot-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #a8ff00;
+  color: #040906;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 900;
+  padding: 1px 4px;
+  border-radius: 999px;
+  line-height: 1;
+}
+
+.skill-slot-btn.armed .skill-slot-count {
+  background: #ffb800;
+}
+
+/* ============================================================================
+   MODALS: COMMON, LEADERBOARD, STREAK, SHOP, LEVELS
+   ============================================================================ */
+.modal-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.modal-headline {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.1rem;
+  letter-spacing: 0.05em;
+  margin: 0;
+  line-height: 1;
+}
+.modal-subline {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin: 4px 0 0 0;
+}
+
+/* Leaderboard & Jackpot Banner */
+.leaderboard-modal-card {
+  width: 100%;
+  max-width: 680px;
+  padding: 22px;
+  border-radius: 24px;
+  background: linear-gradient(155deg, rgba(12, 26, 18, 0.98), rgba(4, 10, 7, 0.99));
+  border: 2px solid #ffb800;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.92);
+  text-align: left;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.jackpot-share-banner {
+  background: rgba(255, 184, 0, 0.08);
+  border: 1px solid rgba(255, 184, 0, 0.3);
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.jp-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #ffb800;
+  letter-spacing: 0.08em;
+  display: block;
+}
+.jp-pot-number {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.2rem;
+  color: #ffffff;
+  display: block;
+  line-height: 1.1;
+}
+.jp-distribution-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+.jp-tier-badge {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.jp-tier-badge.gold { border-color: #ffb800; background: rgba(255, 184, 0, 0.12); }
+.jp-tier-badge.silver { border-color: #cbd5e1; background: rgba(203, 213, 225, 0.1); }
+.jp-tier-badge.bronze { border-color: #fb923c; background: rgba(251, 146, 60, 0.1); }
+.jp-tier-badge.burn { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+.jp-rank {
+  font-size: 0.68rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: #94a3b8;
+  font-weight: 800;
+}
+.jp-tier-badge.gold .jp-rank { color: #ffb800; }
+.jp-share-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  word-break: break-word;
+}
+
+.lb-table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.35);
+}
+.lb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  text-align: left;
+}
+.lb-table th {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 10px 12px;
+  color: #94a3b8;
+  font-weight: 800;
+  font-size: 0.7rem;
+}
+.lb-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+}
+.lb-table tr:hover td {
+  background: rgba(168, 255, 0, 0.06);
+}
+.lb-table tr:first-child td {
+  color: #ffb800;
+  font-weight: 800;
+}
+
+/* Daily Streak Modal */
+.streak-modal-card {
+  width: 100%;
+  max-width: 540px;
+  padding: 22px;
+  border-radius: 24px;
+  background: linear-gradient(155deg, rgba(14, 28, 20, 0.98), rgba(6, 12, 8, 0.99));
+  border: 2px solid #ff5500;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.92);
+  text-align: left;
+  box-sizing: border-box;
+}
+.streak-days-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 18px 0;
+}
+.streak-day-bubble {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 6px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  text-align: center;
+}
+.streak-day-bubble.done {
+  background: rgba(168, 255, 0, 0.12);
+  border-color: #a8ff00;
+}
+.streak-day-bubble.today {
+  border-color: #ff5500;
+  box-shadow: 0 0 14px rgba(255, 85, 0, 0.4);
+}
+.streak-day-bubble.gift {
+  background: rgba(255, 184, 0, 0.15);
+  border-color: #ffb800;
+}
+.sdb-icon { font-size: 1.4rem; line-height: 1; }
+.sdb-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 800; }
+.streak-bonus-card {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Skills Shop */
+.skills-shop-modal-card {
+  width: 100%;
+  max-width: 620px;
+  padding: 22px;
+  border-radius: 24px;
+  background: linear-gradient(155deg, rgba(10, 24, 16, 0.98), rgba(4, 9, 6, 0.99));
+  border: 2px solid #a8ff00;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.92);
+  text-align: left;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+.skills-shop-balance-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(168, 255, 0, 0.08);
+  border: 1px solid rgba(168, 255, 0, 0.25);
+  margin-bottom: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: #a8ff00;
+}
+.skills-shop-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.skill-shop-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  flex-wrap: wrap;
+}
+.ssc-info {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.ssc-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+.ssc-desc {
+  font-size: 0.74rem;
+  color: #94a3b8;
+  margin-top: 4px;
+  display: block;
+}
+.ssc-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* Level Select */
+.levels-modal-card {
+  width: 100%;
+  max-width: 640px;
+  padding: 22px;
+  border-radius: 24px;
+  background: linear-gradient(155deg, rgba(8, 22, 28, 0.98), rgba(4, 9, 14, 0.99));
+  border: 2px solid #38bdf8;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.92);
+  text-align: left;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+.levels-map-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+@media (max-width: 520px) {
+  .levels-map-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.level-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 10px 4px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+.level-node.unlocked {
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  color: #ffffff;
+}
+.level-node.current {
+  border-color: #a8ff00;
+  background: rgba(168, 255, 0, 0.2);
+  box-shadow: 0 0 16px rgba(168, 255, 0, 0.4);
+}
+.level-node.locked {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.level-node-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+.level-node-req {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  color: #94a3b8;
+}
+
+/* General Button Overflow Protection */
+@media (max-width: 480px) {
+  .eg-buy-actions {
+    grid-template-columns: 1fr !important;
+  }
+  .sum-actions-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .btn-play-arcade {
+    font-size: 1.45rem !important;
+    padding: 12px 18px !important;
+  }
+  .hud-skills-dock {
+    bottom: 76px;
+  }
+  .skill-slot-btn {
+    width: 58px;
+    height: 56px;
+  }
 }
 

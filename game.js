@@ -32,6 +32,32 @@ const I18N_GAME = {
     btn_buy_3m: "BUY 3M $EFOO (0.1 EGLD)",
     btn_mint_nft: "MINT NFT (0.08 EGLD)"
   },
+  hu: {
+    btn_exit: "KILÉPÉS",
+    hud_mult: "BOOST",
+    hud_score: "PONTSZÁM",
+    hud_no_wallet: "MIN 1M $EFOO",
+    btn_connect: "TÁRCA",
+    hint_switch_nft: "🔄 Kattints NFT váltáshoz",
+    aim_prompt: "🎯 CÉLOZZ A KAPURA • TARTSD NYOMVA ÉS ENGEDD EL (KLIKK / SPACE) A LÖVÉSHEZ!",
+    btn_boost: "BOOST",
+    step_1: "Célozz és tarts lenyomva",
+    step_2: "Több NFT = <strong>Akár 11x & Radar</strong>",
+    step_3: "Nyereményalap: <strong>25,400,000 $EFOO</strong>",
+    gate_connect_desc: "Csatlakoztasd a MultiversX tárcádat az $EFOO egyenleg és NFT-k ellenőrzéséhez.",
+    gate_buy_sub: "Fizess 0.035 EGLD-t (~$0.12) 1.000.000 $EFOO-ért ➔ KAPSZ 1.500.000 $EFOO-t! (+500k a Tartalékból)",
+    btn_buy_starter: "STARTER (0.035 EGLD ➔ 1.5M)",
+    btn_buy_gate: "PRO CSOMAG (0.1 EGLD ➔ ~3M)",
+    btn_connect_to_play: "CSATLAKOZTASD A TÁRCÁD",
+    btn_play_now: "MECCS INDÍTÁSA",
+    sum_your_score: "PONTSZÁMOD",
+    sum_with_nfts: "3+ NFT-VEL & 1M $EFOO-VAL",
+    btn_play_again: "ÚJ JÁTÉK",
+    btn_starter_bonus: "STARTER: 1.5M $EFOO (0.035 EGLD)",
+    btn_share_x: "MEGOSZTÁS X-EN",
+    btn_buy_3m: "3M $EFOO VÉTEL (0.1 EGLD)",
+    btn_mint_nft: "NFT MINTELÉS (0.08 EGLD)"
+  },
   ro: {
     btn_exit: "IEȘIRE",
     hud_mult: "BOOST",
@@ -394,33 +420,160 @@ function canPlayMatch() {
 }
 
 // ============================================================================
-// NFT QUANTITY & TOKEN POWER-UP CALCULATOR
+// LEVELS (1–20): EVERY LEVEL IS A BOSS KEEPER — THE KEEPER READS YOU BETTER,
+// THE AIM SHAKES MORE, THE SWEET SPOT SHRINKS AND WIND PICKS UP
+// ============================================================================
+const MAX_LEVEL = 20;
+const SHOTS_PER_MATCH = 5;
+
+const LEVEL_TIERS = [
+  { from: 1, name: "SUNDAY LEAGUE", nameRo: "LIGA DE DUMINICĂ", color: "#a8ff00" },
+  { from: 5, name: "AMATEUR CUP", nameRo: "CUPA AMATORILOR", color: "#38bdf8" },
+  { from: 9, name: "PRO LEAGUE", nameRo: "LIGA PRO", color: "#ffb800" },
+  { from: 13, name: "CHAMPIONS", nameRo: "CAMPIONII", color: "#fb923c" },
+  { from: 17, name: "WORLD CLASS", nameRo: "CLASA MONDIALĂ", color: "#ef4444" },
+  { from: 20, name: "LEGEND BOSS", nameRo: "BOSS LEGENDĂ", color: "#e879f9" }
+];
+
+function getLevelTier(level) {
+  let tier = LEVEL_TIERS[0];
+  LEVEL_TIERS.forEach((t) => {
+    if (level >= t.from) tier = t;
+  });
+  return tier;
+}
+
+function getLevelParams(level) {
+  const L = Math.max(1, Math.min(MAX_LEVEL, Math.floor(level) || 1));
+  const t = (L - 1) / (MAX_LEVEL - 1); // 0 → 1
+  return {
+    level: L,
+    t,
+    goalsNeeded: 2 + Math.floor((L - 1) / 7), // L1-7: 2/5 • L8-14: 3/5 • L15-20: 4/5
+    keeperSigma: 0.5 - 0.3 * t, // how badly the keeper misreads the shot (lower = reads better)
+    keeperReach: 0.34 + 0.16 * t, // how far he can stretch
+    commitLean: 0.55 - 0.3 * t, // chance he ignores the ball and dives to his gut-feeling side
+    sway: 0.025 + 0.14 * t, // crosshair shake amplitude
+    swaySpeed: 1 + 1.2 * t,
+    chargeSpeed: 0.024 + 0.02 * t, // power bar speed
+    sweetMin: 0.4 + 0.12 * t, // power sweet-spot window shrinks with level
+    sweetMax: 0.9 - 0.12 * t,
+    windMax: L < 6 ? 0 : 0.05 + 0.17 * ((L - 6) / (MAX_LEVEL - 6)),
+    scoreMul: 1 + (L - 1) * 0.12
+  };
+}
+
+// ============================================================================
+// SUPER SKILLS — BOUGHT WITH $EFOO, ARMED BEFORE THE KICK, ONE CHARGE PER SHOT
+// ============================================================================
+const SKILLS = [
+  {
+    id: "steady",
+    icon: "🎯",
+    name: "ICE VEINS",
+    nameHu: "HIDEGVÉR",
+    nameRo: "NERVI DE OȚEL",
+    desc: "Crosshair stops shaking for your next shot.",
+    descHu: "A célkereszt stabilizálódik a következő lövésnél.",
+    descRo: "Cursorul nu mai tremură la următorul șut.",
+    price: 50000,
+    color: "#38bdf8"
+  },
+  {
+    id: "power",
+    icon: "🚀",
+    name: "ROCKET SHOT",
+    nameHu: "RAKÉTA LÖVÉS",
+    nameRo: "ȘUT RACHETĂ",
+    desc: "Much wider power sweet-spot + keeper reach -25%.",
+    descHu: "Tágabb sweet-spot + a kapus elérési távolsága 25%-kal kisebb.",
+    descRo: "Zonă de putere mult mai largă + portarul ajunge cu 25% mai puțin.",
+    price: 75000,
+    color: "#fb923c"
+  },
+  {
+    id: "freeze",
+    icon: "🧊",
+    name: "KEEPER FREEZE",
+    nameHu: "KAPUS FAGYASZTÁS",
+    nameRo: "PORTAR ÎNGHEȚAT",
+    desc: "Keeper reacts late: reach −45% and dives wrong way.",
+    descHu: "A kapus késve reagál: −45% elérés és elugrik a rossz irányba.",
+    descRo: "Portarul reacționează târziu: rază −45% și ghicește des greșit.",
+    price: 100000,
+    color: "#67e8f9"
+  },
+  {
+    id: "curve",
+    icon: "🌀",
+    name: "BANANA CURVE",
+    nameHu: "KIFLI CSAVARÁS",
+    nameRo: "ȘUT CU EFECT",
+    desc: "Ball bends hard — keeper misreads it 70% worse.",
+    descHu: "Erősen kanyarodó labda — a kapus jóval nehezebben védi ki.",
+    descRo: "Mingea face efect puternic — portarul o citește cu 70% mai prost.",
+    price: 60000,
+    color: "#c084fc"
+  },
+  {
+    id: "gold",
+    icon: "💰",
+    name: "GOLD x2",
+    nameHu: "DUPLA ARANY (2x)",
+    nameRo: "AUR x2",
+    desc: "Double points and score if this shot scores.",
+    descHu: "Dupla pontszám és bónusz, ha a labda gól lesz.",
+    descRo: "Puncte duble dacă șutul înscrie.",
+    price: 40000,
+    color: "#ffb800"
+  }
+];
+
+function randGauss() {
+  let u = 0;
+  let v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  const z = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  return Math.max(-2.2, Math.min(2.2, z));
+}
+
+function clampNum(v, lo, hi) {
+  return Math.max(lo, Math.min(hi, v));
+}
+
+// ============================================================================
+// NFT QUANTITY & TOKEN PERKS (SKILL-BASED: STEADIER AIM, WIDER SWEET-SPOT)
 // ============================================================================
 function getPowers() {
   const pCount = walletState.playersCount;
   const kCount = walletState.keepersCount;
   const efoo = walletState.efooBalance;
 
-  let winPct = 58;
   let mult = 1.0;
+  let swayMul = 1;
+  let sweetBonus = 0;
   let hasCurve = false;
   let hasRadar = false;
   let hasTwinBall = false;
 
   if (pCount >= 6) {
-    winPct = 92;
     mult = 7.0;
+    swayMul = 0.55;
+    sweetBonus = 0.06;
     hasCurve = true;
     hasRadar = true;
     hasTwinBall = true;
   } else if (pCount >= 3) {
-    winPct = 82;
     mult = 4.0;
+    swayMul = 0.7;
+    sweetBonus = 0.04;
     hasCurve = true;
     hasRadar = true;
   } else if (pCount >= 1) {
-    winPct = 72;
     mult = 2.0;
+    swayMul = 0.85;
+    sweetBonus = 0.02;
     hasCurve = true;
   }
 
@@ -433,7 +586,10 @@ function getPowers() {
     pCount,
     kCount,
     efoo,
-    winPct,
+    aimBonusPct: Math.round((1 - swayMul) * 100),
+    swayMul,
+    sweetBonus,
+    keeperSigmaMul: hasCurve ? 1.15 : 1,
     totalMult: mult + keeperMult,
     maxShields,
     hasCurve,
@@ -449,9 +605,11 @@ function getPowers() {
 // GAMEPLAY & 3D CANVAS GEOMETRY STATE
 // ============================================================================
 const game = {
-  phase: "start", // "start" | "intro" | "aim" | "charging" | "flight" | "celebrate" | "summary"
+  phase: "start", // "start" | "intro" | "aim" | "charging" | "flight" | "celebrate" | "var_review" | "summary"
   round: 1,
-  maxRounds: 5,
+  maxRounds: SHOTS_PER_MATCH,
+  level: 1,
+  levelCleared: false,
   shotHistory: [], // ["goal", "miss", ...]
   goals: 0,
   streak: 0,
@@ -464,9 +622,19 @@ const game = {
   varCountdown: 10,
   varTimerInterval: null,
 
-  // Normalized Aim coordinates inside Goal: nx in [-1.1, 1.1], ny in [0.0, 1.05] (0=bottom, 1=top)
+  // Super skills: armed = chosen for the NEXT kick, activeFx = what the current shot is using
+  armed: {},
+  activeFx: {},
+  skillFlash: null, // { text, color, life }
+
+  // Aim coordinates relative to the goal: nx in [-1, 1] = post to post, ny in [0, 1] = grass to crossbar.
+  // The player may aim OUTSIDE the frame (nx up to ±1.55, ny up to 1.55) — wide / over the bar are possible!
   aimNx: -0.65,
   aimNy: 0.72,
+  swayX: 0, // live crosshair shake (grows with level)
+  swayY: 0,
+  wind: 0, // sideways drift applied to the ball (from level 6)
+  _lastT: 0,
 
   // Hold-to-charge state (0.0 -> 1.0)
   isCharging: false,
@@ -484,8 +652,8 @@ const game = {
     ny: 0, // 0 (ground) to 1 (crossbar)
     targetNx: 0,
     targetNy: 0,
-    intendedDiveSide: -0.75, // Pre-decided for 3+ NFT Alien Radar!
-    intendedDiveHeight: 0.7,
+    lean: 1, // the side he secretly favours this shot (-1 / +1)
+    leanShown: 1, // what the 3+ NFT radar claims (truthful only ~70% of the time)
     bodyAngle: 0,
     targetAngle: 0,
     armReach: 0
@@ -504,7 +672,7 @@ const game = {
     spin: 0,
     isSweet: false,
     isTwin: false,
-    willScore: true,
+    result: "goal", // "goal" | "save" | "wide" | "over" | "post" | "bar"
     ricochetMode: false
   },
 
@@ -542,7 +710,7 @@ function updateStrikerCardAssets(idx) {
   document.getElementById("hud-striker-img").src = cors;
   document.getElementById("hud-striker-ovr").textContent = String(activeStriker.ovr || 99);
   document.getElementById("hud-striker-name").textContent = activeStriker.name;
-  document.getElementById("hud-striker-trait").textContent = `${activeStriker.trait} • ${p.winPct}% WIN`;
+  document.getElementById("hud-striker-trait").textContent = p.aimBonusPct > 0 ? `${activeStriker.trait} • AIM +${p.aimBonusPct}%` : `${activeStriker.trait} • LVL ${game.level}`;
 
   const startImg = document.getElementById("start-striker-img");
   const introImg = document.getElementById("intro-striker-img");
@@ -674,16 +842,28 @@ function updateEntryGateUI() {
 
 function refreshHudUI() {
   const p = getPowers();
+  const lv = getLevelParams(game.level);
 
   document.getElementById("hud-mult-val").textContent = `${p.totalMult.toFixed(1)}x`;
   document.getElementById("hud-score-val").textContent = game.score.toLocaleString("en-US");
-  document.getElementById("hud-striker-trait").textContent = `${activeStriker.trait} • ${p.winPct}% WIN`;
+  document.getElementById("hud-striker-trait").textContent = p.aimBonusPct > 0 ? `${activeStriker.trait} • AIM +${p.aimBonusPct}%` : `${activeStriker.trait} • LVL ${game.level}`;
 
-  // Update 5 Shot Dots in Broadcast Scorebug
+  const lvlEl = document.getElementById("hud-level-val");
+  if (lvlEl) {
+    lvlEl.textContent = String(game.level);
+    lvlEl.style.color = getLevelTier(game.level).color;
+  }
+  const goalsEl = document.getElementById("hud-goals-val");
+  if (goalsEl) {
+    goalsEl.textContent = `${game.goals}/${lv.goalsNeeded}`;
+    goalsEl.classList.toggle("done", game.goals >= lv.goalsNeeded);
+  }
+
+  // Shot dots (one per round of the match)
   const dotsWrap = document.getElementById("sb-shots-dots");
   if (dotsWrap) {
     dotsWrap.innerHTML = "";
-    const totalDots = Math.max(5, game.round);
+    const totalDots = Math.max(game.maxRounds, game.round);
     for (let i = 0; i < totalDots; i++) {
       const span = document.createElement("span");
       span.className = "shot-dot";
@@ -715,6 +895,7 @@ function refreshHudUI() {
   document.getElementById("bt-card-4")?.classList.toggle("active", p.kCount >= 1);
 
   updateEntryGateUI();
+  if (typeof metaRefreshUI === "function") metaRefreshUI();
 }
 
 function triggerGateShake() {
@@ -783,23 +964,36 @@ function launchMatchWithIntro() {
   const fillEl = document.getElementById("intro-bar-fill");
   const perkEl = document.getElementById("intro-striker-perk");
   const titleEl = document.getElementById("intro-main-title");
+  const kickerEl = document.getElementById("intro-sub-kicker");
 
   if (introEl) introEl.classList.remove("hidden");
 
   const p = getPowers();
+  const lv = getLevelParams(game.level);
+  const tier = getLevelTier(game.level);
+  updateKeeperAssets(game.level - 1);
+
   game.phase = "intro";
   game.round = 1;
-  game.maxRounds = 5;
+  game.maxRounds = SHOTS_PER_MATCH;
   game.revivedThisMatch = false;
+  game.levelCleared = false;
   game.shotHistory = [];
   game.goals = 0;
   game.streak = 0;
   game.score = 0;
   game.rawBaseScore = 0;
+  game.armed = {};
+  game.activeFx = {};
   game.shieldsLeft = p.maxShields;
   refreshHudUI();
 
-  if (perkEl) perkEl.textContent = `⚡ ${p.totalMult.toFixed(1)}x BOOST • ${p.winPct}% WIN`;
+  if (kickerEl) {
+    kickerEl.textContent = `🔥 LEVEL ${game.level} • ${isRo ? tier.nameRo : tier.name} • ${isRo ? "ÎNSCRIE" : "SCORE"} ${lv.goalsNeeded}/${SHOTS_PER_MATCH}`;
+    kickerEl.style.color = tier.color;
+  }
+  if (titleEl) titleEl.textContent = `LEVEL ${game.level} — ${isRo ? "ȘUTURI DE PEDEAPSĂ" : "PENALTY SHOOTOUT"}`;
+  if (perkEl) perkEl.textContent = `⚡ ${p.totalMult.toFixed(1)}x BOOST • AIM +${p.aimBonusPct}%`;
   audio.playIntroImpact();
 
   let prog = 0;
@@ -829,19 +1023,94 @@ function startNextShotRound() {
   game.phase = "aim";
   game.isCharging = false;
   game.chargePower = 0;
+  game.armed = {};
+  game.activeFx = {};
 
-  updateKeeperAssets(game.round - 1);
+  const lv = getLevelParams(game.level);
+  updateKeeperAssets(game.level - 1);
 
-  // Pre-decide Keeper dive direction so 3+ NFT Alien Radar can show it!
-  const diveChoices = [-0.78, -0.45, 0, 0.45, 0.78];
-  game.keeper.intendedDiveSide = diveChoices[Math.floor(Math.random() * diveChoices.length)];
-  game.keeper.intendedDiveHeight = 0.25 + Math.random() * 0.65;
+  // The keeper's secret gut-feeling side for THIS shot. The 3+ NFT radar only hints at it (and bluffs ~30%).
+  game.keeper.lean = Math.random() < 0.5 ? -1 : 1;
+  game.keeper.leanShown = Math.random() < 0.7 ? game.keeper.lean : -game.keeper.lean;
   game.keeper.targetNx = 0;
   game.keeper.targetNy = 0;
   game.keeper.targetAngle = 0;
   game.keeper.armReach = 0;
 
+  // Wind (from level 6) pushes the ball sideways
+  game.wind = lv.windMax > 0 ? (Math.random() * 2 - 1) * lv.windMax : 0;
+
   refreshHudUI();
+}
+
+function consumeArmedSkills() {
+  const fx = {};
+  SKILLS.forEach((s) => {
+    if (!game.armed[s.id]) return;
+    const ok = typeof metaConsumeSkill === "function" ? metaConsumeSkill(s.id) : false;
+    if (ok) fx[s.id] = true;
+  });
+  game.armed = {};
+  return fx;
+}
+
+// Decides what the shot does: the keeper only sees the ball when it is kicked and then reads it imperfectly.
+function evaluateShot(nx, ny, power, isSweet, isWeak, lv, p, fx) {
+  const POST = 0.06;
+  const keeper = game.keeper;
+
+  const ex = clampNum(nx, -1, 1);
+  const ey = clampNum(ny, 0.05, 1);
+
+  // --- Keeper decision ---
+  const commit = clampNum(lv.commitLean + (fx.freeze ? 0.25 : 0), 0, 0.95);
+  const sigma = lv.keeperSigma * p.keeperSigmaMul * (fx.curve ? 1.7 : 1) * (fx.freeze ? 1.25 : 1);
+  let tx;
+  let ty;
+  if (Math.random() < commit) {
+    // Gut feeling: dives to his favourite side regardless of the ball
+    tx = keeper.lean * (0.3 + Math.random() * 0.55);
+    ty = 0.12 + Math.random() * 0.65;
+  } else {
+    // Reads the ball, with level-dependent error
+    tx = ex + randGauss() * sigma;
+    ty = ey + randGauss() * sigma * 0.8;
+  }
+  tx = clampNum(tx, -0.92, 0.92);
+  ty = clampNum(ty, 0.06, 0.9);
+
+  const outX = Math.abs(nx) > 1 + POST;
+  const outY = ny > 1 + POST;
+
+  let result;
+  let postIn = false;
+  if (outX) {
+    result = "wide";
+  } else if (outY) {
+    result = "over";
+  } else if (Math.abs(Math.abs(nx) - 1) <= POST && ny <= 1) {
+    result = "post";
+  } else if (Math.abs(ny - 1) <= POST && Math.abs(nx) <= 1) {
+    result = "bar";
+  } else {
+    // In the frame: can the keeper get a glove on it?
+    let reach = lv.keeperReach;
+    reach *= 1 - 0.3 * Math.abs(ex) - 0.22 * ey; // corners & top bins are far harder to reach
+    if (isWeak) reach *= 1.3; // a lame shot is easy to save
+    else if (isSweet && power > 0.72) reach *= 0.85; // a hammered shot is hard to stop
+    if (fx.power) reach *= 0.75;
+    if (fx.freeze) reach *= 0.55;
+    const d = Math.hypot(ex - tx, (ey - ty) * 1.35);
+    result = d < reach ? "save" : "goal";
+  }
+
+  // Woodwork: the ball can bounce in
+  if ((result === "post" || result === "bar") && Math.random() < 0.4) {
+    result = "goal";
+    postIn = true;
+  }
+
+  return { result, postIn, tx, ty, ex, ey };
 }
 
 function releaseAndFireShot(finalPower) {
@@ -851,63 +1120,92 @@ function releaseAndFireShot(finalPower) {
   game.isCharging = false;
 
   const p = getPowers();
-  // Sweet spot is between 0.45 and 0.88 (wider if player holds NFTs or 1M+ $EFOO!)
-  const sweetMin = p.hasRocket ? 0.32 : 0.42;
-  const sweetMax = p.hasCurve ? 0.94 : 0.86;
-  const isSweet = finalPower >= sweetMin && finalPower <= sweetMax;
-  const isSkyball = finalPower > 0.96 && !p.hasCurve;
+  const lv = getLevelParams(game.level);
+  const fx = consumeArmedSkills();
+  game.activeFx = fx;
+
+  const power = clampNum(finalPower, 0.05, 1);
+  const sweetMin = lv.sweetMin - (p.hasRocket ? 0.03 : 0);
+  const sweetMax = lv.sweetMax + p.sweetBonus + (fx.power ? 0.1 : 0);
+  const isSweet = power >= sweetMin && power <= sweetMax;
+  const isWeak = power < sweetMin;
+  const isOver = power > sweetMax;
 
   audio.playKick(isSweet);
   game.strikerLunge = 26;
 
-  // Determine whether this shot beats the goalkeeper
-  const distToBullseye = Math.hypot(game.aimNx - game.bullseyeNx, game.aimNy - game.bullseyeNy);
-  const hitBullseye = distToBullseye < 0.28;
-
-  const winChance = Math.min(0.96, p.winPct / 100 + (isSweet ? 0.16 : 0));
-  const willScore = !isSkyball && Math.random() < winChance;
-
-  // Set Keeper's physical dive target
-  if (willScore) {
-    // Keeper either dives to his pre-decided radar side (if far from aim) or dives slightly late/under the ball
-    let diveNx = game.keeper.intendedDiveSide;
-    if (Math.abs(diveNx - game.aimNx) < 0.35) {
-      diveNx = game.aimNx > 0 ? -0.72 : 0.72;
-    }
-    game.keeper.targetNx = diveNx;
-    game.keeper.targetNy = game.keeper.intendedDiveHeight * 0.7;
-    game.keeper.targetAngle = diveNx < -0.15 ? -0.95 : diveNx > 0.15 ? 0.95 : 0;
-  } else {
-    // Keeper guesses exact corner!
-    game.keeper.targetNx = Math.max(-0.9, Math.min(0.9, game.aimNx));
-    game.keeper.targetNy = Math.max(0.1, Math.min(0.9, game.aimNy));
-    game.keeper.targetAngle = game.aimNx < -0.15 ? -0.95 : game.aimNx > 0.15 ? 0.95 : 0;
+  // Where the ball REALLY goes = crosshair (incl. its shake) + execution error + wind + power faults
+  let nx = game.aimNx + game.swayX;
+  let ny = game.aimNy + game.swayY;
+  const errAmp = (0.012 + 0.03 * lv.t) * (isSweet ? 0.6 : 1.5);
+  nx += randGauss() * errAmp;
+  ny += randGauss() * errAmp;
+  if (isWeak) ny -= (sweetMin - power) * 0.55; // under-hit: dies low
+  if (isOver) {
+    ny += (power - sweetMax) * 3.0; // over-hit: balloons up
+    nx += (Math.random() - 0.5) * (power - sweetMax) * 1.6;
   }
-  game.keeper.armReach = 1.0;
+  nx += game.wind;
+  ny = Math.max(0, ny);
 
-  // Launch 3D Ball Flight
+  const hitBullseye = Math.hypot(nx - game.bullseyeNx, ny - game.bullseyeNy) < 0.26;
+  const outcome = evaluateShot(nx, ny, power, isSweet, isWeak, lv, p, fx);
+
+  // Keeper's physical dive: when he saves it he gets his glove to the ball, otherwise he commits to his (wrong) target
+  const k = game.keeper;
+  if (outcome.result === "save") {
+    k.targetNx = outcome.tx + (outcome.ex - outcome.tx) * 0.85;
+    k.targetNy = outcome.ty + (outcome.ey - outcome.ty) * 0.85;
+  } else if (outcome.result === "wide" || outcome.result === "over") {
+    k.targetNx = outcome.tx * 0.45;
+    k.targetNy = outcome.ty * 0.5;
+  } else {
+    k.targetNx = outcome.tx;
+    k.targetNy = outcome.ty;
+  }
+  k.targetAngle = k.targetNx < -0.15 ? -0.95 : k.targetNx > 0.15 ? 0.95 : 0;
+  k.armReach = 1.0;
+
+  // Skill activation flash
+  const used = SKILLS.filter((s) => fx[s.id]);
+  if (used.length > 0) {
+    game.skillFlash = {
+      text: used.map((s) => `${s.icon} ${currentLang === "ro" ? s.nameRo : s.name}`).join("  +  "),
+      color: used[0].color,
+      life: 1,
+      fresh: true
+    };
+    if (typeof audio.playSkillFire === "function") audio.playSkillFire();
+  }
+
+  const bendSign = nx >= 0 ? -1 : 1;
   game.ball = {
     active: true,
     t: 0,
-    aimNx: game.aimNx,
-    aimNy: isSkyball ? 1.32 : game.aimNy,
-    curveIntensity: (p.hasCurve ? 1.35 : 0.55) * (game.aimNx >= 0 ? -1 : 1),
+    aimNx: nx,
+    aimNy: ny,
+    curveIntensity: (fx.curve ? 2.1 : p.hasCurve ? 1.35 : 0.55) * bendSign,
     isSweet,
     isTwin: isSweet && p.hasTwinBall,
     hitBullseye,
-    willScore,
-    isSkyball
+    result: outcome.result,
+    postIn: outcome.postIn,
+    speed: isWeak ? 0.8 : isSweet ? 1.0 : 1.12,
+    fx
   };
 }
 
 function onBallReachGoal(endScreenX, endScreenY) {
   const p = getPowers();
+  const lv = getLevelParams(game.level);
   const b = game.ball;
-  let scored = b.willScore;
+  const fx = b.fx || {};
+  const isRo = currentLang === "ro";
+  let scored = b.result === "goal";
   let shieldTriggered = false;
 
-  // Goalkeeper NFT Save Shield: if blocked, deflects off post and goes IN!
-  if (!scored && game.shieldsLeft > 0) {
+  // Goalkeeper NFT Save Shield: a saved ball deflects off the post and goes IN!
+  if (b.result === "save" && game.shieldsLeft > 0) {
     game.shieldsLeft -= 1;
     scored = true;
     shieldTriggered = true;
@@ -922,9 +1220,10 @@ function onBallReachGoal(endScreenX, endScreenY) {
     game.shotHistory.push("goal");
 
     const rawPts = Math.round(
-      (1000 + game.streak * 350) * (b.hitBullseye ? 2 : 1) * (b.isSweet ? 1.5 : 1)
+      (1000 + game.streak * 350) * (b.hitBullseye ? 2 : 1) * (b.isSweet ? 1.5 : 1) * lv.scoreMul
     );
-    const totalPts = Math.round(rawPts * p.totalMult + p.rocketPts) * goalsAdded;
+    let totalPts = Math.round(rawPts * p.totalMult + p.rocketPts) * goalsAdded;
+    if (fx.gold) totalPts *= 2;
 
     game.rawBaseScore += rawPts;
     game.score += totalPts;
@@ -934,14 +1233,19 @@ function onBallReachGoal(endScreenX, endScreenY) {
     game.netRipple = 1.0;
     game.shake = b.isSweet ? 15 : 8;
 
+    const pts = totalPts.toLocaleString();
     game.bigBanner = shieldTriggered
-      ? `🧤 SHIELD RICOCHET GOAL! +${totalPts.toLocaleString()}`
+      ? `🧤 SHIELD RICOCHET GOAL! +${pts}`
+      : b.postIn
+      ? `💥 OFF THE POST AND IN! +${pts}`
+      : fx.gold
+      ? `💰 GOLD x2 GOAL! +${pts}`
       : b.isTwin
-      ? `⚡ 2x TWIN ROCKET GOAL! +${totalPts.toLocaleString()}`
+      ? `⚡ 2x TWIN ROCKET GOAL! +${pts}`
       : b.hitBullseye
-      ? `⭐ 2x BULLSEYE TOP BINS! +${totalPts.toLocaleString()}`
-      : `⚽ GOOOOL! +${totalPts.toLocaleString()}`;
-    game.bigBannerColor = shieldTriggered || b.hitBullseye ? "#ffb800" : "#a8ff00";
+      ? `⭐ 2x BULLSEYE TOP BINS! +${pts}`
+      : `⚽ GOOOOL! +${pts}`;
+    game.bigBannerColor = shieldTriggered || b.hitBullseye || fx.gold ? "#ffb800" : "#a8ff00";
 
     audio.playGoalCheer();
     spawnSparks(endScreenX, endScreenY, "#a8ff00", 55);
@@ -949,10 +1253,18 @@ function onBallReachGoal(endScreenX, endScreenY) {
     game.streak = 0;
     game.shotHistory.push("miss");
     game.shake = 6;
-    game.bigBanner = b.isSkyball ? "❌ OVERHIT!" : `🧤 SAVED BY ${activeKeeper.name}!`;
+    const missText = {
+      wide: isRo ? "↗ PE LÂNGĂ POARTĂ!" : "↗ WIDE!",
+      over: isRo ? "☁️ PESTE BARĂ!" : "☁️ OVER THE BAR!",
+      post: isRo ? "💥 ÎN BARĂ!" : "💥 OFF THE POST!",
+      bar: isRo ? "💥 ÎN TRAVERSĂ!" : "💥 CROSSBAR!",
+      save: isRo ? `🧤 APĂRAT DE ${activeKeeper.name}!` : `🧤 SAVED BY ${activeKeeper.name}!`
+    };
+    game.bigBanner = missText[b.result] || "❌ MISS!";
     game.bigBannerColor = "#ef4444";
 
-    audio.playSaveBlock();
+    if (b.result === "post" || b.result === "bar") audio.playPostClang();
+    else if (b.result === "save") audio.playSaveBlock();
     spawnSparks(endScreenX, endScreenY, "#ef4444", 28);
   }
 
@@ -962,23 +1274,25 @@ function onBallReachGoal(endScreenX, endScreenY) {
   setTimeout(() => {
     game.bigBanner = "";
     if (game.round >= game.maxRounds) {
-      // Unlock Sudden Death Overdrive if player holds NFTs/$EFOO and scored!
-      if (p.isPro && scored && game.round < 10) {
-        game.round += 1;
-        startNextShotRound();
-        return;
-      }
-      // Trigger 10-Second VAR Review Revive Second Chance (once per match)
-      if (!game.revivedThisMatch) {
-        openVarReviveOverlay();
-        return;
-      }
-      openSummaryModal();
+      finishMatch();
     } else {
       game.round += 1;
       startNextShotRound();
     }
   }, 1250);
+}
+
+// End of the shoot-out: VAR is ONLY offered after a failed level that ended on a miss.
+// A winning finish (level cleared, or the last shot was a goal) goes straight to the summary.
+function finishMatch() {
+  const lv = getLevelParams(game.level);
+  const cleared = game.goals >= lv.goalsNeeded;
+  const endedOnWinningStreak = game.streak > 0;
+  if (!cleared && !endedOnWinningStreak && !game.revivedThisMatch) {
+    openVarReviveOverlay();
+    return;
+  }
+  openSummaryModal();
 }
 
 function openVarReviveOverlay() {
@@ -991,6 +1305,8 @@ function openVarReviveOverlay() {
   const titleEl = document.getElementById("var-title");
   const descEl = document.getElementById("var-desc-text");
   const isRo = currentLang === "ro";
+  const lv = getLevelParams(game.level);
+  const needMore = Math.max(1, lv.goalsNeeded - game.goals);
 
   if (!varOverlay) {
     openSummaryModal();
@@ -1002,8 +1318,8 @@ function openVarReviveOverlay() {
   }
   if (descEl) {
     descEl.textContent = isRo
-      ? "Arbitrul verifică VAR! Activează Prelungirile în 10 secunde pentru a-ți salva seria de victorii!"
-      : "Referee signals VAR review! Call an Injury Time Revive in 10 seconds to keep your streak alive!";
+      ? `Arbitrul verifică VAR! Ți-au mai lipsit ${needMore} gol${needMore > 1 ? "uri" : ""} pentru LEVEL ${game.level}. Cere 1 șut extra în 10 secunde!`
+      : `Referee signals VAR review! You are ${needMore} goal${needMore > 1 ? "s" : ""} short of clearing LEVEL ${game.level}. Call 1 extra shot within 10 seconds!`;
   }
 
   varOverlay.classList.remove("hidden");
@@ -1053,11 +1369,31 @@ function executeReviveBonusShot() {
   startNextShotRound();
 }
 
+function goNextLevel() {
+  const unlocked = typeof metaUnlockedLevel === "function" ? metaUnlockedLevel() : game.level + 1;
+  game.level = Math.min(MAX_LEVEL, Math.min(unlocked, game.level + 1));
+  launchMatchWithIntro();
+}
+
 function openSummaryModal() {
   game.phase = "summary";
   audio.playWhistle();
 
   const p = getPowers();
+  const lv = getLevelParams(game.level);
+  const isRo = currentLang === "ro";
+
+  const cleared = game.goals >= lv.goalsNeeded;
+  game.levelCleared = cleared;
+  const perfect = cleared && game.shotHistory.length > 0 && game.shotHistory.every((s) => s === "goal");
+
+  // Level bonuses
+  let bonus = 0;
+  if (cleared) bonus += 2500 * game.level;
+  if (perfect) bonus += 5000 * game.level;
+  game.score += bonus;
+  refreshHudUI();
+
   const whalePotential = Math.max(
     game.score,
     Math.round(game.rawBaseScore * 7.0 + Math.max(3, game.goals) * 2500)
@@ -1066,7 +1402,63 @@ function openSummaryModal() {
   document.getElementById("sum-score-actual").textContent = game.score.toLocaleString("en-US");
   document.getElementById("sum-score-whale").textContent = `${whalePotential.toLocaleString("en-US")} 🏆`;
 
-  const isRo = currentLang === "ro";
+  // Headline
+  const titleEl = document.getElementById("sum-title");
+  const kickerEl = document.getElementById("sum-kicker");
+  if (titleEl) {
+    titleEl.textContent = cleared
+      ? isRo
+        ? `🏆 LEVEL ${game.level} ÎNVINS!`
+        : `🏆 LEVEL ${game.level} CLEARED!`
+      : isRo
+      ? `LEVEL ${game.level} ESUAT`
+      : `LEVEL ${game.level} FAILED`;
+    titleEl.style.color = cleared ? "#a8ff00" : "#fca5a5";
+  }
+  if (kickerEl) {
+    const tier = getLevelTier(game.level);
+    kickerEl.textContent = `🏁 ${isRo ? tier.nameRo : tier.name} • ${activeKeeper.name}`;
+  }
+
+  const lvlLine = document.getElementById("sum-level-line");
+  if (lvlLine) {
+    const bonusTxt = bonus > 0 ? ` • ${isRo ? "Bonus" : "Bonus"} <strong>+${bonus.toLocaleString("en-US")}</strong>${perfect ? " ⭐ PERFECT" : ""}` : "";
+    lvlLine.innerHTML = isRo
+      ? `Goluri <strong>${game.goals}/${lv.goalsNeeded}</strong> necesare${bonusTxt}`
+      : `Goals <strong>${game.goals}</strong> • needed <strong>${lv.goalsNeeded}</strong> of ${SHOTS_PER_MATCH}${bonusTxt}`;
+  }
+
+  // Buttons: next level only when cleared; otherwise retry
+  const nextBtn = document.getElementById("btn-sum-next");
+  const replayLbl = document.querySelector("#btn-sum-replay span");
+  if (nextBtn) {
+    const show = cleared && game.level < MAX_LEVEL;
+    nextBtn.classList.toggle("hidden", !show);
+    const nl = nextBtn.querySelector("span");
+    if (nl) nl.textContent = isRo ? `NIVELUL ${game.level + 1}` : `NEXT: LEVEL ${game.level + 1}`;
+  }
+  if (replayLbl) {
+    replayLbl.textContent = cleared ? (isRo ? "REJOACĂ NIVELUL" : "REPLAY LEVEL") : isRo ? "ÎNCEARCĂ DIN NOU" : "RETRY LEVEL";
+  }
+
+  // Progress, leaderboard, daily streak
+  const info =
+    typeof metaOnMatchEnd === "function"
+      ? metaOnMatchEnd({ level: game.level, score: game.score, goals: game.goals, cleared, perfect })
+      : null;
+  const rankLine = document.getElementById("sum-rank-line");
+  if (rankLine) {
+    rankLine.textContent = "";
+    if (info && info.rankPromise) {
+      info.rankPromise.then((txt) => {
+        if (txt && game.phase === "summary") rankLine.textContent = txt;
+      });
+    }
+    if (info && info.unlockedNow) {
+      rankLine.textContent = isRo ? `🔓 LEVEL ${info.newLevel} DEBLOCAT!` : `🔓 LEVEL ${info.newLevel} UNLOCKED!`;
+    }
+  }
+
   const fomoLine = document.getElementById("sum-fomo-line");
   if (fomoLine) {
     if (walletState.efooBalance < 5000000) {
@@ -1076,8 +1468,8 @@ function openSummaryModal() {
         : `⚡ <strong>TIER REGRET:</strong> With <strong>5M $EFOO (Rocket Striker)</strong>, this run would score <strong>${tier2Score.toLocaleString("en-US")} pts (+2.5x)</strong>!<br />🎁 <em>First time? Buy the 0.035 EGLD Starter Pack to get 1,500,000 $EFOO (+50% Bonus from Stadium Vault)!</em>`;
     } else {
       fomoLine.innerHTML = isRo
-        ? `🏆 <strong>ECHIPĂ PRO CALIFICATĂ!</strong> Ai marcat <strong>${game.goals} goluri</strong> cu <strong>${p.totalMult.toFixed(1)}x</strong> boost! Șutează 100k $EFOO în pot sau mintează mai mulți jucători pt. <strong>11.0x</strong>!`
-        : `🏆 <strong>PRO SQUAD QUALIFIED!</strong> You scored <strong>${game.goals} goals</strong> at <strong>${p.totalMult.toFixed(1)}x</strong> boost! Kick 100k $EFOO into the Pot or mint more NFTs to reach <strong>11.0x</strong>!`;
+        ? `🏆 <strong>ECHIPĂ PRO CALIFICATĂ!</strong> Ai marcat <strong>${game.goals} goluri</strong> cu <strong>${p.totalMult.toFixed(1)}x</strong> boost! Cumpără skill-uri cu $EFOO sau mintează mai mulți jucători pt. <strong>11.0x</strong>!`
+        : `🏆 <strong>PRO SQUAD QUALIFIED!</strong> You scored <strong>${game.goals} goals</strong> at <strong>${p.totalMult.toFixed(1)}x</strong> boost! Buy super skills with $EFOO or mint more NFTs to reach <strong>11.0x</strong>!`;
     }
   }
 
@@ -1135,26 +1527,27 @@ function initFullscreenStadiumCanvas() {
   function getStageGeom() {
     const cx = W * 0.5;
     const isPortrait = H > W;
-    const horizonY = isPortrait ? H * 0.36 : H * 0.34;
-    const goalW = isPortrait ? Math.min(W * 0.88, 480) : Math.min(W * 0.56, 640);
-    const goalH = isPortrait ? Math.min(goalW * 0.44, 210) : Math.min(H * 0.31, 245);
+    const horizonY = isPortrait ? H * 0.4 : H * 0.34;
+    const goalW = isPortrait ? Math.min(W * 0.84, 460) : Math.min(W * 0.56, 640);
+    const goalH = isPortrait ? Math.min(goalW * 0.42, H * 0.22) : Math.min(H * 0.31, 245);
     const goalLeft = cx - goalW / 2;
     const goalRight = cx + goalW / 2;
     const goalBottom = horizonY + 18;
     const goalTop = goalBottom - goalH;
     const spotX = cx;
-    const spotY = isPortrait ? Math.min(H * 0.77, H - 105) : H * 0.83;
+    const spotY = isPortrait ? Math.min(H * 0.79, H - 110) : H * 0.83;
 
     return { cx, horizonY, goalW, goalH, goalLeft, goalRight, goalTop, goalBottom, spotX, spotY };
   }
 
   // Mouse / Touch Aim & Hold-to-Shoot Handlers directly on the Canvas!
+  // The player can aim OUTSIDE the goal frame (wide / over the bar) — that's a real way to miss.
   function updateAimFromPointer(clientX, clientY) {
     const g = getStageGeom();
-    const nx = ((clientX - g.cx) / (g.goalW * 0.5));
-    const ny = ((g.goalBottom - clientY) / g.goalH);
-    game.aimNx = Math.max(-1.08, Math.min(1.08, nx));
-    game.aimNy = Math.max(0.05, Math.min(1.08, ny));
+    const nx = (clientX - g.cx) / (g.goalW * 0.5);
+    const ny = (g.goalBottom - clientY) / g.goalH;
+    game.aimNx = Math.max(-1.55, Math.min(1.55, nx));
+    game.aimNy = Math.max(0.0, Math.min(1.55, ny));
   }
 
   canvas.addEventListener("mousemove", (e) => {
@@ -1178,7 +1571,7 @@ function initFullscreenStadiumCanvas() {
   window.addEventListener("mouseup", () => {
     if (!canPlayMatch()) return;
     if (game.phase === "charging" && game.isCharging) {
-      releaseAndFireShot(Math.max(0.55, game.chargePower));
+      releaseAndFireShot(game.chargePower);
     }
   });
 
@@ -1221,7 +1614,7 @@ function initFullscreenStadiumCanvas() {
       if (!canPlayMatch()) return;
       if (game.phase === "charging" && game.isCharging) {
         if (e.cancelable) e.preventDefault();
-        releaseAndFireShot(Math.max(0.58, game.chargePower));
+        releaseAndFireShot(game.chargePower);
       }
     },
     { passive: false }
@@ -1241,29 +1634,43 @@ function initFullscreenStadiumCanvas() {
   window.addEventListener("keyup", (e) => {
     if (e.code === "Space" && game.phase === "charging" && game.isCharging && canPlayMatch()) {
       e.preventDefault();
-      releaseAndFireShot(Math.max(0.58, game.chargePower));
+      releaseAndFireShot(game.chargePower);
     }
   });
 
   function renderFrame() {
     const g = getStageGeom();
     const p = getPowers();
+    const lv = getLevelParams(game.level);
+    const fx = game.activeFx || {};
 
     // Update Moving 2x Bullseye Target
     game.bullseyePhase += 0.022;
     game.bullseyeNx = Math.sin(game.bullseyePhase) * 0.74;
     game.bullseyeNy = 0.62 + Math.cos(game.bullseyePhase * 1.7) * 0.22;
 
-    // Update Hold-to-Charge Ring
+    // Update Hold-to-Charge Ring (scales with level difficulty and skills)
     if (game.phase === "charging" && game.isCharging) {
-      game.chargePower += 0.026 * game.chargeDir;
+      const chargeStep = (lv.chargeSpeed || 0.026) * (fx.power ? 0.78 : 1.0);
+      game.chargePower += chargeStep * game.chargeDir;
       if (game.chargePower >= 1.0) {
         game.chargePower = 1.0;
         game.chargeDir = -1;
-      } else if (game.chargePower <= 0.1) {
-        game.chargePower = 0.1;
+      } else if (game.chargePower <= 0.05) {
+        game.chargePower = 0.05;
         game.chargeDir = 1;
       }
+    }
+
+    // Dynamic Crosshair Sway (Higher levels sway faster & wider; Ice Veins dampens it)
+    if (game.phase === "aim" || game.phase === "charging") {
+      const swayDamp = fx.steady ? 0.12 : (p.swayMul || 1);
+      const t = Date.now() * 0.001 * (lv.swaySpeed || 1);
+      game.swayX = Math.sin(t * 2.1) * (lv.sway || 0.03) * swayDamp;
+      game.swayY = Math.cos(t * 2.7) * ((lv.sway || 0.03) * 0.7) * swayDamp;
+    } else {
+      game.swayX = 0;
+      game.swayY = 0;
     }
 
     // Update Articulated Goalkeeper Position
@@ -1488,21 +1895,40 @@ function initFullscreenStadiumCanvas() {
     ctx.fillText("⭐ 2x", 0, 4);
     ctx.restore();
 
-    // 5. ALIEN TELEPATHY RADAR (Visible when holding 3+ Player NFTs!)
+    // 5. SUBTLE INTUITION READ & ACTIVE EFFECT AURAS (No cheat target circles!)
     if ((game.phase === "aim" || game.phase === "charging") && p.hasRadar) {
-      const rx = g.cx + game.keeper.intendedDiveSide * (g.goalW * 0.45);
-      const ry = g.goalBottom - game.keeper.intendedDiveHeight * (g.goalH * 0.7);
       ctx.save();
-      ctx.strokeStyle = "rgba(239, 68, 68, 0.85)";
-      ctx.setLineDash([5, 5]);
-      ctx.lineWidth = 2.5;
+      const leanSide = game.keeper.leanShown || (game.keeper.intendedDiveSide >= 0 ? 1 : -1);
+      const leanText = leanSide > 0 ? "LEANING RIGHT ➔" : "⬅ LEANING LEFT";
+      ctx.fillStyle = "rgba(168, 255, 0, 0.85)";
+      ctx.strokeStyle = "rgba(168, 255, 0, 0.4)";
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.arc(rx, ry, 34, 0, Math.PI * 2);
+      ctx.roundRect(g.cx - 105, g.goalTop - 26, 210, 22, 8);
+      ctx.fill();
       ctx.stroke();
-      ctx.fillStyle = "#ef4444";
+      ctx.fillStyle = "#040a06";
       ctx.font = "800 10px 'JetBrains Mono', monospace";
       ctx.textAlign = "center";
-      ctx.fillText("🛸 KEEPER DIVE", rx, ry - 40);
+      ctx.fillText(`🧠 READ: ${leanText}`, g.cx, g.goalTop - 11);
+      ctx.restore();
+    }
+
+    // Frost aura on keeper if KEEPER FREEZE skill is active
+    if (fx.freeze) {
+      ctx.save();
+      ctx.strokeStyle = "rgba(103, 232, 249, 0.85)";
+      ctx.fillStyle = "rgba(103, 232, 249, 0.16)";
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.arc(kx, ky - 30, 52, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#67e8f9";
+      ctx.font = "800 11px 'JetBrains Mono', monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("🧊 FROZEN (-45%)", kx, ky - 90);
       ctx.restore();
     }
 
@@ -1512,11 +1938,14 @@ function initFullscreenStadiumCanvas() {
     drawArticulatedGoalkeeper(ctx, kx, ky, game.keeper.bodyAngle, game.keeper.armReach);
 
     // 7. LIVE 3D CURVED LASER TRAJECTORY & CROSSHAIR (When Aiming or Charging)
-    const aimScreenX = g.cx + game.aimNx * (g.goalW * 0.5);
-    const aimScreenY = g.goalBottom - game.aimNy * g.goalH;
+    const curAimNx = game.aimNx + game.swayX;
+    const curAimNy = game.aimNy + game.swayY;
+    const aimScreenX = g.cx + curAimNx * (g.goalW * 0.5);
+    const aimScreenY = g.goalBottom - curAimNy * g.goalH;
 
     if (game.phase === "aim" || game.phase === "charging") {
-      const curveBend = (p.hasCurve ? 110 : 40) * (game.aimNx >= 0 ? -1 : 1);
+      const curveMul = fx.curve ? 1.6 : 1.0;
+      const curveBend = (p.hasCurve ? 110 : 45) * curveMul * (curAimNx >= 0 ? -1 : 1);
       const ctrlX = (g.spotX + aimScreenX) * 0.5 + curveBend;
       const ctrlY = (g.spotY + aimScreenY) * 0.5 - 65;
 
@@ -1526,7 +1955,12 @@ function initFullscreenStadiumCanvas() {
         const iu = 1 - u;
         const tx = iu * iu * g.spotX + 2 * iu * u * ctrlX + u * u * aimScreenX;
         const ty = iu * iu * g.spotY + 2 * iu * u * ctrlY + u * u * aimScreenY;
-        ctx.fillStyle = p.hasRocket ? "#ff5500" : "#a8ff00";
+        let arcColor = "#a8ff00";
+        if (fx.power || p.hasRocket) arcColor = "#ff5500";
+        else if (fx.curve) arcColor = "#c084fc";
+        else if (fx.freeze) arcColor = "#67e8f9";
+        else if (fx.gold) arcColor = "#ffb800";
+        ctx.fillStyle = arcColor;
         ctx.globalAlpha = 0.25 + u * 0.65;
         ctx.beginPath();
         ctx.arc(tx, ty, (1 - u * 0.5) * 5, 0, Math.PI * 2);
@@ -1534,10 +1968,11 @@ function initFullscreenStadiumCanvas() {
       }
       ctx.globalAlpha = 1;
 
-      // Draw Crosshair Reticle at Aim Point
+      // Draw Crosshair Reticle at Aim Point with Out-of-bounds Detection
       ctx.save();
       ctx.translate(aimScreenX, aimScreenY);
-      ctx.strokeStyle = "#a8ff00";
+      const isOutOfBounds = Math.abs(curAimNx) > 1.0 || curAimNy > 1.0 || curAimNy < 0;
+      ctx.strokeStyle = isOutOfBounds ? "#ef4444" : (fx.steady ? "#38bdf8" : "#a8ff00");
       ctx.lineWidth = 2.5;
       ctx.beginPath();
       ctx.arc(0, 0, 18, 0, Math.PI * 2);
@@ -1550,6 +1985,18 @@ function initFullscreenStadiumCanvas() {
       ctx.moveTo(0, 10);
       ctx.lineTo(0, 24);
       ctx.stroke();
+
+      if (isOutOfBounds) {
+        ctx.fillStyle = "#ef4444";
+        ctx.font = "800 10px 'JetBrains Mono', monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(curAimNy > 1.0 ? "OVER BAR!" : "WIDE!", 0, -28);
+      } else if (fx.steady) {
+        ctx.fillStyle = "#38bdf8";
+        ctx.font = "800 10px 'JetBrains Mono', monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("🎯 STEADY", 0, -28);
+      }
       ctx.restore();
     }
 
@@ -1573,8 +2020,10 @@ function initFullscreenStadiumCanvas() {
       ctx.arc(0, 0, rRing, 0, Math.PI * 2);
       ctx.stroke();
 
-      const isSweet = game.chargePower >= 0.42 && game.chargePower <= 0.9;
-      ctx.strokeStyle = game.chargePower > 0.94 ? "#ef4444" : isSweet ? "#a8ff00" : "#ffb800";
+      const sweetMin = lv.sweetMin || 0.42;
+      const sweetMax = fx.power ? Math.min(0.96, (lv.sweetMax || 0.88) + 0.18) : (lv.sweetMax || 0.88);
+      const isSweet = game.chargePower >= sweetMin && game.chargePower <= sweetMax;
+      ctx.strokeStyle = game.chargePower > 0.95 ? "#ef4444" : isSweet ? "#a8ff00" : "#ffb800";
       ctx.lineWidth = 8;
       ctx.shadowColor = ctx.strokeStyle;
       ctx.shadowBlur = 16;
@@ -1586,7 +2035,7 @@ function initFullscreenStadiumCanvas() {
       ctx.fillStyle = ctx.strokeStyle;
       ctx.font = "800 12px 'JetBrains Mono', monospace";
       ctx.textAlign = "center";
-      ctx.fillText(isSweet ? "🔥 SWEET SPOT!" : "⚡ POWER", 0, rRing + 22);
+      ctx.fillText(isSweet ? "🔥 SWEET SPOT!" : (game.chargePower > 0.95 ? "⚠️ TOO HARD" : "⚡ POWER"), 0, rRing + 22);
       ctx.restore();
     }
 
@@ -1612,7 +2061,7 @@ function initFullscreenStadiumCanvas() {
         vx: (Math.random() - 0.5) * 1.5,
         vy: 1 + Math.random() * 2,
         r: 3 + Math.random() * 4.5,
-        color: b.isSweet || p.hasRocket ? "#ff5500" : "#a8ff00",
+        color: b.isSweet || p.hasRocket || fx.power ? "#ff5500" : (fx.curve ? "#c084fc" : (fx.gold ? "#ffb800" : "#a8ff00")),
         alpha: 0.9
       });
 
@@ -1648,7 +2097,30 @@ function initFullscreenStadiumCanvas() {
     }
     ctx.globalAlpha = 1;
 
-    // 11. DRAW BIG GOAL / SAVE FLASH BANNER
+    // 11. DRAW SUPER SKILL ACTIVATION FLASH
+    if (game.skillFlash && game.skillFlash.alpha > 0.05) {
+      const sf = game.skillFlash;
+      sf.alpha -= 0.022;
+      ctx.save();
+      ctx.globalAlpha = sf.alpha;
+      ctx.fillStyle = "rgba(4, 12, 8, 0.94)";
+      ctx.strokeStyle = sf.color || "#a8ff00";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(g.cx - 240, H * 0.38, 480, 52, 14);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = sf.color || "#a8ff00";
+      ctx.font = "800 18px 'JetBrains Mono', monospace";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.shadowColor = sf.color;
+      ctx.shadowBlur = 14;
+      ctx.fillText(sf.text, g.cx, H * 0.38 + 26);
+      ctx.restore();
+    }
+
+    // 12. DRAW BIG GOAL / SAVE / MISS FLASH BANNER
     if (game.bigBanner) {
       ctx.save();
       ctx.fillStyle = "rgba(4, 10, 7, 0.88)";
@@ -2526,6 +2998,420 @@ function applyLang(lang) {
 }
 
 // ============================================================================
+// META SYSTEM: DAILY STREAK, LEVEL PROGRESSION, SKILLS SHOP & LEADERBOARD
+// ============================================================================
+const STORAGE_DAILY_KEY = "efoo_daily_streak_v2";
+const STORAGE_LAST_LOGIN_KEY = "efoo_last_login_date_v2";
+const STORAGE_UNLOCKED_LEVEL = "efoo_unlocked_level_v2";
+const STORAGE_SKILLS_INVENTORY = "efoo_skills_inventory_v2";
+const STORAGE_LEADERBOARD = "efoo_leaderboard_v2";
+
+function metaUnlockedLevel() {
+  try {
+    const val = parseInt(localStorage.getItem(STORAGE_UNLOCKED_LEVEL) || "1", 10);
+    return Math.max(1, Math.min(MAX_LEVEL, isNaN(val) ? 1 : val));
+  } catch (e) {
+    return 1;
+  }
+}
+
+function selectLevel(lvl) {
+  const max = metaUnlockedLevel();
+  const target = Math.max(1, Math.min(max, Math.min(MAX_LEVEL, lvl)));
+  game.level = target;
+  refreshHudUI();
+  renderSkillsDeckUI();
+}
+
+function getDailyStreakData() {
+  const today = new Date().toISOString().slice(0, 10);
+  let streak = 1;
+  let lastDate = "";
+  try {
+    streak = parseInt(localStorage.getItem(STORAGE_DAILY_KEY) || "1", 10);
+    lastDate = localStorage.getItem(STORAGE_LAST_LOGIN_KEY) || "";
+  } catch (e) {}
+
+  if (!lastDate) {
+    streak = 1;
+    try {
+      localStorage.setItem(STORAGE_DAILY_KEY, "1");
+      localStorage.setItem(STORAGE_LAST_LOGIN_KEY, today);
+    } catch (e) {}
+  } else if (lastDate !== today) {
+    const last = new Date(lastDate);
+    const curr = new Date(today);
+    const diffDays = Math.round((curr - last) / (1000 * 60 * 60 * 24));
+    if (diffDays === 1) {
+      streak += 1;
+    } else if (diffDays > 1) {
+      streak = 1;
+    }
+    try {
+      localStorage.setItem(STORAGE_DAILY_KEY, String(streak));
+      localStorage.setItem(STORAGE_LAST_LOGIN_KEY, today);
+    } catch (e) {}
+  }
+
+  const isFifthDay = streak > 0 && streak % 5 === 0;
+  const claimedKey = `efoo_claimed_streak_${streak}`;
+  let claimed = false;
+  try {
+    claimed = localStorage.getItem(claimedKey) === "true";
+  } catch (e) {}
+
+  return { streak, today, isFifthDay, claimed, claimedKey };
+}
+
+function claimDailyStreakReward() {
+  const d = getDailyStreakData();
+  if (d.isFifthDay && !d.claimed) {
+    try {
+      localStorage.setItem(d.claimedKey, "true");
+    } catch (e) {}
+    walletState.efooBalance += 100000;
+    updateHudEfooBadge();
+    audio.playGoalCheer();
+    showToast("🎉 5-NAPOS AJÁNDÉK ÁTVÉVE! 100.000 $EFOO jóváírva!");
+    renderDailyStreakModal();
+    refreshHudUI();
+  }
+}
+
+function renderDailyStreakModal() {
+  const d = getDailyStreakData();
+  const row = document.getElementById("streak-days-row");
+  const bonusCard = document.getElementById("streak-bonus-card");
+  const isRo = currentLang === "ro";
+
+  if (row) {
+    row.innerHTML = "";
+    const currentCycleDay = ((d.streak - 1) % 5) + 1;
+    for (let day = 1; day <= 5; day++) {
+      const isDone = day < currentCycleDay || (d.isFifthDay && d.claimed);
+      const isToday = day === currentCycleDay && !d.claimed;
+      const isGift = day === 5;
+      const div = document.createElement("div");
+      div.className = `streak-day-bubble ${isDone ? "done" : ""} ${isToday ? "today" : ""} ${isGift ? "gift" : ""}`;
+      div.innerHTML = `
+        <span class="sdb-icon">${isGift ? "🎁" : isDone ? "✅" : isToday ? "🔥" : "⚽"}</span>
+        <span class="sdb-label">${isRo ? `Ziua ${day}` : `${day}. nap`}</span>
+        <small style="font-size:0.58rem; color:#94a3b8;">${isGift ? "+100k" : "Streak"}</small>
+      `;
+      row.appendChild(div);
+    }
+  }
+
+  if (bonusCard) {
+    if (d.isFifthDay && !d.claimed) {
+      bonusCard.innerHTML = `
+        <strong style="color:#ffb800; font-size:1.1rem;">🎉 ${isRo ? "ZIUA 5 ATINSĂ! PREMIU SPECIAL!" : "5. NAP ELÉRVE! KÜLÖNLEGES AJÁNDÉK!"}</strong>
+        <p style="font-size:0.8rem; color:#e2e8f0; margin:0;">${isRo ? "Ai fost activ 5 zile la rând! Colectează 100.000 $EFOO!" : "5 napja folyamatosan játszol! Vedd át a 100.000 $EFOO bónuszodat!"}</p>
+        <button type="button" class="arcade-btn gold" id="btn-claim-streak-reward">
+          🎁 ${isRo ? "REVENDICĂ 100.000 $EFOO" : "100.000 $EFOO ÁTVÉTELE"}
+        </button>
+      `;
+      document.getElementById("btn-claim-streak-reward")?.addEventListener("click", claimDailyStreakReward);
+    } else {
+      const remaining = 5 - (((d.streak - 1) % 5) + 1);
+      bonusCard.innerHTML = `
+        <strong style="color:#a8ff00;">🔥 ${isRo ? `Serie activă: ${d.streak} zile` : `Aktív sorozat: ${d.streak} nap`}</strong>
+        <p style="font-size:0.78rem; color:#94a3b8; margin:0;">${isRo ? `Mai ai ${remaining} zile până la următorul cadou de 100.000 $EFOO!` : `Még ${remaining} nap a következő 100.000 $EFOO ajándékig!`}</p>
+      `;
+    }
+  }
+}
+
+const DEFAULT_SKILLS_INVENTORY = { steady: 2, power: 2, freeze: 1, curve: 2, gold: 2 };
+
+function getSkillsInventory() {
+  try {
+    const raw = localStorage.getItem(STORAGE_SKILLS_INVENTORY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  saveSkillsInventory(DEFAULT_SKILLS_INVENTORY);
+  return { ...DEFAULT_SKILLS_INVENTORY };
+}
+
+function saveSkillsInventory(inv) {
+  try {
+    localStorage.setItem(STORAGE_SKILLS_INVENTORY, JSON.stringify(inv));
+  } catch (e) {}
+}
+
+function metaConsumeSkill(skillId) {
+  const inv = getSkillsInventory();
+  if (inv[skillId] && inv[skillId] > 0) {
+    inv[skillId] -= 1;
+    saveSkillsInventory(inv);
+    renderSkillsDeckUI();
+    const s = SKILLS.find((x) => x.id === skillId);
+    if (s) {
+      const name = currentLang === "ro" ? s.nameRo : currentLang === "hu" ? s.nameHu : s.name;
+      game.skillFlash = {
+        text: `⚡ ${name} AKTIVÁLVA!`,
+        color: s.color,
+        alpha: 1.0
+      };
+    }
+    return true;
+  }
+  return false;
+}
+
+function buySkillWithEfoo(skillId, count = 1) {
+  const s = SKILLS.find((x) => x.id === skillId);
+  if (!s) return;
+  const cost = s.price * count;
+  const inv = getSkillsInventory();
+  inv[skillId] = (inv[skillId] || 0) + count;
+  saveSkillsInventory(inv);
+
+  if (walletState.efooBalance >= cost) {
+    walletState.efooBalance -= cost;
+    updateHudEfooBadge();
+  }
+  audio.playWhistle();
+  showToast(`⚡ +${count}x ${s.name} bekerült a felszerelésedbe!`);
+  renderSkillsDeckUI();
+  renderSkillsShopModal();
+}
+
+function armSkill(skillId) {
+  if (game.phase !== "aim" && game.phase !== "charging") return;
+  const inv = getSkillsInventory();
+  const currentCount = inv[skillId] || 0;
+  if (currentCount <= 0 && !game.armed[skillId]) {
+    openSkillsShopModal();
+    return;
+  }
+  game.armed[skillId] = !game.armed[skillId];
+  if (game.armed[skillId]) {
+    audio.playWhistle();
+  }
+  renderSkillsDeckUI();
+}
+
+function renderSkillsDeckUI() {
+  const row = document.getElementById("skills-slots-row");
+  if (!row) return;
+  const inv = getSkillsInventory();
+  row.innerHTML = "";
+
+  SKILLS.forEach((s) => {
+    const count = inv[s.id] || 0;
+    const isArmed = !!game.armed[s.id];
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `skill-slot-btn ${isArmed ? "armed" : ""} ${count <= 0 ? "empty" : ""}`;
+    const sName = currentLang === "hu" ? s.nameHu : currentLang === "ro" ? s.nameRo : s.name;
+    const sDesc = currentLang === "hu" ? s.descHu : currentLang === "ro" ? s.descRo : s.desc;
+    btn.title = `${sName}: ${sDesc} (${count} db)`;
+    btn.innerHTML = `
+      <span class="skill-slot-icon">${s.icon}</span>
+      <span class="skill-slot-name">${isArmed ? "ARMED!" : sName.split(" ")[0]}</span>
+      <span class="skill-slot-count">${count}</span>
+    `;
+    btn.addEventListener("click", () => armSkill(s.id));
+    row.appendChild(btn);
+  });
+}
+
+function renderSkillsShopModal() {
+  const grid = document.getElementById("skills-shop-grid");
+  const balEl = document.getElementById("shop-efoo-balance");
+  if (balEl) balEl.textContent = `${Math.floor(walletState.efooBalance).toLocaleString("en-US")} $EFOO`;
+  if (!grid) return;
+  const inv = getSkillsInventory();
+  const isRo = currentLang === "ro";
+  const isHu = currentLang === "hu";
+
+  grid.innerHTML = "";
+  SKILLS.forEach((s) => {
+    const count = inv[s.id] || 0;
+    const card = document.createElement("div");
+    card.className = "skill-shop-card";
+    const name = isHu ? s.nameHu : isRo ? s.nameRo : s.name;
+    const desc = isHu ? s.descHu : isRo ? s.descRo : s.desc;
+    card.innerHTML = `
+      <div class="ssc-info">
+        <div class="ssc-title" style="color:${s.color};">
+          <span>${s.icon}</span>
+          <strong>${name}</strong>
+          <span style="font-size:0.7rem; color:#94a3b8;">(Raktáron: ${count} db)</span>
+        </div>
+        <small class="ssc-desc">${desc}</small>
+      </div>
+      <div class="ssc-actions">
+        <button type="button" class="arcade-btn neon" data-buy-single="${s.id}">
+          1x (${(s.price / 1000).toFixed(0)}k $EFOO)
+        </button>
+        <button type="button" class="arcade-btn gold" data-buy-pack="${s.id}">
+          5x (${(s.price * 5 / 1000).toFixed(0)}k $EFOO)
+        </button>
+      </div>
+    `;
+    card.querySelector(`[data-buy-single="${s.id}"]`)?.addEventListener("click", () => buySkillWithEfoo(s.id, 1));
+    card.querySelector(`[data-buy-pack="${s.id}"]`)?.addEventListener("click", () => buySkillWithEfoo(s.id, 5));
+    grid.appendChild(card);
+  });
+}
+
+function openSkillsShopModal() {
+  renderSkillsShopModal();
+  document.getElementById("skills-shop-modal-overlay")?.classList.remove("hidden");
+}
+function closeSkillsShopModal() {
+  document.getElementById("skills-shop-modal-overlay")?.classList.add("hidden");
+}
+
+const DEFAULT_LEADERBOARD = [
+  { rank: 1, address: "erd1s8k2...9m3f", name: "DegenStriker #99", level: 20, goals: 5, score: 74200, date: "Today" },
+  { rank: 2, address: "erd1p7x9...2b11", name: "ElrondPelé #619", level: 19, goals: 5, score: 68500, date: "Today" },
+  { rank: 3, address: "erd1q3m4...8w50", name: "TopBinsDegen #07", level: 18, goals: 4, score: 59300, date: "Today" },
+  { rank: 4, address: "erd1l0v3...4k82", name: "GigaGoat #10", level: 16, goals: 4, score: 51200, date: "Yesterday" },
+  { rank: 5, address: "erd1k9w2...6y19", name: "RocketToe #42", level: 15, goals: 4, score: 46800, date: "Yesterday" },
+  { rank: 6, address: "erd1x4c8...1q77", name: "PhantomKeeper #01", level: 14, goals: 3, score: 41000, date: "2 days ago" },
+  { rank: 7, address: "erd1m5n6...3e99", name: "BananaCurver #88", level: 12, goals: 3, score: 35400, date: "2 days ago" },
+  { rank: 8, address: "erd1h2j3...7r44", name: "SundayLegend #23", level: 10, goals: 3, score: 29800, date: "3 days ago" }
+];
+
+function getLeaderboard() {
+  try {
+    const raw = localStorage.getItem(STORAGE_LEADERBOARD);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  try {
+    localStorage.setItem(STORAGE_LEADERBOARD, JSON.stringify(DEFAULT_LEADERBOARD));
+  } catch (e) {}
+  return [...DEFAULT_LEADERBOARD];
+}
+
+function recordMatchToLeaderboard(score, goals, level) {
+  if (score <= 0) return null;
+  const list = getLeaderboard();
+  const playerAddr = connectedAddress ? shortErd(connectedAddress) : "You (Striker)";
+  const playerName = connectedAddress ? `Striker #${connectedAddress.slice(-4)}` : "You (Striker)";
+  const entry = {
+    rank: 0,
+    address: playerAddr,
+    name: playerName,
+    level,
+    goals,
+    score,
+    date: "Just now"
+  };
+  list.push(entry);
+  list.sort((a, b) => b.score - a.score);
+  list.forEach((item, idx) => {
+    item.rank = idx + 1;
+  });
+  const top10 = list.slice(0, 10);
+  try {
+    localStorage.setItem(STORAGE_LEADERBOARD, JSON.stringify(top10));
+  } catch (e) {}
+  const found = top10.find((x) => x === entry);
+  return found ? found.rank : null;
+}
+
+function renderLeaderboardModal() {
+  const tbody = document.getElementById("lb-table-body");
+  if (!tbody) return;
+  const list = getLeaderboard();
+  tbody.innerHTML = "";
+
+  list.forEach((row) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${row.rank === 1 ? "🥇 1" : row.rank === 2 ? "🥈 2" : row.rank === 3 ? "🥉 3" : `#${row.rank}`}</strong></td>
+      <td><strong>${row.name}</strong> <small style="color:#94a3b8; font-size:0.68rem;">(${row.address})</small></td>
+      <td><span style="color:#38bdf8; font-weight:800;">LVL ${row.level}</span></td>
+      <td>⚽ ${row.goals}/5</td>
+      <td><strong style="color:#a8ff00;">${row.score.toLocaleString("en-US")}</strong></td>
+      <td style="color:#94a3b8; font-size:0.7rem;">${row.date}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderLevelSelectModal() {
+  const grid = document.getElementById("levels-map-grid");
+  if (!grid) return;
+  const unlocked = metaUnlockedLevel();
+  grid.innerHTML = "";
+
+  for (let l = 1; l <= MAX_LEVEL; l++) {
+    const isUnlocked = l <= unlocked;
+    const isCurrent = l === game.level;
+    const params = getLevelParams(l);
+    const tier = getLevelTier(l);
+    const node = document.createElement("div");
+    node.className = `level-node ${isUnlocked ? "unlocked" : "locked"} ${isCurrent ? "current" : ""}`;
+    node.innerHTML = `
+      <span class="level-node-num" style="color:${isCurrent ? "#a8ff00" : tier.color};">${l}</span>
+      <span class="level-node-req">${isUnlocked ? `⚽ ${params.goalsNeeded}/5` : "🔒"}</span>
+    `;
+    if (isUnlocked) {
+      node.addEventListener("click", () => {
+        selectLevel(l);
+        document.getElementById("level-select-modal-overlay")?.classList.add("hidden");
+        showToast(`⚡ Szint kiválasztva: LEVEL ${l} (${tier.name})`);
+      });
+    }
+    grid.appendChild(node);
+  }
+}
+
+function metaRefreshUI() {
+  const streakData = getDailyStreakData();
+  const streakPill = document.getElementById("streak-pill-label");
+  if (streakPill) {
+    streakPill.textContent = `${streakData.streak}d`;
+    if (streakData.isFifthDay && !streakData.claimed) {
+      streakPill.textContent = "🎁 GIFT!";
+      streakPill.parentElement?.classList.add("pulse");
+    }
+  }
+
+  const lvlVal = document.getElementById("hud-level-val");
+  if (lvlVal) {
+    lvlVal.textContent = String(game.level);
+    lvlVal.style.color = getLevelTier(game.level).color;
+  }
+  const goalsVal = document.getElementById("hud-goals-val");
+  const lv = getLevelParams(game.level);
+  if (goalsVal) {
+    goalsVal.textContent = `${game.goals}/${lv.goalsNeeded}`;
+    goalsVal.classList.toggle("done", game.goals >= lv.goalsNeeded);
+  }
+
+  renderSkillsDeckUI();
+}
+
+function metaOnMatchEnd({ level, score, goals, cleared, perfect }) {
+  const curUnlocked = metaUnlockedLevel();
+  let unlockedNow = false;
+  let newLevel = curUnlocked;
+
+  if (cleared && level >= curUnlocked && curUnlocked < MAX_LEVEL) {
+    newLevel = curUnlocked + 1;
+    unlockedNow = true;
+    try {
+      localStorage.setItem(STORAGE_UNLOCKED_LEVEL, String(newLevel));
+    } catch (e) {}
+  }
+
+  const rank = recordMatchToLeaderboard(score, goals, level);
+  metaRefreshUI();
+
+  return {
+    unlockedNow,
+    newLevel,
+    rankPromise: Promise.resolve(rank ? `🏆 Ranglista: #${rank} helyezés!` : "")
+  };
+}
+
+// ============================================================================
 // INIT & BINDINGS
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
@@ -2594,7 +3480,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("sfx-label").textContent = audio.enabled ? "ON" : "OFF";
   });
   document.getElementById("lang-toggle-btn")?.addEventListener("click", () => {
-    applyLang(currentLang === "en" ? "ro" : "en");
+    const nextLang = currentLang === "en" ? "hu" : currentLang === "hu" ? "ro" : "en";
+    applyLang(nextLang);
   });
 
   // Boost / Pot Drawer Modal
@@ -2661,6 +3548,71 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   document.getElementById("tx-toast-close")?.addEventListener("click", () => {
     document.getElementById("tx-toast")?.classList.add("hidden");
+  });
+
+  // Next Level in Summary
+  document.getElementById("btn-sum-next")?.addEventListener("click", goNextLevel);
+
+  // Leaderboard Modal
+  const openLeaderboard = () => {
+    renderLeaderboardModal();
+    document.getElementById("leaderboard-modal-overlay")?.classList.remove("hidden");
+  };
+  const closeLeaderboard = () => document.getElementById("leaderboard-modal-overlay")?.classList.add("hidden");
+  document.getElementById("open-ranks-btn")?.addEventListener("click", openLeaderboard);
+  document.getElementById("close-ranks-modal-btn")?.addEventListener("click", closeLeaderboard);
+  document.getElementById("lb-play-btn")?.addEventListener("click", () => {
+    closeLeaderboard();
+    launchMatchWithIntro();
+  });
+  document.getElementById("leaderboard-modal-overlay")?.addEventListener("click", (e) => {
+    if (e.target && e.target.id === "leaderboard-modal-overlay") closeLeaderboard();
+  });
+
+  // Daily Streak Modal
+  const openStreak = () => {
+    renderDailyStreakModal();
+    document.getElementById("daily-streak-modal-overlay")?.classList.remove("hidden");
+  };
+  const closeStreak = () => document.getElementById("daily-streak-modal-overlay")?.classList.add("hidden");
+  document.getElementById("open-streak-btn")?.addEventListener("click", openStreak);
+  document.getElementById("close-streak-modal-btn")?.addEventListener("click", closeStreak);
+  document.getElementById("daily-streak-modal-overlay")?.addEventListener("click", (e) => {
+    if (e.target && e.target.id === "daily-streak-modal-overlay") closeStreak();
+  });
+
+  // Super Skills Shop Modal
+  document.getElementById("open-skills-shop-btn")?.addEventListener("click", openSkillsShopModal);
+  document.getElementById("close-skills-shop-btn")?.addEventListener("click", closeSkillsShopModal);
+  document.getElementById("skills-shop-modal-overlay")?.addEventListener("click", (e) => {
+    if (e.target && e.target.id === "skills-shop-modal-overlay") closeSkillsShopModal();
+  });
+
+  // Level Select Modal
+  const openLevels = () => {
+    renderLevelSelectModal();
+    document.getElementById("level-select-modal-overlay")?.classList.remove("hidden");
+  };
+  const closeLevels = () => document.getElementById("level-select-modal-overlay")?.classList.add("hidden");
+  document.getElementById("hud-level-pill")?.addEventListener("click", openLevels);
+  document.getElementById("close-levels-modal-btn")?.addEventListener("click", closeLevels);
+  document.getElementById("level-select-modal-overlay")?.addEventListener("click", (e) => {
+    if (e.target && e.target.id === "level-select-modal-overlay") closeLevels();
+  });
+
+  // ESC key closes all active modals
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (!document.getElementById("summary-screen-overlay")?.classList.contains("hidden")) {
+        closeSummaryModal();
+      }
+      closeBoost();
+      closeLeaderboard();
+      closeStreak();
+      closeSkillsShopModal();
+      closeLevels();
+      document.getElementById("wallet-modal-backdrop")?.classList.add("hidden");
+    }
   });
 
   // 90+5' Timer

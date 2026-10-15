@@ -59,6 +59,16 @@
             <span class="shot-dot"></span>
           </div>
 
+          <div class="sb-metric level-metric" id="hud-level-pill" title="Click to view/select levels (1-20)" style="cursor:pointer;">
+            <span>LEVEL</span>
+            <strong id="hud-level-val">1</strong>
+          </div>
+
+          <div class="sb-metric goals-metric" title="Target goals needed to clear level">
+            <span>GOALS</span>
+            <strong id="hud-goals-val">0/2</strong>
+          </div>
+
           <div class="sb-metric">
             <span data-i18n="hud_mult">BOOST</span>
             <strong id="hud-mult-val">1.0x</strong>
@@ -72,15 +82,25 @@
       </div>
 
       <!-- Center: Live 90+5' FOMO Jackpot Pill (Click to open Pot/Boost Drawer) -->
-      <div class="hud-fomo-pill" id="open-pot-pill" title="Click to enter 90+5' FOMO Pot">
-        <span class="fomo-timer-badge">⏱️ 90+5' <span id="fomo-countdown">04:42</span></span>
-        <span class="fomo-pot-val" id="fomo-pot-amount">🏆 25,400,000 $EFOO</span>
+      <div class="hud-center-group">
+        <div class="hud-fomo-pill" id="open-pot-pill" title="Click to enter 90+5' FOMO Pot">
+          <span class="fomo-timer-badge">⏱️ 90+5' <span id="fomo-countdown">04:42</span></span>
+          <span class="fomo-pot-val" id="fomo-pot-amount">🏆 25,400,000 $EFOO</span>
+        </div>
       </div>
 
-      <!-- Right: Live Verified $EFOO Balance, Sound, Lang, Wallet & Logout -->
+      <!-- Right: Live Verified $EFOO Balance, Ranks, Streak, Sound, Lang, Wallet & Logout -->
       <div class="hud-right-group">
+        <button type="button" id="open-ranks-btn" class="hud-icon-btn hud-rank-btn" title="View Leaderboard & Weekly Pot Share">
+          🏆 <span id="ranks-btn-label">RANKS</span>
+        </button>
+
+        <button type="button" id="open-streak-btn" class="hud-icon-btn hud-streak-btn" title="Daily Streak Bonus (Day 5 Gift!)">
+          🔥 <span id="streak-pill-label">1d</span>
+        </button>
+
         <button type="button" id="hud-efoo-badge" class="btn-godmode" title="Your verified on-chain $EFOO balance (Click to buy $EFOO)">
-          🔥 <span id="hud-efoo-balance-label" data-i18n="hud_no_wallet">MIN 1M $EFOO</span>
+          ⚡ <span id="hud-efoo-balance-label" data-i18n="hud_no_wallet">MIN 1M $EFOO</span>
         </button>
 
         <button type="button" id="sfx-toggle-btn" class="hud-icon-btn">
@@ -100,6 +120,21 @@
         </button>
       </div>
     </header>
+
+    <!-- ===================================================================
+         DYNAMIC SUPER SKILLS DOCK (Bought with $EFOO, 1 charge per kick)
+         =================================================================== -->
+    <div class="hud-skills-dock" id="hud-skills-dock">
+      <div class="skills-dock-header">
+        <span class="skills-dock-title">⚡ SZUPER KÉPESSÉGEK / SUPER SKILLS</span>
+        <button type="button" class="btn-skills-shop" id="open-skills-shop-btn">
+          🛒 KÉPESSÉG BOLT / SHOP (+)
+        </button>
+      </div>
+      <div class="skills-slots-row" id="skills-slots-row">
+        <!-- Dynamically rendered by renderSkillsDeckUI() -->
+      </div>
+    </div>
 
     <!-- ===================================================================
          BOTTOM FLOATING HUD: FUT STRIKER CARD + VISUAL ICON PERKS
@@ -330,16 +365,25 @@
           </div>
         </div>
 
+        <div style="font-size:0.88rem; color:#a8ff00; background:rgba(168,255,0,0.08); border:1px solid rgba(168,255,0,0.22); padding:10px 14px; border-radius:12px; margin-bottom:8px;" id="sum-level-line">
+          Goals: <strong>0</strong> • Needed: <strong>2</strong> of 5
+        </div>
+
+        <div style="font-size:0.84rem; color:#ffb800; font-weight:800; text-align:center; margin-bottom:8px;" id="sum-rank-line"></div>
+
         <div style="font-size:0.84rem; color:#e2e8f0; background:rgba(255,255,255,0.05); padding:10px 14px; border-radius:12px;" id="sum-fomo-line">
           🔒 Hold <strong>1+ NFT (0.08 EGLD)</strong> or <strong>1M+ $EFOO</strong> to unlock <strong>Sudden Death</strong> &amp; the <strong>25.4M $EFOO Jackpot</strong>!
         </div>
 
         <div class="sum-actions-grid">
+          <button type="button" id="btn-sum-next" class="arcade-btn neon hidden" style="background:linear-gradient(90deg,#38bdf8,#0284c7); border-color:#38bdf8;">
+            🚀 <span>NEXT LEVEL</span>
+          </button>
           <button type="button" id="btn-sum-replay" class="arcade-btn neon">
             ⚽ <span data-i18n="btn_play_again">PLAY AGAIN</span>
           </button>
           <button type="button" id="btn-sum-starter" class="arcade-btn neon">
-            🎁 <span data-i18n="btn_starter_bonus">STARTER: 1.5M $EFOO (0.035 EGLD)</span>
+            🎁 <span data-i18n="btn_starter_bonus">STARTER (0.035 EGLD ➔ 1.5M)</span>
           </button>
           <button type="button" id="btn-sum-share" class="arcade-btn">
             🐦 <span data-i18n="btn_share_x">SHARE ON X</span>
@@ -500,6 +544,155 @@
           <small style="color:#94a3b8; font-family:'JetBrains Mono',monospace; font-size:0.74rem;">
             🔒 Verified MultiversX login + min. <strong style="color:#a8ff00;">1,000,000 $EFOO</strong> required to enter the Arena.
           </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         OVERLAY 6: LEADERBOARD & WEEKLY JACKPOT MODAL (RANGLISTA)
+         =================================================================== -->
+    <div class="arcade-overlay hidden" id="leaderboard-modal-overlay">
+      <div class="leaderboard-modal-card">
+        <div class="modal-header-row">
+          <div>
+            <h2 class="modal-headline" style="color:#ffb800;">
+              🏆 LEADERBOARD &amp; WEEKLY JACKPOT
+            </h2>
+            <p class="modal-subline">
+              Sunday League Degen FC • Top Strikers Share the 90+5' Pool
+            </p>
+          </div>
+          <button type="button" class="modal-close-btn" id="close-ranks-modal-btn">✕</button>
+        </div>
+
+        <!-- Weekly Pot Distribution Share Card -->
+        <div class="jackpot-share-banner">
+          <div class="jp-main-col">
+            <span class="jp-kicker">WEEKLY DERBY JACKPOT POOL</span>
+            <strong class="jp-pot-number" id="lb-pot-amount">25,400,000 $EFOO</strong>
+            <small style="color:#94a3b8; font-size:0.75rem;">Whistle blows every Sunday 23:59 UTC • Top strikers rewarded automatically</small>
+          </div>
+          <div class="jp-distribution-grid">
+            <div class="jp-tier-badge gold">
+              <span class="jp-rank">🥇 1ST PLACE (70%)</span>
+              <strong class="jp-share-val" id="lb-share-1st">17,780,000 $EFOO</strong>
+            </div>
+            <div class="jp-tier-badge silver">
+              <span class="jp-rank">🥈 2ND PLACE (15%)</span>
+              <strong class="jp-share-val" id="lb-share-2nd">3,810,000 $EFOO</strong>
+            </div>
+            <div class="jp-tier-badge bronze">
+              <span class="jp-rank">🥉 3RD PLACE (5%)</span>
+              <strong class="jp-share-val" id="lb-share-3rd">1,270,000 $EFOO</strong>
+            </div>
+            <div class="jp-tier-badge burn">
+              <span class="jp-rank">🔥 ON-CHAIN BURN (10%)</span>
+              <strong class="jp-share-val" id="lb-share-burn">2,540,000 $EFOO</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Strikers Table -->
+        <div class="lb-table-wrap">
+          <table class="lb-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>STRIKER</th>
+                <th>LEVEL</th>
+                <th>GOALS</th>
+                <th>SCORE</th>
+                <th>WHEN</th>
+              </tr>
+            </thead>
+            <tbody id="lb-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:16px; text-align:center;">
+          <button type="button" class="arcade-btn neon" id="lb-play-btn">
+            ⚽ JÁTÉK &amp; RANGLISTA MÁSZÁS
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         OVERLAY 7: DAILY LOGIN STREAK REWARDS (NAPI BELÉPÉSI BÓNUSZ)
+         =================================================================== -->
+    <div class="arcade-overlay hidden" id="daily-streak-modal-overlay">
+      <div class="streak-modal-card">
+        <div class="modal-header-row">
+          <div>
+            <h2 class="modal-headline" style="color:#ffb800;">
+              🔥 NAPI BELÉPÉSI SOROZAT (DAILY STREAK)
+            </h2>
+            <p class="modal-subline">
+              Lépj be minden nap sorozatban! Minden 5. napon ajándék $EFOO tokent kapsz a kasszából!
+            </p>
+          </div>
+          <button type="button" class="modal-close-btn" id="close-streak-modal-btn">✕</button>
+        </div>
+
+        <div class="streak-days-row" id="streak-days-row">
+          <!-- Dynamically populated with Day 1..5 milestone circles -->
+        </div>
+
+        <div class="streak-bonus-card" id="streak-bonus-card">
+          <!-- Dynamically populated status & claim button -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         OVERLAY 8: SUPER SKILLS STORE ($EFOO BOLT)
+         =================================================================== -->
+    <div class="arcade-overlay hidden" id="skills-shop-modal-overlay">
+      <div class="skills-shop-modal-card">
+        <div class="modal-header-row">
+          <div>
+            <h2 class="modal-headline" style="color:#a8ff00;">
+              ⚡ SZUPER KÉPESSÉG BOLT (SUPER SKILLS)
+            </h2>
+            <p class="modal-subline">
+              Vásárolj képességeket $EFOO tokenért cserébe! 50% égetve lesz on-chain, 50% a heti Jackpotba kerül.
+            </p>
+          </div>
+          <button type="button" class="modal-close-btn" id="close-skills-shop-btn">✕</button>
+        </div>
+
+        <div class="skills-shop-balance-bar">
+          <span>EGYESÜLETI EGYENLEG:</span>
+          <strong id="shop-efoo-balance">0 $EFOO</strong>
+        </div>
+
+        <div class="skills-shop-grid" id="skills-shop-grid">
+          <!-- Dynamically populated with 5 skill cards -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         OVERLAY 9: LEVEL SELECT MODAL (SZINTVÁLASZTÓ 1 - 20)
+         =================================================================== -->
+    <div class="arcade-overlay hidden" id="level-select-modal-overlay">
+      <div class="levels-modal-card">
+        <div class="modal-header-row">
+          <div>
+            <h2 class="modal-headline" style="color:#38bdf8;">
+              ⚡ VÁLASSZ SZINTET / LEVEL SELECT (1 — 20)
+            </h2>
+            <p class="modal-subline">
+              Egyre nehezebb kapusok, gyorsabb erőmérő, célkereszt kilengés és oldalszél vár rád!
+            </p>
+          </div>
+          <button type="button" class="modal-close-btn" id="close-levels-modal-btn">✕</button>
+        </div>
+
+        <div class="levels-map-grid" id="levels-map-grid">
+          <!-- 20 level nodes populated dynamically -->
         </div>
       </div>
     </div>
