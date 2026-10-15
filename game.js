@@ -33,30 +33,30 @@ const I18N_GAME = {
     btn_mint_nft: "MINT NFT (0.08 EGLD)"
   },
   hu: {
-    btn_exit: "EXIT TO HOME",
-    hud_mult: "BOOST",
-    hud_score: "SCORE",
-    hud_no_wallet: "MIN 1M $EFOO",
-    btn_connect: "CONNECT",
-    hint_switch_nft: "🔄 Click to switch NFT",
-    aim_prompt: "🎯 POINT IN GOAL • HOLD & RELEASE CLICK (OR SPACE) TO CURVE & SHOOT!",
-    btn_boost: "BOOST",
-    step_1: "Aim & Hold to Curve",
-    step_2: "More NFTs = <strong>Up to 11x & Radar</strong>",
-    step_3: "Pot: <strong>25,400,000 $EFOO</strong>",
-    gate_connect_desc: "Connect your MultiversX wallet to verify your $EFOO balance & Club NFTs.",
-    gate_buy_sub: "Pay 0.035 EGLD (~$0.12) for 1,000,000 $EFOO ➔ RECEIVE 1,500,000 $EFOO! (+500k from Stadium Vault)",
-    btn_buy_starter: "STARTER (0.035 EGLD ➔ 1.5M)",
-    btn_buy_gate: "PRO PACK (0.1 EGLD ➔ ~3M)",
-    btn_connect_to_play: "CONNECT WALLET TO PLAY",
-    btn_play_now: "START MATCH",
-    sum_your_score: "YOUR SCORE",
-    sum_with_nfts: "WITH 3+ NFTs & 1M $EFOO",
-    btn_play_again: "PLAY AGAIN",
+    btn_exit: "VISSZA A FŐOLDALRA",
+    hud_mult: "BÓNUSZ",
+    hud_score: "PONTSZÁM",
+    hud_no_wallet: "MIN. 1M $EFOO",
+    btn_connect: "CSATLAKOZÁS",
+    hint_switch_nft: "🔄 Kattints az NFT váltásához",
+    aim_prompt: "🎯 CÉLOZZ A KAPURA • NYOMD & ENGEDD EL A KATTINTÁST A CSAVARÁSHOZ ÉS LÖVÉSHEZ!",
+    btn_boost: "BÓNUSZ",
+    step_1: "Célozz és nyomva tartva csavard",
+    step_2: "Több NFT = <strong>Akár 11x & Radar</strong>",
+    step_3: "Nyereményalap: <strong>25 400 000 $EFOO</strong>",
+    gate_connect_desc: "Csatlakoztasd a MultiversX tárcád a $EFOO egyenleg és Club NFT-k ellenőrzéséhez.",
+    gate_buy_sub: "Fizess 0.035 EGLD-t (~$0.12) 1 000 000 $EFOO-ért ➔ KAPSZ 1 500 000 $EFOO-t! (+500k a Stadium Vaultból)",
+    btn_buy_starter: "STARTER CSOMAG (0.035 EGLD ➔ 1.5M)",
+    btn_buy_gate: "PRO CSOMAG (0.1 EGLD ➔ ~3M)",
+    btn_connect_to_play: "TÁRCA CSATLAKOZTATÁSA A JÁTÉKHOZ",
+    btn_play_now: "MÉRKŐZÉS INDÍTÁSA",
+    sum_your_score: "A TE PONTSZÁMOD",
+    sum_with_nfts: "3+ NFT-VEL ÉS 1M $EFOO-VAL",
+    btn_play_again: "ÚJRA JÁTSZOM",
     btn_starter_bonus: "STARTER: 1.5M $EFOO (0.035 EGLD)",
-    btn_share_x: "SHARE ON X",
-    btn_buy_3m: "BUY 3M $EFOO (0.1 EGLD)",
-    btn_mint_nft: "MINT NFT (0.08 EGLD)"
+    btn_share_x: "MEGOSZTÁS X-EN",
+    btn_buy_3m: "3M $EFOO VÉTEL (0.1 EGLD)",
+    btn_mint_nft: "NFT VERÉS (0.08 EGLD)"
   },
   ro: {
     btn_exit: "IEȘIRE",
@@ -906,6 +906,21 @@ function triggerGateShake() {
   card.classList.add("shake");
 }
 
+function setStartScreenState(isActive) {
+  const overlay = document.getElementById("start-screen-overlay");
+  const hud = document.querySelector(".hud-top-bar");
+  if (isActive) {
+    game.phase = "start";
+    overlay?.classList.remove("hidden");
+    document.body.classList.add("start-screen-active");
+    hud?.classList.add("start-hidden");
+  } else {
+    overlay?.classList.add("hidden");
+    document.body.classList.remove("start-screen-active");
+    hud?.classList.remove("start-hidden");
+  }
+}
+
 // ============================================================================
 // CINEMATIC INTRO & ROUND FLOW (STRICTLY GATED BY WALLET + 1,000,000 $EFOO)
 // ============================================================================
@@ -914,8 +929,7 @@ function launchMatchWithIntro() {
 
   // 1. Must be logged in with a real MultiversX wallet
   if (!connectedAddress || !VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
-    game.phase = "start";
-    document.getElementById("start-screen-overlay")?.classList.remove("hidden");
+    setStartScreenState(true);
     document.getElementById("summary-screen-overlay")?.classList.add("hidden");
     triggerGateShake();
     document.getElementById("wallet-modal-backdrop")?.classList.remove("hidden");
@@ -939,8 +953,7 @@ function launchMatchWithIntro() {
 
   // 3. Must hold at least 1,000,000 $EFOO in wallet
   if (!canPlayMatch()) {
-    game.phase = "start";
-    document.getElementById("start-screen-overlay")?.classList.remove("hidden");
+    setStartScreenState(true);
     document.getElementById("summary-screen-overlay")?.classList.add("hidden");
     updateEntryGateUI();
     triggerGateShake();
@@ -952,7 +965,7 @@ function launchMatchWithIntro() {
     return;
   }
 
-  document.getElementById("start-screen-overlay")?.classList.add("hidden");
+  setStartScreenState(false);
   document.getElementById("summary-screen-overlay")?.classList.add("hidden");
   document.getElementById("var-revive-overlay")?.classList.add("hidden");
   if (game.varTimerInterval) {
@@ -1014,8 +1027,7 @@ function launchMatchWithIntro() {
 
 function startNextShotRound() {
   if (!canPlayMatch()) {
-    game.phase = "start";
-    document.getElementById("start-screen-overlay")?.classList.remove("hidden");
+    setStartScreenState(true);
     updateEntryGateUI();
     return;
   }
@@ -1231,11 +1243,31 @@ function onBallReachGoal(endScreenX, endScreenY) {
     game.netImpactX = endScreenX;
     game.netImpactY = endScreenY;
     game.netRipple = 1.0;
-    game.shake = b.isSweet ? 15 : 8;
+
+    const isFireRocketGoal = fx.power || p.hasRocket || b.isSweet;
+    if (isFireRocketGoal) {
+      game.netFire = 1.0;
+      game.shake = b.isSweet ? 26 : 18;
+      for (let i = 0; i < 48; i++) {
+        game.particles.push({
+          x: endScreenX + (Math.random() - 0.5) * 36,
+          y: endScreenY + (Math.random() - 0.5) * 36,
+          vx: (Math.random() - 0.5) * 5.5,
+          vy: -1.5 - Math.random() * 4.5,
+          r: 3 + Math.random() * 4.5,
+          color: Math.random() < 0.35 ? "#ff3b00" : (Math.random() < 0.7 ? "#ffb800" : "#ffffff"),
+          alpha: 1.0
+        });
+      }
+    } else {
+      game.shake = 8;
+    }
 
     const pts = totalPts.toLocaleString();
     game.bigBanner = shieldTriggered
       ? `🧤 SHIELD RICOCHET GOAL! +${pts}`
+      : fx.power || p.hasRocket
+      ? `🔥 ROCKET FIREBALL BURNS NET! +${pts}`
       : b.postIn
       ? `💥 OFF THE POST AND IN! +${pts}`
       : fx.gold
@@ -1245,7 +1277,7 @@ function onBallReachGoal(endScreenX, endScreenY) {
       : b.hitBullseye
       ? `⭐ 2x BULLSEYE TOP BINS! +${pts}`
       : `⚽ GOOOOL! +${pts}`;
-    game.bigBannerColor = shieldTriggered || b.hitBullseye || fx.gold ? "#ffb800" : "#a8ff00";
+    game.bigBannerColor = fx.power || p.hasRocket ? "#ff3b00" : (shieldTriggered || b.hitBullseye || fx.gold ? "#ffb800" : "#a8ff00");
 
     audio.playGoalCheer();
     spawnSparks(endScreenX, endScreenY, "#a8ff00", 55);
@@ -1545,7 +1577,7 @@ function initFullscreenStadiumCanvas() {
     const goalLeft = cx - goalW / 2;
     const goalRight = cx + goalW / 2;
     const spotX = cx;
-    const spotY = isPortrait ? Math.min(H * 0.80, H - 105) : Math.min(H * 0.84, H - 95);
+    const spotY = isPortrait ? Math.min(H * 0.73, H - 148) : Math.min(H * 0.74, H - 128);
 
     return { cx, horizonY, goalW, goalH, goalLeft, goalRight, goalTop, goalBottom, spotX, spotY };
   }
@@ -1683,20 +1715,23 @@ function initFullscreenStadiumCanvas() {
       game.swayY = 0;
     }
 
-    // Update Articulated Goalkeeper Position
+    // Update Articulated Goalkeeper Position (Slows down to 25% when Frozen)
+    const isKeeperFrozen = !!(fx.freeze || game.armed.freeze);
+    const keeperSpeedMul = isKeeperFrozen ? 0.25 : 1.0;
     if (game.phase === "aim" || game.phase === "charging") {
-      game.keeper.nx = Math.sin(Date.now() * 0.0045) * 0.18;
-      game.keeper.ny = Math.abs(Math.cos(Date.now() * 0.009)) * 0.05;
-      game.keeper.bodyAngle = Math.sin(Date.now() * 0.0045) * 0.08;
-      game.keeper.armReach = 0.25 + Math.sin(Date.now() * 0.008) * 0.1;
+      game.keeper.nx = Math.sin(Date.now() * 0.0045 * keeperSpeedMul) * (0.18 * (isKeeperFrozen ? 0.35 : 1.0));
+      game.keeper.ny = Math.abs(Math.cos(Date.now() * 0.009 * keeperSpeedMul)) * (0.05 * (isKeeperFrozen ? 0.35 : 1.0));
+      game.keeper.bodyAngle = Math.sin(Date.now() * 0.0045 * keeperSpeedMul) * (0.08 * (isKeeperFrozen ? 0.3 : 1.0));
+      game.keeper.armReach = (0.25 + Math.sin(Date.now() * 0.008 * keeperSpeedMul) * 0.1) * (isKeeperFrozen ? 0.35 : 1.0);
     } else {
-      game.keeper.nx += (game.keeper.targetNx - game.keeper.nx) * 0.22;
-      game.keeper.ny += (game.keeper.targetNy - game.keeper.ny) * 0.22;
-      game.keeper.bodyAngle += (game.keeper.targetAngle - game.keeper.bodyAngle) * 0.22;
+      game.keeper.nx += (game.keeper.targetNx - game.keeper.nx) * (0.22 * keeperSpeedMul);
+      game.keeper.ny += (game.keeper.targetNy - game.keeper.ny) * (0.22 * keeperSpeedMul);
+      game.keeper.bodyAngle += (game.keeper.targetAngle - game.keeper.bodyAngle) * (0.22 * keeperSpeedMul);
     }
 
     if (game.strikerLunge > 0.1) game.strikerLunge *= 0.85;
     if (game.netRipple > 0.01) game.netRipple *= 0.91;
+    if (game.netFire > 0.01) game.netFire *= 0.955;
 
     ctx.save();
     if (game.shake > 0.2) {
@@ -1764,7 +1799,7 @@ function initFullscreenStadiumCanvas() {
       g.horizonY + 6
     );
 
-    // 2. 3D PERSPECTIVE TURF PITCH
+    // 2. 3D PERSPECTIVE TURF PITCH & AUTHENTIC FOOTBALL FIELD MARKINGS
     const turfGrad = ctx.createLinearGradient(0, g.horizonY + 16, 0, H);
     turfGrad.addColorStop(0, "#0c2e19");
     turfGrad.addColorStop(0.45, "#113d22");
@@ -1772,29 +1807,101 @@ function initFullscreenStadiumCanvas() {
     ctx.fillStyle = turfGrad;
     ctx.fillRect(0, g.horizonY + 16, W, H - g.horizonY);
 
-    // Perspective Mowed Stripes
-    for (let i = -5; i <= 5; i++) {
+    // Dynamic 3D perspective projection for football pitch:
+    // xM: meters from pitch center (-3.66m = left post, +3.66m = right post)
+    // zM: meters from goal line (0 = goal line, 5.5 = 6-yd box, 11 = penalty spot, 16.5 = 18-yd box)
+    function pitchProj(xM, zM) {
+      const zNorm = Math.max(0, zM / 11.0);
+      const y = g.goalBottom + (g.spotY - g.goalBottom) * Math.pow(zNorm, 0.92);
+      const scale = 1.0 + zNorm * 0.72;
+      const meterPx = (g.goalW / 7.32) * scale;
+      const x = g.cx + xM * meterPx;
+      return { x, y, scale };
+    }
+
+    // Perspective Mowed Alternating Turf Stripes
+    for (let i = -7; i <= 7; i++) {
       if (i % 2 === 0) continue;
-      ctx.fillStyle = "rgba(168, 255, 0, 0.032)";
+      const pTL = pitchProj(i * 3.66, 0);
+      const pTR = pitchProj((i + 1) * 3.66, 0);
+      const pBR = pitchProj((i + 1) * 3.66, 22);
+      const pBL = pitchProj(i * 3.66, 22);
+
+      ctx.fillStyle = "rgba(168, 255, 0, 0.028)";
       ctx.beginPath();
-      ctx.moveTo(g.cx + i * (g.goalW * 0.14), g.horizonY + 16);
-      ctx.lineTo(g.cx + (i + 1) * (g.goalW * 0.14), g.horizonY + 16);
-      ctx.lineTo(g.cx + (i + 1) * (g.goalW * 0.38), H);
-      ctx.lineTo(g.cx + i * (g.goalW * 0.38), H);
+      ctx.moveTo(pTL.x, pTL.y);
+      ctx.lineTo(pTR.x, pTR.y);
+      ctx.lineTo(pBR.x, pBR.y);
+      ctx.lineTo(pBL.x, pBL.y);
       ctx.closePath();
       ctx.fill();
     }
 
-    // Perspective Penalty Box Lines
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.28)";
+    // AUTHENTIC FOOTBALL PITCH CHALK MARKINGS
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.38)";
     ctx.lineWidth = 2.5;
+
+    // A. Goal Line (Gólvonal - across pitch)
+    const glL = pitchProj(-28, 0);
+    const glR = pitchProj(28, 0);
     ctx.beginPath();
-    ctx.moveTo(g.goalLeft - 110, g.goalBottom);
-    ctx.lineTo(g.goalLeft - 340, H);
-    ctx.moveTo(g.goalRight + 110, g.goalBottom);
-    ctx.lineTo(g.goalRight + 340, H);
-    ctx.moveTo(0, g.goalBottom);
-    ctx.lineTo(W, g.goalBottom);
+    ctx.moveTo(glL.x, glL.y);
+    ctx.lineTo(glR.x, glR.y);
+    ctx.stroke();
+
+    // B. 6-Yard Box / Goal Area (Ötös: 5.5m deep, 18.32m wide = ±9.16m)
+    const b6TL = pitchProj(-9.16, 0);
+    const b6TR = pitchProj(9.16, 0);
+    const b6BL = pitchProj(-9.16, 5.5);
+    const b6BR = pitchProj(9.16, 5.5);
+
+    ctx.beginPath();
+    ctx.moveTo(b6TL.x, b6TL.y);
+    ctx.lineTo(b6BL.x, b6BL.y);
+    ctx.lineTo(b6BR.x, b6BR.y);
+    ctx.lineTo(b6TR.x, b6TR.y);
+    ctx.stroke();
+
+    // C. 18-Yard Box / Penalty Area (Tizenhatos: 16.5m deep, 40.32m wide = ±20.16m)
+    const b18TL = pitchProj(-20.16, 0);
+    const b18TR = pitchProj(20.16, 0);
+    const b18BL = pitchProj(-20.16, 16.5);
+    const b18BR = pitchProj(20.16, 16.5);
+
+    ctx.beginPath();
+    ctx.moveTo(b18TL.x, b18TL.y);
+    ctx.lineTo(b18BL.x, b18BL.y);
+    ctx.lineTo(b18BR.x, b18BR.y);
+    ctx.lineTo(b18TR.x, b18TR.y);
+    ctx.stroke();
+
+    // D. Penalty Arc (Körív / D-arc: 9.15m circle centered at penalty spot (0, 11.0m))
+    // Standard rule: arc exists strictly outside the 18-yard box (z >= 16.5m)
+    const arcRadius = 9.15;
+    const maxTheta = Math.acos(5.5 / arcRadius); // ~0.925 radians (53 deg)
+    ctx.beginPath();
+    for (let th = -maxTheta; th <= maxTheta + 0.01; th += 0.05) {
+      const xm = arcRadius * Math.sin(th);
+      const zm = 11.0 + arcRadius * Math.cos(th);
+      const pt = pitchProj(xm, zm);
+      if (th === -maxTheta) ctx.moveTo(pt.x, pt.y);
+      else ctx.lineTo(pt.x, pt.y);
+    }
+    ctx.stroke();
+
+    // E. Penalty Spot Dot (11-es pont: 11.0m from goal line, center of pitch)
+    const spotPt = pitchProj(0, 11.0);
+    ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+    ctx.beginPath();
+    ctx.ellipse(spotPt.x, spotPt.y + 2, 7, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.ellipse(spotPt.x, spotPt.y, 6.5, 3.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.lineWidth = 1.2;
     ctx.stroke();
 
     // 3. 3D GOAL WITH DEPTH STANCHIONS & REACTIVE SPRING NET
@@ -1870,6 +1977,58 @@ function initFullscreenStadiumCanvas() {
       ctx.stroke();
     }
 
+    // Render Charred Burning Net Hole from Rocket Fireball ("tüzes labda égesse ki a hálót")
+    if (game.netFire > 0.01) {
+      const nf = game.netFire;
+      const nfx = game.netImpactX || g.cx;
+      const nfy = game.netImpactY || (g.goalTop + g.goalH * 0.4);
+
+      ctx.save();
+      // 1. Scorch Burn Hole
+      const burnGrad = ctx.createRadialGradient(nfx, nfy, 4, nfx, nfy, 65);
+      burnGrad.addColorStop(0, `rgba(10, 4, 2, ${nf * 0.95})`);
+      burnGrad.addColorStop(0.4, `rgba(45, 12, 3, ${nf * 0.8})`);
+      burnGrad.addColorStop(0.7, `rgba(255, 60, 0, ${nf * 0.6})`);
+      burnGrad.addColorStop(1, "rgba(255, 180, 0, 0)");
+      ctx.fillStyle = burnGrad;
+      ctx.beginPath();
+      ctx.ellipse(nfx, nfy, 58, 38, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 2. Burning Net Ropes & Embers
+      ctx.strokeStyle = `rgba(255, 120, 0, ${nf})`;
+      ctx.lineWidth = 3.5;
+      ctx.shadowColor = "#ff3b00";
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      for (let a = 0; a < Math.PI * 2; a += Math.PI / 4) {
+        const rx = Math.cos(a) * (34 + Math.sin(Date.now() * 0.02 + a) * 8);
+        const ry = Math.sin(a) * (22 + Math.cos(Date.now() * 0.02 + a) * 6);
+        ctx.moveTo(nfx, nfy);
+        ctx.lineTo(nfx + rx, nfy + ry);
+      }
+      ctx.stroke();
+
+      // 3. Flame Tongues Licking Upwards
+      for (let f = 0; f < 5; f++) {
+        const fxOff = (f - 2) * 15;
+        const fHeight = (26 + Math.sin(Date.now() * 0.03 + f) * 12) * nf;
+        const fGrad = ctx.createLinearGradient(nfx + fxOff, nfy, nfx + fxOff, nfy - fHeight);
+        fGrad.addColorStop(0, `rgba(255, 255, 255, ${nf * 0.9})`);
+        fGrad.addColorStop(0.3, `rgba(255, 184, 0, ${nf * 0.85})`);
+        fGrad.addColorStop(0.8, `rgba(255, 59, 0, ${nf * 0.7})`);
+        fGrad.addColorStop(1, "rgba(255, 0, 0, 0)");
+        ctx.fillStyle = fGrad;
+        ctx.beginPath();
+        ctx.moveTo(nfx + fxOff - 8, nfy);
+        ctx.quadraticCurveTo(nfx + fxOff, nfy - fHeight * 0.6, nfx + fxOff, nfy - fHeight);
+        ctx.quadraticCurveTo(nfx + fxOff, nfy - fHeight * 0.6, nfx + fxOff + 8, nfy);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
     // Front Goalposts & Crossbar
     ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 8;
@@ -1924,28 +2083,10 @@ function initFullscreenStadiumCanvas() {
       ctx.restore();
     }
 
-    // Frost aura on keeper if KEEPER FREEZE skill is active
-    if (fx.freeze) {
-      ctx.save();
-      ctx.strokeStyle = "rgba(103, 232, 249, 0.85)";
-      ctx.fillStyle = "rgba(103, 232, 249, 0.16)";
-      ctx.lineWidth = 2.5;
-      ctx.setLineDash([4, 4]);
-      ctx.beginPath();
-      ctx.arc(kx, ky - 30, 52, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-      ctx.fillStyle = "#67e8f9";
-      ctx.font = "800 11px 'JetBrains Mono', monospace";
-      ctx.textAlign = "center";
-      ctx.fillText("🧊 FROZEN (-45%)", kx, ky - 90);
-      ctx.restore();
-    }
-
     // 6. ARTICULATED GOALKEEPER ATHLETE + REAL GOALKEEPER-cb9e3e NFT HOLOGRAM
     const kx = g.cx + game.keeper.nx * (g.goalW * 0.44);
     const ky = g.goalBottom - 44 - game.keeper.ny * (g.goalH * 0.62);
-    drawArticulatedGoalkeeper(ctx, kx, ky, game.keeper.bodyAngle, game.keeper.armReach);
+    drawArticulatedGoalkeeper(ctx, kx, ky, game.keeper.bodyAngle, game.keeper.armReach, isKeeperFrozen);
 
     // 7. LIVE 3D CURVED LASER TRAJECTORY & CROSSHAIR (When Aiming or Charging)
     const curAimNx = game.aimNx + game.swayX;
@@ -2010,13 +2151,14 @@ function initFullscreenStadiumCanvas() {
       ctx.restore();
     }
 
-    // 8. FOREGROUND 3D STRIKER NFT HOLOGRAM ON PITCH
-    drawPitchStrikerHologram(ctx, g.spotX - 135 + game.strikerLunge, g.spotY - 28 - game.strikerLunge * 0.4);
+    // 8. FOREGROUND 3D STRIKER NFT HOLOGRAM ON PITCH (Never overlaps ball or skills dock)
+    const strikerOffsetX = (H > W) ? Math.min(130, W * 0.30) : 135;
+    drawPitchStrikerHologram(ctx, g.spotX - strikerOffsetX + game.strikerLunge, g.spotY - 28 - game.strikerLunge * 0.4);
 
-    // 9. PENALTY SPOT, RADIAL POWER CHARGE RING, & FLYING ROCKET BALL
-    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+    // 9. RADIAL POWER CHARGE RING, & FLYING ROCKET BALL
+    ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
     ctx.beginPath();
-    ctx.ellipse(g.spotX, g.spotY + 12, 18, 6, 0, 0, Math.PI * 2);
+    ctx.ellipse(g.spotX, g.spotY + 10, 16, 5, 0, 0, Math.PI * 2);
     ctx.fill();
 
     if (game.phase === "charging" && game.isCharging) {
@@ -2064,16 +2206,30 @@ function initFullscreenStadiumCanvas() {
       const by = iu * iu * g.spotY + 2 * iu * u * ctrlY + u * u * endY;
       const rad = 30 * (1 - u * 0.48);
 
-      // Trail Sparks
-      game.particles.push({
-        x: bx + (Math.random() - 0.5) * 8,
-        y: by + (Math.random() - 0.5) * 8,
-        vx: (Math.random() - 0.5) * 1.5,
-        vy: 1 + Math.random() * 2,
-        r: 3 + Math.random() * 4.5,
-        color: b.isSweet || p.hasRocket || fx.power ? "#ff5500" : (fx.curve ? "#c084fc" : (fx.gold ? "#ffb800" : "#a8ff00")),
-        alpha: 0.9
-      });
+      // Rocket Fireball Flames & Sparks
+      if (b.isSweet || p.hasRocket || fx.power) {
+        for (let k = 0; k < 3; k++) {
+          game.particles.push({
+            x: bx + (Math.random() - 0.5) * 12,
+            y: by + (Math.random() - 0.5) * 12 + 6,
+            vx: (Math.random() - 0.5) * 2.5,
+            vy: 2 + Math.random() * 4,
+            r: 4 + Math.random() * 6,
+            color: Math.random() < 0.4 ? "#ffffff" : (Math.random() < 0.7 ? "#ffb800" : "#ff3b00"),
+            alpha: 1.0
+          });
+        }
+      } else {
+        game.particles.push({
+          x: bx + (Math.random() - 0.5) * 8,
+          y: by + (Math.random() - 0.5) * 8,
+          vx: (Math.random() - 0.5) * 1.5,
+          vy: 1 + Math.random() * 2,
+          r: 3 + Math.random() * 4.5,
+          color: fx.curve ? "#c084fc" : (fx.gold ? "#ffb800" : "#a8ff00"),
+          alpha: 0.9
+        });
+      }
 
       drawBallSprite(ctx, bx, by, rad, u * 18);
       if (b.isTwin) {
@@ -2149,6 +2305,42 @@ function initFullscreenStadiumCanvas() {
       ctx.restore();
     }
 
+    // 13. ENHANCED ATMOSPHERE SCREEN EDGE AURA FOR ACTIVE / ARMED SUPER SKILLS
+    const activeSkillType = fx.power || game.armed.power ? "power"
+      : fx.freeze || game.armed.freeze ? "freeze"
+      : fx.gold || game.armed.gold ? "gold"
+      : fx.curve || game.armed.curve ? "curve"
+      : fx.steady || game.armed.steady ? "steady"
+      : null;
+
+    if (activeSkillType) {
+      ctx.save();
+      const auraColor = activeSkillType === "power" ? "rgba(255, 60, 0, 0.22)"
+        : activeSkillType === "freeze" ? "rgba(56, 189, 248, 0.24)"
+        : activeSkillType === "gold" ? "rgba(255, 184, 0, 0.22)"
+        : activeSkillType === "curve" ? "rgba(192, 132, 252, 0.22)"
+        : "rgba(168, 255, 0, 0.20)";
+
+      const pulseAura = 0.72 + Math.sin(Date.now() * 0.007) * 0.28;
+      const edgeVignette = ctx.createRadialGradient(
+        W * 0.5, H * 0.5, Math.min(W, H) * 0.35,
+        W * 0.5, H * 0.5, Math.max(W, H) * 0.75
+      );
+      edgeVignette.addColorStop(0, "rgba(0, 0, 0, 0)");
+      edgeVignette.addColorStop(1, auraColor.replace(/[\d\.]+\)$/, `${0.32 * pulseAura})`));
+      ctx.fillStyle = edgeVignette;
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.strokeStyle = activeSkillType === "power" ? "#ff5500"
+        : activeSkillType === "freeze" ? "#38bdf8"
+        : activeSkillType === "gold" ? "#ffb800"
+        : activeSkillType === "curve" ? "#c084fc"
+        : "#a8ff00";
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(3, 3, W - 6, H - 6);
+      ctx.restore();
+    }
+
     ctx.restore();
     requestAnimationFrame(renderFrame);
   }
@@ -2157,7 +2349,7 @@ function initFullscreenStadiumCanvas() {
 }
 
 // Pro Articulated Vector Goalkeeper + Real GOALKEEPER-cb9e3e NFT Crest
-function drawArticulatedGoalkeeper(ctx, x, y, angle, armReach) {
+function drawArticulatedGoalkeeper(ctx, x, y, angle, armReach, isFrozen = false) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(angle);
@@ -2234,6 +2426,95 @@ function drawArticulatedGoalkeeper(ctx, x, y, angle, armReach) {
   ctx.font = "800 9px 'JetBrains Mono', monospace";
   ctx.textAlign = "center";
   ctx.fillText(`#${activeKeeper.jersey || "51"}`, 0, -40);
+
+  // 3D TRANSLUCENT ICE CUBE ENCLOSING KEEPER ("jégkocka fagyassza le a kapust s lassan mozogjon")
+  if (isFrozen) {
+    ctx.save();
+    ctx.translate((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2);
+
+    const bw = 96;
+    const bh = 114;
+    const bTop = -68;
+    const bLeft = -bw / 2;
+
+    // Glowing ice cube
+    ctx.shadowColor = "rgba(56, 189, 248, 0.9)";
+    ctx.shadowBlur = 24;
+    const iceGrad = ctx.createLinearGradient(bLeft, bTop, bLeft + bw, bTop + bh);
+    iceGrad.addColorStop(0, "rgba(224, 250, 255, 0.70)");
+    iceGrad.addColorStop(0.35, "rgba(125, 230, 250, 0.50)");
+    iceGrad.addColorStop(0.7, "rgba(56, 189, 248, 0.42)");
+    iceGrad.addColorStop(1, "rgba(14, 116, 144, 0.60)");
+    ctx.fillStyle = iceGrad;
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(bLeft, bTop, bw, bh, 10);
+    ctx.fill();
+    ctx.stroke();
+
+    // 3D top bevel
+    ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
+    ctx.beginPath();
+    ctx.moveTo(bLeft, bTop);
+    ctx.lineTo(bLeft + 14, bTop - 12);
+    ctx.lineTo(bLeft + bw + 14, bTop - 12);
+    ctx.lineTo(bLeft + bw, bTop);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+    ctx.stroke();
+
+    // 3D right bevel
+    ctx.fillStyle = "rgba(56, 189, 248, 0.45)";
+    ctx.beginPath();
+    ctx.moveTo(bLeft + bw, bTop);
+    ctx.lineTo(bLeft + bw + 14, bTop - 12);
+    ctx.lineTo(bLeft + bw + 14, bTop + bh - 12);
+    ctx.lineTo(bLeft + bw, bTop + bh);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Ice crystal cracks & facets
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(bLeft + 16, bTop + 24);
+    ctx.lineTo(bLeft + 38, bTop + 50);
+    ctx.lineTo(bLeft + 28, bTop + 80);
+    ctx.moveTo(bLeft + 38, bTop + 50);
+    ctx.lineTo(bLeft + 68, bTop + 56);
+    ctx.lineTo(bLeft + 78, bTop + 92);
+    ctx.stroke();
+
+    // Icicles dripping from bottom of ice cube
+    ctx.fillStyle = "rgba(224, 250, 255, 0.85)";
+    [-32, -14, 6, 24].forEach((ix, i) => {
+      const iLen = 12 + (i % 3) * 6;
+      ctx.beginPath();
+      ctx.moveTo(ix - 5, bTop + bh);
+      ctx.lineTo(ix + 5, bTop + bh);
+      ctx.lineTo(ix, bTop + bh + iLen);
+      ctx.closePath();
+      ctx.fill();
+    });
+
+    // Frozen status badge
+    ctx.fillStyle = "rgba(4, 20, 28, 0.9)";
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(-65, bTop - 36, 130, 20, 6);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#38bdf8";
+    ctx.font = "800 10px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("🧊 FROZEN (25% SPEED)", 0, bTop - 22);
+
+    ctx.restore();
+  }
 
   ctx.restore();
 }
@@ -2330,7 +2611,9 @@ function amountToHex(amountFloat, decimals = 18) {
   return hex;
 }
 
-function showToast(html, url = "") {
+let toastTimeoutId = null;
+
+function showToast(html, url = "", duration = 4000) {
   const t = document.getElementById("tx-toast");
   const txt = document.getElementById("tx-toast-text");
   const lnk = document.getElementById("tx-toast-link");
@@ -2345,6 +2628,17 @@ function showToast(html, url = "") {
     }
   }
   t.classList.remove("hidden");
+
+  if (toastTimeoutId) {
+    clearTimeout(toastTimeoutId);
+    toastTimeoutId = null;
+  }
+  if (duration > 0) {
+    toastTimeoutId = setTimeout(() => {
+      t.classList.add("hidden");
+      toastTimeoutId = null;
+    }, duration);
+  }
 }
 
 function getCallbackUrl() {
@@ -2547,10 +2841,9 @@ function disconnectWallet() {
     ownedNfts: []
   };
 
-  game.phase = "start";
+  setStartScreenState(true);
   document.getElementById("intro-cinematic-overlay")?.classList.add("hidden");
   document.getElementById("summary-screen-overlay")?.classList.add("hidden");
-  document.getElementById("start-screen-overlay")?.classList.remove("hidden");
   updateStrikerCardAssets(0);
   refreshHudUI();
 }
@@ -2572,6 +2865,8 @@ async function fetchWalletNftsAndBalance(address) {
       const a = await accRes.json();
       walletState.nonce = Number(a.nonce || 0);
       walletState.shard = Number(a.shard || 0);
+      walletState.username = a.username || "";
+      walletState.herotag = a.herotag || a.username || "";
     }
     walletState.efooBalance = 0;
     if (tokRes.ok) {
@@ -2996,10 +3291,11 @@ async function checkUrlWalletCallbacks() {
 }
 
 function applyLang(lang) {
-  currentLang = lang === "ro" ? "ro" : "en";
+  currentLang = (lang === "hu" || lang === "ro") ? lang : "en";
   localStorage.setItem("efoo_lang", currentLang);
-  document.getElementById("lang-label").textContent = currentLang.toUpperCase();
-  const dict = I18N_GAME[currentLang];
+  const langLabel = document.getElementById("lang-label");
+  if (langLabel) langLabel.textContent = currentLang.toUpperCase();
+  const dict = I18N_GAME[currentLang] || I18N_GAME.en;
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const k = el.getAttribute("data-i18n");
     if (dict[k]) el.innerHTML = dict[k];
@@ -3274,21 +3570,62 @@ function closeSkillsShopModal() {
   document.getElementById("skills-shop-modal-overlay")?.classList.add("hidden");
 }
 
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+const FUNNY_FOOTBALL_NICKNAMES = [
+  "Sunday Beer-Belly Striker",
+  "Shin-Pad Slasher",
+  "Benchwarmer Pro",
+  "Panenka Misser",
+  "Crossbar Magnet",
+  "Turf Diver #9",
+  "Corner Flag Hugger",
+  "Halfway Line Cannon",
+  "Golden Mud Cleat",
+  "Offside King",
+  "Waterboy Legend",
+  "Sunday League Maestro"
+];
+
+function getDeterministicFootballNickname(address) {
+  if (!address) return "Sunday League Striker";
+  let hash = 0;
+  for (let i = 0; i < address.length; i++) {
+    hash = (hash * 31 + address.charCodeAt(i)) >>> 0;
+  }
+  return FUNNY_FOOTBALL_NICKNAMES[hash % FUNNY_FOOTBALL_NICKNAMES.length];
+}
+
 const DEFAULT_LEADERBOARD = [
-  { rank: 1, address: "erd1s8k2...9m3f", name: "DegenStriker #99", level: 20, goals: 5, score: 74200, date: "Today" },
-  { rank: 2, address: "erd1p7x9...2b11", name: "ElrondPelé #619", level: 19, goals: 5, score: 68500, date: "Today" },
-  { rank: 3, address: "erd1q3m4...8w50", name: "TopBinsDegen #07", level: 18, goals: 4, score: 59300, date: "Today" },
-  { rank: 4, address: "erd1l0v3...4k82", name: "GigaGoat #10", level: 16, goals: 4, score: 51200, date: "Yesterday" },
-  { rank: 5, address: "erd1k9w2...6y19", name: "RocketToe #42", level: 15, goals: 4, score: 46800, date: "Yesterday" },
-  { rank: 6, address: "erd1x4c8...1q77", name: "PhantomKeeper #01", level: 14, goals: 3, score: 41000, date: "2 days ago" },
-  { rank: 7, address: "erd1m5n6...3e99", name: "BananaCurver #88", level: 12, goals: 3, score: 35400, date: "2 days ago" },
-  { rank: 8, address: "erd1h2j3...7r44", name: "SundayLegend #23", level: 10, goals: 3, score: 29800, date: "3 days ago" }
+  { rank: 1, address: "erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq", herotag: "@hlnagy", level: 20, goals: 5, score: 74200, date: "Today" },
+  { rank: 2, address: "erd1k8w7y5ftg2uax8v8ng8p5azjw96zzfgky9v3fydtpe2xwdz0007q3hl9z8", herotag: "", level: 19, goals: 5, score: 68500, date: "Today" },
+  { rank: 3, address: "erd1zs55shr6trx5em9t60pnzwjdaak8atk0dpxzkuq7n4h4r4ejmthqjp6g44", herotag: "", level: 18, goals: 4, score: 59300, date: "Today" },
+  { rank: 4, address: "erd1uaw4x3kretddfqx79qvvta9l29sdq7ad6lygavgynlq5mc52w0hqfzczm7", herotag: "@augustintr", level: 16, goals: 4, score: 51200, date: "Yesterday" },
+  { rank: 5, address: "erd1qzm0h502r4x9uslqhfdjxrkmrwtq5qtle57queakzz6majydu3nswj6shc", herotag: "@digitalmoney", level: 15, goals: 4, score: 46800, date: "Yesterday" },
+  { rank: 6, address: "erd1q4rrqj2fragmkz7x2jgpqy7svsunwd33hkl69v7h62nlwum9qunq3pllj3", herotag: "@janhunedoara", level: 14, goals: 3, score: 41000, date: "2 days ago" },
+  { rank: 7, address: "erd1370z0cuvpn6826ffqg86n438a29r54f8m6940a4g322u7eeyzru87vkj", herotag: "", level: 13, goals: 3, score: 38200, date: "2 days ago" },
+  { rank: 8, address: "erd14zpeqacvvt8mlyrqudcv0c9r9d28s7q4350h7602xwt8r3j3wzjlx6pj", herotag: "@chuckszilard", level: 12, goals: 3, score: 35400, date: "2 days ago" },
+  { rank: 9, address: "erd136yy3cseqx6e0m8n8a54n8a385f096l863r3t700k7t9y3q36mtrv8", herotag: "@souleymaz", level: 11, goals: 3, score: 32600, date: "3 days ago" },
+  { rank: 10, address: "erd14a9dmrpqf2x33x5k68p6z3x7v0w987y6q5r423a2b1c0d9e8788zrk", herotag: "@quantumarun", level: 10, goals: 3, score: 29800, date: "3 days ago" }
 ];
 
 function getLeaderboard() {
   try {
     const raw = localStorage.getItem(STORAGE_LEADERBOARD);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].address && !parsed[0].name?.includes("Pelé") && !parsed[0].name?.includes("DegenStriker")) {
+        return parsed;
+      }
+    }
   } catch (e) {}
   try {
     localStorage.setItem(STORAGE_LEADERBOARD, JSON.stringify(DEFAULT_LEADERBOARD));
@@ -3299,17 +3636,26 @@ function getLeaderboard() {
 function recordMatchToLeaderboard(score, goals, level) {
   if (score <= 0) return null;
   const list = getLeaderboard();
-  const playerAddr = connectedAddress ? shortErd(connectedAddress) : "You (Striker)";
-  const playerName = connectedAddress ? `Striker #${connectedAddress.slice(-4)}` : "You (Striker)";
+  const playerAddr = connectedAddress || "erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq";
+
+  let herotag = "";
+  const rawTag = walletState.herotag || walletState.username || "";
+  if (rawTag) {
+    const clean = rawTag.replace(/\.elrond$/, "");
+    herotag = clean.startsWith("@") ? clean : `@${clean}`;
+  }
+
   const entry = {
     rank: 0,
     address: playerAddr,
-    name: playerName,
+    herotag: herotag,
+    nickname: herotag ? "" : getDeterministicFootballNickname(playerAddr),
     level,
     goals,
     score,
     date: "Just now"
   };
+
   list.push(entry);
   list.sort((a, b) => b.score - a.score);
   list.forEach((item, idx) => {
@@ -3331,9 +3677,18 @@ function renderLeaderboardModal() {
 
   list.forEach((row) => {
     const tr = document.createElement("tr");
+    const isHero = !!(row.herotag && row.herotag.trim().length > 0);
+    const shortAddr = shortErd(row.address);
+    const displayName = isHero
+      ? `<strong class="herotag-name" style="color:#a8ff00; text-shadow:0 0 10px rgba(168,255,0,0.5);">${escapeHtml(row.herotag)}</strong>`
+      : `<span class="generated-nickname" style="color:#94a3b8; font-style:italic;">${escapeHtml(row.nickname || row.name || getDeterministicFootballNickname(row.address))}</span>`;
+
     tr.innerHTML = `
       <td><strong>${row.rank === 1 ? "🥇 1" : row.rank === 2 ? "🥈 2" : row.rank === 3 ? "🥉 3" : `#${row.rank}`}</strong></td>
-      <td><strong>${row.name}</strong> <small style="color:#94a3b8; font-size:0.68rem;">(${row.address})</small></td>
+      <td>
+        ${displayName}
+        <small style="color:#64748b; font-size:0.68rem; margin-left:6px;">(${shortAddr})</small>
+      </td>
       <td><span style="color:#38bdf8; font-weight:800;">LVL ${row.level}</span></td>
       <td>⚽ ${row.goals}/5</td>
       <td><strong style="color:#a8ff00;">${row.score.toLocaleString("en-US")}</strong></td>
@@ -3364,7 +3719,12 @@ function renderLevelSelectModal() {
       node.addEventListener("click", () => {
         selectLevel(l);
         document.getElementById("level-select-modal-overlay")?.classList.add("hidden");
-        showToast(`⚡ Szint kiválasztva: LEVEL ${l} (${tier.name})`);
+        const msg = currentLang === "ro"
+          ? `⚡ Nivel selectat: LEVEL ${l} (${tier.name})`
+          : (currentLang === "hu"
+              ? `⚡ Szint kiválasztva: LEVEL ${l} (${tier.name})`
+              : `⚡ Level selected: LEVEL ${l} (${tier.name})`);
+        showToast(msg);
       });
     }
     grid.appendChild(node);
@@ -3439,14 +3799,14 @@ document.addEventListener("DOMContentLoaded", () => {
   updateKeeperAssets(0);
   applyLang(currentLang);
   refreshHudUI();
+  setStartScreenState(true);
   initFullscreenStadiumCanvas();
 
   // Start, Replay & Close Summary buttons
   const closeSummaryModal = () => {
     document.getElementById("summary-screen-overlay")?.classList.add("hidden");
     if (!canPlayMatch()) {
-      game.phase = "start";
-      document.getElementById("start-screen-overlay")?.classList.remove("hidden");
+      setStartScreenState(true);
       updateEntryGateUI();
       return;
     }
@@ -3556,6 +3916,10 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = getMultiversXLoginHookUrl();
   });
   document.getElementById("tx-toast-close")?.addEventListener("click", () => {
+    if (toastTimeoutId) {
+      clearTimeout(toastTimeoutId);
+      toastTimeoutId = null;
+    }
     document.getElementById("tx-toast")?.classList.add("hidden");
   });
 
