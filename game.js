@@ -13,10 +13,10 @@ const I18N_GAME = {
     hud_no_wallet: "MIN 1M $EFOO",
     btn_connect: "CONNECT",
     hint_switch_nft: "🔄 Click to switch NFT",
-    aim_prompt: "🎯 POINT IN GOAL • HOLD & RELEASE CLICK (OR SPACE) TO CURVE & SHOOT!",
+    aim_prompt: "👆 SWIPE FROM BALL TO GOAL TO SHOOT & CURVE!",
     btn_boost: "BOOST",
-    step_1: "Aim & Hold to Curve",
-    step_2: "More NFTs = <strong>Up to 11x & Radar</strong>",
+    step_1: "Swipe from Ball to Curve",
+    step_2: "More NFTs = <strong>Up to 15x & Radar</strong>",
     step_3: "Pot: <strong>25,400,000 $EFOO</strong>",
     gate_connect_desc: "Connect your MultiversX wallet to verify your $EFOO balance & Club NFTs.",
     gate_buy_sub: "Pay 0.035 EGLD (~$0.12) for 1,000,000 $EFOO ➔ RECEIVE 1,500,000 $EFOO! (+500k from Stadium Vault)",
@@ -39,10 +39,10 @@ const I18N_GAME = {
     hud_no_wallet: "MIN. 1M $EFOO",
     btn_connect: "CSATLAKOZÁS",
     hint_switch_nft: "🔄 Kattints az NFT váltásához",
-    aim_prompt: "🎯 CÉLOZZ A KAPURA • NYOMD & ENGEDD EL A KATTINTÁST A CSAVARÁSHOZ ÉS LÖVÉSHEZ!",
+    aim_prompt: "👆 LENDÍTSD MEG A LABDÁT A KAPU FELÉ A LÖVÉSHEZ ÉS CSAVARÁSHOZ!",
     btn_boost: "BÓNUSZ",
-    step_1: "Célozz és nyomva tartva csavard",
-    step_2: "Több NFT = <strong>Akár 11x & Radar</strong>",
+    step_1: "Lendítsd meg a labdát a csavaráshoz",
+    step_2: "Több NFT = <strong>Akár 15x & Radar</strong>",
     step_3: "Nyereményalap: <strong>25 400 000 $EFOO</strong>",
     gate_connect_desc: "Csatlakoztasd a MultiversX tárcád a $EFOO egyenleg és Club NFT-k ellenőrzéséhez.",
     gate_buy_sub: "Fizess 0.035 EGLD-t (~$0.12) 1 000 000 $EFOO-ért ➔ KAPSZ 1 500 000 $EFOO-t! (+500k a Stadium Vaultból)",
@@ -65,9 +65,9 @@ const I18N_GAME = {
     hud_no_wallet: "MIN 1M $EFOO",
     btn_connect: "PORTOFEL",
     hint_switch_nft: "🔄 Click pt. alt NFT",
-    aim_prompt: "🎯 ȚINTEȘTE ÎN POARTĂ • ȚINE APĂSAT & ELIBEREAZĂ (CLICK / SPACE) PENTRU ȘUT!",
+    aim_prompt: "👆 TRAGE DE LA MINGE SPRE POARTĂ PENTRU ȘUT ȘI EFECT!",
     btn_boost: "BOOST",
-    step_1: "Țintește & Ține Apăsat",
+    step_1: "Trage spre poartă pentru efect",
     step_2: "Mai multe NFT = <strong>11x & Radar</strong>",
     step_3: "Pot: <strong>25,400,000 $EFOO</strong>",
     gate_connect_desc: "Conectează portofelul MultiversX pentru a verifica soldul $EFOO & NFT-urile.",
@@ -558,27 +558,28 @@ function getPowers() {
   let hasTwinBall = false;
 
   if (pCount >= 6) {
-    mult = 7.0;
+    mult = 10.0;
     swayMul = 0.55;
     sweetBonus = 0.06;
     hasCurve = true;
     hasRadar = true;
     hasTwinBall = true;
   } else if (pCount >= 3) {
-    mult = 4.0;
+    mult = 5.0;
     swayMul = 0.7;
     sweetBonus = 0.04;
     hasCurve = true;
     hasRadar = true;
   } else if (pCount >= 1) {
-    mult = 2.0;
+    mult = 2.5;
     swayMul = 0.85;
     sweetBonus = 0.02;
     hasCurve = true;
   }
 
-  const maxShields = kCount >= 2 ? 2 : kCount >= 1 ? 1 : 0;
-  const keeperMult = kCount >= 2 ? 4.0 : kCount >= 1 ? 2.0 : 0;
+  // 1 clutch save shield max (rebound only, never saves repeated corner camping)
+  const maxShields = kCount >= 1 ? 1 : 0;
+  const keeperMult = kCount >= 2 ? 5.0 : kCount >= 1 ? 2.5 : 0;
   const hasRocket = efoo >= MIN_EFOO_REQUIRED;
   const rocketPts = efoo >= 10000000 ? 3000 : hasRocket ? 1000 : 0;
 
@@ -635,6 +636,15 @@ const game = {
   swayY: 0,
   wind: 0, // sideways drift applied to the ball (from level 6)
   _lastT: 0,
+
+  // Swipe-to-shoot mechanic (Soccer Strike / Score! Hero style)
+  swipe: {
+    active: false,
+    pointerId: null,
+    points: [], // [{ x, y, t }]
+    startTime: 0
+  },
+  shotHistoryZones: [], // Adaptive AI pattern memory: ['top_left', 'bottom_right', ...]
 
   // Hold-to-charge state (0.0 -> 1.0)
   isCharging: false,
@@ -992,6 +1002,8 @@ function launchMatchWithIntro() {
   game.revivedThisMatch = false;
   game.levelCleared = false;
   game.shotHistory = [];
+  game.shotHistoryZones = [];
+  game.swipe = { active: false, pointerId: null, points: [], startTime: 0 };
   game.goals = 0;
   game.streak = 0;
   game.score = 0;
@@ -1037,6 +1049,7 @@ function startNextShotRound() {
   game.chargePower = 0;
   game.armed = {};
   game.activeFx = {};
+  game.swipe = { active: false, pointerId: null, points: [], startTime: 0 };
 
   const lv = getLevelParams(game.level);
   updateKeeperAssets(game.level - 1);
@@ -1066,28 +1079,80 @@ function consumeArmedSkills() {
   return fx;
 }
 
-// Decides what the shot does: the keeper only sees the ball when it is kicked and then reads it imperfectly.
-function evaluateShot(nx, ny, power, isSweet, isWeak, lv, p, fx) {
+function getShotZone(nx, ny) {
+  if (ny > 0.55) {
+    if (nx < -0.22) return "top_left";
+    if (nx > 0.22) return "top_right";
+    return "top_center";
+  } else {
+    if (nx < -0.22) return "bottom_left";
+    if (nx > 0.22) return "bottom_right";
+    return "bottom_center";
+  }
+}
+
+// Decides what the shot does: Adaptive Goalkeeper AI learns player patterns (anti-corner-camping)
+function evaluateShot(nx, ny, power, isSweet, isWeak, lv, p, fx, swipeCurve = 0) {
   const POST = 0.06;
   const keeper = game.keeper;
+  if (!game.shotHistoryZones) game.shotHistoryZones = [];
 
   const ex = clampNum(nx, -1, 1);
   const ey = clampNum(ny, 0.05, 1);
 
-  // --- Keeper decision ---
-  const commit = clampNum(lv.commitLean + (fx.freeze ? 0.25 : 0), 0, 0.95);
-  const sigma = lv.keeperSigma * p.keeperSigmaMul * (fx.curve ? 1.7 : 1) * (fx.freeze ? 1.25 : 1);
-  let tx;
-  let ty;
-  if (Math.random() < commit) {
-    // Gut feeling: dives to his favourite side regardless of the ball
-    tx = keeper.lean * (0.3 + Math.random() * 0.55);
-    ty = 0.12 + Math.random() * 0.65;
+  const zone = getShotZone(nx, ny);
+  const lastZone = game.shotHistoryZones[game.shotHistoryZones.length - 1];
+  const isRepeatZone = lastZone === zone;
+  const repeatCount = game.shotHistoryZones.filter((z) => z === zone).length;
+  game.shotHistoryZones.push(zone);
+
+  let keeperAnticipated = false;
+  let keeperWrongFooted = false;
+
+  let commit = clampNum(lv.commitLean + (fx.freeze ? 0.25 : 0), 0, 0.95);
+  let sigma = lv.keeperSigma * p.keeperSigmaMul * (fx.curve || Math.abs(swipeCurve) > 0.45 ? 1.55 : 1) * (fx.freeze ? 1.4 : 1);
+  let reach = lv.keeperReach;
+
+  let tx = 0;
+  let ty = 0.2;
+
+  // Anti-Camping: If player repeatedly shoots to the exact same zone:
+  if (isRepeatZone) {
+    keeperAnticipated = true;
+    const targetSide = zone.includes("left") ? -1 : (zone.includes("right") ? 1 : 0);
+    const targetHeight = zone.includes("top") ? 0.82 : 0.22;
+
+    if (repeatCount >= 2) {
+      // 3rd time in the same corner: keeper completely anticipates and shuts down the corner!
+      tx = targetSide * 0.92;
+      ty = targetHeight;
+      reach *= 1.7;
+      sigma *= 0.2;
+    } else {
+      // 2nd time in the same corner: keeper dives early with boost
+      tx = targetSide * 0.78;
+      ty = targetHeight;
+      reach *= 1.38;
+      sigma *= 0.45;
+    }
+  } else if (lastZone && ((lastZone.includes("left") && zone.includes("right")) || (lastZone.includes("right") && zone.includes("left")))) {
+    // WRONG-FOOTED! Player switched to the opposite side!
+    keeperWrongFooted = true;
+    const oldSide = lastZone.includes("left") ? -1 : 1;
+    tx = oldSide * (0.35 + Math.random() * 0.45);
+    ty = 0.15 + Math.random() * 0.45;
+    reach *= 0.58; // Caught diving the wrong way!
   } else {
-    // Reads the ball, with level-dependent error
-    tx = ex + randGauss() * sigma;
-    ty = ey + randGauss() * sigma * 0.8;
+    // Standard reading
+    if (Math.random() < commit) {
+      tx = keeper.lean * (0.3 + Math.random() * 0.55);
+      ty = 0.12 + Math.random() * 0.65;
+    } else {
+      tx = ex + randGauss() * sigma;
+      ty = ey + randGauss() * sigma * 0.8;
+    }
   }
+
   tx = clampNum(tx, -0.92, 0.92);
   ty = clampNum(ty, 0.06, 0.9);
 
@@ -1106,26 +1171,29 @@ function evaluateShot(nx, ny, power, isSweet, isWeak, lv, p, fx) {
     result = "bar";
   } else {
     // In the frame: can the keeper get a glove on it?
-    let reach = lv.keeperReach;
-    reach *= 1 - 0.3 * Math.abs(ex) - 0.22 * ey; // corners & top bins are far harder to reach
-    if (isWeak) reach *= 1.3; // a lame shot is easy to save
-    else if (isSweet && power > 0.72) reach *= 0.85; // a hammered shot is hard to stop
-    if (fx.power) reach *= 0.75;
-    if (fx.freeze) reach *= 0.55;
+    if (!keeperAnticipated) {
+      reach *= 1 - 0.25 * Math.abs(ex) - 0.18 * ey; // corners are harder to reach UNLESS keeper anticipated
+    }
+    if (isWeak) reach *= 1.6; // A lame weak swipe is an easy catch
+    else if (isSweet && power > 0.72) reach *= 0.82; // Hammered sweet flick beats keeper
+
+    if (fx.power) reach *= 0.72;
+    if (fx.freeze) reach *= 0.45;
+
     const d = Math.hypot(ex - tx, (ey - ty) * 1.35);
     result = d < reach ? "save" : "goal";
   }
 
   // Woodwork: the ball can bounce in
-  if ((result === "post" || result === "bar") && Math.random() < 0.4) {
+  if ((result === "post" || result === "bar") && Math.random() < 0.45) {
     result = "goal";
     postIn = true;
   }
 
-  return { result, postIn, tx, ty, ex, ey };
+  return { result, postIn, tx, ty, ex, ey, keeperAnticipated, keeperWrongFooted };
 }
 
-function releaseAndFireShot(finalPower) {
+function releaseAndFireShot(finalPower, swipeCurve = 0, customTarget = null) {
   if (!canPlayMatch()) return;
   if (game.phase !== "aim" && game.phase !== "charging") return;
   game.phase = "flight";
@@ -1136,7 +1204,12 @@ function releaseAndFireShot(finalPower) {
   const fx = consumeArmedSkills();
   game.activeFx = fx;
 
-  const power = clampNum(finalPower, 0.05, 1);
+  if (customTarget) {
+    game.aimNx = clampNum(customTarget.nx, -1.6, 1.6);
+    game.aimNy = clampNum(customTarget.ny, 0, 1.6);
+  }
+
+  const power = clampNum(finalPower, 0.15, 1);
   const sweetMin = lv.sweetMin - (p.hasRocket ? 0.03 : 0);
   const sweetMax = lv.sweetMax + p.sweetBonus + (fx.power ? 0.1 : 0);
   const isSweet = power >= sweetMin && power <= sweetMax;
@@ -1146,24 +1219,24 @@ function releaseAndFireShot(finalPower) {
   audio.playKick(isSweet);
   game.strikerLunge = 26;
 
-  // Where the ball REALLY goes = crosshair (incl. its shake) + execution error + wind + power faults
-  let nx = game.aimNx + game.swayX;
-  let ny = game.aimNy + game.swayY;
-  const errAmp = (0.012 + 0.03 * lv.t) * (isSweet ? 0.6 : 1.5);
+  // Real ball flight physics
+  let nx = game.aimNx;
+  let ny = game.aimNy;
+  const errAmp = (0.01 + 0.025 * lv.t) * (isSweet ? 0.45 : 1.25);
   nx += randGauss() * errAmp;
   ny += randGauss() * errAmp;
-  if (isWeak) ny -= (sweetMin - power) * 0.55; // under-hit: dies low
+  if (isWeak) ny -= (sweetMin - power) * 0.45;
   if (isOver) {
-    ny += (power - sweetMax) * 3.0; // over-hit: balloons up
-    nx += (Math.random() - 0.5) * (power - sweetMax) * 1.6;
+    ny += (power - sweetMax) * 2.5;
+    nx += (Math.random() - 0.5) * (power - sweetMax) * 1.4;
   }
   nx += game.wind;
   ny = Math.max(0, ny);
 
   const hitBullseye = Math.hypot(nx - game.bullseyeNx, ny - game.bullseyeNy) < 0.26;
-  const outcome = evaluateShot(nx, ny, power, isSweet, isWeak, lv, p, fx);
+  const outcome = evaluateShot(nx, ny, power, isSweet, isWeak, lv, p, fx, swipeCurve);
 
-  // Keeper's physical dive: when he saves it he gets his glove to the ball, otherwise he commits to his (wrong) target
+  // Keeper's physical dive
   const k = game.keeper;
   if (outcome.result === "save") {
     k.targetNx = outcome.tx + (outcome.ex - outcome.tx) * 0.85;
@@ -1190,19 +1263,30 @@ function releaseAndFireShot(finalPower) {
     if (typeof audio.playSkillFire === "function") audio.playSkillFire();
   }
 
-  const bendSign = nx >= 0 ? -1 : 1;
+  // Curve calculation
+  let curveIntensity = swipeCurve;
+  if (Math.abs(curveIntensity) < 0.1) {
+    const bendSign = nx >= 0 ? -1 : 1;
+    curveIntensity = (fx.curve ? 2.1 : p.hasCurve ? 1.35 : 0.4) * bendSign;
+  } else {
+    curveIntensity *= (fx.curve ? 2.0 : p.hasCurve ? 1.4 : 1.0);
+  }
+
   game.ball = {
     active: true,
     t: 0,
     aimNx: nx,
     aimNy: ny,
-    curveIntensity: (fx.curve ? 2.1 : p.hasCurve ? 1.35 : 0.55) * bendSign,
+    curveIntensity,
     isSweet,
+    isWeak,
     isTwin: isSweet && p.hasTwinBall,
     hitBullseye,
     result: outcome.result,
     postIn: outcome.postIn,
-    speed: isWeak ? 0.8 : isSweet ? 1.0 : 1.12,
+    keeperAnticipated: outcome.keeperAnticipated,
+    keeperWrongFooted: outcome.keeperWrongFooted,
+    speed: isWeak ? 0.8 : isSweet ? 1.05 : 1.15,
     fx
   };
 }
@@ -1213,11 +1297,12 @@ function onBallReachGoal(endScreenX, endScreenY) {
   const b = game.ball;
   const fx = b.fx || {};
   const isRo = currentLang === "ro";
+  const isHu = currentLang === "hu";
   let scored = b.result === "goal";
   let shieldTriggered = false;
 
-  // Goalkeeper NFT Save Shield: a saved ball deflects off the post and goes IN!
-  if (b.result === "save" && game.shieldsLeft > 0) {
+  // Goalkeeper NFT Save Shield: Only saves close deflections on active shots, NOT on weak shots or repeated corner camping!
+  if (b.result === "save" && game.shieldsLeft > 0 && !b.keeperAnticipated && !b.isWeak && Math.random() < 0.65) {
     game.shieldsLeft -= 1;
     scored = true;
     shieldTriggered = true;
@@ -1266,6 +1351,8 @@ function onBallReachGoal(endScreenX, endScreenY) {
     const pts = totalPts.toLocaleString();
     game.bigBanner = shieldTriggered
       ? `🧤 SHIELD RICOCHET GOAL! +${pts}`
+      : b.keeperWrongFooted
+      ? (isHu ? `⚡ ÁTJÁRTAD A KAPUS ESZÉT! +${pts}` : isRo ? `⚡ PĂCĂLIT! PE PICIOARE GREȘITE! +${pts}` : `⚡ WRONG-FOOTED THE KEEPER! +${pts}`)
       : fx.power || p.hasRocket
       ? `🔥 ROCKET FIREBALL BURNS NET! +${pts}`
       : b.postIn
@@ -1277,7 +1364,7 @@ function onBallReachGoal(endScreenX, endScreenY) {
       : b.hitBullseye
       ? `⭐ 2x BULLSEYE TOP BINS! +${pts}`
       : `⚽ GOOOOL! +${pts}`;
-    game.bigBannerColor = fx.power || p.hasRocket ? "#ff3b00" : (shieldTriggered || b.hitBullseye || fx.gold ? "#ffb800" : "#a8ff00");
+    game.bigBannerColor = fx.power || p.hasRocket ? "#ff3b00" : (shieldTriggered || b.hitBullseye || fx.gold || b.keeperWrongFooted ? "#ffb800" : "#a8ff00");
 
     audio.playGoalCheer();
     spawnSparks(endScreenX, endScreenY, "#a8ff00", 55);
@@ -1286,18 +1373,21 @@ function onBallReachGoal(endScreenX, endScreenY) {
     game.shotHistory.push("miss");
     game.shake = 6;
     const missText = {
-      wide: isRo ? "↗ PE LÂNGĂ POARTĂ!" : "↗ WIDE!",
-      over: isRo ? "☁️ PESTE BARĂ!" : "☁️ OVER THE BAR!",
-      post: isRo ? "💥 ÎN BARĂ!" : "💥 OFF THE POST!",
-      bar: isRo ? "💥 ÎN TRAVERSĂ!" : "💥 CROSSBAR!",
-      save: isRo ? `🧤 APĂRAT DE ${activeKeeper.name}!` : `🧤 SAVED BY ${activeKeeper.name}!`
+      wide: isHu ? "↗ MELLÉ!" : (isRo ? "↗ PE LÂNGĂ POARTĂ!" : "↗ WIDE!"),
+      over: isHu ? "☁️ FÖLÉ!" : (isRo ? "☁️ PESTE BARĂ!" : "☁️ OVER THE BAR!"),
+      post: isHu ? "💥 KAPUFA!" : (isRo ? "💥 ÎN BARĂ!" : "💥 OFF THE POST!"),
+      bar: isHu ? "💥 FELSŐLÉC!" : (isRo ? "💥 ÎN TRAVERSĂ!" : "💥 CROSSBAR!"),
+      save: b.keeperAnticipated
+        ? (isHu ? "🧤 A KAPUS KISZÁMÍTOTTA A SARKOT!" : isRo ? "🧤 A GHICIT COLȚUL!" : "🧤 KEEPER ANTICIPATED YOUR CORNER!")
+        : b.isWeak
+        ? (isHu ? "🐢 TÚL GYENGE LÖVÉS - KÖNNYŰ VÉDÉS!" : isRo ? "🐢 ȘUT PREA SLAB - PRINSĂ UȘOR!" : "🐢 TOO WEAK - EASY CATCH!")
+        : (isHu ? `🧤 ${activeKeeper.name} VÉDETT!` : isRo ? `🧤 APĂRAT DE ${activeKeeper.name}!` : `🧤 SAVED BY ${activeKeeper.name}!`)
     };
     game.bigBanner = missText[b.result] || "❌ MISS!";
     game.bigBannerColor = "#ef4444";
 
     if (b.result === "post" || b.result === "bar") audio.playPostClang();
     else if (b.result === "save") audio.playSaveBlock();
-    spawnSparks(endScreenX, endScreenY, "#ef4444", 28);
   }
 
   game.phase = "celebrate";
@@ -1582,8 +1672,10 @@ function initFullscreenStadiumCanvas() {
     return { cx, horizonY, goalW, goalH, goalLeft, goalRight, goalTop, goalBottom, spotX, spotY };
   }
 
-  // Mouse / Touch Aim & Hold-to-Shoot Handlers directly on the Canvas!
-  // The player can aim OUTSIDE the goal frame (wide / over the bar) — that's a real way to miss.
+  // ============================================================================
+  // SWIPE-TO-SHOOT ENGINE (Miniclip Soccer Strike / Score! Hero style)
+  // Replaces static click camping with physical swipe speed, direction & curve!
+  // ============================================================================
   function updateAimFromPointer(clientX, clientY) {
     const g = getStageGeom();
     const nx = (clientX - g.cx) / (g.goalW * 0.5);
@@ -1592,77 +1684,160 @@ function initFullscreenStadiumCanvas() {
     game.aimNy = Math.max(0.0, Math.min(1.55, ny));
   }
 
-  canvas.addEventListener("mousemove", (e) => {
+  function getCanvasPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    };
+  }
+
+  function onPointerDown(e) {
     if (!canPlayMatch()) return;
-    if (game.phase === "aim" || game.phase === "charging") {
-      updateAimFromPointer(e.clientX, e.clientY);
-    }
-  });
+    if (game.phase !== "aim") return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
 
-  canvas.addEventListener("mousedown", (e) => {
-    if (e.button !== 0 || !canPlayMatch()) return;
-    if (game.phase === "aim") {
-      updateAimFromPointer(e.clientX, e.clientY);
-      game.phase = "charging";
-      game.isCharging = true;
-      game.chargePower = 0.18;
-      game.chargeDir = 1;
-    }
-  });
+    const pos = getCanvasPos(e);
+    game.swipe = {
+      active: true,
+      pointerId: e.pointerId,
+      points: [{ x: pos.x, y: pos.y, t: performance.now() }],
+      startTime: performance.now()
+    };
 
-  window.addEventListener("mouseup", () => {
+    if (canvas.setPointerCapture) {
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    }
+
+    updateAimFromPointer(pos.x, pos.y);
+  }
+
+  function onPointerMove(e) {
     if (!canPlayMatch()) return;
-    if (game.phase === "charging" && game.isCharging) {
-      releaseAndFireShot(game.chargePower);
-    }
-  });
+    const pos = getCanvasPos(e);
 
-  // Touch support for Mobile / xPortal in-app WebView
-  canvas.addEventListener(
-    "touchstart",
-    (e) => {
-      if (!canPlayMatch()) return;
-      if (e.touches && e.touches[0]) {
-        if (e.cancelable) e.preventDefault();
-        updateAimFromPointer(e.touches[0].clientX, e.touches[0].clientY);
-        if (game.phase === "aim") {
-          game.phase = "charging";
-          game.isCharging = true;
-          game.chargePower = 0.22;
-          game.chargeDir = 1;
+    if (!game.swipe || !game.swipe.active || game.swipe.pointerId !== e.pointerId) {
+      if (game.phase === "aim" && e.pointerType === "mouse") {
+        updateAimFromPointer(pos.x, pos.y);
+      }
+      return;
+    }
+
+    const pts = game.swipe.points;
+    const last = pts[pts.length - 1];
+    const dist = Math.hypot(pos.x - last.x, pos.y - last.y);
+    if (dist >= 3) {
+      pts.push({ x: pos.x, y: pos.y, t: performance.now() });
+
+      // Visual spark trail while swiping
+      if (Math.random() < 0.45) {
+        const fx = game.activeFx || {};
+        const p = getPowers();
+        const col = fx.power || p.hasRocket ? "#ff3b00" : (fx.curve ? "#c084fc" : (fx.freeze ? "#67e8f9" : "#a8ff00"));
+        game.particles.push({
+          x: pos.x + (Math.random() - 0.5) * 6,
+          y: pos.y + (Math.random() - 0.5) * 6,
+          vx: (Math.random() - 0.5) * 2,
+          vy: (Math.random() - 0.5) * 2,
+          r: 2 + Math.random() * 3,
+          color: col,
+          alpha: 0.95
+        });
+      }
+
+      updateAimFromPointer(pos.x, pos.y);
+    }
+  }
+
+  function onPointerUp(e) {
+    if (!canPlayMatch()) return;
+    if (!game.swipe || !game.swipe.active || game.swipe.pointerId !== e.pointerId) return;
+
+    if (canvas.releasePointerCapture) {
+      try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+    }
+
+    game.swipe.active = false;
+    const pos = getCanvasPos(e);
+    const pts = game.swipe.points;
+    pts.push({ x: pos.x, y: pos.y, t: performance.now() });
+
+    const p0 = pts[0];
+    const pEnd = pts[pts.length - 1];
+    const totalDist = Math.hypot(pEnd.x - p0.x, pEnd.y - p0.y);
+    const dy = pEnd.y - p0.y; // negative is upwards toward goal
+
+    // Anti-camping / Anti-misclick guard:
+    // If the player just clicked without a real forward swipe (dist < 35px, or dragged downwards dy > 25px),
+    // do NOT fire! This completely stops the top-left corner spamming exploit!
+    if (totalDist < 35 || dy > 25) {
+      pts.length = 0;
+      return;
+    }
+
+    // 1. Calculate swipe velocity -> Shot Power (Speed & Intensity)
+    const dt = Math.max(35, pEnd.t - p0.t) / 1000;
+    const speed = totalDist / dt; // pixels per second
+    let shotPower = clampNum((speed - 160) / 1350, 0.20, 1.0);
+
+    // 2. Goal Aim Coordinates (aimNx, aimNy)
+    const g = getStageGeom();
+    let aimNx = 0;
+    let aimNy = 0.5;
+
+    if (pEnd.y <= g.goalBottom) {
+      aimNx = (pEnd.x - g.cx) / (g.goalW * 0.5);
+      aimNy = (g.goalBottom - pEnd.y) / g.goalH;
+    } else {
+      const strokeDy = pEnd.y - p0.y;
+      const strokeDx = pEnd.x - p0.x;
+      const distToGoalY = g.goalBottom - p0.y;
+      const rayScale = Math.min(3.2, distToGoalY / (strokeDy || -1));
+      const projX = p0.x + strokeDx * rayScale;
+      const strokeUpRatio = Math.min(1.4, Math.abs(strokeDy) / (g.spotY - g.goalBottom));
+      const projY = g.goalBottom - strokeUpRatio * g.goalH;
+      aimNx = (projX - g.cx) / (g.goalW * 0.5);
+      aimNy = (g.goalBottom - projY) / g.goalH;
+    }
+
+    aimNx = clampNum(aimNx, -1.55, 1.55);
+    aimNy = clampNum(aimNy, 0.0, 1.55);
+
+    // 3. Curve / Arc Spin (Calculated from stroke curvature / chord deviation)
+    let swipeCurve = 0;
+    const chordVx = pEnd.x - p0.x;
+    const chordVy = pEnd.y - p0.y;
+    const chordLen = Math.hypot(chordVx, chordVy);
+    if (chordLen > 30) {
+      const nx = -chordVy / chordLen;
+      const ny = chordVx / chordLen;
+      let maxDev = 0;
+      for (let i = 1; i < pts.length - 1; i++) {
+        const dev = (pts[i].x - p0.x) * nx + (pts[i].y - p0.y) * ny;
+        if (Math.abs(dev) > Math.abs(maxDev)) {
+          maxDev = dev;
         }
       }
-    },
-    { passive: false }
-  );
+      swipeCurve = clampNum(maxDev / 42, -2.0, 2.0);
+    }
 
-  canvas.addEventListener(
-    "touchmove",
-    (e) => {
-      if (!canPlayMatch()) return;
-      if (e.touches && e.touches[0]) {
-        if (e.cancelable) e.preventDefault();
-        if (game.phase === "aim" || game.phase === "charging") {
-          updateAimFromPointer(e.touches[0].clientX, e.touches[0].clientY);
-        }
-      }
-    },
-    { passive: false }
-  );
+    releaseAndFireShot(shotPower, swipeCurve, { nx: aimNx, ny: aimNy });
+    pts.length = 0;
+  }
 
-  window.addEventListener(
-    "touchend",
-    (e) => {
-      if (!canPlayMatch()) return;
-      if (game.phase === "charging" && game.isCharging) {
-        if (e.cancelable) e.preventDefault();
-        releaseAndFireShot(game.chargePower);
-      }
-    },
-    { passive: false }
-  );
+  function onPointerCancel(e) {
+    if (game.swipe && game.swipe.pointerId === e.pointerId) {
+      game.swipe.active = false;
+      game.swipe.points = [];
+    }
+  }
 
-  // Spacebar support
+  canvas.addEventListener("pointerdown", onPointerDown);
+  canvas.addEventListener("pointermove", onPointerMove);
+  window.addEventListener("pointerup", onPointerUp);
+  window.addEventListener("pointercancel", onPointerCancel);
+
+  // Spacebar support for keyboard accessibility
   window.addEventListener("keydown", (e) => {
     if (e.code === "Space" && game.phase === "aim" && canPlayMatch()) {
       e.preventDefault();
@@ -1676,7 +1851,7 @@ function initFullscreenStadiumCanvas() {
   window.addEventListener("keyup", (e) => {
     if (e.code === "Space" && game.phase === "charging" && game.isCharging && canPlayMatch()) {
       e.preventDefault();
-      releaseAndFireShot(game.chargePower);
+      releaseAndFireShot(game.chargePower, 0);
     }
   });
 
@@ -2148,6 +2323,111 @@ function initFullscreenStadiumCanvas() {
         ctx.textAlign = "center";
         ctx.fillText("🎯 STEADY", 0, -28);
       }
+      ctx.restore();
+    }
+
+    // 7B. LIVE SWIPE-TO-SHOOT TRAIL RIBBON (Drawn by player's finger or mouse)
+    if (game.phase === "aim" && game.swipe && game.swipe.active && game.swipe.points && game.swipe.points.length >= 2) {
+      const pts = game.swipe.points;
+      const p0 = pts[0];
+      const pEnd = pts[pts.length - 1];
+      const trailColor = fx.power || p.hasRocket ? "#ff3b00" : (fx.curve ? "#c084fc" : (fx.freeze ? "#67e8f9" : "#a8ff00"));
+
+      ctx.save();
+      // Outer neon aura
+      ctx.strokeStyle = trailColor;
+      ctx.lineWidth = 8;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.shadowColor = trailColor;
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length; i++) {
+        ctx.lineTo(pts[i].x, pts[i].y);
+      }
+      ctx.stroke();
+
+      // Bright inner core
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 3;
+      ctx.shadowBlur = 0;
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length; i++) {
+        ctx.lineTo(pts[i].x, pts[i].y);
+      }
+      ctx.stroke();
+
+      // Glowing tip at current touch/cursor
+      ctx.fillStyle = "#ffffff";
+      ctx.shadowColor = trailColor;
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.arc(pEnd.x, pEnd.y, 6.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Outer ring at tip
+      ctx.strokeStyle = trailColor;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(pEnd.x, pEnd.y, 11, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    } else if (game.phase === "aim" && (!game.swipe || !game.swipe.active)) {
+      // 7C. PULSING SWIPE TUTORIAL GUIDE ARROW & INSTRUCTION PILL
+      const isRo = currentLang === "ro";
+      const isHu = currentLang === "hu";
+      const guideTxt = isHu
+        ? "👆 LENDÍTSD MEG A LABDÁT A KAPU FELÉ!"
+        : (isRo ? "👆 TRAGE SPRE POARTĂ PENTRU ȘUT!" : "👆 SWIPE FROM BALL TO GOAL TO SHOOT!");
+
+      const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.0055);
+      const arrowTopY = g.spotY - 72 - pulse * 28;
+
+      ctx.save();
+      // Dashed guide beam
+      ctx.strokeStyle = `rgba(168, 255, 0, ${0.35 + pulse * 0.45})`;
+      ctx.lineWidth = 2.8;
+      ctx.setLineDash([7, 6]);
+      ctx.lineDashOffset = -Date.now() * 0.025;
+      ctx.beginPath();
+      ctx.moveTo(g.spotX, g.spotY - 22);
+      ctx.lineTo(g.spotX, arrowTopY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Arrowhead
+      ctx.fillStyle = `rgba(168, 255, 0, ${0.65 + pulse * 0.35})`;
+      ctx.shadowColor = "#a8ff00";
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.moveTo(g.spotX, arrowTopY - 10);
+      ctx.lineTo(g.spotX - 8, arrowTopY + 3);
+      ctx.lineTo(g.spotX + 8, arrowTopY + 3);
+      ctx.closePath();
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Instruction pill under the ball
+      ctx.font = "800 11px 'JetBrains Mono', monospace";
+      ctx.textAlign = "center";
+      const pillW = ctx.measureText(guideTxt).width + 30;
+      const pillY = Math.min(H - 42, g.spotY + 32);
+
+      ctx.fillStyle = "rgba(4, 12, 7, 0.88)";
+      ctx.strokeStyle = `rgba(168, 255, 0, ${0.45 + pulse * 0.5})`;
+      ctx.lineWidth = 1.3;
+      ctx.shadowColor = "rgba(168, 255, 0, 0.3)";
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.roundRect(g.spotX - pillW / 2, pillY, pillW, 26, 13);
+      ctx.fill();
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = "#a8ff00";
+      ctx.fillText(guideTxt, g.spotX, pillY + 17);
       ctx.restore();
     }
 
