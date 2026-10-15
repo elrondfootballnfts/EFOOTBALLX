@@ -42,7 +42,7 @@
       <!-- Left: Back button + TV Scorebug -->
       <div class="hud-left-group">
         <a href="index.html" class="hud-icon-btn" id="hud-exit-btn" title="Back to Main Website">
-          ⬅ <span data-i18n="btn_exit">EXIT</span>
+          ⬅ <span data-i18n="btn_exit">EXIT TO HOME</span>
         </a>
 
         <div class="tv-scorebug">
@@ -126,9 +126,9 @@
          =================================================================== -->
     <div class="hud-skills-dock" id="hud-skills-dock">
       <div class="skills-dock-header">
-        <span class="skills-dock-title">⚡ SZUPER KÉPESSÉGEK / SUPER SKILLS</span>
+        <span class="skills-dock-title">⚡ SUPER SKILLS</span>
         <button type="button" class="btn-skills-shop" id="open-skills-shop-btn">
-          🛒 KÉPESSÉG BOLT / SHOP (+)
+          🛒 SKILLS STORE (+)
         </button>
       </div>
       <div class="skills-slots-row" id="skills-slots-row">
@@ -200,6 +200,11 @@
          OVERLAY 1: GATED ARCADE START SCREEN (LOGIN + MIN 1,000,000 $EFOO)
          =================================================================== -->
     <div class="arcade-overlay" id="start-screen-overlay">
+      <div class="start-top-bar">
+        <a href="index.html" class="start-exit-btn" id="start-exit-btn" title="Back to EFOO Homepage">
+          ⬅ EXIT TO HOME
+        </a>
+      </div>
       <div class="start-hero-cards">
         <div class="sh-nft-card">
           <img id="start-striker-img" src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2FQmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb%2F9734.png&w=240&h=240&fit=cover" alt="Striker NFT" />
@@ -394,6 +399,9 @@
           <button type="button" id="btn-sum-mint" class="arcade-btn gold">
             🃏 <span data-i18n="btn_mint_nft">MINT NFT (0.08 EGLD)</span>
           </button>
+          <a href="index.html" class="arcade-btn" id="btn-sum-exit" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.2); color:#f8fafc;">
+            ⬅ EXIT TO HOME
+          </a>
         </div>
       </div>
     </div>
@@ -613,24 +621,24 @@
 
         <div style="margin-top:16px; text-align:center;">
           <button type="button" class="arcade-btn neon" id="lb-play-btn">
-            ⚽ JÁTÉK &amp; RANGLISTA MÁSZÁS
+            ⚽ PLAY &amp; CLIMB RANKS
           </button>
         </div>
       </div>
     </div>
 
     <!-- ===================================================================
-         OVERLAY 7: DAILY LOGIN STREAK REWARDS (NAPI BELÉPÉSI BÓNUSZ)
+         OVERLAY 7: DAILY LOGIN STREAK REWARDS
          =================================================================== -->
     <div class="arcade-overlay hidden" id="daily-streak-modal-overlay">
       <div class="streak-modal-card">
         <div class="modal-header-row">
           <div>
             <h2 class="modal-headline" style="color:#ffb800;">
-              🔥 NAPI BELÉPÉSI SOROZAT (DAILY STREAK)
+              🔥 DAILY LOGIN STREAK REWARDS
             </h2>
             <p class="modal-subline">
-              Lépj be minden nap sorozatban! Minden 5. napon ajándék $EFOO tokent kapsz a kasszából!
+              Log in every day! On every 5th consecutive day, claim a free 100,000 $EFOO gift from the Stadium Vault!
             </p>
           </div>
           <button type="button" class="modal-close-btn" id="close-streak-modal-btn">✕</button>
@@ -647,24 +655,24 @@
     </div>
 
     <!-- ===================================================================
-         OVERLAY 8: SUPER SKILLS STORE ($EFOO BOLT)
+         OVERLAY 8: SUPER SKILLS STORE
          =================================================================== -->
     <div class="arcade-overlay hidden" id="skills-shop-modal-overlay">
       <div class="skills-shop-modal-card">
         <div class="modal-header-row">
           <div>
             <h2 class="modal-headline" style="color:#a8ff00;">
-              ⚡ SZUPER KÉPESSÉG BOLT (SUPER SKILLS)
+              ⚡ SUPER SKILLS STORE
             </h2>
             <p class="modal-subline">
-              Vásárolj képességeket $EFOO tokenért cserébe! 50% égetve lesz on-chain, 50% a heti Jackpotba kerül.
+              Buy tactical power-ups with $EFOO! 50% is burned on-chain forever, 50% fuels the Weekly Jackpot.
             </p>
           </div>
           <button type="button" class="modal-close-btn" id="close-skills-shop-btn">✕</button>
         </div>
 
         <div class="skills-shop-balance-bar">
-          <span>EGYESÜLETI EGYENLEG:</span>
+          <span>CLUB $EFOO BALANCE:</span>
           <strong id="shop-efoo-balance">0 $EFOO</strong>
         </div>
 
@@ -675,17 +683,17 @@
     </div>
 
     <!-- ===================================================================
-         OVERLAY 9: LEVEL SELECT MODAL (SZINTVÁLASZTÓ 1 - 20)
+         OVERLAY 9: LEVEL SELECT MODAL (1 - 20)
          =================================================================== -->
     <div class="arcade-overlay hidden" id="level-select-modal-overlay">
       <div class="levels-modal-card">
         <div class="modal-header-row">
           <div>
             <h2 class="modal-headline" style="color:#38bdf8;">
-              ⚡ VÁLASSZ SZINTET / LEVEL SELECT (1 — 20)
+              ⚡ SELECT MATCH LEVEL (1 — 20)
             </h2>
             <p class="modal-subline">
-              Egyre nehezebb kapusok, gyorsabb erőmérő, célkereszt kilengés és oldalszél vár rád!
+              Challenging keepers, faster power gauge, wind shear, and sharper keeper AI await!
             </p>
           </div>
           <button type="button" class="modal-close-btn" id="close-levels-modal-btn">✕</button>

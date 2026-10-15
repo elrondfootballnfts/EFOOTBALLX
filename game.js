@@ -7,7 +7,7 @@ const VALID_WALLET_PROVIDERS = ["xportal", "extension", "webwallet"];
 
 const I18N_GAME = {
   en: {
-    btn_exit: "EXIT",
+    btn_exit: "EXIT TO HOME",
     hud_mult: "BOOST",
     hud_score: "SCORE",
     hud_no_wallet: "MIN 1M $EFOO",
@@ -33,30 +33,30 @@ const I18N_GAME = {
     btn_mint_nft: "MINT NFT (0.08 EGLD)"
   },
   hu: {
-    btn_exit: "KILÉPÉS",
+    btn_exit: "EXIT TO HOME",
     hud_mult: "BOOST",
-    hud_score: "PONTSZÁM",
+    hud_score: "SCORE",
     hud_no_wallet: "MIN 1M $EFOO",
-    btn_connect: "TÁRCA",
-    hint_switch_nft: "🔄 Kattints NFT váltáshoz",
-    aim_prompt: "🎯 CÉLOZZ A KAPURA • TARTSD NYOMVA ÉS ENGEDD EL (KLIKK / SPACE) A LÖVÉSHEZ!",
+    btn_connect: "CONNECT",
+    hint_switch_nft: "🔄 Click to switch NFT",
+    aim_prompt: "🎯 POINT IN GOAL • HOLD & RELEASE CLICK (OR SPACE) TO CURVE & SHOOT!",
     btn_boost: "BOOST",
-    step_1: "Célozz és tarts lenyomva",
-    step_2: "Több NFT = <strong>Akár 11x & Radar</strong>",
-    step_3: "Nyereményalap: <strong>25,400,000 $EFOO</strong>",
-    gate_connect_desc: "Csatlakoztasd a MultiversX tárcádat az $EFOO egyenleg és NFT-k ellenőrzéséhez.",
-    gate_buy_sub: "Fizess 0.035 EGLD-t (~$0.12) 1.000.000 $EFOO-ért ➔ KAPSZ 1.500.000 $EFOO-t! (+500k a Tartalékból)",
+    step_1: "Aim & Hold to Curve",
+    step_2: "More NFTs = <strong>Up to 11x & Radar</strong>",
+    step_3: "Pot: <strong>25,400,000 $EFOO</strong>",
+    gate_connect_desc: "Connect your MultiversX wallet to verify your $EFOO balance & Club NFTs.",
+    gate_buy_sub: "Pay 0.035 EGLD (~$0.12) for 1,000,000 $EFOO ➔ RECEIVE 1,500,000 $EFOO! (+500k from Stadium Vault)",
     btn_buy_starter: "STARTER (0.035 EGLD ➔ 1.5M)",
-    btn_buy_gate: "PRO CSOMAG (0.1 EGLD ➔ ~3M)",
-    btn_connect_to_play: "CSATLAKOZTASD A TÁRCÁD",
-    btn_play_now: "MECCS INDÍTÁSA",
-    sum_your_score: "PONTSZÁMOD",
-    sum_with_nfts: "3+ NFT-VEL & 1M $EFOO-VAL",
-    btn_play_again: "ÚJ JÁTÉK",
+    btn_buy_gate: "PRO PACK (0.1 EGLD ➔ ~3M)",
+    btn_connect_to_play: "CONNECT WALLET TO PLAY",
+    btn_play_now: "START MATCH",
+    sum_your_score: "YOUR SCORE",
+    sum_with_nfts: "WITH 3+ NFTs & 1M $EFOO",
+    btn_play_again: "PLAY AGAIN",
     btn_starter_bonus: "STARTER: 1.5M $EFOO (0.035 EGLD)",
-    btn_share_x: "MEGOSZTÁS X-EN",
-    btn_buy_3m: "3M $EFOO VÉTEL (0.1 EGLD)",
-    btn_mint_nft: "NFT MINTELÉS (0.08 EGLD)"
+    btn_share_x: "SHARE ON X",
+    btn_buy_3m: "BUY 3M $EFOO (0.1 EGLD)",
+    btn_mint_nft: "MINT NFT (0.08 EGLD)"
   },
   ro: {
     btn_exit: "IEȘIRE",
@@ -1527,15 +1527,25 @@ function initFullscreenStadiumCanvas() {
   function getStageGeom() {
     const cx = W * 0.5;
     const isPortrait = H > W;
-    const horizonY = isPortrait ? H * 0.4 : H * 0.34;
-    const goalW = isPortrait ? Math.min(W * 0.84, 460) : Math.min(W * 0.56, 640);
-    const goalH = isPortrait ? Math.min(goalW * 0.42, H * 0.22) : Math.min(H * 0.31, 245);
+
+    // Minimum top clearance so the crossbar (goalTop) is NEVER covered by the HUD menu buttons/scorebug
+    // The top HUD occupies top 10px..68px.
+    // By keeping goalTop comfortably below (min 100px - 140px), the crossbar and net are 100% visible with open clearance.
+    const minTopClearance = isPortrait
+      ? Math.max(105, Math.min(145, H * 0.16))
+      : Math.max(85, Math.min(130, H * 0.13));
+
+    const goalW = isPortrait ? Math.min(W * 0.82, 440) : Math.min(W * 0.54, 600);
+    const goalH = isPortrait ? Math.min(goalW * 0.44, H * 0.22) : Math.min(H * 0.27, 220);
+
+    const goalTop = minTopClearance + 16;
+    const goalBottom = goalTop + goalH;
+    const horizonY = goalBottom - 16;
+
     const goalLeft = cx - goalW / 2;
     const goalRight = cx + goalW / 2;
-    const goalBottom = horizonY + 18;
-    const goalTop = goalBottom - goalH;
     const spotX = cx;
-    const spotY = isPortrait ? Math.min(H * 0.79, H - 110) : H * 0.83;
+    const spotY = isPortrait ? Math.min(H * 0.80, H - 105) : Math.min(H * 0.84, H - 95);
 
     return { cx, horizonY, goalW, goalH, goalLeft, goalRight, goalTop, goalBottom, spotX, spotY };
   }
@@ -3072,7 +3082,7 @@ function claimDailyStreakReward() {
     walletState.efooBalance += 100000;
     updateHudEfooBadge();
     audio.playGoalCheer();
-    showToast("🎉 5-NAPOS AJÁNDÉK ÁTVÉVE! 100.000 $EFOO jóváírva!");
+    showToast("🎉 5-DAY STREAK CLAIMED! 100,000 $EFOO credited!");
     renderDailyStreakModal();
     refreshHudUI();
   }
@@ -3095,7 +3105,7 @@ function renderDailyStreakModal() {
       div.className = `streak-day-bubble ${isDone ? "done" : ""} ${isToday ? "today" : ""} ${isGift ? "gift" : ""}`;
       div.innerHTML = `
         <span class="sdb-icon">${isGift ? "🎁" : isDone ? "✅" : isToday ? "🔥" : "⚽"}</span>
-        <span class="sdb-label">${isRo ? `Ziua ${day}` : `${day}. nap`}</span>
+        <span class="sdb-label">${isRo ? `Ziua ${day}` : `Day ${day}`}</span>
         <small style="font-size:0.58rem; color:#94a3b8;">${isGift ? "+100k" : "Streak"}</small>
       `;
       row.appendChild(div);
@@ -3105,18 +3115,18 @@ function renderDailyStreakModal() {
   if (bonusCard) {
     if (d.isFifthDay && !d.claimed) {
       bonusCard.innerHTML = `
-        <strong style="color:#ffb800; font-size:1.1rem;">🎉 ${isRo ? "ZIUA 5 ATINSĂ! PREMIU SPECIAL!" : "5. NAP ELÉRVE! KÜLÖNLEGES AJÁNDÉK!"}</strong>
-        <p style="font-size:0.8rem; color:#e2e8f0; margin:0;">${isRo ? "Ai fost activ 5 zile la rând! Colectează 100.000 $EFOO!" : "5 napja folyamatosan játszol! Vedd át a 100.000 $EFOO bónuszodat!"}</p>
+        <strong style="color:#ffb800; font-size:1.1rem;">🎉 ${isRo ? "ZIUA 5 ATINSĂ! PREMIU SPECIAL!" : "DAY 5 REACHED! SPECIAL REWARD!"}</strong>
+        <p style="font-size:0.8rem; color:#e2e8f0; margin:0;">${isRo ? "Ai fost activ 5 zile la rând! Colectează 100.000 $EFOO!" : "You played 5 days in a row! Claim your 100,000 $EFOO bonus!"}</p>
         <button type="button" class="arcade-btn gold" id="btn-claim-streak-reward">
-          🎁 ${isRo ? "REVENDICĂ 100.000 $EFOO" : "100.000 $EFOO ÁTVÉTELE"}
+          🎁 ${isRo ? "REVENDICĂ 100.000 $EFOO" : "CLAIM 100,000 $EFOO"}
         </button>
       `;
       document.getElementById("btn-claim-streak-reward")?.addEventListener("click", claimDailyStreakReward);
     } else {
       const remaining = 5 - (((d.streak - 1) % 5) + 1);
       bonusCard.innerHTML = `
-        <strong style="color:#a8ff00;">🔥 ${isRo ? `Serie activă: ${d.streak} zile` : `Aktív sorozat: ${d.streak} nap`}</strong>
-        <p style="font-size:0.78rem; color:#94a3b8; margin:0;">${isRo ? `Mai ai ${remaining} zile până la următorul cadou de 100.000 $EFOO!` : `Még ${remaining} nap a következő 100.000 $EFOO ajándékig!`}</p>
+        <strong style="color:#a8ff00;">🔥 ${isRo ? `Serie activă: ${d.streak} zile` : `Active Streak: ${d.streak} days`}</strong>
+        <p style="font-size:0.78rem; color:#94a3b8; margin:0;">${isRo ? `Mai ai ${remaining} zile până la următorul cadou de 100.000 $EFOO!` : `${remaining} day(s) until your next 100,000 $EFOO gift!`}</p>
       `;
     }
   }
@@ -3147,9 +3157,9 @@ function metaConsumeSkill(skillId) {
     renderSkillsDeckUI();
     const s = SKILLS.find((x) => x.id === skillId);
     if (s) {
-      const name = currentLang === "ro" ? s.nameRo : currentLang === "hu" ? s.nameHu : s.name;
+      const name = currentLang === "ro" ? s.nameRo : s.name;
       game.skillFlash = {
-        text: `⚡ ${name} AKTIVÁLVA!`,
+        text: `⚡ ${name} ARMED & ACTIVE!`,
         color: s.color,
         alpha: 1.0
       };
@@ -3172,7 +3182,7 @@ function buySkillWithEfoo(skillId, count = 1) {
     updateHudEfooBadge();
   }
   audio.playWhistle();
-  showToast(`⚡ +${count}x ${s.name} bekerült a felszerelésedbe!`);
+  showToast(`⚡ +${count}x ${s.name} equipped in your match locker!`);
   renderSkillsDeckUI();
   renderSkillsShopModal();
 }
@@ -3204,9 +3214,9 @@ function renderSkillsDeckUI() {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = `skill-slot-btn ${isArmed ? "armed" : ""} ${count <= 0 ? "empty" : ""}`;
-    const sName = currentLang === "hu" ? s.nameHu : currentLang === "ro" ? s.nameRo : s.name;
-    const sDesc = currentLang === "hu" ? s.descHu : currentLang === "ro" ? s.descRo : s.desc;
-    btn.title = `${sName}: ${sDesc} (${count} db)`;
+    const sName = currentLang === "ro" ? s.nameRo : s.name;
+    const sDesc = currentLang === "ro" ? s.descRo : s.desc;
+    btn.title = `${sName}: ${sDesc} (${count} owned)`;
     btn.innerHTML = `
       <span class="skill-slot-icon">${s.icon}</span>
       <span class="skill-slot-name">${isArmed ? "ARMED!" : sName.split(" ")[0]}</span>
@@ -3224,21 +3234,20 @@ function renderSkillsShopModal() {
   if (!grid) return;
   const inv = getSkillsInventory();
   const isRo = currentLang === "ro";
-  const isHu = currentLang === "hu";
 
   grid.innerHTML = "";
   SKILLS.forEach((s) => {
     const count = inv[s.id] || 0;
     const card = document.createElement("div");
     card.className = "skill-shop-card";
-    const name = isHu ? s.nameHu : isRo ? s.nameRo : s.name;
-    const desc = isHu ? s.descHu : isRo ? s.descRo : s.desc;
+    const name = isRo ? s.nameRo : s.name;
+    const desc = isRo ? s.descRo : s.desc;
     card.innerHTML = `
       <div class="ssc-info">
         <div class="ssc-title" style="color:${s.color};">
           <span>${s.icon}</span>
           <strong>${name}</strong>
-          <span style="font-size:0.7rem; color:#94a3b8;">(Raktáron: ${count} db)</span>
+          <span style="font-size:0.7rem; color:#94a3b8;">(Owned: ${count})</span>
         </div>
         <small class="ssc-desc">${desc}</small>
       </div>
@@ -3407,7 +3416,7 @@ function metaOnMatchEnd({ level, score, goals, cleared, perfect }) {
   return {
     unlockedNow,
     newLevel,
-    rankPromise: Promise.resolve(rank ? `🏆 Ranglista: #${rank} helyezés!` : "")
+    rankPromise: Promise.resolve(rank ? `🏆 Leaderboard: Rank #${rank}!` : "")
   };
 }
 

@@ -114,8 +114,8 @@ const I18N = {
     opt_keepers: "🧤 Goalkeepers (51+ Minted)",
     btn_load_nft: "Load NFT",
     btn_random_nft: "🎲 Random",
-    ctrl_presets: "2. 🎙️ Locker Room Banter Generator & Presets",
-    btn_ai_meme: "🎙️ LOCKER ROOM BANTER BOT ⚡",
+    ctrl_presets: "2. 💬 Meme Captions & Presets",
+    btn_ai_meme: "⚡ AI Banter Bot",
     btn_copy_meme: "Copy Image",
     mood_all: "🎲 All Themes",
     mood_degen: "🔥 Degen / Trading",
@@ -283,8 +283,8 @@ const I18N = {
     opt_keepers: "🧤 Portari (51+ Mintați)",
     btn_load_nft: "Încarcă NFT",
     btn_random_nft: "🎲 Aleatoriu",
-    ctrl_presets: "2. 🎙️ Generator Dume de Vestiar & Sabloane",
-    btn_ai_meme: "🎙️ DUMA DE VESTIAR A LUI NEA GICĂ ⚡",
+    ctrl_presets: "2. 💬 Texte & Sabloane Meme",
+    btn_ai_meme: "⚡ Generator Glume AI",
     btn_copy_meme: "Copiază Imaginea",
     mood_all: "🎲 Toate Temele",
     mood_degen: "🔥 Degen / Trading",
@@ -432,8 +432,8 @@ const I18N = {
     opt_keepers: "🧤 Kapusok (51+ Veretve)",
     btn_load_nft: "NFT Betöltése",
     btn_random_nft: "🎲 Véletlenszerű",
-    ctrl_presets: "2. 🎙️ Edzőbá Dumagyára & Sablonok (HU / EN / RO)",
-    btn_ai_meme: "🎙️ EDZŐBÁ ÖLTÖZŐI DUMAGYÁRA ⚡",
+    ctrl_presets: "2. 💬 Meme Szövegek & Sablonok",
+    btn_ai_meme: "⚡ AI Dumagenerátor",
     btn_copy_meme: "Kép Másolása",
     mood_all: "🎲 Összes Téma",
     mood_degen: "🔥 Degen / Kriptó",
@@ -3010,12 +3010,12 @@ No markdown, no quotes, no extra text.`;
     if (aiBtn) {
       const coolName = I18N[currentLang]?.btn_ai_meme || (
         currentLang === "hu"
-          ? "🎙️ EDZŐBÁ ÖLTÖZŐI DUMAGYÁRA ⚡"
+          ? "⚡ AI Dumagenerátor"
           : currentLang === "ro"
-            ? "🎙️ DUMA DE VESTIAR A LUI NEA GICĂ ⚡"
-            : "🎙️ LOCKER ROOM BANTER BOT ⚡"
+            ? "⚡ Generator Glume AI"
+            : "⚡ AI Banter Bot"
       );
-      aiBtn.innerHTML = `🎙️ <span data-i18n="btn_ai_meme">${coolName}</span>`;
+      aiBtn.innerHTML = `<span id="ai-btn-text" data-i18n="btn_ai_meme">${coolName}</span>`;
       aiBtn.disabled = false;
     }
   }, 380);
@@ -3138,6 +3138,12 @@ function wrapCanvasText(ctx, text, maxWidth) {
   return lines;
 }
 
+const efooWatermarkLogo = new Image();
+efooWatermarkLogo.src = "branding/rebranded/efoo-degen-crest-200x200.png";
+efooWatermarkLogo.onload = () => {
+  if (currentNftImage) drawMemeCanvas();
+};
+
 function drawMemeCanvas() {
   const canvas = document.getElementById("meme-canvas");
   if (!canvas) return;
@@ -3194,12 +3200,43 @@ function drawMemeCanvas() {
     });
   }
 
-  ctx.font = "700 15px 'JetBrains Mono', monospace";
-  ctx.textAlign = "right";
-  ctx.fillStyle = "rgba(7, 11, 9, 0.85)";
-  ctx.fillRect(W - 305, H - 30, 295, 22);
+  // 3D Stadium Glass Watermark Pill Badge with Official $EFOO Token Logo
+  const badgeW = 295;
+  const badgeH = 26;
+  const badgeX = W - badgeW - 14;
+  const badgeY = H - badgeH - 12;
+
+  ctx.save();
+  ctx.fillStyle = "rgba(6, 14, 10, 0.88)";
+  ctx.strokeStyle = "rgba(168, 255, 0, 0.4)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  if (typeof ctx.roundRect === "function") {
+    ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 13);
+  } else {
+    ctx.rect(badgeX, badgeY, badgeW, badgeH);
+  }
+  ctx.fill();
+  ctx.stroke();
+
+  // Draw circular $EFOO token logo
+  const logoSize = 18;
+  const logoX = badgeX + 6;
+  const logoY = badgeY + (badgeH - logoSize) / 2;
+  if (efooWatermarkLogo.complete && efooWatermarkLogo.naturalWidth > 0) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(efooWatermarkLogo, logoX, logoY, logoSize, logoSize);
+    ctx.restore();
+  }
+
+  ctx.font = "800 13px 'JetBrains Mono', monospace";
+  ctx.textAlign = "left";
   ctx.fillStyle = "#a8ff00";
-  ctx.fillText("⚽ $EFOO • SUNDAY LEAGUE DEGEN FC", W - 16, H - 14);
+  ctx.fillText("$EFOO • SUNDAY LEAGUE DEGEN FC", logoX + logoSize + 8, badgeY + 17);
+  ctx.restore();
 }
 
 function downloadMemePng() {
@@ -3645,13 +3682,44 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  document.getElementById("tweet-meme-btn")?.addEventListener("click", async () => {
+  document.getElementById("tweet-meme-btn")?.addEventListener("click", async (e) => {
     updateTweetShareLink();
+    const canvas = document.getElementById("meme-canvas");
+    const tweetHref = document.getElementById("tweet-meme-btn")?.href || "https://x.com/intent/tweet";
+
+    // Attempt Web Share API with image file attachment (works on Android, iOS Safari & supported browsers)
+    if (navigator.canShare && canvas && canvas.toBlob) {
+      try {
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+        if (blob) {
+          const file = new File([blob], `EFOO-Meme-${currentNftMeta?.identifier || "DegenFC"}.png`, { type: "image/png" });
+          if (navigator.canShare({ files: [file] })) {
+            e.preventDefault();
+            let tweetText = "";
+            try {
+              tweetText = new URL(tweetHref).searchParams.get("text") || "";
+            } catch (err) {}
+            await navigator.share({
+              title: "Sunday League Degen FC ($EFOO)",
+              text: tweetText,
+              files: [file]
+            });
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Web Share API cancelled or not supported, falling back to Web Intent:", err);
+      }
+    }
+
+    // Desktop fallback: Auto-copy image blob to clipboard, open tweet composer, prompt Ctrl+V
     await copyMemeToClipboard(true);
     showToast(
-      currentLang === "ro"
-        ? "🚀 <strong>Imagine copiată în clipboard!</strong> Pe X (Twitter), apasă <strong>Ctrl+V</strong> pentru a atașa meme-ul la postare!"
-        : "🚀 <strong>Meme image copied to clipboard!</strong> On X (Twitter), press <strong>Ctrl+V</strong> to attach the meme to your post!"
+      currentLang === "hu"
+        ? "🚀 <strong>Kép a vágólapra másolva!</strong> Az X-en (Twitter) csak nyomj <strong>Ctrl+V</strong>-t a kép azonnali csatolásához!"
+        : currentLang === "ro"
+          ? "🚀 <strong>Imagine copiată în clipboard!</strong> Pe X (Twitter), apasă <strong>Ctrl+V</strong> pentru a atașa meme-ul la postare!"
+          : "🚀 <strong>Meme image copied to clipboard!</strong> On X (Twitter), press <strong>Ctrl+V</strong> to attach the meme to your post!"
     );
   });
 
