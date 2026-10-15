@@ -11,21 +11,32 @@
 html,
 body.arcade-body {
   width: 100vw;
+  width: 100%;
   height: 100vh;
+  height: 100dvh;
+  min-height: -webkit-fill-available;
   overflow: hidden;
+  position: fixed;
+  inset: 0;
   background: #030705;
   font-family: 'Inter', system-ui, sans-serif;
   color: #ffffff;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
 }
 
 /* FULLSCREEN VIEWPORT STAGE */
 .arcade-viewport {
   position: relative;
   width: 100vw;
+  width: 100%;
   height: 100vh;
+  height: 100dvh;
+  min-height: -webkit-fill-available;
   overflow: hidden;
+  touch-action: none;
 }
 
 #stadium-canvas {
@@ -36,6 +47,7 @@ body.arcade-body {
   display: block;
   z-index: 1;
   cursor: crosshair;
+  touch-action: none;
 }
 
 /* ============================================================================
@@ -43,9 +55,9 @@ body.arcade-body {
    ============================================================================ */
 .hud-top-bar {
   position: absolute;
-  top: 16px;
-  left: 20px;
-  right: 20px;
+  top: max(12px, env(safe-area-inset-top));
+  left: max(14px, env(safe-area-inset-left));
+  right: max(14px, env(safe-area-inset-right));
   z-index: 20;
   display: flex;
   align-items: center;
@@ -268,9 +280,9 @@ body.arcade-body {
    ============================================================================ */
 .hud-bottom-bar {
   position: absolute;
-  bottom: 16px;
-  left: 20px;
-  right: 20px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  left: max(14px, env(safe-area-inset-left));
+  right: max(14px, env(safe-area-inset-right));
   z-index: 20;
   display: flex;
   align-items: flex-end;
@@ -470,8 +482,10 @@ body.arcade-body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   text-align: center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .hidden {
@@ -1044,29 +1058,428 @@ body.arcade-body {
   color: #a8ff00;
 }
 
-/* RESPONSIVE */
+/* ============================================================================
+   RESPONSIVE DESIGN (MOBILE, TABLET & XPORTAL IN-APP WEBVIEW)
+   ============================================================================ */
 @media (max-width: 900px) {
   .hud-fomo-pill {
     display: none;
   }
   .visual-perks-dock .vp-icon-slot {
-    width: 50px;
-    height: 48px;
+    width: 48px;
+    height: 46px;
   }
   .boost-tiers-visual {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 600px) {
-  .hud-aim-hint {
+@media (max-width: 768px) {
+  .hud-top-bar {
+    top: max(8px, env(safe-area-inset-top));
+    left: max(8px, env(safe-area-inset-left));
+    right: max(8px, env(safe-area-inset-right));
+    gap: 6px;
+  }
+
+  .hud-bottom-bar {
+    bottom: max(8px, env(safe-area-inset-bottom));
+    left: max(8px, env(safe-area-inset-left));
+    right: max(8px, env(safe-area-inset-right));
+    gap: 8px;
+  }
+
+  .hud-icon-btn {
+    height: 38px;
+    padding: 0 10px;
+    font-size: 0.72rem;
+  }
+
+  .tv-scorebug {
+    height: 38px;
+  }
+
+  .sb-club {
+    padding: 0 8px;
+    font-size: 1.1rem;
+    gap: 6px;
+  }
+
+  .sb-club img {
+    width: 22px;
+    height: 22px;
+  }
+
+  .sb-shots-dots {
+    padding: 0 8px;
+    gap: 4px;
+  }
+
+  .shot-dot {
+    width: 9px;
+    height: 9px;
+  }
+
+  .sb-metric {
+    padding: 0 8px;
+    font-size: 0.65rem;
+  }
+
+  .sb-metric strong {
+    font-size: 1.1rem;
+  }
+
+  .btn-godmode {
+    height: 38px;
+    padding: 0 10px;
+    font-size: 0.7rem;
+  }
+
+  .btn-wallet-pill {
+    height: 38px;
+    padding: 0 12px;
+    font-size: 0.72rem;
+  }
+
+  .fut-striker-dock {
+    padding: 6px 10px;
+    border-radius: 14px;
+    gap: 8px;
+  }
+
+  .fut-card-avatar {
+    width: 48px;
+    height: 48px;
+  }
+
+  .fut-card-info strong {
+    font-size: 1.05rem;
+  }
+
+  .fut-card-info small {
+    font-size: 0.62rem;
+  }
+
+  .fut-switch-hint {
     display: none;
   }
-  .intro-fighter-card {
-    width: 130px;
+
+  .hud-aim-hint {
+    font-size: 0.7rem;
+    padding: 5px 10px;
   }
+
+  .visual-perks-dock {
+    gap: 5px;
+  }
+
+  .visual-perks-dock .vp-icon-slot {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    padding: 2px;
+  }
+
+  .vp-icon-slot .vp-emoji {
+    font-size: 1.1rem;
+  }
+
+  .vp-icon-slot .vp-tag {
+    font-size: 0.52rem;
+  }
+
+  .vp-icon-slot .vp-req {
+    display: none;
+  }
+
+  .btn-open-boost {
+    height: 42px;
+    padding: 0 12px;
+    font-size: 1rem;
+    border-radius: 10px;
+  }
+}
+
+@media (max-width: 520px) {
+  /* Ultra-compact phone portrait / xPortal mobile in-app browser */
+  .sb-club span {
+    display: none; /* Keep club logo badge only */
+  }
+
+  #lang-label,
+  #sfx-label {
+    display: none; /* Icon-only for language and sound buttons */
+  }
+
+  .hud-icon-btn {
+    padding: 0 8px;
+    min-width: 36px;
+    height: 36px;
+  }
+
+  .hud-right-group {
+    gap: 5px;
+  }
+
+  .btn-godmode {
+    height: 36px;
+    padding: 0 8px;
+    font-size: 0.66rem;
+  }
+
+  .btn-wallet-pill {
+    height: 36px;
+    padding: 0 10px;
+    font-size: 0.68rem;
+  }
+
+  .start-hero-cards {
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .sh-nft-card {
+    width: 78px;
+    padding: 4px;
+    border-radius: 12px;
+  }
+
+  .sh-nft-card img {
+    height: 70px;
+    border-radius: 8px;
+  }
+
+  .sh-nft-card span {
+    font-size: 0.74rem;
+  }
+
+  .sh-center-ball {
+    width: 68px;
+    height: 68px;
+  }
+
+  .start-mega-title {
+    font-size: clamp(2rem, 8vw, 2.9rem);
+    margin-bottom: 8px;
+  }
+
+  .start-visual-steps {
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .svs-pill {
+    font-size: 0.66rem;
+    padding: 4px 8px;
+  }
+
+  .entry-gate-card {
+    padding: 10px 12px;
+    border-radius: 16px;
+    margin-bottom: 10px;
+  }
+
+  .eg-lock-badge {
+    font-size: 0.66rem;
+    padding: 3px 8px;
+  }
+
+  .eg-wallet-stats {
+    font-size: 0.74rem;
+    margin: 6px 0;
+  }
+
+  .eg-buy-offer {
+    padding: 8px 10px;
+    border-radius: 12px;
+  }
+
+  .eg-buy-info strong {
+    font-size: 0.76rem;
+  }
+
+  .eg-buy-info small {
+    font-size: 0.68rem;
+    line-height: 1.25;
+  }
+
+  .eg-buy-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .eg-buy-actions .arcade-btn {
+    height: 38px;
+    font-size: 0.7rem;
+    padding: 0 6px;
+    justify-content: center;
+  }
+
+  .btn-play-arcade {
+    height: 48px;
+    font-size: 1.15rem;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  /* Bottom bar on phone portrait */
+  .hud-bottom-bar {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .fut-striker-dock {
+    max-width: 140px;
+    padding: 4px 8px;
+  }
+
+  .fut-card-avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .fut-ovr-badge {
+    font-size: 0.68rem;
+    padding: 0 3px;
+  }
+
+  .fut-card-info strong {
+    font-size: 0.82rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 82px;
+  }
+
+  .fut-card-info small {
+    display: none;
+  }
+
+  .hud-aim-hint {
+    display: none; /* Hide prompt text to maximize playing screen area on small mobile */
+  }
+
+  .visual-perks-dock {
+    gap: 3px;
+  }
+
+  .visual-perks-dock .vp-icon-slot {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+  }
+
+  .vp-icon-slot .vp-emoji {
+    font-size: 0.95rem;
+  }
+
+  .vp-icon-slot .vp-tag {
+    font-size: 0.46rem;
+  }
+
+  .btn-open-boost {
+    height: 36px;
+    padding: 0 8px;
+    font-size: 0.88rem;
+    border-radius: 8px;
+  }
+
+  /* Modals on small screen */
+  .boost-modal-card {
+    padding: 14px 12px;
+    max-height: 88dvh;
+    border-radius: 18px;
+  }
+
+  .boost-pack-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .boost-pack-left img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .boost-pack-row .arcade-btn {
+    width: 100%;
+    height: 38px;
+    justify-content: center;
+  }
+
+  .summary-modal-card {
+    padding: 16px 12px;
+    max-height: 90dvh;
+    border-radius: 20px;
+  }
+
+  .sum-compare-grid {
+    gap: 8px;
+    margin: 10px 0;
+  }
+
+  .sum-box {
+    padding: 10px 8px;
+  }
+
+  .sum-box strong {
+    font-size: 1.5rem;
+  }
+
+  .sum-actions-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .sum-actions-grid .arcade-btn {
+    height: 40px;
+    font-size: 0.78rem;
+    justify-content: center;
+  }
+
+  .intro-fighter-card {
+    width: 110px;
+  }
+
   .intro-fighter-card img {
-    height: 110px;
+    height: 90px;
+  }
+}
+
+/* Landscape on phone (height < 520px) */
+@media (max-height: 520px) and (orientation: landscape) {
+  .hud-top-bar {
+    top: max(4px, env(safe-area-inset-top));
+  }
+  .hud-bottom-bar {
+    bottom: max(4px, env(safe-area-inset-bottom));
+  }
+  .arcade-overlay {
+    justify-content: flex-start;
+    padding-top: max(16px, env(safe-area-inset-top));
+  }
+  .start-hero-cards {
+    display: none; /* Hide decorative hero cards in short landscape to keep play buttons visible */
+  }
+  .start-mega-title {
+    font-size: 2rem;
+    margin-bottom: 4px;
+  }
+  .start-visual-steps {
+    margin-bottom: 6px;
+  }
+  .entry-gate-card {
+    margin-bottom: 8px;
+    padding: 8px 12px;
+  }
+  .eg-buy-actions {
+    grid-template-columns: 1fr 1fr 1fr;
   }
 }
 

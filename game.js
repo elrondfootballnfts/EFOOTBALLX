@@ -320,6 +320,24 @@ let wcSignClient = null;
 let wcSessionTopic = localStorage.getItem("efoo_wc_topic") || "";
 let pendingGateAction = null; // "buy_efoo" | "mint_nft" | null
 
+function isInsideXPortal() {
+  if (typeof window === "undefined") return false;
+  const ua = (navigator.userAgent || "").toLowerCase();
+  const params = new URLSearchParams(window.location.search);
+  return (
+    params.has("xportal") ||
+    params.get("ref") === "xportal" ||
+    ua.includes("xportal") ||
+    ua.includes("maiar") ||
+    typeof window.ReactNativeWebView !== "undefined" ||
+    (typeof window.webkit !== "undefined" && typeof window.webkit.messageHandlers !== "undefined")
+  );
+}
+
+function isMobileScreen() {
+  return typeof window !== "undefined" && (window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || ""));
+}
+
 // If wallet address is present and DeFi extension is available, prefer extension to avoid webwallet redirects
 if (connectedAddress && typeof window !== "undefined" && window.elrondWallet && connectedProvider !== "xportal") {
   connectedProvider = "extension";
@@ -1099,6 +1117,10 @@ function initFullscreenStadiumCanvas() {
   }
   resize();
   window.addEventListener("resize", resize);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", resize);
+  }
+  window.addEventListener("orientationchange", () => setTimeout(resize, 120));
 
   for (let i = 0; i < 65; i++) {
     game.crowdLights.push({
@@ -1112,15 +1134,16 @@ function initFullscreenStadiumCanvas() {
   // Helper to compute 3D Goal & Pitch screen coordinates dynamically for any screen size
   function getStageGeom() {
     const cx = W * 0.5;
-    const horizonY = H * 0.34;
-    const goalW = Math.min(W * 0.56, 640);
-    const goalH = Math.min(H * 0.31, 245);
+    const isPortrait = H > W;
+    const horizonY = isPortrait ? H * 0.36 : H * 0.34;
+    const goalW = isPortrait ? Math.min(W * 0.88, 480) : Math.min(W * 0.56, 640);
+    const goalH = isPortrait ? Math.min(goalW * 0.44, 210) : Math.min(H * 0.31, 245);
     const goalLeft = cx - goalW / 2;
     const goalRight = cx + goalW / 2;
     const goalBottom = horizonY + 18;
     const goalTop = goalBottom - goalH;
     const spotX = cx;
-    const spotY = H * 0.83;
+    const spotY = isPortrait ? Math.min(H * 0.77, H - 105) : H * 0.83;
 
     return { cx, horizonY, goalW, goalH, goalLeft, goalRight, goalTop, goalBottom, spotX, spotY };
   }
@@ -1159,39 +1182,50 @@ function initFullscreenStadiumCanvas() {
     }
   });
 
-  // Touch support for Mobile
+  // Touch support for Mobile / xPortal in-app WebView
   canvas.addEventListener(
     "touchstart",
     (e) => {
       if (!canPlayMatch()) return;
-      if (game.phase === "aim" && e.touches[0]) {
+      if (e.touches && e.touches[0]) {
+        if (e.cancelable) e.preventDefault();
         updateAimFromPointer(e.touches[0].clientX, e.touches[0].clientY);
-        game.phase = "charging";
-        game.isCharging = true;
-        game.chargePower = 0.22;
-        game.chargeDir = 1;
+        if (game.phase === "aim") {
+          game.phase = "charging";
+          game.isCharging = true;
+          game.chargePower = 0.22;
+          game.chargeDir = 1;
+        }
       }
     },
-    { passive: true }
+    { passive: false }
   );
 
   canvas.addEventListener(
     "touchmove",
     (e) => {
       if (!canPlayMatch()) return;
-      if ((game.phase === "aim" || game.phase === "charging") && e.touches[0]) {
-        updateAimFromPointer(e.touches[0].clientX, e.touches[0].clientY);
+      if (e.touches && e.touches[0]) {
+        if (e.cancelable) e.preventDefault();
+        if (game.phase === "aim" || game.phase === "charging") {
+          updateAimFromPointer(e.touches[0].clientX, e.touches[0].clientY);
+        }
       }
     },
-    { passive: true }
+    { passive: false }
   );
 
-  window.addEventListener("touchend", () => {
-    if (!canPlayMatch()) return;
-    if (game.phase === "charging" && game.isCharging) {
-      releaseAndFireShot(Math.max(0.58, game.chargePower));
-    }
-  });
+  window.addEventListener(
+    "touchend",
+    (e) => {
+      if (!canPlayMatch()) return;
+      if (game.phase === "charging" && game.isCharging) {
+        if (e.cancelable) e.preventDefault();
+        releaseAndFireShot(Math.max(0.58, game.chargePower));
+      }
+    },
+    { passive: false }
+  );
 
   // Spacebar support
   window.addEventListener("keydown", (e) => {
@@ -1882,6 +1916,8 @@ async function initXPortalWalletConnect() {
       if (bridge) {
         bridge.href = deepLinkUrl;
         bridge.removeAttribute("target");
+        bridge.innerHTML = `📱 ${currentLang === "ro" ? "Apasă pentru Conectare în xPortal" : "Tap to Open & Connect in xPortal"} ↗`;
+        bridge.style.display = "inline-flex";
       }
       if (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "")) {
         window.location.href = deepLinkUrl;
@@ -2425,8 +2461,13 @@ async function checkUrlWalletCallbacks() {
   const urlAddr = params.get("address");
   const status = params.get("walletProviderStatus");
 
+  if (isInsideXPortal()) {
+    document.getElementById("hud-exit-btn")?.classList.add("hidden");
+  }
+
   if (urlAddr && urlAddr.startsWith("erd1")) {
-    connectWithAddress(urlAddr, "webwallet");
+    const prov = params.get("provider") || (isInsideXPortal() ? "xportal" : "webwallet");
+    connectWithAddress(urlAddr, prov);
     window.history.replaceState({}, document.title, window.location.pathname);
     return true;
   }
