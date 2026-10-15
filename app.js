@@ -31,17 +31,16 @@ const I18N = {
     stat_supply_label: "⚽ REMAINING TOTAL SUPPLY",
     stat_supply_sub: "canMint: false (Hard Capped Forever)",
     stat_holders_label: "🏟️ ON-CHAIN ULTRAS (HOLDERS)",
-    stat_nfts_label: "🃏 VERIFIED CLUB NFTs",
-    stat_nfts_sub: "628 Players + 51 Goalkeepers",
+    stat_nfts_label: "🃏 MINTED CLUB NFTs",
+    stat_nfts_sub: "628 Players + 51 Keepers Minted (Supply Ongoing)",
 
     // Wallet Hub & Swap/Mint
     wh_kicker: "⚡ MULTIVERSX WEB3 PLAYER TERMINAL",
     wh_title: "MY LOCKER ROOM, DIRECT $EFOO SWAP & NFT MINTER",
     wh_desc: "Connect with <strong>xPortal</strong>, <strong>MultiversX DeFi Extension</strong>, or <strong>Web Wallet</strong> to view your live <code>$EFOO</code> balance, inspect your <code>EFOOTBALL</code> & <code>GOALKEEPER</code> NFTs, buy <code>$EFOO</code> directly, or mint new Squad NFTs on-chain!",
     ws_not_connected: "Not Connected — Guest Spectator Mode",
-    ws_connect_prompt: "Connect your MultiversX wallet or load the Club Treasury demo wallet to unlock full squad controls.",
+    ws_connect_prompt: "Connect your MultiversX wallet (xPortal, Extension, or Web Wallet) to view your $EFOO and NFTs.",
     btn_connect_wallet: "Connect xPortal / WebWallet / Extension",
-    btn_demo_wallet: "Demo: Club Owner Wallet",
     btn_disconnect: "Disconnect",
     wb_efoo_label: "⚽ MY $EFOO BALANCE",
     wb_egld_label: "⚡ MY EGLD & WEGLD",
@@ -50,7 +49,7 @@ const I18N = {
     wb_keepers_label: "🧤 MY GOALKEEPERS",
     wb_keepers_sub: "Collection: GOALKEEPER-cb9e3e",
     squad_gallery_title: "🏟️ MY ON-CHAIN FOOTBALL & GOALKEEPER NFT SQUAD",
-    squad_gallery_sub: "Connect your wallet (or click Demo: Club Owner Wallet above) to display your EFOOTBALL-91a4eb & GOALKEEPER-cb9e3e NFTs here.",
+    squad_gallery_sub: "Connect your wallet above to display your personal EFOOTBALL-91a4eb & GOALKEEPER-cb9e3e NFTs here.",
     swap_title: "BUY $EFOO DIRECTLY ON-SITE",
     swap_subtitle: "Execute an instant on-chain swap via OneDex (EFOO/WEGLD) or xExchange (EFOO/USDC) smart contracts using your connected wallet.",
     swap_pay_label: "You Pay",
@@ -58,9 +57,9 @@ const I18N = {
     btn_exec_swap: "Sign & Buy $EFOO On-Chain Now",
     btn_wrap_egld: "1-Click Wrap EGLD ➔ WEGLD",
     mint_title: "MINT & RECRUIT SQUAD NFTs",
-    mint_subtitle: "Mint directly from the official EFootball-X Minter contract (erd1qqqq...9evzym) or snipe verified floor players on XOXNO!",
-    mint_player_desc: "Generative Liga 1 & UCL Striker/Midfielder NFT (+15% Accuracy & 2x Score in EFOO FOMO!)",
-    mint_keeper_desc: "Only 51 Goalkeepers exist! Unlocks Goalkeeper Save Shield & 3x Multiplier in EFOO FOMO!",
+    mint_subtitle: "Mint directly from the official EFootball-X Minter contract (erd1qqqq...9evzym) or snipe floor players on XOXNO!",
+    mint_player_desc: "Generative Liga 1 & UCL Striker/Midfielder NFT (+15% Accuracy & 2x Score in EFOO FOMO!). Minting is active!",
+    mint_keeper_desc: "Legendary Goalkeepers with active minting! Unlocks Goalkeeper Save Shield & 3x Multiplier in EFOO FOMO!",
     btn_mint_player: "Mint Player",
     btn_mint_keeper: "Mint Keeper",
     btn_xoxno_players: "Buy Players on XOXNO ↗",
@@ -102,14 +101,14 @@ const I18N = {
     var_old_4: "❌ \"Waiting for UEFA or FIFA to call us back\"",
     var_new_1: "✅ 92.91% of total supply ALREADY BURNED on-chain",
     var_new_2: "✅ 10,328 wallets already holding $EFOO across MultiversX",
-    var_new_3: "✅ 628 hilarious Liga 1 & UCL Player NFTs + 51 Goalkeepers",
+    var_new_3: "✅ 628+ hilarious Liga 1 & UCL Player NFTs + 51+ Keepers minted so far (supply ongoing)",
     var_new_4: "✅ Web3 Locker Room, On-Site Swap/Mint & EFOO FOMO Shootout",
     locker_kicker: "👕 THE LOCKER ROOM (LIVE ON-CHAIN STUDIO)",
     locker_title: "CREATE YOUR SUNDAY LEAGUE $EFOO MEME",
-    locker_desc: "Pull any real <strong>EFOOTBALL-91a4eb</strong> (#1–#628) or <strong>GOALKEEPER-cb9e3e</strong> (#1–#51) NFT live from the MultiversX blockchain (or pick directly from your connected wallet!), slap a degen caption on it, and download the PNG!",
+    locker_desc: "Pull any minted <strong>EFOOTBALL-91a4eb</strong> or <strong>GOALKEEPER-cb9e3e</strong> NFT live from the MultiversX blockchain (or pick directly from your connected wallet!), slap a degen caption on it, and download the PNG!",
     ctrl_collection: "1. Select Squad Collection & Jersey Number",
-    opt_players: "⚽ Outfield Players (#1 – #628)",
-    opt_keepers: "🧤 Goalkeepers (#1 – #51)",
+    opt_players: "⚽ Outfield Players (628+ Minted)",
+    opt_keepers: "🧤 Goalkeepers (51+ Minted)",
     btn_load_nft: "Load NFT",
     btn_random_nft: "🎲 Random",
     ctrl_presets: "2. AI Meme Generator & Presets (EN / RO)",
@@ -143,16 +142,16 @@ const I18N = {
     btn_dl_banner_png: "Download 1500×500 PNG (For X/Twitter)",
     asset_crest_desc: "Official Champions Cyber-Rocket Crest featuring the supersonic rocket football and neon energy ring.",
     asset_efoo_desc: "Official Champions Cyber-Rocket Token Emblem for MultiversX xPortal & Explorer (PR #4817).",
-    asset_players_desc: "Verified Outfield Players Collection emblem + updated metadata (PR #4812).",
-    asset_keepers_desc: "Verified Goalkeepers Collection emblem + updated metadata (PR #4813).",
+    asset_players_desc: "Verified Outfield Players Collection emblem + updated metadata (628+ minted so far, PR #4812).",
+    asset_keepers_desc: "Verified Goalkeepers Collection emblem + updated metadata (51+ minted so far, PR #4813).",
     asset_lp1_desc: "Official OneDex EFOO/WEGLD Liquidity Pool token branding.",
     asset_lp2_desc: "Official xExchange EFOO/USDC Liquidity Pool token branding.",
     links_kicker: "🔗 OFFICIAL VERIFIED LINKS",
     links_title: "ENTER THE STADIUM",
     hub_onedex: "Trade EGLD / EFOO directly",
     hub_xex: "Trade USDC / EFOO (Enable Experimental)",
-    hub_players: "628 Verified Outfield Players (EFOOTBALL-91a4eb)",
-    hub_keepers: "51 Verified Goalkeepers (GOALKEEPER-cb9e3e)",
+    hub_players: "Verified Outfield Players (628+ Minted so far, EFOOTBALL-91a4eb)",
+    hub_keepers: "Verified Goalkeepers (51+ Minted so far, GOALKEEPER-cb9e3e)",
     hub_explorer: "Verify 10,328 holders & 92.9% burn on-chain",
     hub_socials: "Join the Sunday League Ultras & Matchday Raids",
     modal_title: "CONNECT YOUR MULTIVERSX WALLET",
@@ -161,10 +160,9 @@ const I18N = {
     qr_instructions: "Scan with your phone camera or xPortal App to open the official MultiversX Login Bridge, or click below:",
     prov_ext_sub: "Connect Chrome / Brave / Edge Browser Extension",
     prov_web_sub: "Official redirect login (Keystore, Ledger, Passkey, PEM)",
-    modal_or: "OR INSTANT WALLET INSPECTOR",
+    modal_or: "OR INSTANT WALLET EXPLORER",
     manual_erd_label: "Paste any MultiversX address (erd1...) to load your NFTs & balance instantly:",
     btn_load_wallet: "Connect",
-    modal_demo_owner: "Load Club Owner Wallet (1.91B $EFOO + 11 Players + 2 Keepers)",
     footer_disclaimer: "Disclaimer: $EFOO (EFOO-8fe2d4) is a community meme token on the MultiversX blockchain created for entertainment, football culture, and degen camaraderie. Nothing on this website is financial advice. Don't bet your rent money on Sunday League football."
   },
   ro: {
@@ -199,17 +197,16 @@ const I18N = {
     stat_supply_label: "⚽ OFERTA RĂMASĂ ÎN JOC",
     stat_supply_sub: "canMint: false (Emisie Blocată Definitiv)",
     stat_holders_label: "🏟️ ULTRAȘI ÎN TRIBUNE (HOLDERS)",
-    stat_nfts_label: "🃏 NFT-URI VERIFICATE",
-    stat_nfts_sub: "628 Jucători + 51 Portari",
+    stat_nfts_label: "🃏 NFT-URI MINTATE ÎN CLUB",
+    stat_nfts_sub: "628 Jucători + 51 Portari Mintați (Mint Activ)",
 
     // Wallet Hub & Swap/Mint RO
     wh_kicker: "⚡ TERMINALUL WEB3 AL JUCĂTORULUI MULTIVERSX",
     wh_title: "VESTIARUL MEU, SWAP DIRECT $EFOO & MINT NFT",
     wh_desc: "Conectează-te cu <strong>xPortal</strong>, <strong>DeFi Extension</strong> sau <strong>Web Wallet</strong> pentru a-ți vedea soldul <code>$EFOO</code>, NFT-urile <code>EFOOTBALL</code> și <code>GOALKEEPER</code>, pentru a cumpăra <code>$EFOO</code> direct pe site sau pentru a minta NFT-uri noi!",
     ws_not_connected: "Neconectat — Mod Spectator",
-    ws_connect_prompt: "Conectează portofelul MultiversX sau încarcă portofelul Demo al Clubului pentru a vedea toate funcțiile.",
+    ws_connect_prompt: "Conectează portofelul tău MultiversX (xPortal, Extensie sau Web Wallet) pentru a-ți vedea soldul $EFOO și NFT-urile.",
     btn_connect_wallet: "Conectează xPortal / WebWallet / Extension",
-    btn_demo_wallet: "Demo: Portofelul Clubului",
     btn_disconnect: "Deconectare",
     wb_efoo_label: "⚽ SOLDUL MEU $EFOO",
     wb_egld_label: "⚡ SOLD EGLD & WEGLD",
@@ -218,7 +215,7 @@ const I18N = {
     wb_keepers_label: "🧤 PORTARII MEI NFT",
     wb_keepers_sub: "Colecția: GOALKEEPER-cb9e3e",
     squad_gallery_title: "🏟️ LOTUL MEU DE JUCĂTORI ȘI PORTARI NFT ON-CHAIN",
-    squad_gallery_sub: "Conectează portofelul (sau apasă Demo: Portofelul Clubului) pentru a-ți vedea cărțile NFT aici.",
+    squad_gallery_sub: "Conectează portofelul mai sus pentru a-ți vedea cărțile NFT EFOOTBALL-91a4eb și GOALKEEPER-cb9e3e aici.",
     swap_title: "CUMPĂRĂ $EFOO DIRECT PE SITE",
     swap_subtitle: "Execută un swap on-chain instant prin contractele inteligente OneDex (EFOO/WEGLD) sau xExchange (EFOO/USDC).",
     swap_pay_label: "Plătești",
@@ -227,8 +224,8 @@ const I18N = {
     btn_wrap_egld: "Transformă EGLD ➔ WEGLD (1-Click)",
     mint_title: "MINTEAZĂ & RECRUTEAZĂ NFT-URI",
     mint_subtitle: "Mintează direct din contractul oficial EFootball-X (erd1qqqq...9evzym) sau cumpără jucători de pe XOXNO!",
-    mint_player_desc: "Jucător NFT Liga 1 & UCL (+15% Precizie & Multiplicator 2x în jocul EFOO FOMO!)",
-    mint_keeper_desc: "Doar 51 de Portari există! Deblochează Scutul Portarului & Multiplicator 3x în EFOO FOMO!",
+    mint_player_desc: "Jucător NFT Liga 1 & UCL (+15% Precizie & Multiplicator 2x în jocul EFOO FOMO!). Minting-ul este activ!",
+    mint_keeper_desc: "Portari legendari cu minting încă activ! Deblochează Scutul Portarului & Multiplicator 3x în EFOO FOMO!",
     btn_mint_player: "Mintează Jucător",
     btn_mint_keeper: "Mintează Portar",
     btn_xoxno_players: "Cumpără Jucători pe XOXNO ↗",
@@ -270,14 +267,14 @@ const I18N = {
     var_old_4: "❌ \"Așteptând să ne sune FIFA sau FRF\"",
     var_new_1: "✅ 92.91% din totalul de tokeni ARȘI DEJA pe blockchain",
     var_new_2: "✅ 10,328 portofele MultiversX au deja $EFOO în buzunar",
-    var_new_3: "✅ 628 NFT-uri geniale cu tricouri din Liga 1 & UCL + 51 Portari",
+    var_new_3: "✅ 628+ NFT-uri geniale Liga 1 & UCL + 51+ Portari mintați până acum (minting activ)",
     var_new_4: "✅ Vestiar Web3, Swap/Mint pe site & Jocul EFOO FOMO",
     locker_kicker: "👕 VESTIARUL DEGEN (STUDIO ON-CHAIN LIVE)",
     locker_title: "CREEAZĂ-ȚI PROPRIUL MEME $EFOO",
-    locker_desc: "Încarcă orice NFT real <strong>EFOOTBALL-91a4eb</strong> (#1–#628) sau <strong>GOALKEEPER-cb9e3e</strong> (#1–#51) direct de pe MultiversX (sau din portofelul tău!), pune-i o dumă de vestiar și descarcă PNG-ul!",
+    locker_desc: "Încarcă orice NFT mintat <strong>EFOOTBALL-91a4eb</strong> sau <strong>GOALKEEPER-cb9e3e</strong> direct de pe MultiversX (sau din portofelul tău!), pune-i o dumă de vestiar și descarcă PNG-ul!",
     ctrl_collection: "1. Alege Colecția și Numărul Tricoului",
-    opt_players: "⚽ Jucători de Câmp (#1 – #628)",
-    opt_keepers: "🧤 Portari (#1 – #51)",
+    opt_players: "⚽ Jucători de Câmp (628+ Mintați)",
+    opt_keepers: "🧤 Portari (51+ Mintați)",
     btn_load_nft: "Încarcă NFT",
     btn_random_nft: "🎲 Aleatoriu",
     ctrl_presets: "2. Generator Meme AI & Dume de Vestiar (EN / RO)",
@@ -311,16 +308,16 @@ const I18N = {
     btn_dl_banner_png: "Descarcă PNG 1500×500 (Pentru X/Twitter)",
     asset_crest_desc: "Blazonul Oficial Champions Cyber-Rocket cu mingea-rachetă supersonică și inelul de energie neon.",
     asset_efoo_desc: "Emblema oficială Champions Cyber-Rocket Token pentru MultiversX xPortal și Explorer (PR #4817).",
-    asset_players_desc: "Emblema colecției verificate de 628 Jucători + metadate (PR #4812).",
-    asset_keepers_desc: "Emblema colecției verificate de 51 Portari + metadate (PR #4813).",
+    asset_players_desc: "Emblema colecției verificate de Jucători + metadate (628+ mintați până acum, PR #4812).",
+    asset_keepers_desc: "Emblema colecției verificate de Portari + metadate (51+ mintați până acum, PR #4813).",
     asset_lp1_desc: "Branding oficial pentru tokenul LP OneDex EFOO/WEGLD.",
     asset_lp2_desc: "Branding oficial pentru tokenul LP xExchange EFOO/USDC.",
     links_kicker: "🔗 LINK-URI OFICIALE VERIFICATE",
     links_title: "INTRĂ PE STADION",
     hub_onedex: "Schimbă EGLD / EFOO rapid",
     hub_xex: "Schimbă USDC / EFOO (Activează Experimental)",
-    hub_players: "628 Jucători Verificați (EFOOTBALL-91a4eb)",
-    hub_keepers: "51 Portari Verificați (GOALKEEPER-cb9e3e)",
+    hub_players: "Jucători de Câmp Verificați (628+ Mintați până acum, EFOOTBALL-91a4eb)",
+    hub_keepers: "Portari Verificați (51+ Mintați până acum, GOALKEEPER-cb9e3e)",
     hub_explorer: "Verifică cei 10,328 holderi & arderea de 92.9%",
     hub_socials: "Alătură-te Ultrașilor pe X și Telegram",
     modal_title: "CONECTEAZĂ PORTOFELUL MULTIVERSX",
@@ -332,7 +329,6 @@ const I18N = {
     modal_or: "SAU INSPECTOR INSTANT DE PORTOFEL",
     manual_erd_label: "Lipește orice adresă MultiversX (erd1...) pentru a încărca instant NFT-urile și soldul:",
     btn_load_wallet: "Conectează",
-    modal_demo_owner: "Încarcă Portofelul Clubului (1.91B $EFOO + 11 Jucători + 2 Portari)",
     footer_disclaimer: "Notă: $EFOO (EFOO-8fe2d4) este un meme token comunitar pe blockchain-ul MultiversX creat pentru divertisment, cultura fotbalului și umor degen. Nimic de pe acest site nu reprezintă sfat financiar. Nu băga banii de întreținere la pariuri în Liga de Duminică."
   }
 };
@@ -443,14 +439,14 @@ const AI_MEME_CATALOG = {
   },
   keeper: {
     en: [
-      { top: "ONLY 51 GOALKEEPERS ON CHAIN", bottom: "CONCEDES 8 GOALS, STILL ASKS FOR MAN OF THE MATCH" },
+      { top: "51+ GOALKEEPERS MINTED SO FAR", bottom: "CONCEDES 8 GOALS, STILL ASKS FOR MAN OF THE MATCH" },
       { top: "GOALKEEPER DIVING FOR THE BALL", bottom: "ENDED UP IN THE CAR PARK BEHIND THE PITCH" },
       { top: "WALL SET UP PERFECTLY", bottom: "BALL FLIES STRAIGHT THROUGH THE MIDDLE" },
       { top: "KEEPER: 'I HAD IT COVERED!'", bottom: "BALL IS ALREADY NETTED IN TOP BINS" },
       { top: "GLOVES SMELL LIKE 2022", bottom: "REFLEXES POWERED BY $EFOO ADRENALINE" }
     ],
     ro: [
-      { top: "DOAR 51 DE PORTARI EXISTĂ PE MULTIVERSX", bottom: "IA 6 GOLURI DAR CERE NOTA 10 PENTRU DEGAJĂRI" },
+      { top: "51+ PORTARI MINTAȚI PÂNĂ ACUM", bottom: "IA 6 GOLURI DAR CERE NOTA 10 PENTRU DEGAJĂRI" },
       { top: "PORTARUL PLONJEAZĂ DUPĂ MINGE", bottom: "A ATERIZAT DIRECT ÎN GRĂTARUL DE LA TERASĂ" },
       { top: "A PUS ZID DIN 4 OAMENI", bottom: "MINGEA A TRECUT PRINTRE PICIOARELE TUTUROR" },
       { top: "STRIGĂ 'A MEA, A MEA!'", bottom: "ȘI SE UITĂ CU ADMIRAȚIE CUM INTRĂ ÎN VINCLU" },
@@ -470,13 +466,17 @@ const CONTRACTS = {
   },
   NFT_MINTER: "erd1qqqqqqqqqqqqqpgq78frnmw5sep0q4r2qd96y3d6f6p7ujwcys5s9evzym",
   FOMO_RESERVE: "erd1k8w7y5ftg2uax8v8ng8p5azjw96zzfgky9v3fydtpe2xwdz0007q3hl9z8",
-  CLUB_OWNER_DEMO: "erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq",
+  SHOWCASE_VAULT: "erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq",
   WC_PROJECT_ID: "9b1a9564f91cb659ffe21b73d5c4e2d8"
 };
 
 let currentLang = "en";
+if (localStorage.getItem("efoo_wallet_provider") === "demo") {
+  localStorage.removeItem("efoo_wallet_provider");
+  localStorage.removeItem("efoo_wallet_address");
+}
 let connectedAddress = localStorage.getItem("efoo_wallet_address") || "";
-let connectedProvider = localStorage.getItem("efoo_wallet_provider") || ""; // "xportal" | "extension" | "webwallet" | "demo" | "inspector"
+let connectedProvider = localStorage.getItem("efoo_wallet_provider") || ""; // "xportal" | "extension" | "webwallet" | "inspector"
 let wcSignClient = null;
 let wcSessionTopic = localStorage.getItem("efoo_wc_topic") || "";
 let currentWcUri = "";
@@ -519,6 +519,8 @@ let currentNftMeta = {
   ]
 };
 let currentMemeMood = "all";
+let mintedPlayersCount = 628;
+let mintedKeepersCount = 51;
 
 // EFOO FOMO Game State
 let gameState = {
@@ -643,8 +645,8 @@ const HERO_ACTS = {
     3: {
       clock: "⚡ 75:00' — FLOODLIGHTS ON • DEGEN REBIRTH",
       kicker: "ACT III • REBORN AS SUNDAY LEAGUE DEGEN FC",
-      title: "628 ALIEN STRIKERS.<br /><span class='neon-text'>51 GOD-TIER GOALKEEPERS.</span>",
-      desc: "From the ashes of 2022 rose <strong>Sunday League Degen FC ($EFOO)</strong>! Our verified <code>EFOOTBALL-91a4eb</code> &amp; <code>GOALKEEPER-cb9e3e</code> NFTs now unlock real utility: 2x–3x score multipliers, Goalkeeper Save Shields, and instant on-site DEX swaps!"
+      title: "628+ MINTED STRIKERS.<br /><span class='neon-text'>51+ MINTED GOALKEEPERS.</span>",
+      desc: "From the ashes of 2022 rose <strong>Sunday League Degen FC ($EFOO)</strong>! Our verified <code>EFOOTBALL-91a4eb</code> &amp; <code>GOALKEEPER-cb9e3e</code> NFTs (with minting still ongoing!) unlock real utility: 2x–3x score multipliers, Goalkeeper Save Shields, and instant on-site DEX swaps!"
     },
     4: {
       clock: "🏆 90+5' — INJURY TIME EFOO FOMO POT",
@@ -669,8 +671,8 @@ const HERO_ACTS = {
     3: {
       clock: "⚡ 75:00' — NOCTURNA APRINSĂ • RENAȘTEREA DEGEN",
       kicker: "ACTUL III • RENĂSCUT CA SUNDAY LEAGUE DEGEN FC",
-      title: "628 ATACANȚI EXTRATEREȘTRI.<br /><span class='neon-text'>51 PORTARI DE LEGENDĂ.</span>",
-      desc: "Din cenușa anului 2022 s-a născut <strong>Sunday League Degen FC ($EFOO)</strong>! Colecțiile verificate <code>EFOOTBALL-91a4eb</code> și <code>GOALKEEPER-cb9e3e</code> îți oferă acum super-puteri: multiplicatoare 2x–3x, Scutul Portarului și Swap/Mint direct pe site!"
+      title: "628+ ATACANȚI MINTAȚI.<br /><span class='neon-text'>51+ PORTARI DE LEGENDĂ.</span>",
+      desc: "Din cenușa anului 2022 s-a născut <strong>Sunday League Degen FC ($EFOO)</strong>! Colecțiile verificate <code>EFOOTBALL-91a4eb</code> și <code>GOALKEEPER-cb9e3e</code> (cu minting încă activ!) îți oferă super-puteri: multiplicatoare 2x–3x, Scutul Portarului și Swap/Mint direct pe site!"
     },
     4: {
       clock: "🏆 90+5' — POTUL DE PRELUNGIRI EFOO FOMO",
@@ -1350,8 +1352,8 @@ async function broadcastSignedTransactions(signedTxs) {
 
 // 4. Unified Sign & Broadcast Engine (Supports 1 or Multiple Transactions)
 async function signAndBroadcastTransactions(rawTxList) {
-  // If user is not connected or is viewing the Demo Treasury wallet, prompt them to connect their real wallet first
-  if (!connectedAddress || connectedProvider === "demo") {
+  // If user is not connected, prompt them to connect their wallet first
+  if (!connectedAddress) {
     openWalletModal();
     showToast(
       currentLang === "ro"
@@ -1661,7 +1663,6 @@ function updateWalletStatusUI() {
     xportal: "📱 xPortal App",
     extension: "🧩 DeFi Extension",
     webwallet: "🌐 Web Wallet",
-    demo: "🏆 Club Treasury Demo",
     inspector: "🔍 Wallet Inspector"
   };
 
@@ -1670,11 +1671,7 @@ function updateWalletStatusUI() {
     if (wsDot) wsDot.classList.add("connected");
     if (wsTitle) {
       wsTitle.textContent =
-        connectedProvider === "demo"
-          ? currentLang === "ro"
-            ? "🏆 Portofel Demo Trezorerie Club"
-            : "🏆 Club Treasury Showcase Wallet"
-          : currentLang === "ro"
+        currentLang === "ro"
           ? "🟢 Portofel MultiversX Conectat"
           : "🟢 MultiversX Wallet Connected";
     }
@@ -1688,7 +1685,7 @@ function updateWalletStatusUI() {
       wsShardPill.classList.remove("hidden");
     }
     if (wsConnectBtn) {
-      wsConnectBtn.classList.toggle("hidden", connectedProvider !== "demo");
+      wsConnectBtn.classList.add("hidden");
     }
     if (wsRefreshBtn) wsRefreshBtn.classList.remove("hidden");
     if (wsDisconnectBtn) wsDisconnectBtn.classList.remove("hidden");
@@ -1810,7 +1807,7 @@ async function fetchConnectedWalletData(address) {
 async function fetchShowcaseSquadNfts() {
   try {
     const res = await fetch(
-      `https://api.multiversx.com/accounts/${CONTRACTS.CLUB_OWNER_DEMO}/nfts?collections=EFOOTBALL-91a4eb,GOALKEEPER-cb9e3e&size=8`
+      `https://api.multiversx.com/accounts/${CONTRACTS.SHOWCASE_VAULT}/nfts?collections=EFOOTBALL-91a4eb,GOALKEEPER-cb9e3e&size=8`
     );
     if (res.ok) {
       walletState.showcaseNfts = await res.json();
@@ -2537,7 +2534,7 @@ async function loadNftFromChain(collection, nonce) {
   const loadingOverlay = document.getElementById("canvas-loading");
   if (loadingOverlay) loadingOverlay.classList.remove("hidden");
 
-  const maxNonce = collection === "GOALKEEPER-cb9e3e" ? 51 : 628;
+  const maxNonce = collection === "GOALKEEPER-cb9e3e" ? mintedKeepersCount : mintedPlayersCount;
   const clampedNonce = Math.max(1, Math.min(maxNonce, Number(nonce) || 1));
   const nonceInput = document.getElementById("nft-nonce-input");
   if (nonceInput) {
@@ -2853,21 +2850,74 @@ function bindQuickAmountButtons() {
 
 async function fetchLiveTokenStats() {
   try {
-    const res = await fetch("https://api.multiversx.com/tokens/EFOO-8fe2d4");
-    if (!res.ok) return;
-    const data = await res.json();
+    const [tokenRes, playersRes, keepersRes] = await Promise.allSettled([
+      fetch("https://api.multiversx.com/tokens/EFOO-8fe2d4"),
+      fetch("https://api.multiversx.com/collections/EFOOTBALL-91a4eb"),
+      fetch("https://api.multiversx.com/collections/GOALKEEPER-cb9e3e")
+    ]);
 
-    if (data.accounts) {
-      const holdersFormatted = Number(data.accounts).toLocaleString("en-US");
-      document.getElementById("stat-holders").textContent = holdersFormatted;
-      document.getElementById("mini-holders").textContent = holdersFormatted;
+    if (tokenRes.status === "fulfilled" && tokenRes.value.ok) {
+      const data = await tokenRes.value.json();
+      if (data.accounts) {
+        const holdersFormatted = Number(data.accounts).toLocaleString("en-US");
+        const statHolders = document.getElementById("stat-holders");
+        const miniHolders = document.getElementById("mini-holders");
+        if (statHolders) statHolders.textContent = holdersFormatted;
+        if (miniHolders) miniHolders.textContent = holdersFormatted;
+      }
+      if (data.transfers) {
+        const transfersFormatted = Number(data.transfers).toLocaleString("en-US");
+        const statTransfers = document.getElementById("stat-transfers");
+        if (statTransfers) {
+          statTransfers.textContent =
+            currentLang === "ro"
+              ? `${transfersFormatted}+ transferuri on-chain`
+              : `${transfersFormatted}+ on-chain transfers`;
+        }
+      }
     }
-    if (data.transfers) {
-      const transfersFormatted = Number(data.transfers).toLocaleString("en-US");
-      document.getElementById("stat-transfers").textContent =
+
+    if (playersRes.status === "fulfilled" && playersRes.value.ok) {
+      const pData = await playersRes.value.json();
+      if (pData.nftCount) {
+        mintedPlayersCount = Number(pData.nftCount);
+      }
+    }
+
+    if (keepersRes.status === "fulfilled" && keepersRes.value.ok) {
+      const kData = await keepersRes.value.json();
+      if (kData.nftCount) {
+        mintedKeepersCount = Number(kData.nftCount);
+      }
+    }
+
+    // Dynamic UI supply updates
+    const totalMinted = mintedPlayersCount + mintedKeepersCount;
+    const statNfts = document.getElementById("stat-nfts");
+    if (statNfts) statNfts.textContent = `${totalMinted}+ Minted`;
+
+    const playersStat = document.getElementById("minted-players-stat");
+    if (playersStat) {
+      playersStat.textContent =
         currentLang === "ro"
-          ? `${transfersFormatted}+ transferuri on-chain`
-          : `${transfersFormatted}+ on-chain transfers`;
+          ? `${mintedPlayersCount} Mintați până acum (Mint Activ)`
+          : `${mintedPlayersCount} Minted So Far (Supply Ongoing)`;
+    }
+
+    const keepersStat = document.getElementById("minted-keepers-stat");
+    if (keepersStat) {
+      keepersStat.textContent =
+        currentLang === "ro"
+          ? `${mintedKeepersCount} Mintați până acum (Mint Activ)`
+          : `${mintedKeepersCount} Minted So Far (Supply Ongoing)`;
+    }
+
+    // Update nonce max for currently selected collection
+    const colSelect = document.getElementById("nft-collection-select");
+    const nonceInput = document.getElementById("nft-nonce-input");
+    if (colSelect && nonceInput) {
+      const isKeeper = colSelect.value === "GOALKEEPER-cb9e3e";
+      nonceInput.max = isKeeper ? mintedKeepersCount : mintedPlayersCount;
     }
   } catch (err) {
     console.warn("Using fallback on-chain stats:", err);
@@ -2938,18 +2988,12 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = getMultiversXLoginHookUrl();
   });
 
-  // 4. Direct erd1 Address Inspector & Club Treasury Demo
+  // 4. Direct erd1 Address Inspector
   document.getElementById("login-manual-btn")?.addEventListener("click", () => {
     const val = document.getElementById("manual-erd-input")?.value || "";
     connectWithWalletAddress(val, "inspector");
   });
 
-  document.getElementById("modal-demo-owner-btn")?.addEventListener("click", () => {
-    connectWithWalletAddress(CONTRACTS.CLUB_OWNER_DEMO, "demo");
-  });
-  document.getElementById("ws-demo-btn")?.addEventListener("click", () => {
-    connectWithWalletAddress(CONTRACTS.CLUB_OWNER_DEMO, "demo");
-  });
   document.getElementById("ws-refresh-btn")?.addEventListener("click", () => {
     if (connectedAddress) fetchConnectedWalletData(connectedAddress);
   });
@@ -3061,8 +3105,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   colSelect?.addEventListener("change", () => {
     const isKeeper = colSelect.value === "GOALKEEPER-cb9e3e";
-    nonceInput.max = isKeeper ? 51 : 628;
-    nonceInput.value = isKeeper ? 51 : 619;
+    const maxVal = isKeeper ? mintedKeepersCount : mintedPlayersCount;
+    nonceInput.max = maxVal;
+    nonceInput.value = isKeeper ? Math.min(51, maxVal) : Math.min(619, maxVal);
     loadNftFromChain(colSelect.value, nonceInput.value);
   });
 
@@ -3072,8 +3117,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("random-nft-btn")?.addEventListener("click", () => {
     const isKeeper = colSelect.value === "GOALKEEPER-cb9e3e";
-    const max = isKeeper ? 51 : 628;
-    const randNonce = Math.floor(Math.random() * max) + 1;
+    const maxVal = isKeeper ? mintedKeepersCount : mintedPlayersCount;
+    const randNonce = Math.floor(Math.random() * maxVal) + 1;
     nonceInput.value = randNonce;
     loadNftFromChain(colSelect.value, randNonce);
   });

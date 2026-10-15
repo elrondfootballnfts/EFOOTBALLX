@@ -363,9 +363,9 @@
             <small id="stat-transfers">39,258+ on-chain transfers</small>
           </div>
           <div class="score-item">
-            <span class="score-label" data-i18n="stat_nfts_label">🃏 VERIFIED CLUB NFTs</span>
-            <strong class="score-val" id="stat-nfts">679 NFTs</strong>
-            <small data-i18n="stat_nfts_sub">628 Players + 51 Goalkeepers</small>
+            <span class="score-label" data-i18n="stat_nfts_label">🃏 MINTED CLUB NFTs</span>
+            <strong class="score-val" id="stat-nfts">679+ Minted</strong>
+            <small data-i18n="stat_nfts_sub">628 Players + 51 Keepers Minted (Supply Ongoing)</small>
           </div>
         </div>
       </div>
@@ -404,9 +404,6 @@
         <div class="ws-actions">
           <button type="button" id="ws-connect-btn" class="btn btn-primary btn-sm">
             ⚡ <span data-i18n="btn_connect_wallet">Connect Wallet</span>
-          </button>
-          <button type="button" id="ws-demo-btn" class="btn btn-secondary btn-sm" title="Load Club Treasury Wallet (1.91B EFOO + 11 Players + 2 Keepers)">
-            🏆 <span data-i18n="btn_demo_wallet">Demo: Club Treasury</span>
           </button>
           <button type="button" id="ws-refresh-btn" class="btn btn-outline btn-sm hidden" title="Refresh On-Chain Balances">
             🔄
@@ -595,7 +592,7 @@
                 
                 <div class="mint-progress-row">
                   <div class="mint-progress-labels">
-                    <span>Minted Squad: <strong>628 NFTs</strong></span>
+                    <span>Minted Squad: <strong id="minted-players-stat">628 Minted So Far (Supply Ongoing)</strong></span>
                     <span class="price-tag" id="player-mint-total-price">0.08 EGLD</span>
                   </div>
                   <div class="mint-mini-bar"><div class="mint-mini-fill" style="width: 63%;"></div></div>
@@ -628,14 +625,14 @@
                   <h4>🧤 Goalkeeper Titan NFT</h4>
                   <code class="coll-code gold">GOALKEEPER-cb9e3e</code>
                 </div>
-                <p data-i18n="mint_keeper_desc">Only 51 Goalkeepers in the stadium! Grants <strong>Reflex Save Shield (1 Free Miss Protection) &amp; 3x Score Multiplier</strong>!</p>
+                <p data-i18n="mint_keeper_desc">Legendary Goalkeepers with active minting! Grants <strong>Reflex Save Shield (1 Free Miss Protection) &amp; 3x Score Multiplier</strong> in EFOO FOMO!</p>
 
                 <div class="mint-progress-row">
                   <div class="mint-progress-labels">
-                    <span>Minted Keepers: <strong>51 / 51 Supply</strong></span>
+                    <span>Minted Keepers: <strong id="minted-keepers-stat">51 Minted So Far (Supply Ongoing)</strong></span>
                     <span class="price-tag gold-text">0.35 EGLD</span>
                   </div>
-                  <div class="mint-mini-bar"><div class="mint-mini-fill gold" style="width: 98%;"></div></div>
+                  <div class="mint-mini-bar"><div class="mint-mini-fill gold" style="width: 51%;"></div></div>
                 </div>
 
                 <div class="mint-controls-row">
@@ -777,7 +774,7 @@
           <ul class="var-list">
             <li data-i18n="var_new_1">✅ 92.91% of total supply ALREADY BURNED on-chain</li>
             <li data-i18n="var_new_2">✅ 10,328 wallets already holding $EFOO across MultiversX</li>
-            <li data-i18n="var_new_3">✅ 628 hilarious Liga 1 &amp; UCL Player NFTs + 51 Goalkeepers</li>
+            <li data-i18n="var_new_3">✅ 628+ hilarious Liga 1 &amp; UCL Player NFTs + 51+ Keepers minted so far (supply ongoing)</li>
             <li data-i18n="var_new_4">✅ Web3 Locker Room, On-Site Swap/Mint &amp; EFOO FOMO Shootout</li>
           </ul>
         </div>
@@ -792,7 +789,7 @@
         <span class="section-kicker" data-i18n="locker_kicker">👕 THE LOCKER ROOM (LIVE ON-CHAIN STUDIO)</span>
         <h2 class="section-title" data-i18n="locker_title">CREATE YOUR SUNDAY LEAGUE $EFOO MEME</h2>
         <p class="section-desc" data-i18n="locker_desc">
-          Pull any real <strong>EFOOTBALL-91a4eb</strong> (#1–#628) or <strong>GOALKEEPER-cb9e3e</strong> (#1–#51) NFT live from the MultiversX blockchain (or pick directly from your connected wallet!), slap a degen caption on it, and download the PNG!
+          Pull any minted <strong>EFOOTBALL-91a4eb</strong> or <strong>GOALKEEPER-cb9e3e</strong> NFT live from the MultiversX blockchain (or pick directly from your connected wallet!), slap a degen caption on it, and download the PNG!
         </p>
       </div>
 
@@ -803,10 +800,10 @@
             <label data-i18n="ctrl_collection">1. Select Squad Collection &amp; Jersey Number</label>
             <div class="squad-selector">
               <select id="nft-collection-select" class="input-field">
-                <option value="EFOOTBALL-91a4eb" data-i18n="opt_players">⚽ Outfield Players (#1 – #628)</option>
-                <option value="GOALKEEPER-cb9e3e" data-i18n="opt_keepers">🧤 Goalkeepers (#1 – #51)</option>
+                <option value="EFOOTBALL-91a4eb" data-i18n="opt_players">⚽ Outfield Players (628+ Minted)</option>
+                <option value="GOALKEEPER-cb9e3e" data-i18n="opt_keepers">🧤 Goalkeepers (51+ Minted)</option>
               </select>
-              <input type="number" id="nft-nonce-input" class="input-field nonce-input" value="619" min="1" max="628" />
+              <input type="number" id="nft-nonce-input" class="input-field nonce-input" value="619" min="1" max="9999" />
               <button type="button" id="load-nft-btn" class="btn btn-secondary btn-sm" data-i18n="btn_load_nft">Load NFT</button>
               <button type="button" id="random-nft-btn" class="btn btn-primary btn-sm" data-i18n="btn_random_nft">🎲 Random</button>
             </div>
@@ -996,7 +993,7 @@
           <div class="brand-logo-preview dark-checker">
             <img src="branding/original/EFOOTBALL-91a4eb/logo.png" alt="EFOOTBALL-91a4eb Collection" />
           </div>
-          <h4>EFOOTBALL-91a4eb (628 NFTs)</h4>
+          <h4>EFOOTBALL-91a4eb (628+ Minted)</h4>
           <p data-i18n="asset_players_desc">Verified Outfield Players Collection emblem + updated metadata (PR #4812).</p>
           <div class="asset-links">
             <a href="branding/original/EFOOTBALL-91a4eb/logo.png" download="EFOOTBALL-91a4eb.png" class="pill-link">200×200 PNG</a>
@@ -1009,7 +1006,7 @@
           <div class="brand-logo-preview dark-checker">
             <img src="branding/original/GOALKEEPER-cb9e3e/logo.png" alt="GOALKEEPER-cb9e3e Collection" />
           </div>
-          <h4>GOALKEEPER-cb9e3e (51 NFTs)</h4>
+          <h4>GOALKEEPER-cb9e3e (51+ Minted)</h4>
           <p data-i18n="asset_keepers_desc">Verified Goalkeepers Collection emblem + updated metadata (PR #4813).</p>
           <div class="asset-links">
             <a href="branding/original/GOALKEEPER-cb9e3e/logo.png" download="GOALKEEPER-cb9e3e.png" class="pill-link">200×200 PNG</a>
@@ -1076,7 +1073,7 @@
           <span class="hub-emoji">👕</span>
           <div>
             <h4>XOXNO — Players NFT</h4>
-            <p data-i18n="hub_players">628 Verified Outfield Players (EFOOTBALL-91a4eb)</p>
+            <p data-i18n="hub_players">628+ Minted Outfield Players (EFOOTBALL-91a4eb)</p>
           </div>
           <span class="hub-arrow">↗</span>
         </a>
@@ -1085,7 +1082,7 @@
           <span class="hub-emoji">🧤</span>
           <div>
             <h4>XOXNO — Goalkeepers NFT</h4>
-            <p data-i18n="hub_keepers">51 Verified Goalkeepers (GOALKEEPER-cb9e3e)</p>
+            <p data-i18n="hub_keepers">51+ Minted Goalkeepers (GOALKEEPER-cb9e3e)</p>
           </div>
           <span class="hub-arrow">↗</span>
         </a>
@@ -1212,7 +1209,7 @@
         </button>
       </div>
 
-      <div class="modal-divider"><span data-i18n="modal_or">OR INSTANT WALLET EXPLORER / DEMO</span></div>
+      <div class="modal-divider"><span data-i18n="modal_or">OR INSTANT WALLET EXPLORER</span></div>
 
       <!-- 4. Direct erd1 Address Input -->
       <div class="direct-erd-box">
@@ -1221,9 +1218,6 @@
           <input type="text" id="manual-erd-input" class="input-field" placeholder="erd1..." />
           <button type="button" id="login-manual-btn" class="btn btn-secondary btn-sm" data-i18n="btn_load_wallet">Connect</button>
         </div>
-        <button type="button" id="modal-demo-owner-btn" class="demo-link-btn">
-          🏆 <span data-i18n="modal_demo_owner">Load Club Treasury Wallet (1.91B $EFOO + 11 Players + 2 Keepers)</span>
-        </button>
       </div>
     </div>
   </div>
