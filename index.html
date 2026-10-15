@@ -57,6 +57,9 @@
       </nav>
 
       <div class="nav-actions">
+        <a href="game.html" class="nav-game-pill" title="Play EFOO FOMO Arena">
+          ⚽ <span class="ngp-text">JÁTÉK / PLAY</span>
+        </a>
         <div class="lang-switch" role="group" aria-label="Language Switcher">
           <button type="button" class="lang-btn active" data-set-lang="en">🇬🇧 EN</button>
           <button type="button" class="lang-btn" data-set-lang="ro">🇷🇴 RO</button>
@@ -97,15 +100,30 @@
           <span class="sbl-item">⚽ <strong id="hero-live-supply-num">100,000,000,000</strong> $EFOO</span>
         </div>
 
-        <a href="#wallet-hub" class="skip-scroll-pill" data-i18n="hero_skip_btn">
-          ⚡ Skip to Swap &amp; Mint ⤵
-        </a>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <a href="game.html" class="hero-game-quick-pill" title="Play EFOO FOMO Arena">
+            ⚽ <span>PLAY GAME ↗</span>
+          </a>
+          <a href="#wallet-hub" class="skip-scroll-pill" data-i18n="hero_skip_btn">
+            ⚡ Skip to Swap &amp; Mint ⤵
+          </a>
+        </div>
       </div>
 
       <!-- Center 2-Column Transformation Stage -->
       <div class="container hero-stage-grid">
         <!-- LEFT: Dynamic Scroll-Morphing Narrative & Furnace Meter -->
         <div class="hero-narrative-col">
+          <!-- Mobile Fast Access Game Card (Visible on phone/tablet) -->
+          <div class="mobile-hero-game-card">
+            <div class="mhg-badge">🚨 LIVE 90+5' FOMO ARENA</div>
+            <div class="mhg-title">EFOO PENALTY SHOOTOUT</div>
+            <div class="mhg-meta">🏆 25,400,000 $EFOO Jackpot • 20 Szint • Szuper Képességek</div>
+            <a href="game.html" class="btn btn-primary mhg-play-btn">
+              ⚽ JÁTÉK INDÍTÁSA / PLAY NOW ➔
+            </a>
+          </div>
+
           <div class="badge-pill" id="hero-act-badge">
             <span class="pulse-dot" id="hero-pulse-dot"></span>
             <span id="hero-act-kicker" data-i18n="hero_badge">ACT I (2022) • THE CORPORATE ILLUSION &amp; BEAR TACKLE</span>
@@ -146,11 +164,11 @@
             </div>
 
             <div class="hero-cta-group">
-              <a href="#wallet-hub" class="btn btn-primary">
-                ⚡ <span data-i18n="cta_connect_buy">Connect • Buy $EFOO &amp; Mint</span>
-              </a>
-              <a href="game.html" class="btn btn-secondary">
+              <a href="game.html" class="btn btn-primary" style="box-shadow:0 0 25px rgba(168,255,0,0.5);">
                 ⚽ <span data-i18n="cta_play_fomo">Play EFOO FOMO Arena ↗</span>
+              </a>
+              <a href="#wallet-hub" class="btn btn-secondary">
+                ⚡ <span data-i18n="cta_connect_buy">Connect • Buy $EFOO &amp; Mint</span>
               </a>
               <a href="#meme-locker" class="btn btn-outline">
                 🎨 <span data-i18n="cta_meme_studio">Meme Studio</span>
@@ -367,6 +385,77 @@
             <strong class="score-val" id="stat-nfts">679+ Minted</strong>
             <small data-i18n="stat_nfts_sub">628 Players + 51 Keepers Minted (Supply Ongoing)</small>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       EFOO FOMO STADIUM PORTAL (STANDALONE 60FPS ARENA & 25.4M JACKPOT)
+       ===================================================================== -->
+  <section id="efoo-fomo-game" class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-kicker" data-i18n="game_kicker">🎮 STANDALONE 60FPS WEB3 STADIUM GAME</span>
+        <h2 class="section-title" data-i18n="game_title">EFOO FOMO ARENA: 90+5' NFT PENALTY &amp; JACKPOT</h2>
+        <p class="section-desc" data-i18n="game_desc">
+          Your <strong>EFOOTBALL-91a4eb</strong> &amp; <strong>GOALKEEPER-cb9e3e</strong> NFTs and <strong>$EFOO tokens</strong> unlock real superpowers in our dedicated 60FPS Stadium Arena! The more NFTs you hold, the higher your Goal Chance (up to <strong>90%</strong>) and Score Multiplier (up to <strong>11.0x</strong>)!
+        </p>
+      </div>
+
+      <!-- Active NFT & Token Power-Up Perks Bar -->
+      <div class="powerups-bar">
+        <div class="powerup-chip" id="perk-player">
+          <span class="perk-icon">👕</span>
+          <div>
+            <strong>1 to 6+ Striker NFTs</strong>
+            <small>Up to 90% Goal Chance, Banana Curve, Alien Radar &amp; 7.0x Score!</small>
+          </div>
+        </div>
+        <div class="powerup-chip" id="perk-keeper">
+          <span class="perk-icon">🧤</span>
+          <div>
+            <strong>1 to 2+ Goalkeeper NFTs</strong>
+            <small>Up to 2x Free Post-Ricochet Save Shields, Slow-Mo Bar &amp; +4.0x Boost!</small>
+          </div>
+        </div>
+        <div class="powerup-chip" id="perk-efoo">
+          <span class="perk-icon">🔥</span>
+          <div>
+            <strong>1M+ $EFOO Rocket Ball</strong>
+            <small>Unlocks Flaming Rocket Shot (+1,000 pts/goal) &amp; 25.4M $EFOO Jackpot Gate!</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- High-Converting Standalone Game Launchpad Card -->
+      <div style="margin-top:22px; padding:32px; border-radius:26px; background:radial-gradient(circle at 50% 20%, rgba(20,56,34,0.95), rgba(5,12,8,0.98)); border:2px solid rgba(168,255,0,0.45); box-shadow:0 24px 65px rgba(0,0,0,0.85), 0 0 40px rgba(168,255,0,0.14); text-align:center;">
+        <div style="display:flex; align-items:center; justify-content:center; gap:20px; flex-wrap:wrap; margin-bottom:18px;">
+          <img src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2FQmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb%2F9734.png&w=220&h=220&fit=cover" alt="Striker #619" style="width:88px; height:88px; border-radius:18px; border:2px solid #a8ff00; object-fit:cover;" />
+          <img src="branding/original/assests-2022/logo.png" alt="$EFOO Rocket Ball" style="width:96px; height:96px; border-radius:50%; border:3px solid #ffb800; box-shadow:0 0 34px rgba(255,85,0,0.75);" />
+          <img src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2Fbafybeicbszzifxxcpnq3zrndfdtf45wouhyjbklwk4ffio365icb2ylgg4%2F230.png&w=220&h=220&fit=cover" alt="Goalkeeper #2" style="width:88px; height:88px; border-radius:18px; border:2px solid #ffb800; object-fit:cover;" />
+        </div>
+
+        <div style="display:inline-flex; align-items:center; gap:14px; padding:8px 18px; border-radius:999px; background:rgba(0,0,0,0.55); border:1px solid rgba(255,184,0,0.45); font-family:var(--font-mono); font-size:0.85rem; color:#ffb800; margin-bottom:14px;">
+          <span>⏱️ 90+5' POT CLOCK: <strong id="fomo-countdown">04:42</strong></span>
+          <span>|</span>
+          <span>🏆 ACTIVE POT: <strong id="fomo-pot-amount" style="color:#a8ff00;">25,400,000 $EFOO</strong></span>
+        </div>
+
+        <h3 style="font-family:var(--font-display); font-size:clamp(2rem, 3.8vw, 3rem); color:#fff; margin:0 0 10px; letter-spacing:0.04em;">
+          STEP ONTO THE PITCH IN THE DEDICATED STADIUM ARENA
+        </h3>
+        <p style="max-width:680px; margin:0 auto 22px; color:#cbd5e1; font-size:0.98rem; line-height:1.5;">
+          Includes the <strong>Cinematic NFT &amp; $EFOO Broadcast Intro</strong>, <strong>60FPS Curving Rocket Physics</strong>, <strong>Real MultiversX NFT Player &amp; Keeper Graphics</strong>, and the <strong>25,400,000 $EFOO Injury Time Jackpot</strong>!
+        </p>
+
+        <div style="display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;">
+          <a href="game.html" class="btn btn-primary" style="font-size:1.25rem; padding:16px 36px; box-shadow:0 0 36px rgba(168,255,0,0.5);">
+            ⚽ LAUNCH EFOO FOMO STADIUM GAME ➔
+          </a>
+          <a href="#wallet-hub" class="btn btn-secondary" style="padding:15px 24px;">
+            ⚡ Buy $EFOO &amp; Mint NFTs First
+          </a>
         </div>
       </div>
     </div>
@@ -677,77 +766,6 @@
         </div>
         <div class="my-squad-grid" id="my-squad-grid">
           <!-- Populated dynamically with user's owned NFTs or featured preview -->
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- =====================================================================
-       EFOO FOMO STADIUM PORTAL (LAUNCHES DEDICATED GAME.HTML ARENA)
-       ===================================================================== -->
-  <section id="efoo-fomo-game" class="section">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-kicker" data-i18n="game_kicker">🎮 STANDALONE 60FPS WEB3 STADIUM GAME</span>
-        <h2 class="section-title" data-i18n="game_title">EFOO FOMO ARENA: 90+5' NFT PENALTY &amp; JACKPOT</h2>
-        <p class="section-desc" data-i18n="game_desc">
-          Your <strong>EFOOTBALL-91a4eb</strong> &amp; <strong>GOALKEEPER-cb9e3e</strong> NFTs and <strong>$EFOO tokens</strong> unlock real superpowers in our dedicated 60FPS Stadium Arena! The more NFTs you hold, the higher your Goal Chance (up to <strong>90%</strong>) and Score Multiplier (up to <strong>11.0x</strong>)!
-        </p>
-      </div>
-
-      <!-- Active NFT & Token Power-Up Perks Bar -->
-      <div class="powerups-bar">
-        <div class="powerup-chip" id="perk-player">
-          <span class="perk-icon">👕</span>
-          <div>
-            <strong>1 to 6+ Striker NFTs</strong>
-            <small>Up to 90% Goal Chance, Banana Curve, Alien Radar &amp; 7.0x Score!</small>
-          </div>
-        </div>
-        <div class="powerup-chip" id="perk-keeper">
-          <span class="perk-icon">🧤</span>
-          <div>
-            <strong>1 to 2+ Goalkeeper NFTs</strong>
-            <small>Up to 2x Free Post-Ricochet Save Shields, Slow-Mo Bar &amp; +4.0x Boost!</small>
-          </div>
-        </div>
-        <div class="powerup-chip" id="perk-efoo">
-          <span class="perk-icon">🔥</span>
-          <div>
-            <strong>1M+ $EFOO Rocket Ball</strong>
-            <small>Unlocks Flaming Rocket Shot (+1,000 pts/goal) &amp; 25.4M $EFOO Jackpot Gate!</small>
-          </div>
-        </div>
-      </div>
-
-      <!-- High-Converting Standalone Game Launchpad Card -->
-      <div style="margin-top:22px; padding:32px; border-radius:26px; background:radial-gradient(circle at 50% 20%, rgba(20,56,34,0.95), rgba(5,12,8,0.98)); border:2px solid rgba(168,255,0,0.45); box-shadow:0 24px 65px rgba(0,0,0,0.85), 0 0 40px rgba(168,255,0,0.14); text-align:center;">
-        <div style="display:flex; align-items:center; justify-content:center; gap:20px; flex-wrap:wrap; margin-bottom:18px;">
-          <img src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2FQmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb%2F9734.png&w=220&h=220&fit=cover" alt="Striker #619" style="width:88px; height:88px; border-radius:18px; border:2px solid #a8ff00; object-fit:cover;" />
-          <img src="branding/original/assests-2022/logo.png" alt="$EFOO Rocket Ball" style="width:96px; height:96px; border-radius:50%; border:3px solid #ffb800; box-shadow:0 0 34px rgba(255,85,0,0.75);" />
-          <img src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2Fbafybeicbszzifxxcpnq3zrndfdtf45wouhyjbklwk4ffio365icb2ylgg4%2F230.png&w=220&h=220&fit=cover" alt="Goalkeeper #2" style="width:88px; height:88px; border-radius:18px; border:2px solid #ffb800; object-fit:cover;" />
-        </div>
-
-        <div style="display:inline-flex; align-items:center; gap:14px; padding:8px 18px; border-radius:999px; background:rgba(0,0,0,0.55); border:1px solid rgba(255,184,0,0.45); font-family:var(--font-mono); font-size:0.85rem; color:#ffb800; margin-bottom:14px;">
-          <span>⏱️ 90+5' POT CLOCK: <strong id="fomo-countdown">04:42</strong></span>
-          <span>|</span>
-          <span>🏆 ACTIVE POT: <strong id="fomo-pot-amount" style="color:#a8ff00;">25,400,000 $EFOO</strong></span>
-        </div>
-
-        <h3 style="font-family:var(--font-display); font-size:clamp(2rem, 3.8vw, 3rem); color:#fff; margin:0 0 10px; letter-spacing:0.04em;">
-          STEP ONTO THE PITCH IN THE DEDICATED STADIUM ARENA
-        </h3>
-        <p style="max-width:680px; margin:0 auto 22px; color:#cbd5e1; font-size:0.98rem; line-height:1.5;">
-          Includes the <strong>Cinematic NFT &amp; $EFOO Broadcast Intro</strong>, <strong>60FPS Curving Rocket Physics</strong>, <strong>Real MultiversX NFT Player &amp; Keeper Graphics</strong>, and the <strong>25,400,000 $EFOO Injury Time Jackpot</strong>!
-        </p>
-
-        <div style="display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;">
-          <a href="game.html" class="btn btn-primary" style="font-size:1.25rem; padding:16px 36px; box-shadow:0 0 36px rgba(168,255,0,0.5);">
-            ⚽ LAUNCH EFOO FOMO STADIUM GAME ➔
-          </a>
-          <a href="#wallet-hub" class="btn btn-secondary" style="padding:15px 24px;">
-            ⚡ Buy $EFOO &amp; Mint NFTs First
-          </a>
         </div>
       </div>
     </div>
@@ -1230,6 +1248,17 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Mobile Sticky Game Quick-Launch Bar (visible only on mobile) -->
+  <div class="mobile-sticky-game-bar" id="mobile-sticky-game-bar">
+    <div class="msgb-info">
+      <span class="msgb-pot">🏆 25.4M $EFOO JACKPOT</span>
+      <span class="msgb-sub">90+5' Penalty Shootout</span>
+    </div>
+    <a href="game.html" class="msgb-btn">
+      ⚽ JÁTÉK / PLAY ➔
+    </a>
   </div>
 
   <script src="app.js"></script>

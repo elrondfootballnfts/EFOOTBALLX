@@ -3586,6 +3586,190 @@ body {
   }
 }
 
+/* ==========================================================================
+   MOBILE-FIRST FAST GAME ACCESS & SQUAD OPTIMIZATION
+   ========================================================================== */
+
+/* Navbar Game Launch Pill */
+.nav-game-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(168, 255, 0, 0.2), rgba(255, 184, 0, 0.25));
+  border: 1.5px solid var(--pitch-green);
+  color: #ffffff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 0 16px rgba(168, 255, 0, 0.35);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-game-pill:hover {
+  background: var(--pitch-green);
+  color: #06130c;
+  box-shadow: 0 0 25px rgba(168, 255, 0, 0.75);
+  transform: translateY(-1px);
+}
+
+/* Hero Top Ribbon Quick Game Pill */
+.hero-game-quick-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(168, 255, 0, 0.25), rgba(255, 184, 0, 0.35));
+  border: 1px solid var(--pitch-green);
+  color: #ffffff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 0 12px rgba(168, 255, 0, 0.3);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.hero-game-quick-pill:hover {
+  background: var(--pitch-green);
+  color: #06130c;
+  box-shadow: 0 0 20px rgba(168, 255, 0, 0.6);
+}
+
+/* Mobile Hero Game Card (Visible only on mobile devices) */
+.mobile-hero-game-card {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  background: radial-gradient(circle at 50% 20%, rgba(20, 56, 34, 0.95), rgba(5, 12, 8, 0.98));
+  border: 2px solid var(--pitch-green);
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75), 0 0 24px rgba(168, 255, 0, 0.25);
+  text-align: center;
+}
+
+.mhg-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--burn-orange);
+  letter-spacing: 0.08em;
+}
+
+.mhg-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.mhg-meta {
+  font-size: 0.8rem;
+  color: #a8ff00;
+  font-weight: 600;
+}
+
+.mhg-play-btn {
+  font-size: 1.05rem !important;
+  padding: 12px 20px !important;
+  font-weight: 800 !important;
+  box-shadow: 0 0 22px rgba(168, 255, 0, 0.55) !important;
+  margin-top: 4px;
+}
+
+/* Mobile Sticky Game Bar (Fixed bottom bar on phones) */
+.mobile-sticky-game-bar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: rgba(6, 19, 12, 0.97);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1.5px solid var(--pitch-green);
+  padding: 10px 16px;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.8), 0 0 20px rgba(168, 255, 0, 0.15);
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.msgb-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.msgb-pot {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--pitch-green);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.msgb-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.msgb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, var(--pitch-green), #8ee000);
+  color: #06130c;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 900;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 0 16px rgba(168, 255, 0, 0.45);
+  flex-shrink: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.msgb-btn:active {
+  transform: scale(0.96);
+}
+
+/* Responsive Rules for Mobile (max-width: 768px) */
+@media (max-width: 768px) {
+  /* HIDE NFT Squad Gallery completely on phones to eliminate multi-page scrolling fatigue */
+  .my-squad-panel {
+    display: none !important;
+  }
+  .reborn-squad-showcase .fan-card {
+    display: none !important;
+  }
+  /* Show immediate mobile game quick access card & sticky bottom bar */
+  .mobile-hero-game-card {
+    display: flex;
+  }
+  .mobile-sticky-game-bar {
+    display: flex;
+  }
+  /* Reserve clearance for bottom sticky bar so footer content isn't covered */
+  body {
+    padding-bottom: 66px;
+  }
+}
+
 .hidden {
   display: none !important;
 }

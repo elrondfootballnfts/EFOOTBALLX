@@ -1867,6 +1867,12 @@ function renderOwnedNftsGallery() {
   const sub = document.getElementById("squad-gallery-sub");
   if (!grid) return;
 
+  // Mobile optimization: Suppress NFT gallery rendering on phones to eliminate multi-page scrolling fatigue
+  if (window.innerWidth <= 768) {
+    grid.innerHTML = "";
+    return;
+  }
+
   grid.innerHTML = "";
 
   const isConnected = Boolean(connectedAddress);
