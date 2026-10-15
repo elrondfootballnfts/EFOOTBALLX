@@ -823,7 +823,19 @@
           </div>
 
           <div class="control-group">
-            <label data-i18n="ctrl_presets">2. Quick Sunday League Meme Presets (EN / RO)</label>
+            <div class="ctrl-header-row">
+              <label data-i18n="ctrl_presets">2. AI Meme Generator &amp; Presets (EN / RO)</label>
+              <button type="button" id="ai-generate-meme-btn" class="btn btn-primary btn-sm ai-magic-btn">
+                ✨ <span data-i18n="btn_ai_meme">AI Generate Meme</span>
+              </button>
+            </div>
+            <div class="ai-mood-chips" id="ai-mood-chips">
+              <button type="button" class="mood-chip active" data-mood="all" data-i18n="mood_all">🎲 All Themes</button>
+              <button type="button" class="mood-chip" data-mood="degen" data-i18n="mood_degen">🔥 Degen / Trading</button>
+              <button type="button" class="mood-chip" data-mood="sunday" data-i18n="mood_sunday">🍺 Sunday League</button>
+              <button type="button" class="mood-chip" data-mood="var" data-i18n="mood_var">🟥 VAR &amp; Ref</button>
+              <button type="button" class="mood-chip" data-mood="keeper" data-i18n="mood_keeper">🧤 Goalkeepers</button>
+            </div>
             <div class="preset-buttons" id="preset-buttons">
               <!-- Populated by JS based on current language -->
             </div>
@@ -843,9 +855,15 @@
             <button type="button" id="download-meme-btn" class="btn btn-primary">
               💾 <span data-i18n="btn_download_meme">Download Meme PNG</span>
             </button>
-            <a id="tweet-meme-btn" href="https://x.com/intent/tweet" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+            <button type="button" id="copy-meme-btn" class="btn btn-secondary">
+              📋 <span data-i18n="btn_copy_meme">Copy Image</span>
+            </button>
+            <a id="tweet-meme-btn" href="https://x.com/intent/tweet" target="_blank" rel="noopener noreferrer" class="btn btn-outline tweet-btn-highlight">
               🐦 <span data-i18n="btn_share_x">Post on X (Twitter)</span>
             </a>
+          </div>
+          <div id="meme-share-hint" class="meme-share-hint">
+            💡 <span data-i18n="hint_share_x">Clicking 'Post on X' auto-copies the image &amp; prepares your viral tweet! Just press <strong>Ctrl+V</strong> to attach the image on X!</span>
           </div>
         </div>
 

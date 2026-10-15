@@ -112,7 +112,15 @@ const I18N = {
     opt_keepers: "🧤 Goalkeepers (#1 – #51)",
     btn_load_nft: "Load NFT",
     btn_random_nft: "🎲 Random",
-    ctrl_presets: "2. Quick Sunday League Meme Presets (EN / RO)",
+    ctrl_presets: "2. AI Meme Generator & Presets (EN / RO)",
+    btn_ai_meme: "AI Generate Meme",
+    btn_copy_meme: "Copy Image",
+    mood_all: "🎲 All Themes",
+    mood_degen: "🔥 Degen / Trading",
+    mood_sunday: "🍺 Sunday League",
+    mood_var: "🟥 VAR & Ref",
+    mood_keeper: "🧤 Goalkeepers",
+    hint_share_x: "Clicking 'Post on X' auto-copies the image & prepares your viral tweet! Just press Ctrl+V to attach the image on X!",
     ctrl_top_text: "3. Top Text",
     ctrl_bottom_text: "4. Bottom Text",
     btn_download_meme: "Download Meme PNG",
@@ -272,7 +280,15 @@ const I18N = {
     opt_keepers: "🧤 Portari (#1 – #51)",
     btn_load_nft: "Încarcă NFT",
     btn_random_nft: "🎲 Aleatoriu",
-    ctrl_presets: "2. Dume Rapide de Duminică (Preset-uri)",
+    ctrl_presets: "2. Generator Meme AI & Dume de Vestiar (EN / RO)",
+    btn_ai_meme: "✨ Generează Meme AI",
+    btn_copy_meme: "Copiază Imaginea",
+    mood_all: "🎲 Toate Temele",
+    mood_degen: "🔥 Degen / Trading",
+    mood_sunday: "🍺 Liga de Duminică",
+    mood_var: "🟥 Arbitru & VAR",
+    mood_keeper: "🧤 Portari Legende",
+    hint_share_x: "Apasă 'Postează pe X' — copiem automat imaginea și pregătim tweet-ul viral! Apasă doar Ctrl+V pe X pentru a atașa meme-ul!",
     ctrl_top_text: "3. Text Sus",
     ctrl_bottom_text: "4. Text Jos",
     btn_download_meme: "Descarcă Meme PNG",
@@ -368,6 +384,81 @@ const MEME_PRESETS = {
   ]
 };
 
+const AI_MEME_CATALOG = {
+  degen: {
+    en: [
+      { top: "BOUGHT $EFOO AT THE TOP", bottom: "STILL CHEAPER THAN A CHAMPIONS LEAGUE TICKET" },
+      { top: "PORTFOLIO DOWN 40%?", bottom: "WE SCORE 3 GOALS IN 90+5' AND WE'RE GREEN" },
+      { top: "92.9% BURNED ON MULTIVERSX", bottom: "ONLY THING BURNING FASTER IS MY HAMSTRING" },
+      { top: "TRADING 1-MINUTE CANDLES", bottom: "WHILE TAKING A CORNER KICK" },
+      { top: "WIFE THINKS I'M PLAYING FIFA", bottom: "I'M RUNNING A SUNDAY LEAGUE SYNDICATE" },
+      { top: "BEAR MARKET TACKLED MY WALLET", bottom: "BUT $EFOO SCORED ON THE COUNTER-ATTACK" },
+      { top: "CHECKING DEXSCREENER AT 3 AM", bottom: "DREAMING OF A 100X OVERHEAD KICK" }
+    ],
+    ro: [
+      { top: "AM VÂNDUT MAȘINA SĂ IAU $EFOO", bottom: "DACĂ PUMPEAZĂ IAU CLUBUL, DACĂ NU VIN PE JOS LA MECI" },
+      { top: "92.9% TOKENI ARȘI PE BLOCKCHAIN", bottom: "MAI RAPID DECÂT ARDE MICUL PE GRĂTAR" },
+      { top: "CÂND TOATĂ PIAȚA E PE ROȘU", bottom: "DAR NOI JUCĂM ÎN TRICOU VERDE NEON" },
+      { top: "AM SCHIMBAT EGLD PE $EFOO LA PAUZĂ", bottom: "ÎN MINUTUL 90 ERAM PE PROFIT LA TERASĂ" },
+      { top: "NEVASTA CREDE CĂ SUNT LA SALĂ", bottom: "EU DAU PENALTY-URI ON-CHAIN ÎN EFOO FOMO" },
+      { top: "CUMPĂRĂ LA DIP, VINDE LA GOL", bottom: "FILOZOFIA OFICIALĂ SUNDAY LEAGUE DEGEN FC" },
+      { top: "TOȚI VOR BALONUL DE AUR", bottom: "NOI VREM DOAR VERDE PE ONEDEX ȘI XEXCHANGE" }
+    ]
+  },
+  sunday: {
+    en: [
+      { top: "WARMED UP WITH A CIGARETTE", bottom: "SUBBED OFF IN MINUTE 12 FOR BEER HYDRATION" },
+      { top: "TACTICAL MASTERCLASS:", bottom: "KICK IT LONG AND PRAY TO MULTIVERSX" },
+      { top: "ASTROTURF TEMPERATURE: 60°C", bottom: "KNEE SCRAPES HEAL, $EFOO GLORY IS FOREVER" },
+      { top: "CALLED IN SICK FOR WORK", bottom: "STARTING AS FALSE 9 IN SUNDAY LEAGUE" },
+      { top: "COACH: 'PASS AND MOVE!'", bottom: "ME: DRIBBLES INTO 4 DEFENDERS AND CALLS FOUL" },
+      { top: "BEACH BALL IN THE BOX", bottom: "STILL BETTER BALL CONTROL THAN OUR STRIKER" },
+      { top: "MISSED AN OPEN GOAL FROM 2 YARDS", bottom: "BLAMED THE SHADOW OF THE FLOODLIGHT" }
+    ],
+    ro: [
+      { top: "ÎNCĂLZIRE CU O ȚIGARĂ ȘI O BERE", bottom: "SCHIMBARE ÎN MINUTUL 15 CĂ M-A LUAT SPATELE" },
+      { top: "SCHEMA TACTICĂ A LUI NEA GICĂ:", bottom: "BĂBUȚĂ LUNGĂ ȘI PE EI CĂ SUNT OBOSIȚI" },
+      { top: "CONVOCAT LA 9 DIMINEAȚA DUMINICĂ", bottom: "DIRECT DIN CLUB PE SINTETICUL DE LA BAZĂ" },
+      { top: "AM DAT CU STÂNGU-N DREPTU'", bottom: "DAR ÎN VESTIAR SUNT NUMĂRUL 10 LA DUME" },
+      { top: "TEREN CU GROPĂ ȘI BALTĂ", bottom: "VIBE DE CHAMPIONS LEAGUE PE MULTIVERSX" },
+      { top: "DUPĂ MECI MERGEM LA PET ȘI SEMINȚE", bottom: "ANALIZA TACTICĂ SE FACE LA TERASĂ" },
+      { top: "AM RĂMAS FĂRĂ AER ÎN MINUTUL 8", bottom: "DAR SUFLETUL TRAGE SĂ DEA GOLUL VICTORIEI" }
+    ]
+  },
+  var: {
+    en: [
+      { top: "VAR CHECKING FOR 7 MINUTES", bottom: "REFEREE IS JUST CHECKING HIS DEX WALLET" },
+      { top: "CLEAR HANDBALL IN THE BOX", bottom: "REF SAYS: 'BALL TO HAND, PLAY ON DEGEN'" },
+      { top: "RED CARD FOR TACKLING THE REF?", bottom: "I WAS JUST TRYING TO SHOW HIM MY $EFOO BAG" },
+      { top: "REFEREE BRIBED WITH COLD PET BEER", bottom: "OFFSIDE RULE OFFICIALLY SUSPENDED TODAY" },
+      { top: "LINE DRAWER IN VAR ROOM", bottom: "USING RULER PURCHASED ON XOXNO" }
+    ],
+    ro: [
+      { top: "SE UITĂ ARBITRUL LA VAR DE 5 MINUTE", bottom: "DE FAPT SE UITA LA GRAFICUL $EFOO PE TELEFON" },
+      { top: "PENALTY CLAR CA LUMINA ZILEI", bottom: "ARBITRUL ZICE: 'LASĂ BĂ CĂ JUCĂM LA AMATORI'" },
+      { top: "CARTONAȘ ROȘU ÎN MINUTUL 4", bottom: "AM INTRAT CU TALPA DAR CU SUFLETUL CURAT" },
+      { top: "ARBITRUL A PRIMIT 2 BĂNCI DE BERE", bottom: "OFSAID-UL S-A ANULAT PÂNĂ LA FINALUL MECIULUI" },
+      { top: "TUȘIERUL DOARME PE LINIE", bottom: "SE TREZEȘTE DOAR CÂND MARCHEAZĂ $EFOO" }
+    ]
+  },
+  keeper: {
+    en: [
+      { top: "ONLY 51 GOALKEEPERS ON CHAIN", bottom: "CONCEDES 8 GOALS, STILL ASKS FOR MAN OF THE MATCH" },
+      { top: "GOALKEEPER DIVING FOR THE BALL", bottom: "ENDED UP IN THE CAR PARK BEHIND THE PITCH" },
+      { top: "WALL SET UP PERFECTLY", bottom: "BALL FLIES STRAIGHT THROUGH THE MIDDLE" },
+      { top: "KEEPER: 'I HAD IT COVERED!'", bottom: "BALL IS ALREADY NETTED IN TOP BINS" },
+      { top: "GLOVES SMELL LIKE 2022", bottom: "REFLEXES POWERED BY $EFOO ADRENALINE" }
+    ],
+    ro: [
+      { top: "DOAR 51 DE PORTARI EXISTĂ PE MULTIVERSX", bottom: "IA 6 GOLURI DAR CERE NOTA 10 PENTRU DEGAJĂRI" },
+      { top: "PORTARUL PLONJEAZĂ DUPĂ MINGE", bottom: "A ATERIZAT DIRECT ÎN GRĂTARUL DE LA TERASĂ" },
+      { top: "A PUS ZID DIN 4 OAMENI", bottom: "MINGEA A TRECUT PRINTRE PICIOARELE TUTUROR" },
+      { top: "STRIGĂ 'A MEA, A MEA!'", bottom: "ȘI SE UITĂ CU ADMIRAȚIE CUM INTRĂ ÎN VINCLU" },
+      { top: "MĂNUȘI CU GAURĂ ÎN PALMĂ", bottom: "DAR PE BLOCKCHAIN ARE PARADĂ GARANTATĂ" }
+    ]
+  }
+};
+
 // On-Chain Smart Contract Constants (Verified on MultiversX Mainnet)
 const CONTRACTS = {
   ONEDEX_PAIR: "erd1qqqqqqqqqqqqqpgqqz6vp9y50ep867vnr296mqf3dduh6guvmvlsu3sujc",
@@ -427,6 +518,7 @@ let currentNftMeta = {
     { trait_type: "TOKENS", value: "ISET" }
   ]
 };
+let currentMemeMood = "all";
 
 // EFOO FOMO Game State
 let gameState = {
@@ -480,6 +572,7 @@ function amountToHex(amountFloat, decimals = 18) {
 }
 
 // Helper: Show Toast Notification
+let toastDismissTimeout = null;
 function showToast(messageHtml, explorerUrl = "") {
   const toast = document.getElementById("tx-toast");
   const toastLink = document.getElementById("tx-toast-link");
@@ -496,6 +589,11 @@ function showToast(messageHtml, explorerUrl = "") {
     }
   }
   toast.classList.remove("hidden");
+
+  if (toastDismissTimeout) clearTimeout(toastDismissTimeout);
+  toastDismissTimeout = setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 6000);
 }
 
 // ============================================================================
@@ -2383,6 +2481,52 @@ function renderMemePresets() {
   });
 }
 
+function generateAiMeme() {
+  const aiBtn = document.getElementById("ai-generate-meme-btn");
+  const origHtml = aiBtn ? aiBtn.innerHTML : "";
+  if (aiBtn) {
+    aiBtn.innerHTML = currentLang === "ro" ? "⚡ Se gândește AI-ul..." : "⚡ AI Cooking...";
+    aiBtn.disabled = true;
+  }
+
+  // Determine mood category
+  let category = currentMemeMood;
+  if (!category || category === "all") {
+    // If the loaded NFT is a goalkeeper, give higher probability (40%) to goalkeeper jokes
+    const isKeeperNft = currentNftMeta?.identifier?.startsWith("GOALKEEPER");
+    if (isKeeperNft && Math.random() < 0.45) {
+      category = "keeper";
+    } else {
+      const categories = ["degen", "sunday", "var", "keeper"];
+      category = categories[Math.floor(Math.random() * categories.length)];
+    }
+  }
+
+  const catalogList = (AI_MEME_CATALOG[category] && (AI_MEME_CATALOG[category][currentLang] || AI_MEME_CATALOG[category].en)) || [];
+  if (catalogList.length > 0) {
+    const curTop = (document.getElementById("meme-top-input")?.value || "").trim().toUpperCase();
+    const candidates = catalogList.filter((item) => item.top.toUpperCase() !== curTop);
+    const chosen = candidates.length > 0
+      ? candidates[Math.floor(Math.random() * candidates.length)]
+      : catalogList[Math.floor(Math.random() * catalogList.length)];
+
+    const topInput = document.getElementById("meme-top-input");
+    const bottomInput = document.getElementById("meme-bottom-input");
+    if (topInput) topInput.value = chosen.top;
+    if (bottomInput) bottomInput.value = chosen.bottom;
+
+    drawMemeCanvas();
+    updateTweetShareLink();
+  }
+
+  setTimeout(() => {
+    if (aiBtn) {
+      aiBtn.innerHTML = origHtml || (currentLang === "ro" ? "✨ Generează Meme AI" : "✨ AI Generate Meme");
+      aiBtn.disabled = false;
+    }
+  }, 320);
+}
+
 function toHexNonce(nonce) {
   let hex = Number(nonce).toString(16);
   if (hex.length % 2 !== 0) hex = "0" + hex;
@@ -2580,16 +2724,78 @@ function downloadMemePng() {
   }
 }
 
+async function copyMemeToClipboard(isQuiet = false) {
+  const canvas = document.getElementById("meme-canvas");
+  if (!canvas) return false;
+
+  return new Promise((resolve) => {
+    try {
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          resolve(false);
+          return;
+        }
+        try {
+          if (navigator.clipboard && window.ClipboardItem) {
+            await navigator.clipboard.write([
+              new ClipboardItem({ "image/png": blob })
+            ]);
+            if (!isQuiet) {
+              showToast(
+                currentLang === "ro"
+                  ? "📋 Imagine copiată în clipboard! Apasă <strong>Ctrl+V</strong> pentru a o lipi oriunde."
+                  : "📋 Meme image copied to clipboard! Press <strong>Ctrl+V</strong> to paste anywhere."
+              );
+            }
+            resolve(true);
+          } else {
+            if (!isQuiet) {
+              downloadMemePng();
+              showToast(
+                currentLang === "ro"
+                  ? "💾 Clipboard indisponibil pe acest dispozitiv. Am descărcat fișierul PNG!"
+                  : "💾 Clipboard unavailable on this device. Downloaded PNG instead!"
+              );
+            }
+            resolve(false);
+          }
+        } catch (err) {
+          console.warn("Clipboard copy failed, fallback to download:", err);
+          if (!isQuiet) {
+            downloadMemePng();
+            showToast(
+              currentLang === "ro"
+                ? "💾 Permisiune clipboard refuzată. Am descărcat fișierul PNG!"
+                : "💾 Clipboard permission denied. Downloaded PNG instead!"
+            );
+          }
+          resolve(false);
+        }
+      }, "image/png");
+    } catch (e) {
+      console.error("Canvas toBlob error:", e);
+      if (!isQuiet) downloadMemePng();
+      resolve(false);
+    }
+  });
+}
+
 function updateTweetShareLink() {
   const topText = (document.getElementById("meme-top-input")?.value || "").trim();
   const bottomText = (document.getElementById("meme-bottom-input")?.value || "").trim();
   const tweetBtn = document.getElementById("tweet-meme-btn");
   if (!tweetBtn) return;
 
+  const quote = (topText || bottomText)
+    ? `"${topText}${topText && bottomText ? ' — ' : ''}${bottomText}"`
+    : `"Sunday League Degen FC — 92.9% Burned on MultiversX!"`;
+
+  const nftTitle = currentNftMeta?.name || "EFOOTBALL NFT";
+
   const text =
     currentLang === "ro"
-      ? `⚽ ${topText} — ${bottomText}!\n\n🔥 92.91% $EFOO ARȘI | 10,328 Holderi pe #MultiversX\n👕 ${currentNftMeta.name}\n🌐 https://efoo.optibase.ro/\n\n@EFootball_X #EFOO #EGLD`
-      : `⚽ ${topText} — ${bottomText}!\n\n🔥 92.91% $EFOO BURNED | 10,328 Holders on #MultiversX\n👕 ${currentNftMeta.name}\n🌐 https://efoo.optibase.ro/\n\n@EFootball_X #EFOO #EGLD`;
+      ? `⚽ ${quote} 🍺\n\nSunday League Degen FC ($EFOO) • 92.9% Arși pe @MultiversX 🔥\n👕 ${nftTitle}\n🌐 https://efoo.optibase.ro/\n\n#EFOO #MultiversX #EGLD #Fotbal`
+      : `⚽ ${quote} 🍺\n\nSunday League Degen FC ($EFOO) • 92.9% Burned on @MultiversX 🔥\n👕 ${nftTitle}\n🌐 https://efoo.optibase.ro/\n\n#EFOO #MultiversX #EGLD #Web3Gaming`;
 
   tweetBtn.href = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`;
 }
@@ -2873,6 +3079,27 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("download-meme-btn")?.addEventListener("click", downloadMemePng);
+  document.getElementById("copy-meme-btn")?.addEventListener("click", () => copyMemeToClipboard(false));
+  document.getElementById("ai-generate-meme-btn")?.addEventListener("click", generateAiMeme);
+
+  document.querySelectorAll(".mood-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll(".mood-chip").forEach((c) => c.classList.remove("active"));
+      chip.classList.add("active");
+      currentMemeMood = chip.dataset.mood || "all";
+      generateAiMeme();
+    });
+  });
+
+  document.getElementById("tweet-meme-btn")?.addEventListener("click", async () => {
+    updateTweetShareLink();
+    await copyMemeToClipboard(true);
+    showToast(
+      currentLang === "ro"
+        ? "🚀 <strong>Imagine copiată în clipboard!</strong> Pe X (Twitter), apasă <strong>Ctrl+V</strong> pentru a atașa meme-ul la postare!"
+        : "🚀 <strong>Meme image copied to clipboard!</strong> On X (Twitter), press <strong>Ctrl+V</strong> to attach the meme to your post!"
+    );
+  });
 
   // Initial Data Loads & Hero Scrollytelling Engine
   initHeroScrollytelling();
