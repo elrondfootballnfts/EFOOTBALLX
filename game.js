@@ -30,7 +30,18 @@ const I18N_GAME = {
     btn_starter_bonus: "STARTER: 1.5M $EFOO (0.035 EGLD)",
     btn_share_x: "SHARE ON X",
     btn_buy_3m: "BUY 3M $EFOO (0.1 EGLD)",
-    btn_mint_nft: "MINT NFT (0.08 EGLD)"
+    btn_mint_nft: "MINT NFT (0.08 EGLD)",
+    start_market_title: "SUPER SKILLS & MARKETPLACE",
+    start_market_sub: "Equip tactical power-ups (-10% on 5x packs) & scout NFTs!",
+    btn_open_market: "🛒 OPEN STORE (-10%)",
+    sum_market_title: "RESTOCK SUPER SKILLS (-10% PACKS)",
+    sum_market_sub: "Refill 5x packs with 10% discount to beat the next boss keeper!",
+    btn_skills_market: "STORE (-10%)",
+    tab_skills: "⚡ SUPER SKILLS (-10%)",
+    tab_nfts: "🃏 NFT MARKETPLACE",
+    tab_tokens: "💰 BUY $EFOO",
+    owned_label: "Owned",
+    discount_tag: "-10% OFF"
   },
   hu: {
     btn_exit: "VISSZA A FŐOLDALRA",
@@ -56,7 +67,18 @@ const I18N_GAME = {
     btn_starter_bonus: "STARTER: 1.5M $EFOO (0.035 EGLD)",
     btn_share_x: "MEGOSZTÁS X-EN",
     btn_buy_3m: "3M $EFOO VÉTEL (0.1 EGLD)",
-    btn_mint_nft: "NFT VERÉS (0.08 EGLD)"
+    btn_mint_nft: "NFT VERÉS (0.08 EGLD)",
+    start_market_title: "SZUPERKÉPESSÉGEK & MARKETPLACE",
+    start_market_sub: "Szereld fel a csapatod (-10% az 5x csomagokra) & NFT piac!",
+    btn_open_market: "🛒 BOLT MEGNYITÁSA (-10%)",
+    sum_market_title: "KÉPESSÉGEK ÚJRATÖLTÉSE (-10% CSOMAGOK)",
+    sum_market_sub: "Töltsd újra a készleted 10% kedvezménnyel a következő szint legyőzéséhez!",
+    btn_skills_market: "BOLT (-10%)",
+    tab_skills: "⚡ SZUPERKÉPESSÉGEK (-10%)",
+    tab_nfts: "🃏 NFT PIAC (XOXNO / FRAMEIT)",
+    tab_tokens: "💰 $EFOO VÁSÁRLÁS",
+    owned_label: "Birtokolt",
+    discount_tag: "-10% KEDVEZMÉNY"
   },
   ro: {
     btn_exit: "IEȘIRE",
@@ -82,7 +104,18 @@ const I18N_GAME = {
     btn_starter_bonus: "STARTER: 1.5M $EFOO (0.035 EGLD)",
     btn_share_x: "DISTRIBUIE PE X",
     btn_buy_3m: "CUMPĂRĂ ~2.84M $EFOO (0.1 EGLD)",
-    btn_mint_nft: "MINTEAZĂ NFT (0.08 EGLD)"
+    btn_mint_nft: "MINTEAZĂ NFT (0.08 EGLD)",
+    start_market_title: "SUPER SKILLS & MARKETPLACE",
+    start_market_sub: "Echipează super-puteri (-10% la pachetele 5x) & piața NFT!",
+    btn_open_market: "🛒 DESCHIDE MAGAZINUL (-10%)",
+    sum_market_title: "REÎNCARCĂ SUPER PUTERILE (-10% PACHETE)",
+    sum_market_sub: "Reîncarcă pachete 5x cu 10% reducere pentru a bate portarul boss!",
+    btn_skills_market: "MAGAZIN (-10%)",
+    tab_skills: "⚡ SUPER PUTERI (-10%)",
+    tab_nfts: "🃏 PIAȚĂ NFT (XOXNO)",
+    tab_tokens: "💰 CUMPĂRĂ $EFOO",
+    owned_label: "Deținute",
+    discount_tag: "-10% REDUCERE"
   }
 };
 
@@ -751,6 +784,44 @@ function formatCompactEfoo(val) {
   return Math.floor(val).toLocaleString("en-US");
 }
 
+function updateHudEfooBadge() {
+  const hudEfooLbl = document.getElementById("hud-efoo-balance-label");
+  const hudEfooBadge = document.getElementById("hud-efoo-badge");
+  const shopBal = document.getElementById("shop-efoo-balance");
+  if (hudEfooLbl) {
+    hudEfooLbl.textContent = `${formatCompactEfoo(walletState.efooBalance)} $EFOO`;
+  }
+  if (hudEfooBadge) {
+    hudEfooBadge.classList.toggle("active", walletState.efooBalance >= MIN_EFOO_REQUIRED);
+  }
+  if (shopBal) {
+    shopBal.textContent = `${Math.floor(walletState.efooBalance).toLocaleString(currentLang === "hu" ? "hu-HU" : "en-US")} $EFOO`;
+  }
+}
+
+function updateStartSkillsChips() {
+  const container = document.getElementById("start-skills-chips");
+  if (!container) return;
+  const inv = getSkillsInventory();
+  const isHu = currentLang === "hu";
+  const isRo = currentLang === "ro";
+
+  container.innerHTML = "";
+  SKILLS.forEach((s) => {
+    const count = inv[s.id] || 0;
+    const chip = document.createElement("div");
+    chip.className = `skill-chip ${count <= 0 ? "empty" : ""}`;
+    const name = isHu ? s.nameHu : (isRo ? s.nameRo : s.name);
+    chip.innerHTML = `
+      <span>${s.icon}</span>
+      <span>${name.split(" ")[0]}</span>
+      <strong style="color:${count > 0 ? s.color : "#64748b"};">(${count})</strong>
+    `;
+    chip.title = `${name}: ${count} ${isHu ? "db a készletedben" : "in your match locker"}`;
+    container.appendChild(chip);
+  });
+}
+
 function updateEntryGateUI() {
   const card = document.getElementById("entry-gate-card");
   const badge = document.getElementById("eg-lock-badge");
@@ -924,6 +995,7 @@ function setStartScreenState(isActive) {
     overlay?.classList.remove("hidden");
     document.body.classList.add("start-screen-active");
     hud?.classList.add("start-hidden");
+    updateStartSkillsChips();
   } else {
     overlay?.classList.add("hidden");
     document.body.classList.remove("start-screen-active");
@@ -1504,6 +1576,7 @@ function openSummaryModal() {
   const p = getPowers();
   const lv = getLevelParams(game.level);
   const isRo = currentLang === "ro";
+  const isHu = currentLang === "hu";
 
   const cleared = game.goals >= lv.goalsNeeded;
   game.levelCleared = cleared;
@@ -1529,12 +1602,16 @@ function openSummaryModal() {
   const kickerEl = document.getElementById("sum-kicker");
   if (titleEl) {
     titleEl.textContent = cleared
-      ? isRo
-        ? `🏆 LEVEL ${game.level} ÎNVINS!`
-        : `🏆 LEVEL ${game.level} CLEARED!`
-      : isRo
-      ? `LEVEL ${game.level} ESUAT`
-      : `LEVEL ${game.level} FAILED`;
+      ? (isHu
+        ? `🏆 ${game.level}. SZINT TELJESÍTVE!`
+        : (isRo
+          ? `🏆 LEVEL ${game.level} ÎNVINS!`
+          : `🏆 LEVEL ${game.level} CLEARED!`))
+      : (isHu
+        ? `${game.level}. SZINT SIKERTELEN`
+        : (isRo
+          ? `LEVEL ${game.level} ESUAT`
+          : `LEVEL ${game.level} FAILED`));
     titleEl.style.color = cleared ? "#a8ff00" : "#fca5a5";
   }
   if (kickerEl) {
@@ -1544,10 +1621,26 @@ function openSummaryModal() {
 
   const lvlLine = document.getElementById("sum-level-line");
   if (lvlLine) {
-    const bonusTxt = bonus > 0 ? ` • ${isRo ? "Bonus" : "Bonus"} <strong>+${bonus.toLocaleString("en-US")}</strong>${perfect ? " ⭐ PERFECT" : ""}` : "";
-    lvlLine.innerHTML = isRo
-      ? `Goluri <strong>${game.goals}/${lv.goalsNeeded}</strong> necesare${bonusTxt}`
-      : `Goals <strong>${game.goals}</strong> • needed <strong>${lv.goalsNeeded}</strong> of ${SHOTS_PER_MATCH}${bonusTxt}`;
+    const bonusTxt = bonus > 0 ? ` • ${isHu ? "Bónusz" : (isRo ? "Bonus" : "Bonus")} <strong>+${bonus.toLocaleString("en-US")}</strong>${perfect ? " ⭐ PERFECT" : ""}` : "";
+    lvlLine.innerHTML = isHu
+      ? `Gólok: <strong>${game.goals}/${lv.goalsNeeded}</strong> szükséges${bonusTxt}`
+      : (isRo
+        ? `Goluri <strong>${game.goals}/${lv.goalsNeeded}</strong> necesare${bonusTxt}`
+        : `Goals <strong>${game.goals}</strong> • needed <strong>${lv.goalsNeeded}</strong> of ${SHOTS_PER_MATCH}${bonusTxt}`);
+  }
+
+  // Marketplace callout in summary
+  const sumMarketTitle = document.getElementById("sum-market-title");
+  const sumMarketDesc = document.getElementById("sum-market-desc");
+  if (sumMarketTitle) {
+    sumMarketTitle.textContent = isHu
+      ? "KÉPESSÉGEK ÚJRATÖLTÉSE (-10% CSOMAGOK)"
+      : (isRo ? "REÎNCARCĂ SUPER PUTERILE (-10% PACHETE)" : "RESTOCK SUPER SKILLS (-10% PACKS)");
+  }
+  if (sumMarketDesc) {
+    sumMarketDesc.textContent = isHu
+      ? "Fogyóban a készleted? Vegyél 5x csomagot 10% kedvezménnyel a következő szinthez!"
+      : (isRo ? "Reîncarcă pachete 5x cu 10% reducere pentru a bate portarul boss!" : "Refill 5x packs with 10% discount to beat the next boss keeper!");
   }
 
   // Buttons: next level only when cleared; otherwise retry
@@ -1557,10 +1650,12 @@ function openSummaryModal() {
     const show = cleared && game.level < MAX_LEVEL;
     nextBtn.classList.toggle("hidden", !show);
     const nl = nextBtn.querySelector("span");
-    if (nl) nl.textContent = isRo ? `NIVELUL ${game.level + 1}` : `NEXT: LEVEL ${game.level + 1}`;
+    if (nl) nl.textContent = isHu ? `KÖVETKEZŐ: ${game.level + 1}. SZINT` : (isRo ? `NIVELUL ${game.level + 1}` : `NEXT: LEVEL ${game.level + 1}`);
   }
   if (replayLbl) {
-    replayLbl.textContent = cleared ? (isRo ? "REJOACĂ NIVELUL" : "REPLAY LEVEL") : isRo ? "ÎNCEARCĂ DIN NOU" : "RETRY LEVEL";
+    replayLbl.textContent = cleared
+      ? (isHu ? "SZINT ÚJRAJÁTSZÁSA" : (isRo ? "REJOACĂ NIVELUL" : "REPLAY LEVEL"))
+      : (isHu ? "ÚJRA PRÓBÁLOM" : (isRo ? "ÎNCEARCĂ DIN NOU" : "RETRY LEVEL"));
   }
 
   // Progress, leaderboard, daily streak
@@ -1577,7 +1672,9 @@ function openSummaryModal() {
       });
     }
     if (info && info.unlockedNow) {
-      rankLine.textContent = isRo ? `🔓 LEVEL ${info.newLevel} DEBLOCAT!` : `🔓 LEVEL ${info.newLevel} UNLOCKED!`;
+      rankLine.textContent = isHu
+        ? `🔓 ${info.newLevel}. SZINT FELOLDVA!`
+        : (isRo ? `🔓 LEVEL ${info.newLevel} DEBLOCAT!` : `🔓 LEVEL ${info.newLevel} UNLOCKED!`);
     }
   }
 
@@ -1585,13 +1682,17 @@ function openSummaryModal() {
   if (fomoLine) {
     if (walletState.efooBalance < 5000000) {
       const tier2Score = Math.round(game.score * 2.5);
-      fomoLine.innerHTML = isRo
-        ? `⚡ <strong>REGRET DE TIER:</strong> Cu <strong>5M $EFOO (Rocket Striker)</strong>, acest meci ar fi avut <strong>${tier2Score.toLocaleString("en-US")} puncte (+2.5x)</strong>!<br />🎁 <em>Primă achiziție? Ia Starter Pack de 0.035 EGLD și primești 1.500.000 $EFOO (+50% Bonus din Seif)!</em>`
-        : `⚡ <strong>TIER REGRET:</strong> With <strong>5M $EFOO (Rocket Striker)</strong>, this run would score <strong>${tier2Score.toLocaleString("en-US")} pts (+2.5x)</strong>!<br />🎁 <em>First time? Buy the 0.035 EGLD Starter Pack to get 1,500,000 $EFOO (+50% Bonus from Stadium Vault)!</em>`;
+      fomoLine.innerHTML = isHu
+        ? `⚡ <strong>TIER BÓNUSZ HIÁNY:</strong> <strong>5M $EFOO-val (Rocket Striker)</strong> ez a menet <strong>${tier2Score.toLocaleString("hu-HU")} pont (+2.5x)</strong> lett volna!<br />🎁 <em>Első vásárlás? Válaszd a 0.035 EGLD Starter Csomagot és kapsz 1 500 000 $EFOO-t (+50% Bónusz a Széfből)!</em>`
+        : (isRo
+          ? `⚡ <strong>REGRET DE TIER:</strong> Cu <strong>5M $EFOO (Rocket Striker)</strong>, acest meci ar fi avut <strong>${tier2Score.toLocaleString("en-US")} puncte (+2.5x)</strong>!<br />🎁 <em>Primă achiziție? Ia Starter Pack de 0.035 EGLD și primești 1.500.000 $EFOO (+50% Bonus din Seif)!</em>`
+          : `⚡ <strong>TIER REGRET:</strong> With <strong>5M $EFOO (Rocket Striker)</strong>, this run would score <strong>${tier2Score.toLocaleString("en-US")} pts (+2.5x)</strong>!<br />🎁 <em>First time? Buy the 0.035 EGLD Starter Pack to get 1,500,000 $EFOO (+50% Bonus from Stadium Vault)!</em>`);
     } else {
-      fomoLine.innerHTML = isRo
-        ? `🏆 <strong>ECHIPĂ PRO CALIFICATĂ!</strong> Ai marcat <strong>${game.goals} goluri</strong> cu <strong>${p.totalMult.toFixed(1)}x</strong> boost! Cumpără skill-uri cu $EFOO sau mintează mai mulți jucători pt. <strong>11.0x</strong>!`
-        : `🏆 <strong>PRO SQUAD QUALIFIED!</strong> You scored <strong>${game.goals} goals</strong> at <strong>${p.totalMult.toFixed(1)}x</strong> boost! Buy super skills with $EFOO or mint more NFTs to reach <strong>11.0x</strong>!`;
+      fomoLine.innerHTML = isHu
+        ? `🏆 <strong>PRO CSAPAT KVALIFIKÁLVA!</strong> <strong>${game.goals} gólt</strong> lőttél <strong>${p.totalMult.toFixed(1)}x</strong> bónusszal! Vásárolj szuperképességeket a Boltban, vagy szerezz több NFT-t a <strong>15.0x</strong> szorzóért!`
+        : (isRo
+          ? `🏆 <strong>ECHIPĂ PRO CALIFICATĂ!</strong> Ai marcat <strong>${game.goals} goluri</strong> cu <strong>${p.totalMult.toFixed(1)}x</strong> boost! Cumpără skill-uri cu $EFOO sau mintează mai mulți jucători pt. <strong>11.0x</strong>!`
+          : `🏆 <strong>PRO SQUAD QUALIFIED!</strong> You scored <strong>${game.goals} goals</strong> at <strong>${p.totalMult.toFixed(1)}x</strong> boost! Buy super skills with $EFOO or mint more NFTs to reach <strong>11.0x</strong>!`);
     }
   }
 
@@ -3581,6 +3682,9 @@ function applyLang(lang) {
     if (dict[k]) el.innerHTML = dict[k];
   });
   updateEntryGateUI();
+  updateStartSkillsChips();
+  renderSkillsDeckUI();
+  renderSkillsShopModal();
 }
 
 // ============================================================================
@@ -3745,22 +3849,60 @@ function metaConsumeSkill(skillId) {
   return false;
 }
 
+function getSkillPackPrice(s, count) {
+  const baseCost = s.price * count;
+  if (count > 1) {
+    // 10% discount on multi-item packs! (e.g. 5x)
+    return Math.round(baseCost * 0.90);
+  }
+  return baseCost;
+}
+
 function buySkillWithEfoo(skillId, count = 1) {
   const s = SKILLS.find((x) => x.id === skillId);
   if (!s) return;
-  const cost = s.price * count;
+  const cost = getSkillPackPrice(s, count);
+  const isHu = currentLang === "hu";
+  const isRo = currentLang === "ro";
+
+  // Balance check
+  if (walletState.efooBalance < cost) {
+    if (typeof audio.playPostClang === "function") audio.playPostClang();
+    const neededStr = cost.toLocaleString("en-US");
+    const balStr = Math.floor(walletState.efooBalance).toLocaleString("en-US");
+    showToast(
+      isHu
+        ? `⚠️ Nincs elegendő $EFOO egyenleged (${balStr} $EFOO). Szükséges: ${neededStr} $EFOO! Csatlakoztasd a tárcádat vagy vegyél $EFOO-t!`
+        : (isRo
+          ? `⚠️ Sold insuficient de $EFOO (${balStr} $EFOO). Necesar: ${neededStr} $EFOO!`
+          : `⚠️ Insufficient $EFOO balance (${balStr} $EFOO). Needed: ${neededStr} $EFOO!`)
+    );
+    return;
+  }
+
+  // Deduct cost and update
+  walletState.efooBalance -= cost;
+  updateHudEfooBadge();
+
   const inv = getSkillsInventory();
   inv[skillId] = (inv[skillId] || 0) + count;
   saveSkillsInventory(inv);
 
-  if (walletState.efooBalance >= cost) {
-    walletState.efooBalance -= cost;
-    updateHudEfooBadge();
-  }
   audio.playWhistle();
-  showToast(`⚡ +${count}x ${s.name} equipped in your match locker!`);
+
+  const skillName = isHu ? s.nameHu : (isRo ? s.nameRo : s.name);
+  const discountNote = count > 1 ? (isHu ? " (🔥 10% KEDVEZMÉNNYEL!)" : (isRo ? " (🔥 -10% REDUCERE!)" : " (🔥 10% OFF!)")) : "";
+  showToast(
+    isHu
+      ? `✅ +${count}x ${skillName} sikeresen felszerelve a meccskészletbe!${discountNote}`
+      : (isRo
+        ? `✅ +${count}x ${skillName} achiziționat și echipat!${discountNote}`
+        : `✅ +${count}x ${skillName} equipped in your match locker!${discountNote}`)
+  );
+
   renderSkillsDeckUI();
-  renderSkillsShopModal();
+  renderSkillsShopModal(skillId, count);
+  updateStartSkillsChips();
 }
 
 function armSkill(skillId) {
@@ -3783,6 +3925,8 @@ function renderSkillsDeckUI() {
   if (!row) return;
   const inv = getSkillsInventory();
   row.innerHTML = "";
+  const isHu = currentLang === "hu";
+  const isRo = currentLang === "ro";
 
   SKILLS.forEach((s) => {
     const count = inv[s.id] || 0;
@@ -3790,12 +3934,12 @@ function renderSkillsDeckUI() {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = `skill-slot-btn ${isArmed ? "armed" : ""} ${count <= 0 ? "empty" : ""}`;
-    const sName = currentLang === "ro" ? s.nameRo : s.name;
-    const sDesc = currentLang === "ro" ? s.descRo : s.desc;
+    const sName = isHu ? s.nameHu : (isRo ? s.nameRo : s.name);
+    const sDesc = isHu ? s.descHu : (isRo ? s.descRo : s.desc);
     btn.title = `${sName}: ${sDesc} (${count} owned)`;
     btn.innerHTML = `
       <span class="skill-slot-icon">${s.icon}</span>
-      <span class="skill-slot-name">${isArmed ? "ARMED!" : sName.split(" ")[0]}</span>
+      <span class="skill-slot-name">${isArmed ? (isHu ? "AKTÍV!" : "ARMED!") : sName.split(" ")[0]}</span>
       <span class="skill-slot-count">${count}</span>
     `;
     btn.addEventListener("click", () => armSkill(s.id));
@@ -3803,49 +3947,88 @@ function renderSkillsDeckUI() {
   });
 }
 
-function renderSkillsShopModal() {
+function renderSkillsShopModal(highlightSkillId = null, highlightCount = 0) {
   const grid = document.getElementById("skills-shop-grid");
   const balEl = document.getElementById("shop-efoo-balance");
-  if (balEl) balEl.textContent = `${Math.floor(walletState.efooBalance).toLocaleString("en-US")} $EFOO`;
+  const isHu = currentLang === "hu";
+  const isRo = currentLang === "ro";
+
+  if (balEl) {
+    balEl.textContent = `${Math.floor(walletState.efooBalance).toLocaleString(isHu ? "hu-HU" : "en-US")} $EFOO`;
+  }
   if (!grid) return;
   const inv = getSkillsInventory();
-  const isRo = currentLang === "ro";
 
   grid.innerHTML = "";
   SKILLS.forEach((s) => {
     const count = inv[s.id] || 0;
     const card = document.createElement("div");
-    card.className = "skill-shop-card";
-    const name = isRo ? s.nameRo : s.name;
-    const desc = isRo ? s.descRo : s.desc;
+    card.className = `skill-shop-card ${highlightSkillId === s.id ? "just-bought" : ""}`;
+    const name = isHu ? s.nameHu : (isRo ? s.nameRo : s.name);
+    const desc = isHu ? s.descHu : (isRo ? s.descRo : s.desc);
+    const singlePrice = (s.price / 1000).toFixed(0);
+    const packPrice5 = (getSkillPackPrice(s, 5) / 1000).toFixed(0);
+    const ownedText = isHu ? "Birtokolt" : (isRo ? "Deținute" : "Owned");
+    const discountLabel = isHu ? "-10% KEDVEZMÉNY" : (isRo ? "-10% REDUCERE" : "10% OFF");
+    const boughtFlash = isHu ? `✅ +${highlightCount}x SIKERES VÉTEL!` : (isRo ? `✅ +${highlightCount}x CUMPĂRAT!` : `✅ +${highlightCount}x PURCHASED!`);
+
     card.innerHTML = `
       <div class="ssc-info">
         <div class="ssc-title" style="color:${s.color};">
           <span>${s.icon}</span>
           <strong>${name}</strong>
-          <span style="font-size:0.7rem; color:#94a3b8;">(Owned: ${count})</span>
+          <span style="font-size:0.75rem; color:#a8ff00; background:rgba(168,255,0,0.12); padding:2px 8px; border-radius:6px; border:1px solid rgba(168,255,0,0.3);">(${ownedText}: ${count})</span>
+          ${highlightSkillId === s.id ? `<span style="font-size:0.75rem; color:#a8ff00; font-weight:800;">${boughtFlash}</span>` : ""}
         </div>
         <small class="ssc-desc">${desc}</small>
       </div>
       <div class="ssc-actions">
-        <button type="button" class="arcade-btn neon" data-buy-single="${s.id}">
-          1x (${(s.price / 1000).toFixed(0)}k $EFOO)
+        <button type="button" class="arcade-btn neon" data-buy-single="${s.id}" title="${isHu ? '1 darab vásárlása' : 'Buy 1 item'}">
+          1x (${singlePrice}k $EFOO)
         </button>
-        <button type="button" class="arcade-btn gold" data-buy-pack="${s.id}">
-          5x (${(s.price * 5 / 1000).toFixed(0)}k $EFOO)
+        <button type="button" class="arcade-btn gold" data-buy-pack="${s.id}" title="${isHu ? '5 darabos csomag 10% kedvezménnyel!' : '5x Pack with 10% discount!'}">
+          5x (${packPrice5}k $EFOO) <span class="pack-discount-tag">🔥 ${discountLabel}</span>
         </button>
       </div>
     `;
-    card.querySelector(`[data-buy-single="${s.id}"]`)?.addEventListener("click", () => buySkillWithEfoo(s.id, 1));
-    card.querySelector(`[data-buy-pack="${s.id}"]`)?.addEventListener("click", () => buySkillWithEfoo(s.id, 5));
+
+    card.querySelector(`[data-buy-single="${s.id}"]`)?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      buySkillWithEfoo(s.id, 1);
+    });
+    card.querySelector(`[data-buy-pack="${s.id}"]`)?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      buySkillWithEfoo(s.id, 5);
+    });
+
     grid.appendChild(card);
   });
 }
 
-function openSkillsShopModal() {
+function setMarketplaceTab(tab) {
+  const tabSkills = document.getElementById("tab-btn-skills");
+  const tabNfts = document.getElementById("tab-btn-nfts");
+  const tabTokens = document.getElementById("tab-btn-tokens");
+
+  const panelSkills = document.getElementById("skills-shop-grid");
+  const panelNfts = document.getElementById("market-nft-panel");
+  const panelTokens = document.getElementById("market-tokens-panel");
+
+  tabSkills?.classList.toggle("active", tab === "skills");
+  tabNfts?.classList.toggle("active", tab === "nfts");
+  tabTokens?.classList.toggle("active", tab === "tokens");
+
+  panelSkills?.classList.toggle("hidden", tab !== "skills");
+  panelNfts?.classList.toggle("hidden", tab !== "nfts");
+  panelTokens?.classList.toggle("hidden", tab !== "tokens");
+}
+
+function openSkillsShopModal(defaultTab = "skills") {
   renderSkillsShopModal();
+  setMarketplaceTab(defaultTab);
   document.getElementById("skills-shop-modal-overlay")?.classList.remove("hidden");
 }
+
 function closeSkillsShopModal() {
   document.getElementById("skills-shop-modal-overlay")?.classList.add("hidden");
 }
@@ -4234,12 +4417,28 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target && e.target.id === "daily-streak-modal-overlay") closeStreak();
   });
 
-  // Super Skills Shop Modal
-  document.getElementById("open-skills-shop-btn")?.addEventListener("click", openSkillsShopModal);
+  // Super Skills Shop & Marketplace Modal
+  document.getElementById("open-skills-shop-btn")?.addEventListener("click", () => openSkillsShopModal("skills"));
   document.getElementById("close-skills-shop-btn")?.addEventListener("click", closeSkillsShopModal);
   document.getElementById("skills-shop-modal-overlay")?.addEventListener("click", (e) => {
     if (e.target && e.target.id === "skills-shop-modal-overlay") closeSkillsShopModal();
   });
+
+  // Start Screen & Summary Screen Marketplace Triggers (INDÍTÁS ELŐTT & JÁTÉK VÉGZETE UTÁN)
+  document.getElementById("start-open-store-btn")?.addEventListener("click", () => openSkillsShopModal("skills"));
+  document.getElementById("btn-sum-open-store")?.addEventListener("click", () => openSkillsShopModal("skills"));
+  document.getElementById("btn-sum-skills-shop")?.addEventListener("click", () => openSkillsShopModal("skills"));
+
+  // Marketplace Modal Tabs
+  document.getElementById("tab-btn-skills")?.addEventListener("click", () => setMarketplaceTab("skills"));
+  document.getElementById("tab-btn-nfts")?.addEventListener("click", () => setMarketplaceTab("nfts"));
+  document.getElementById("tab-btn-tokens")?.addEventListener("click", () => setMarketplaceTab("tokens"));
+
+  // Marketplace Modal On-Chain Actions
+  document.getElementById("market-mint-striker-btn")?.addEventListener("click", mintStrikerOnChain);
+  document.getElementById("market-mint-keeper-btn")?.addEventListener("click", mintKeeperOnChain);
+  document.getElementById("market-buy-starter-btn")?.addEventListener("click", buyStarterPackOnChain);
+  document.getElementById("market-buy-efoo-btn")?.addEventListener("click", buy3MEfooOnChain);
 
   // Level Select Modal
   const openLevels = () => {

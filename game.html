@@ -258,7 +258,25 @@
             <button type="button" id="gate-refresh-btn" class="arcade-btn hidden" title="Re-check Wallet Balance">
               🔄
             </button>
+        </div>
+      </div>
+
+      <!-- MARKETPLACE & CLUB SKILLS LOCKER (INDÍTÁS ELŐTT) -->
+      <div class="start-market-card" id="start-market-card">
+        <div class="smc-header">
+          <div class="smc-title">
+            <span class="smc-icon">🛒</span>
+            <div>
+              <strong id="start-market-title" data-i18n="start_market_title">SUPER SKILLS &amp; MARKETPLACE</strong>
+              <small id="start-market-sub" data-i18n="start_market_sub">Equip tactical power-ups (-10% on 5x packs) &amp; scout NFTs!</small>
+            </div>
           </div>
+          <button type="button" class="arcade-btn neon" id="start-open-store-btn">
+            <span data-i18n="btn_open_market">🛒 OPEN STORE (-10%)</span>
+          </button>
+        </div>
+        <div class="smc-chips" id="start-skills-chips">
+          <!-- Dynamically populated with current owned skills -->
         </div>
       </div>
 
@@ -380,12 +398,29 @@
           🔒 Hold <strong>1+ NFT (0.08 EGLD)</strong> or <strong>1M+ $EFOO</strong> to unlock <strong>Sudden Death</strong> &amp; the <strong>25.4M $EFOO Jackpot</strong>!
         </div>
 
+        <!-- RESTOCK & MARKETPLACE CALLOUT (JÁTÉK VÉGZETE UTÁN) -->
+        <div class="sum-market-banner" id="sum-market-banner">
+          <div class="smb-left">
+            <span class="smb-icon">🛒</span>
+            <div>
+              <strong id="sum-market-title" data-i18n="sum_market_title">RESTOCK SUPER SKILLS (-10% PACKS)</strong>
+              <small id="sum-market-desc" data-i18n="sum_market_sub">Refill 5x packs with 10% discount to beat the next boss keeper!</small>
+            </div>
+          </div>
+          <button type="button" id="btn-sum-open-store" class="arcade-btn neon">
+            <span data-i18n="btn_open_market">🛒 OPEN STORE (-10%)</span>
+          </button>
+        </div>
+
         <div class="sum-actions-grid">
           <button type="button" id="btn-sum-next" class="arcade-btn neon hidden" style="background:linear-gradient(90deg,#38bdf8,#0284c7); border-color:#38bdf8;">
             🚀 <span>NEXT LEVEL</span>
           </button>
           <button type="button" id="btn-sum-replay" class="arcade-btn neon">
             ⚽ <span data-i18n="btn_play_again">PLAY AGAIN</span>
+          </button>
+          <button type="button" id="btn-sum-skills-shop" class="arcade-btn gold">
+            🛒 <span data-i18n="btn_skills_market">STORE (-10%)</span>
           </button>
           <button type="button" id="btn-sum-starter" class="arcade-btn neon">
             🎁 <span data-i18n="btn_starter_bonus">STARTER (0.035 EGLD ➔ 1.5M)</span>
@@ -655,29 +690,122 @@
     </div>
 
     <!-- ===================================================================
-         OVERLAY 8: SUPER SKILLS STORE
+         OVERLAY 8: SUPER SKILLS STORE & MARKETPLACE HUB
          =================================================================== -->
     <div class="arcade-overlay hidden" id="skills-shop-modal-overlay">
       <div class="skills-shop-modal-card">
         <div class="modal-header-row">
           <div>
-            <h2 class="modal-headline" style="color:#a8ff00;">
-              ⚡ SUPER SKILLS STORE
+            <h2 class="modal-headline" style="color:#a8ff00;" id="market-modal-title">
+              ⚡ SUPER SKILLS STORE &amp; MARKETPLACE
             </h2>
-            <p class="modal-subline">
-              Buy tactical power-ups with $EFOO! 50% is burned on-chain forever, 50% fuels the Weekly Jackpot.
+            <p class="modal-subline" id="market-modal-sub">
+              Buy tactical power-ups with $EFOO (10% OFF on 5x packs!), scout verified NFTs on XOXNO &amp; FrameIt, or swap tokens.
             </p>
           </div>
           <button type="button" class="modal-close-btn" id="close-skills-shop-btn">✕</button>
         </div>
 
         <div class="skills-shop-balance-bar">
-          <span>CLUB $EFOO BALANCE:</span>
+          <span id="shop-balance-label">CLUB $EFOO BALANCE:</span>
           <strong id="shop-efoo-balance">0 $EFOO</strong>
         </div>
 
+        <!-- TABS: 1. SUPER SKILLS | 2. NFT MARKETPLACE | 3. BUY $EFOO -->
+        <div class="market-modal-tabs">
+          <button type="button" class="market-tab-btn active" id="tab-btn-skills">
+            ⚡ SUPER SKILLS (-10%)
+          </button>
+          <button type="button" class="market-tab-btn" id="tab-btn-nfts">
+            🃏 NFT MARKETPLACE
+          </button>
+          <button type="button" class="market-tab-btn" id="tab-btn-tokens">
+            💰 BUY $EFOO
+          </button>
+        </div>
+
+        <!-- TAB 1: SKILLS GRID -->
         <div class="skills-shop-grid" id="skills-shop-grid">
           <!-- Dynamically populated with 5 skill cards -->
+        </div>
+
+        <!-- TAB 2: NFT MARKETPLACE -->
+        <div class="market-nft-panel hidden" id="market-nft-panel">
+          <div class="market-nft-card">
+            <div class="mnc-top">
+              <span class="mnc-badge">👕 EFOOTBALL STRIKERS</span>
+              <strong>MultiversX Official Striker NFTs</strong>
+              <p>Hold 1–6+ Strikers for up to <strong>15x Match Multiplier</strong>, <strong>Keeper Dive Radar</strong>, and <strong>Twin Rocket Balls</strong>!</p>
+            </div>
+            <div class="mnc-actions">
+              <a href="https://xoxno.com/collection/EFOOTBALL-91a4eb" target="_blank" rel="noopener noreferrer" class="arcade-btn neon">
+                🛒 BUY ON XOXNO ↗
+              </a>
+              <a href="https://frameit.gg/marketplace/EFOOTBALL-91a4eb" target="_blank" rel="noopener noreferrer" class="arcade-btn">
+                🖼️ FRAMEIT MARKET ↗
+              </a>
+              <button type="button" id="market-mint-striker-btn" class="arcade-btn gold">
+                ⚡ MINT STRIKER (0.08 EGLD)
+              </button>
+            </div>
+          </div>
+
+          <div class="market-nft-card">
+            <div class="mnc-top">
+              <span class="mnc-badge gold">🧤 GOALKEEPER NFTs</span>
+              <strong>MultiversX Official Goalkeepers</strong>
+              <p>Hold 1+ Goalkeeper NFT for the <strong>Post-Ricochet Save Shield</strong> (rebound goals on close saves) + <strong>+2.5x to 5.0x Boost</strong>!</p>
+            </div>
+            <div class="mnc-actions">
+              <a href="https://xoxno.com/collection/GOALKEEPER-cb9e3e" target="_blank" rel="noopener noreferrer" class="arcade-btn neon">
+                🛒 BUY ON XOXNO ↗
+              </a>
+              <a href="https://frameit.gg/marketplace/GOALKEEPER-cb9e3e" target="_blank" rel="noopener noreferrer" class="arcade-btn">
+                🖼️ FRAMEIT MARKET ↗
+              </a>
+              <button type="button" id="market-mint-keeper-btn" class="arcade-btn gold">
+                🧤 MINT KEEPER (0.35 EGLD)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: BUY $EFOO TOKENS -->
+        <div class="market-tokens-panel hidden" id="market-tokens-panel">
+          <div class="boost-pack-row" style="border-color:rgba(168,255,0,0.45); background:rgba(168,255,0,0.08);">
+            <div class="boost-pack-left">
+              <img src="branding/original/assests-2022/logo.png" alt="$EFOO" />
+              <div>
+                <strong style="color:#a8ff00;">Starter Pack (+50% Bonus Match)</strong>
+                <small>🎁 Pay 0.035 EGLD for 1,000,000 ➔ RECEIVE 1,500,000 $EFOO!</small>
+              </div>
+            </div>
+            <button type="button" id="market-buy-starter-btn" class="arcade-btn neon">0.035 EGLD 🎁</button>
+          </div>
+
+          <div class="boost-pack-row">
+            <div class="boost-pack-left">
+              <img src="branding/original/assests-2022/logo.png" alt="$EFOO" />
+              <div>
+                <strong>Buy ~3,000,000 $EFOO Pro Pack</strong>
+                <small>🔥 Unlocks Flaming Rocket Ball (+1,000 pts/goal)</small>
+              </div>
+            </div>
+            <button type="button" id="market-buy-efoo-btn" class="arcade-btn neon">0.1 EGLD ⚡</button>
+          </div>
+
+          <div class="boost-pack-row">
+            <div class="boost-pack-left">
+              <span style="font-size:1.8rem; width:44px; text-align:center;">🟡</span>
+              <div>
+                <strong>Trade on OneDex DEX (EFOO / WEGLD)</strong>
+                <small>Official liquidity pool with live charts and instant swaps</small>
+              </div>
+            </div>
+            <a href="https://swap.onedex.app/swap?firstToken=EGLD&secondToken=EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="arcade-btn gold" style="text-decoration:none;">
+              OneDex Swap ↗
+            </a>
+          </div>
         </div>
       </div>
     </div>

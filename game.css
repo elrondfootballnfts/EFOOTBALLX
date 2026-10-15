@@ -2135,6 +2135,268 @@ body.start-screen-active .hud-top-bar,
   flex-wrap: wrap;
 }
 
+/* ============================================================================
+   START SCREEN & SUMMARY SCREEN MARKETPLACE PROMINENCE & 10% DISCOUNT PACKS
+   ============================================================================ */
+.start-market-card {
+  width: 100%;
+  max-width: 540px;
+  background: linear-gradient(135deg, rgba(10, 32, 19, 0.95), rgba(4, 12, 7, 0.98));
+  border: 1.5px solid rgba(168, 255, 0, 0.45);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(168, 255, 0, 0.08);
+  border-radius: 18px;
+  padding: 14px 18px;
+  box-sizing: border-box;
+  margin-top: 10px;
+  touch-action: pan-y;
+}
+
+.smc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.smc-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+
+.smc-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.smc-title strong {
+  display: block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+  color: #a8ff00;
+  line-height: 1.1;
+}
+
+.smc-title small {
+  display: block;
+  font-size: 0.74rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.smc-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.skill-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+}
+
+.skill-chip.empty {
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+.skill-chip strong {
+  color: #a8ff00;
+}
+
+/* Post-Match Summary Screen Marketplace Callout */
+.sum-market-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(255, 184, 0, 0.12), rgba(168, 255, 0, 0.08));
+  border: 1.5px solid rgba(255, 184, 0, 0.4);
+  border-radius: 16px;
+  margin-top: 10px;
+  margin-bottom: 8px;
+  text-align: left;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  touch-action: pan-y;
+}
+
+.smb-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 240px;
+}
+
+.smb-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.smb-left strong {
+  display: block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.25rem;
+  color: #ffb800;
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+}
+
+.smb-left small {
+  display: block;
+  font-size: 0.75rem;
+  color: #cbd5e1;
+  margin-top: 2px;
+}
+
+/* Marketplace Modal Tabs */
+.market-modal-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding-bottom: 8px;
+  overflow-x: auto;
+}
+
+.market-tab-btn {
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.market-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.market-tab-btn.active {
+  background: rgba(168, 255, 0, 0.18);
+  border-color: #a8ff00;
+  color: #a8ff00;
+  box-shadow: 0 0 12px rgba(168, 255, 0, 0.35);
+}
+
+/* NFT Marketplace Panel Cards */
+.market-nft-panel,
+.market-tokens-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.market-nft-card {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mnc-top .mnc-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(168, 255, 0, 0.18);
+  border: 1px solid #a8ff00;
+  color: #a8ff00;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.mnc-top .mnc-badge.gold {
+  background: rgba(255, 184, 0, 0.18);
+  border-color: #ffb800;
+  color: #ffb800;
+}
+
+.mnc-top strong {
+  display: block;
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.mnc-top p {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 4px 0 0 0;
+  line-height: 1.35;
+}
+
+.mnc-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mnc-actions .arcade-btn {
+  text-decoration: none;
+  font-size: 0.75rem;
+  padding: 8px 14px;
+}
+
+.skill-shop-card {
+  transition: all 0.25s ease;
+  touch-action: pan-y;
+}
+
+.skill-shop-card.just-bought {
+  border-color: #a8ff00 !important;
+  box-shadow: 0 0 25px rgba(168, 255, 0, 0.7) !important;
+  animation: justBoughtPulse 0.8s ease;
+}
+
+@keyframes justBoughtPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.pack-discount-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: #ff3b00;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  margin-left: 4px;
+}
+
+.skills-shop-modal-card {
+  touch-action: pan-y;
+}
+
 /* Level Select */
 .levels-modal-card {
   width: 100%;
