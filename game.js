@@ -320,8 +320,14 @@ let wcSignClient = null;
 let wcSessionTopic = localStorage.getItem("efoo_wc_topic") || "";
 let pendingGateAction = null; // "buy_efoo" | "mint_nft" | null
 
+// If wallet address is present and DeFi extension is available, prefer extension to avoid webwallet redirects
+if (connectedAddress && typeof window !== "undefined" && window.elrondWallet && connectedProvider !== "xportal") {
+  connectedProvider = "extension";
+  localStorage.setItem("efoo_wallet_provider", "extension");
+}
+
 // Sanitize any legacy demo/inspector session so only real authenticated wallets work
-if (!VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
+if (connectedProvider && !VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
   connectedAddress = "";
   connectedProvider = "";
   localStorage.removeItem("efoo_wallet_address");
@@ -1894,6 +1900,73 @@ async function initXPortalWalletConnect() {
   }
 }
 
+function sendExtensionMessage(type, data = "") {
+  return new Promise((resolve, reject) => {
+    const responseTypeMap = {
+      connect: ["connectResponse", "loginResponse"],
+      signTransactions: ["signTransactionsResponse", "signTransactionResponse"],
+      logout: ["logoutResponse"]
+    };
+    const expectedTypes = responseTypeMap[type] || [type + "Response"];
+
+    const timer = setTimeout(() => {
+      window.removeEventListener("message", handleMessage);
+      reject(new Error("Extension response timed out"));
+    }, 60000);
+
+    function handleMessage(event) {
+      if (event.source !== window || !event.data) return;
+      const msg = event.data;
+      if (!msg || msg.target !== "erdw-contentScript") return;
+      if (expectedTypes.includes(msg.type)) {
+        clearTimeout(timer);
+        window.removeEventListener("message", handleMessage);
+        if (msg.error || (msg.data && msg.data.error)) {
+          reject(new Error(msg.error || msg.data.error));
+        } else {
+          resolve(msg.data);
+        }
+      } else if (msg.type === "cancelResponse" || msg.type === "errorResponse") {
+        clearTimeout(timer);
+        window.removeEventListener("message", handleMessage);
+        reject(new Error(msg.error || "User cancelled"));
+      }
+    }
+
+    window.addEventListener("message", handleMessage);
+    window.postMessage({ target: "erdw-inpage", type, data }, "*");
+  });
+}
+
+async function signWithExtension(preparedTxs) {
+  const extInputTxs = preparedTxs.map((t) => ({
+    ...t,
+    data: toBase64Data(t.data)
+  }));
+
+  // Method 1: direct method if exposed by modern extension provider
+  if (window.elrondWallet && typeof window.elrondWallet.signTransactions === "function") {
+    try {
+      const res = await window.elrondWallet.signTransactions(extInputTxs);
+      if (Array.isArray(res) && res.length > 0) return res;
+    } catch (e) {
+      const msg = (e?.message || "").toLowerCase();
+      if (msg.includes("cancel") || msg.includes("reject") || msg.includes("denied")) {
+        throw e;
+      }
+      console.warn("Direct window.elrondWallet.signTransactions failed, trying postMessage bridge:", e);
+    }
+  }
+
+  // Method 2: standard inpage postMessage bridge
+  const signedRes = await sendExtensionMessage("signTransactions", {
+    from: connectedAddress,
+    transactions: extInputTxs
+  });
+
+  return signedRes;
+}
+
 async function connectDefiExtension() {
   if (!window.elrondWallet) {
     window.open(
@@ -1902,21 +1975,30 @@ async function connectDefiExtension() {
     );
     return;
   }
-  window.addEventListener("message", function onMsg(e) {
-    if (e.source !== window || !e.data) return;
-    if (e.data.target === "erdw-contentScript" && (e.data.type === "connectResponse" || e.data.type === "loginResponse")) {
-      window.removeEventListener("message", onMsg);
-      const addr = e.data.data?.address || (typeof e.data.data === "string" ? e.data.data : "");
-      if (addr && addr.startsWith("erd1")) connectWithAddress(addr, "extension");
+  try {
+    const res = await sendExtensionMessage("connect", {});
+    const addr = typeof res === "string" ? res : res && res.address ? res.address : "";
+    if (addr && addr.startsWith("erd1")) {
+      connectWithAddress(addr, "extension");
+      showToast(
+        currentLang === "ro"
+          ? `✅ Conectat prin MultiversX DeFi Extension (${shortErd(addr)})!`
+          : `✅ Connected via MultiversX DeFi Extension (${shortErd(addr)})!`
+      );
     }
-  });
-  window.postMessage({ target: "erdw-inpage", type: "connect", data: {} }, "*");
+  } catch (err) {
+    console.warn("Extension connect cancelled or failed:", err);
+  }
 }
 
 function connectWithAddress(address, provider = "webwallet") {
   const clean = (address || "").trim();
   if (!clean.startsWith("erd1") || clean.length < 40) return;
   if (!VALID_WALLET_PROVIDERS.includes(provider)) return;
+
+  if (provider === "webwallet" && typeof window !== "undefined" && window.elrondWallet) {
+    provider = "extension";
+  }
 
   connectedAddress = clean;
   connectedProvider = provider;
@@ -2095,7 +2177,50 @@ async function signAndSendTxs(txList, actionKey = null) {
     version: 1
   }));
 
-  // PATH A: xPortal via WalletConnect v2
+  // PATH A: MultiversX DeFi Wallet Extension (In-browser popup, ZERO redirects!)
+  if (connectedProvider === "extension" || (window.elrondWallet && connectedProvider !== "xportal")) {
+    try {
+      showToast(
+        isRo
+          ? "🧩 Confirmă tranzacția în extensia MultiversX DeFi Wallet..."
+          : "🧩 Please confirm the transaction in your MultiversX DeFi Wallet Extension popup..."
+      );
+
+      const signedRes = await signWithExtension(preparedTxs);
+      if (signedRes) {
+        const signedList = Array.isArray(signedRes) ? signedRes : [signedRes];
+        const formattedSigned = signedList.map((st, idx) => ({
+          ...preparedTxs[idx],
+          ...st,
+          data: preparedTxs[idx].data,
+          dataIsBase64: false
+        }));
+
+        const hashes = await broadcastSignedTransactions(formattedSigned);
+        if (hashes.length > 0) {
+          showToast(
+            isRo
+              ? `✅ Tranzacție trimisă! (${hashes[0].slice(0, 10)}...) Se actualizează jocul...`
+              : `✅ Transaction broadcasted! (${hashes[0].slice(0, 10)}...) Updating game...`,
+            `https://explorer.multiversx.com/transactions/${hashes[0]}`
+          );
+          setTimeout(() => fetchWalletNftsAndBalance(connectedAddress), 3500);
+          setTimeout(() => fetchWalletNftsAndBalance(connectedAddress), 8000);
+        }
+      }
+      return;
+    } catch (err) {
+      console.warn("Extension sign notice:", err);
+      showToast(
+        isRo
+          ? "⚠️ Semnarea tranzacției în extensie a fost anulată."
+          : "⚠️ Extension transaction signing was cancelled."
+      );
+      return;
+    }
+  }
+
+  // PATH B: xPortal via WalletConnect v2
   if (connectedProvider === "xportal" && wcSignClient && wcSessionTopic) {
     try {
       showToast(
@@ -2363,6 +2488,10 @@ function applyLang(lang) {
 // INIT & BINDINGS
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
+  if (connectedAddress && typeof window !== "undefined" && window.elrondWallet && connectedProvider !== "xportal") {
+    connectedProvider = "extension";
+    localStorage.setItem("efoo_wallet_provider", "extension");
+  }
   checkUrlWalletCallbacks().then((handledLogin) => {
     if (!handledLogin && connectedAddress && VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
       document.getElementById("nav-wallet-label").textContent = shortErd(connectedAddress);
