@@ -1069,3 +1069,127 @@ body.arcade-body {
     height: 110px;
   }
 }
+
+/* ============================================================================
+   OVERLAY 2.5: 10-SECOND VAR REVIEW / INJURY TIME REVIVE
+   ============================================================================ */
+.var-revive-card {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  padding: 26px;
+  border-radius: 24px;
+  background: linear-gradient(155deg, rgba(26, 12, 12, 0.98), rgba(6, 3, 3, 0.99));
+  border: 2px solid #ef4444;
+  box-shadow: 0 0 50px rgba(239, 68, 68, 0.45), 0 25px 70px rgba(0, 0, 0, 0.9);
+  text-align: center;
+  animation: varPulseBox 1.4s infinite alternate;
+}
+
+@keyframes varPulseBox {
+  0% { box-shadow: 0 0 35px rgba(239, 68, 68, 0.35), 0 25px 70px rgba(0, 0, 0, 0.9); }
+  100% { box-shadow: 0 0 65px rgba(255, 77, 0, 0.7), 0 25px 70px rgba(0, 0, 0, 0.9); }
+}
+
+.var-badge {
+  display: inline-block;
+  background: #ef4444;
+  color: #ffffff;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  font-size: 0.76rem;
+  padding: 5px 14px;
+  border-radius: 999px;
+  letter-spacing: 0.08em;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+}
+
+.var-countdown-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 4.4rem;
+  line-height: 1;
+  color: #ff4d00;
+  text-shadow: 0 0 28px rgba(255, 77, 0, 0.85);
+  margin: 8px 0;
+}
+
+.var-progress-wrap {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 10px 0 16px 0;
+}
+
+.var-progress-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #ef4444, #ffb800);
+  transition: width 0.1s linear;
+}
+
+.var-options-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.var-option-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-family: 'Inter', sans-serif;
+  text-align: left;
+}
+
+.var-option-btn:hover {
+  transform: translateY(-2px);
+  border-color: #a8ff00;
+  box-shadow: 0 0 20px rgba(168, 255, 0, 0.35);
+}
+
+.var-option-btn.burn {
+  border-color: #ffb800;
+  background: rgba(255, 184, 0, 0.12);
+}
+
+.var-option-btn.burn:hover {
+  border-color: #ffb800;
+  box-shadow: 0 0 25px rgba(255, 184, 0, 0.45);
+}
+
+.var-option-btn.micro {
+  border-color: #a8ff00;
+  background: rgba(168, 255, 0, 0.12);
+}
+
+.var-option-btn.micro:hover {
+  border-color: #a8ff00;
+  box-shadow: 0 0 25px rgba(168, 255, 0, 0.45);
+}
+
+.var-option-skip {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  cursor: pointer;
+  margin-top: 8px;
+  text-decoration: underline;
+  transition: color 0.15s ease;
+}
+
+.var-option-skip:hover {
+  color: #ffffff;
+}
+

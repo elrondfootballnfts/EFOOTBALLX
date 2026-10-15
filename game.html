@@ -196,12 +196,15 @@
         <!-- Instant Purchase Box (Always accessible when balance < 1M $EFOO) -->
         <div class="eg-buy-offer" id="eg-buy-offer">
           <div class="eg-buy-info">
-            <strong>🔥 INSTANT PASS: ~2,835,000 $EFOO</strong>
-            <small id="eg-buy-sub" data-i18n="gate_buy_sub">Only 0.1 EGLD (~$0.36) • Unlocks Stadium Entry + Flaming Rocket Ball!</small>
+            <strong style="color:#a8ff00;">🎁 FIRST-TIME STARTER PACK: +50% BONUS ACTIVE</strong>
+            <small id="eg-buy-sub" data-i18n="gate_buy_sub">Pay 0.035 EGLD (~$0.12) for 1,000,000 $EFOO ➔ RECEIVE 1,500,000 $EFOO! (+500k from Stadium Vault)</small>
           </div>
           <div class="eg-buy-actions">
+            <button type="button" id="gate-buy-starter-btn" class="arcade-btn neon">
+              🎁 <span data-i18n="btn_buy_starter">STARTER (0.035 EGLD ➔ 1.5M)</span>
+            </button>
             <button type="button" id="gate-buy-efoo-btn" class="arcade-btn gold">
-              ⚡ <span data-i18n="btn_buy_gate">BUY ~2.84M $EFOO (0.1 EGLD)</span>
+              ⚡ <span data-i18n="btn_buy_gate">PRO PACK (0.1 EGLD ➔ ~3M)</span>
             </button>
             <button type="button" id="gate-mint-nft-btn" class="arcade-btn">
               🃏 <span data-i18n="btn_mint_nft">MINT NFT (0.08 EGLD)</span>
@@ -255,6 +258,49 @@
     </div>
 
     <!-- ===================================================================
+         OVERLAY 2.5: 10-SECOND VAR REVIEW / INJURY TIME REVIVE
+         =================================================================== -->
+    <div class="arcade-overlay hidden" id="var-revive-overlay">
+      <div class="var-revive-card">
+        <span class="var-badge">🚨 VAR REVIEW • INJURY TIME SECOND CHANCE</span>
+        <h2 style="font-family:'Bebas Neue',sans-serif; font-size:2.4rem; line-height:1; margin-top:4px;" id="var-title">
+          SHOT SAVED / FULL TIME!
+        </h2>
+        <p style="font-size:0.85rem; color:#cbd5e1; margin-top:4px;" id="var-desc-text">
+          Referee signals VAR review! Call an Injury Time Revive in 10 seconds to keep your streak &amp; qualify for the 90+5' Pot!
+        </p>
+
+        <div class="var-countdown-num" id="var-countdown-num">10s</div>
+
+        <div class="var-progress-wrap">
+          <div class="var-progress-fill" id="var-progress-fill"></div>
+        </div>
+
+        <div class="var-options-grid">
+          <button type="button" id="var-burn-revive-btn" class="var-option-btn burn">
+            <div>
+              <strong>🔥 REVIVE MATCH (25,000 $EFOO)</strong>
+              <small style="display:block; font-size:0.72rem; color:#fde68a;">50% Burned On-Chain • 50% to Weekly Derby Jackpot</small>
+            </div>
+            <span style="font-size:1.1rem; font-weight:800;">25k $EFOO ➔</span>
+          </button>
+
+          <button type="button" id="var-micro-revive-btn" class="var-option-btn micro">
+            <div>
+              <strong>⚡ MICRO-BUY &amp; REVIVE (0.01 EGLD)</strong>
+              <small style="display:block; font-size:0.72rem; color:#bbf7d0;">Instant Revive + 250,000 $EFOO Credited</small>
+            </div>
+            <span style="font-size:1.1rem; font-weight:800;">0.01 EGLD ➔</span>
+          </button>
+
+          <button type="button" id="var-skip-btn" class="var-option-skip">
+            ✕ Accept Full Time Whistle (Skip to Summary)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================================
          OVERLAY 3: POST-MATCH SUMMARY & FOMO SCORE COMPARISON
          =================================================================== -->
     <div class="arcade-overlay hidden" id="summary-screen-overlay">
@@ -285,6 +331,9 @@
         <div class="sum-actions-grid">
           <button type="button" id="btn-sum-replay" class="arcade-btn neon">
             ⚽ <span data-i18n="btn_play_again">PLAY AGAIN</span>
+          </button>
+          <button type="button" id="btn-sum-starter" class="arcade-btn neon">
+            🎁 <span data-i18n="btn_starter_bonus">STARTER: 1.5M $EFOO (0.035 EGLD)</span>
           </button>
           <button type="button" id="btn-sum-share" class="arcade-btn">
             🐦 <span data-i18n="btn_share_x">SHARE ON X</span>
@@ -332,6 +381,17 @@
         </div>
 
         <!-- 1-Click On-Chain Boost Actions -->
+        <div class="boost-pack-row" style="border-color:rgba(168,255,0,0.45); background:rgba(168,255,0,0.08);">
+          <div class="boost-pack-left">
+            <img src="branding/original/assests-2022/logo.png" alt="$EFOO" />
+            <div>
+              <strong style="color:#a8ff00;">Starter Pack (+50% Bonus Match)</strong>
+              <small>🎁 Pay 0.035 EGLD for 1,000,000 ➔ RECEIVE 1,500,000 $EFOO!</small>
+            </div>
+          </div>
+          <button type="button" id="modal-buy-starter-btn" class="arcade-btn neon">0.035 EGLD 🎁</button>
+        </div>
+
         <div class="boost-pack-row">
           <div class="boost-pack-left">
             <img src="branding/original/assests-2022/logo.png" alt="$EFOO" />

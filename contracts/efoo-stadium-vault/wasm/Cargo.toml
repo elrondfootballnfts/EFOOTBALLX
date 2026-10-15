@@ -1,0 +1,14 @@
+[package]
+name = "efoo-stadium-vault-wasm"
+version = "0.0.1"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies.efoo-stadium-vault]
+path = ".."
+
+[dependencies.multiversx-sc-wasm-adapter]
+version = "0.54.0"

@@ -1,0 +1,11 @@
+[package]
+name = "efoo-stadium-vault-meta"
+version = "0.0.1"
+edition = "2021"
+publish = false
+
+[dependencies.efoo-stadium-vault]
+path = ".."
+
+[dependencies.multiversx-sc-meta]
+version = "0.54.0"

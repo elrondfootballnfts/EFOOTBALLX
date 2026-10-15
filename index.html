@@ -481,6 +481,15 @@
           </div>
 
           <div class="swap-widget-box">
+            <!-- STARTER PACK +50% BONUS BANNER -->
+            <div class="starter-bonus-banner" id="starter-bonus-banner">
+              <div class="sbb-badge">🎁 +50% FIRST BUY BONUS</div>
+              <div class="sbb-text">
+                <strong data-i18n="sbb_title">Starter Pack: Buy 1,000,000 $EFOO (0.035 EGLD) ➔ GET 1,500,000 $EFOO!</strong>
+                <span data-i18n="sbb_sub">+500,000 $EFOO bonus granted from Stadium Vault (erd1lqh3...zp) to kick off your match!</span>
+              </div>
+            </div>
+
             <!-- YOU PAY BOX -->
             <div class="swap-token-box">
               <div class="swap-box-header">
@@ -488,7 +497,7 @@
                 <span class="swap-bal-hint" id="swap-pay-balance">Balance: —</span>
               </div>
               <div class="swap-box-main">
-                <input type="number" id="swap-input-amount" class="swap-big-input" value="0.1" min="0.001" step="any" placeholder="0.0" />
+                <input type="number" id="swap-input-amount" class="swap-big-input" value="0.035" min="0.001" step="any" placeholder="0.0" />
                 <div id="swap-pay-selector-wrap">
                   <select id="swap-input-token" class="swap-token-select">
                     <option value="EGLD">⚡ EGLD (Native)</option>
@@ -502,10 +511,11 @@
                 </div>
               </div>
               <div class="swap-quick-amounts" id="swap-quick-amounts">
+                <button type="button" class="quick-amt-btn active" data-amt="0.035">0.035 (Starter 1.5M)</button>
                 <button type="button" class="quick-amt-btn" data-amt="0.1">0.1</button>
+                <button type="button" class="quick-amt-btn" data-amt="0.25">0.25</button>
                 <button type="button" class="quick-amt-btn" data-amt="0.5">0.5</button>
                 <button type="button" class="quick-amt-btn" data-amt="1">1.0</button>
-                <button type="button" class="quick-amt-btn" data-amt="5">5.0</button>
                 <button type="button" class="quick-amt-btn" data-amt="max">MAX</button>
               </div>
             </div>

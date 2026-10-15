@@ -19,15 +19,17 @@ const I18N_GAME = {
     step_2: "More NFTs = <strong>Up to 11x & Radar</strong>",
     step_3: "Pot: <strong>25,400,000 $EFOO</strong>",
     gate_connect_desc: "Connect your MultiversX wallet to verify your $EFOO balance & Club NFTs.",
-    gate_buy_sub: "Only 0.1 EGLD (~$0.36) • Unlocks Stadium Entry + Flaming Rocket Ball!",
-    btn_buy_gate: "BUY ~2.84M $EFOO (0.1 EGLD)",
+    gate_buy_sub: "Pay 0.035 EGLD (~$0.12) for 1,000,000 $EFOO ➔ RECEIVE 1,500,000 $EFOO! (+500k from Stadium Vault)",
+    btn_buy_starter: "STARTER (0.035 EGLD ➔ 1.5M)",
+    btn_buy_gate: "PRO PACK (0.1 EGLD ➔ ~3M)",
     btn_connect_to_play: "CONNECT WALLET TO PLAY",
     btn_play_now: "START MATCH",
     sum_your_score: "YOUR SCORE",
     sum_with_nfts: "WITH 3+ NFTs & 1M $EFOO",
     btn_play_again: "PLAY AGAIN",
+    btn_starter_bonus: "STARTER: 1.5M $EFOO (0.035 EGLD)",
     btn_share_x: "SHARE ON X",
-    btn_buy_3m: "BUY ~2.84M $EFOO (0.1 EGLD)",
+    btn_buy_3m: "BUY 3M $EFOO (0.1 EGLD)",
     btn_mint_nft: "MINT NFT (0.08 EGLD)"
   },
   ro: {
@@ -43,13 +45,15 @@ const I18N_GAME = {
     step_2: "Mai multe NFT = <strong>11x & Radar</strong>",
     step_3: "Pot: <strong>25,400,000 $EFOO</strong>",
     gate_connect_desc: "Conectează portofelul MultiversX pentru a verifica soldul $EFOO & NFT-urile.",
-    gate_buy_sub: "Doar 0.1 EGLD (~$0.36) • Deblochează Accesul în Joc + Mingea Rachetă!",
-    btn_buy_gate: "CUMPĂRĂ ~2.84M $EFOO (0.1 EGLD)",
+    gate_buy_sub: "Plătește 0.035 EGLD (~$0.12) pt. 1.000.000 $EFOO ➔ PRIMEȘTI 1.500.000 $EFOO! (+500k din Seif)",
+    btn_buy_starter: "STARTER (0.035 EGLD ➔ 1.5M)",
+    btn_buy_gate: "PRO PACK (0.1 EGLD ➔ ~3M)",
     btn_connect_to_play: "CONECTEAZĂ PORTOFELUL",
     btn_play_now: "START MECI",
     sum_your_score: "SCORUL TĂU",
     sum_with_nfts: "CU 3+ NFT & 1M $EFOO",
     btn_play_again: "JOACĂ DIN NOU",
+    btn_starter_bonus: "STARTER: 1.5M $EFOO (0.035 EGLD)",
     btn_share_x: "DISTRIBUIE PE X",
     btn_buy_3m: "CUMPĂRĂ ~2.84M $EFOO (0.1 EGLD)",
     btn_mint_nft: "MINTEAZĂ NFT (0.08 EGLD)"
@@ -65,7 +69,7 @@ const CONTRACTS = {
   },
   NFT_MINTER: "erd1qqqqqqqqqqqqqpgq78frnmw5sep0q4r2qd96y3d6f6p7ujwcys5s9evzym",
   FOMO_RESERVE: "erd1k8w7y5ftg2uax8v8ng8p5azjw96zzfgky9v3fydtpe2xwdz0007q3hl9z8",
-  CLUB_OWNER_DEMO: "erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq",
+  RESERVE_VAULT: "erd1lqh33j0geuxxa8wyj95wk8cy8yqf7gltn73mmdmtucvn332txarqzcdpzp",
   WC_PROJECT_ID: "9b1a9564f91cb659ffe21b73d5c4e2d8"
 };
 
@@ -265,6 +269,43 @@ class ArcadeAudio {
     o.start(now);
     o.stop(now + 0.3);
   }
+
+  playVarSiren() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = "sawtooth";
+    o.frequency.setValueAtTime(440, now);
+    o.frequency.linearRampToValueAtTime(880, now + 0.15);
+    o.frequency.linearRampToValueAtTime(440, now + 0.3);
+    g.gain.setValueAtTime(0.12, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    o.connect(g);
+    g.connect(this.ctx.destination);
+    o.start(now);
+    o.stop(now + 0.36);
+  }
+
+  playHeartbeat() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(68, now);
+    o.frequency.exponentialRampToValueAtTime(32, now + 0.12);
+    g.gain.setValueAtTime(0.32, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+    o.connect(g);
+    g.connect(this.ctx.destination);
+    o.start(now);
+    o.stop(now + 0.15);
+  }
 }
 
 const audio = new ArcadeAudio();
@@ -395,6 +436,9 @@ const game = {
   shieldsLeft: 0,
   fomoSeconds: 282,
   fomoPot: 25400000,
+  revivedThisMatch: false,
+  varCountdown: 10,
+  varTimerInterval: null,
 
   // Normalized Aim coordinates inside Goal: nx in [-1.1, 1.1], ny in [0.0, 1.05] (0=bottom, 1=top)
   aimNx: -0.65,
@@ -697,14 +741,20 @@ function launchMatchWithIntro() {
     triggerGateShake();
     showToast(
       isRo
-        ? "🔒 Minim 1.000.000 $EFOO necesar în portofel! Apasă pe 'CUMPĂRĂ ~2.84M $EFOO (0.1 EGLD)' pentru deblocare instantă!"
-        : "🔒 Minimum 1,000,000 $EFOO required in your wallet! Click 'BUY ~2.84M $EFOO (0.1 EGLD)' to unlock immediately!"
+        ? "🔒 Minim 1.000.000 $EFOO necesar în portofel! Apasă pe 'STARTER (0.035 EGLD ➔ 1.5M)' pentru deblocare instantă!"
+        : "🔒 Minimum 1,000,000 $EFOO required in your wallet! Click 'STARTER (0.035 EGLD ➔ 1.5M)' to unlock immediately!"
     );
     return;
   }
 
   document.getElementById("start-screen-overlay")?.classList.add("hidden");
   document.getElementById("summary-screen-overlay")?.classList.add("hidden");
+  document.getElementById("var-revive-overlay")?.classList.add("hidden");
+  if (game.varTimerInterval) {
+    clearInterval(game.varTimerInterval);
+    game.varTimerInterval = null;
+  }
+
   const introEl = document.getElementById("intro-cinematic-overlay");
   const fillEl = document.getElementById("intro-bar-fill");
   const perkEl = document.getElementById("intro-striker-perk");
@@ -715,6 +765,8 @@ function launchMatchWithIntro() {
   const p = getPowers();
   game.phase = "intro";
   game.round = 1;
+  game.maxRounds = 5;
+  game.revivedThisMatch = false;
   game.shotHistory = [];
   game.goals = 0;
   game.streak = 0;
@@ -892,12 +944,89 @@ function onBallReachGoal(endScreenX, endScreenY) {
         startNextShotRound();
         return;
       }
+      // Trigger 10-Second VAR Review Revive Second Chance (once per match)
+      if (!game.revivedThisMatch) {
+        openVarReviveOverlay();
+        return;
+      }
       openSummaryModal();
     } else {
       game.round += 1;
       startNextShotRound();
     }
   }, 1250);
+}
+
+function openVarReviveOverlay() {
+  game.phase = "var_review";
+  audio.playVarSiren();
+
+  const varOverlay = document.getElementById("var-revive-overlay");
+  const countNum = document.getElementById("var-countdown-num");
+  const fill = document.getElementById("var-progress-fill");
+  const titleEl = document.getElementById("var-title");
+  const descEl = document.getElementById("var-desc-text");
+  const isRo = currentLang === "ro";
+
+  if (!varOverlay) {
+    openSummaryModal();
+    return;
+  }
+
+  if (titleEl) {
+    titleEl.textContent = isRo ? "🚨 PARADĂ / SFÂRȘIT DE MECI!" : "🚨 SHOT SAVED / FULL TIME!";
+  }
+  if (descEl) {
+    descEl.textContent = isRo
+      ? "Arbitrul verifică VAR! Activează Prelungirile în 10 secunde pentru a-ți salva seria de victorii!"
+      : "Referee signals VAR review! Call an Injury Time Revive in 10 seconds to keep your streak alive!";
+  }
+
+  varOverlay.classList.remove("hidden");
+  game.varCountdown = 10;
+  if (countNum) countNum.textContent = "10s";
+  if (fill) fill.style.width = "100%";
+
+  if (game.varTimerInterval) clearInterval(game.varTimerInterval);
+
+  game.varTimerInterval = setInterval(() => {
+    game.varCountdown -= 1;
+    audio.playHeartbeat();
+
+    if (countNum) countNum.textContent = `${game.varCountdown}s`;
+    if (fill) fill.style.width = `${(game.varCountdown / 10) * 100}%`;
+
+    if (game.varCountdown <= 0) {
+      clearInterval(game.varTimerInterval);
+      game.varTimerInterval = null;
+      varOverlay.classList.add("hidden");
+      openSummaryModal();
+    }
+  }, 1000);
+}
+
+function closeVarReviveAndFinish() {
+  if (game.varTimerInterval) {
+    clearInterval(game.varTimerInterval);
+    game.varTimerInterval = null;
+  }
+  document.getElementById("var-revive-overlay")?.classList.add("hidden");
+  openSummaryModal();
+}
+
+function executeReviveBonusShot() {
+  if (game.varTimerInterval) {
+    clearInterval(game.varTimerInterval);
+    game.varTimerInterval = null;
+  }
+  document.getElementById("var-revive-overlay")?.classList.add("hidden");
+  game.revivedThisMatch = true;
+  game.maxRounds += 1;
+  game.round += 1;
+  game.bigBanner = currentLang === "ro" ? "⚡ PRELUNGIRI ACORDATE! +1 ȘUT EXTRA!" : "⚡ VAR INJURY TIME GRANTED! +1 EXTRA SHOT!";
+  game.bigBannerColor = "#a8ff00";
+  audio.playGoalCheer();
+  startNextShotRound();
 }
 
 function openSummaryModal() {
@@ -913,11 +1042,19 @@ function openSummaryModal() {
   document.getElementById("sum-score-actual").textContent = game.score.toLocaleString("en-US");
   document.getElementById("sum-score-whale").textContent = `${whalePotential.toLocaleString("en-US")} 🏆`;
 
+  const isRo = currentLang === "ro";
   const fomoLine = document.getElementById("sum-fomo-line");
   if (fomoLine) {
-    fomoLine.innerHTML = p.isPro
-      ? `🏆 <strong>PRO SQUAD QUALIFIED!</strong> You scored <strong>${game.goals} goals</strong> at <strong>${p.totalMult.toFixed(1)}x</strong>! Kick 100k $EFOO into the Pot or mint more NFTs to reach <strong>11.0x</strong>!`
-      : `😱 With <strong>3+ NFTs & 1M $EFOO</strong>, this exact run scores <strong>${whalePotential.toLocaleString("en-US")} pts</strong> and unlocks <strong>Sudden Death + 25.4M $EFOO Pot</strong>!`;
+    if (walletState.efooBalance < 5000000) {
+      const tier2Score = Math.round(game.score * 2.5);
+      fomoLine.innerHTML = isRo
+        ? `⚡ <strong>REGRET DE TIER:</strong> Cu <strong>5M $EFOO (Rocket Striker)</strong>, acest meci ar fi avut <strong>${tier2Score.toLocaleString("en-US")} puncte (+2.5x)</strong>!<br />🎁 <em>Primă achiziție? Ia Starter Pack de 0.035 EGLD și primești 1.500.000 $EFOO (+50% Bonus din Seif)!</em>`
+        : `⚡ <strong>TIER REGRET:</strong> With <strong>5M $EFOO (Rocket Striker)</strong>, this run would score <strong>${tier2Score.toLocaleString("en-US")} pts (+2.5x)</strong>!<br />🎁 <em>First time? Buy the 0.035 EGLD Starter Pack to get 1,500,000 $EFOO (+50% Bonus from Stadium Vault)!</em>`;
+    } else {
+      fomoLine.innerHTML = isRo
+        ? `🏆 <strong>ECHIPĂ PRO CALIFICATĂ!</strong> Ai marcat <strong>${game.goals} goluri</strong> cu <strong>${p.totalMult.toFixed(1)}x</strong> boost! Șutează 100k $EFOO în pot sau mintează mai mulți jucători pt. <strong>11.0x</strong>!`
+        : `🏆 <strong>PRO SQUAD QUALIFIED!</strong> You scored <strong>${game.goals} goals</strong> at <strong>${p.totalMult.toFixed(1)}x</strong> boost! Kick 100k $EFOO into the Pot or mint more NFTs to reach <strong>11.0x</strong>!`;
+    }
   }
 
   document.getElementById("summary-screen-overlay")?.classList.remove("hidden");
@@ -1867,7 +2004,10 @@ async function fetchWalletNftsAndBalance(address) {
       );
     }
 
-    if (pendingGateAction === "buy_efoo") {
+    if (pendingGateAction === "buy_starter") {
+      pendingGateAction = null;
+      buyStarterPackOnChain();
+    } else if (pendingGateAction === "buy_efoo") {
       pendingGateAction = null;
       buy3MEfooOnChain();
     } else if (pendingGateAction === "mint_nft") {
@@ -2041,6 +2181,74 @@ async function signAndSendTxs(txList, actionKey = null) {
   });
   params.set("callbackUrl", getCallbackUrl());
   window.location.href = `https://wallet.multiversx.com/hook/sign?${params.toString()}`;
+}
+
+function buyStarterPackOnChain() {
+  const amt = 0.035;
+  const weiStr = (BigInt(Math.round(amt * 1e9)) * BigInt(1e9)).toString();
+  const wrapper = CONTRACTS.WEGLD_WRAPPERS[walletState.shard] || CONTRACTS.WEGLD_WRAPPERS[0];
+  const tokenHex = strToHex("WEGLD-bd4d79");
+  const amtHex = amountToHex(amt, 18);
+  const funcHex = strToHex("swapMultiTokensFixedInput");
+  const efooHex = strToHex("EFOO-8fe2d4");
+  signAndSendTxs(
+    [
+      { receiver: wrapper, value: weiStr, gasLimit: 8000000, data: "wrapEgld" },
+      {
+        receiver: CONTRACTS.ONEDEX_PAIR,
+        value: "0",
+        gasLimit: 85000000,
+        data: `ESDTTransfer@${tokenHex}@${amtHex}@${funcHex}@01@@${tokenHex}@${efooHex}`
+      }
+    ],
+    "buy_starter"
+  );
+}
+
+function buyMicroReviveOnChain() {
+  const amt = 0.01;
+  const weiStr = (BigInt(Math.round(amt * 1e9)) * BigInt(1e9)).toString();
+  const wrapper = CONTRACTS.WEGLD_WRAPPERS[walletState.shard] || CONTRACTS.WEGLD_WRAPPERS[0];
+  const tokenHex = strToHex("WEGLD-bd4d79");
+  const amtHex = amountToHex(amt, 18);
+  const funcHex = strToHex("swapMultiTokensFixedInput");
+  const efooHex = strToHex("EFOO-8fe2d4");
+  executeReviveBonusShot();
+  signAndSendTxs(
+    [
+      { receiver: wrapper, value: weiStr, gasLimit: 8000000, data: "wrapEgld" },
+      {
+        receiver: CONTRACTS.ONEDEX_PAIR,
+        value: "0",
+        gasLimit: 85000000,
+        data: `ESDTTransfer@${tokenHex}@${amtHex}@${funcHex}@01@@${tokenHex}@${efooHex}`
+      }
+    ],
+    "buy_revive"
+  );
+}
+
+function burnReviveOnChain() {
+  const amt = 25000;
+  if (walletState.efooBalance < amt) {
+    showToast(
+      currentLang === "ro"
+        ? "⚠️ Sold insuficient de $EFOO! Folosește opțiunea Micro-Revive (0.01 EGLD)!"
+        : "⚠️ Insufficient $EFOO! Use Micro-Revive (0.01 EGLD) to continue!"
+    );
+    return;
+  }
+  executeReviveBonusShot();
+  const tHex = strToHex("EFOO-8fe2d4");
+  const aHex = amountToHex(amt, 18);
+  signAndSendTxs([
+    {
+      receiver: CONTRACTS.RESERVE_VAULT,
+      value: "0",
+      gasLimit: 6000000,
+      data: `ESDTTransfer@${tHex}@${aHex}@${strToHex("reviveMatch")}`
+    }
+  ]);
 }
 
 function buy3MEfooOnChain() {
@@ -2240,13 +2448,21 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Start Screen Entry Gate Instant Purchase & Refresh Buttons
+  document.getElementById("gate-buy-starter-btn")?.addEventListener("click", buyStarterPackOnChain);
   document.getElementById("gate-buy-efoo-btn")?.addEventListener("click", buy3MEfooOnChain);
   document.getElementById("gate-mint-nft-btn")?.addEventListener("click", mintStrikerOnChain);
   document.getElementById("gate-refresh-btn")?.addEventListener("click", () => {
     if (connectedAddress) fetchWalletNftsAndBalance(connectedAddress);
   });
 
+  // VAR Revive Actions
+  document.getElementById("var-burn-revive-btn")?.addEventListener("click", burnReviveOnChain);
+  document.getElementById("var-micro-revive-btn")?.addEventListener("click", buyMicroReviveOnChain);
+  document.getElementById("var-skip-btn")?.addEventListener("click", closeVarReviveAndFinish);
+
   // Store & Summary Actions
+  document.getElementById("modal-buy-starter-btn")?.addEventListener("click", buyStarterPackOnChain);
+  document.getElementById("btn-sum-starter")?.addEventListener("click", buyStarterPackOnChain);
   document.getElementById("modal-buy-efoo-btn")?.addEventListener("click", buy3MEfooOnChain);
   document.getElementById("btn-sum-buy")?.addEventListener("click", buy3MEfooOnChain);
   document.getElementById("modal-mint-player-btn")?.addEventListener("click", mintStrikerOnChain);

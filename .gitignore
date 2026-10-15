@@ -1,0 +1,12 @@
+# MultiversX Vault Secrets & Private Keys
+vault/*secret*
+vault/*.key
+vault/*.pem
+*.secret.json
+
+# Local environment & dependencies
+node_modules/
+.env
+.env.local
+.DS_Store
+Thumbs.db

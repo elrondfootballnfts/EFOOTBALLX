@@ -52,6 +52,8 @@ const I18N = {
     squad_gallery_sub: "Connect your wallet above to display your personal EFOOTBALL-91a4eb & GOALKEEPER-cb9e3e NFTs here.",
     swap_title: "BUY $EFOO DIRECTLY ON-SITE",
     swap_subtitle: "Execute an instant on-chain swap via OneDex (EFOO/WEGLD) or xExchange (EFOO/USDC) smart contracts using your connected wallet.",
+    sbb_title: "Starter Pack: Buy 1,000,000 $EFOO (0.035 EGLD) ➔ GET 1,500,000 $EFOO!",
+    sbb_sub: "+500,000 $EFOO bonus granted from Stadium Vault (erd1lqh3...zp) to kick off your match!",
     swap_pay_label: "You Pay",
     swap_receive_label: "You Receive (Estimated $EFOO)",
     btn_exec_swap: "Sign & Buy $EFOO On-Chain Now",
@@ -218,6 +220,8 @@ const I18N = {
     squad_gallery_sub: "Conectează portofelul mai sus pentru a-ți vedea cărțile NFT EFOOTBALL-91a4eb și GOALKEEPER-cb9e3e aici.",
     swap_title: "CUMPĂRĂ $EFOO DIRECT PE SITE",
     swap_subtitle: "Execută un swap on-chain instant prin contractele inteligente OneDex (EFOO/WEGLD) sau xExchange (EFOO/USDC).",
+    sbb_title: "Pachet Starter: Cumpără 1.000.000 $EFOO (0.035 EGLD) ➔ PRIMEȘTI 1.500.000 $EFOO!",
+    sbb_sub: "+500.000 $EFOO bonus oferit din Seiful Stadionului (erd1lqh3...zp) pentru startul meciului!",
     swap_pay_label: "Plătești",
     swap_receive_label: "Primești (Estimat $EFOO)",
     btn_exec_swap: "Semnează & Cumpără $EFOO On-Chain",
@@ -467,6 +471,7 @@ const CONTRACTS = {
   NFT_MINTER: "erd1qqqqqqqqqqqqqpgq78frnmw5sep0q4r2qd96y3d6f6p7ujwcys5s9evzym",
   FOMO_RESERVE: "erd1k8w7y5ftg2uax8v8ng8p5azjw96zzfgky9v3fydtpe2xwdz0007q3hl9z8",
   SHOWCASE_VAULT: "erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq",
+  RESERVE_VAULT: "erd1lqh33j0geuxxa8wyj95wk8cy8yqf7gltn73mmdmtucvn332txarqzcdpzp",
   WC_PROJECT_ID: "9b1a9564f91cb659ffe21b73d5c4e2d8"
 };
 
@@ -2002,13 +2007,14 @@ function setDexMode(mode) {
     paySelectorWrap?.classList.remove("hidden");
     sellPillWrap?.classList.add("hidden");
     if (recLabel) recLabel.textContent = "$EFOO";
-    if (inputEl && Number(inputEl.value) > 1000) inputEl.value = "0.1";
+    if (inputEl && Number(inputEl.value) > 1000) inputEl.value = "0.035";
     if (quickBtns) {
       quickBtns.innerHTML = `
+        <button type="button" class="quick-amt-btn active" data-amt="0.035">0.035 (Starter 1.5M)</button>
         <button type="button" class="quick-amt-btn" data-amt="0.1">0.1</button>
+        <button type="button" class="quick-amt-btn" data-amt="0.25">0.25</button>
         <button type="button" class="quick-amt-btn" data-amt="0.5">0.5</button>
-        <button type="button" class="quick-amt-btn" data-amt="1">1.0</button>
-        <button type="button" class="quick-amt-btn" data-amt="5">5.0</button>
+        <button type="button" class="quick-amt-btn" data-amt="1.0">1.0</button>
         <button type="button" class="quick-amt-btn" data-amt="max">MAX</button>
       `;
     }
@@ -2069,7 +2075,11 @@ function updateSwapEstimate() {
       rateLabel.textContent = `1 ${tok} ≈ ${spotRate.toLocaleString("en-US")} $EFOO`;
     }
     if (outField) {
-      outField.value = `~${estOut.toLocaleString("en-US")} EFOO`;
+      if (estOut >= 1000000) {
+        outField.value = `~${estOut.toLocaleString("en-US")} + 500k BONUS = ~${(estOut + 500000).toLocaleString("en-US")} $EFOO 🎁`;
+      } else {
+        outField.value = `~${estOut.toLocaleString("en-US")} EFOO`;
+      }
     }
     if (balHint) {
       const userBal =

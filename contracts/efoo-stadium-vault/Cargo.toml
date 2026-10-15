@@ -1,0 +1,16 @@
+[package]
+name = "efoo-stadium-vault"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sunday League Degen FC <office@optibase.ro>"]
+description = "MultiversX Smart Contract for EFOO Stadium Reserve Vault, Player Balance Escrow, Welcome Bonus, and Matchday Burns"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+multiversx-sc = { version = "0.54.0" }
+
+[dev-dependencies]
+multiversx-sc-scenario = { version = "0.54.0" }
