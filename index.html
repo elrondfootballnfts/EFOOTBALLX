@@ -65,9 +65,14 @@
           <button type="button" class="lang-btn" data-set-lang="hu">🇭🇺 HU</button>
           <button type="button" class="lang-btn" data-set-lang="ro">🇷🇴 RO</button>
         </div>
-        <button type="button" id="open-wallet-modal-btn" class="btn btn-primary btn-sm">
-          ⚡ <span id="nav-wallet-label" data-i18n="nav_connect">Connect Wallet</span>
-        </button>
+        <div class="nav-wallet-group" id="nav-wallet-group">
+          <button type="button" id="open-wallet-modal-btn" class="btn btn-primary btn-sm nav-wallet-btn">
+            ⚡ <span id="nav-wallet-label" data-i18n="nav_connect">Connect Wallet</span>
+          </button>
+          <button type="button" id="nav-disconnect-btn" class="btn-disconnect-nav hidden" title="Kijelentkezés / Disconnect Wallet" aria-label="Disconnect">
+            🚪 <span class="ndb-text" data-i18n="btn_disconnect">Kijelentkezés</span>
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -1179,6 +1184,20 @@
       <p class="modal-desc" data-i18n="modal_desc">
         Choose your official MultiversX wallet provider to view your live <code>$EFOO</code> &amp; NFTs, sign DEX swaps &amp; NFT mints, and unlock EFOO FOMO perks!
       </p>
+
+      <!-- Connected Account Status Card (Visible when connected) -->
+      <div id="modal-connected-status" class="modal-connected-status hidden">
+        <div class="mcs-info">
+          <span class="mcs-dot">🟢</span>
+          <div>
+            <strong data-i18n="modal_connected_title">Currently Connected:</strong>
+            <code id="modal-connected-addr">erd1...</code>
+          </div>
+        </div>
+        <button type="button" id="modal-disconnect-btn" class="btn btn-secondary btn-sm btn-danger">
+          🚪 <span data-i18n="btn_disconnect">Kijelentkezés</span>
+        </button>
+      </div>
 
       <div class="wallet-provider-list">
         <!-- 1. xPortal Mobile App (WalletConnect v2) -->

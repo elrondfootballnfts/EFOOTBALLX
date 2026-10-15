@@ -42,6 +42,7 @@ const I18N = {
     ws_connect_prompt: "Connect your MultiversX wallet (xPortal, Extension, or Web Wallet) to view your $EFOO and NFTs.",
     btn_connect_wallet: "Connect xPortal / WebWallet / Extension",
     btn_disconnect: "Disconnect",
+    modal_connected_title: "Currently Connected:",
     wb_efoo_label: "⚽ MY $EFOO BALANCE",
     wb_egld_label: "⚡ MY EGLD & WEGLD",
     wb_players_label: "👕 MY EFOOTBALL PLAYERS",
@@ -210,6 +211,7 @@ const I18N = {
     ws_connect_prompt: "Conectează portofelul tău MultiversX (xPortal, Extensie sau Web Wallet) pentru a-ți vedea soldul $EFOO și NFT-urile.",
     btn_connect_wallet: "Conectează xPortal / WebWallet / Extension",
     btn_disconnect: "Deconectare",
+    modal_connected_title: "Conectat în prezent:",
     wb_efoo_label: "⚽ SOLDUL MEU $EFOO",
     wb_egld_label: "⚡ SOLD EGLD & WEGLD",
     wb_players_label: "👕 JUCĂTORII MEI NFT",
@@ -375,7 +377,8 @@ const I18N = {
     ws_not_connected: "Nincs Csatlakoztatva — Vendég Néző Mód",
     ws_connect_prompt: "Csatlakoztasd MultiversX tárcádat az $EFOO egyenleged és NFT-id betöltéséhez.",
     btn_connect_wallet: "xPortal / WebWallet / Extension Csatlakoztatás",
-    btn_disconnect: "Szétkapcsolás",
+    btn_disconnect: "Kijelentkezés",
+    modal_connected_title: "Jelenleg csatlakoztatva:",
     wb_efoo_label: "⚽ SAJÁT $EFOO EGYENLEGEM",
     wb_egld_label: "⚡ EGLD ÉS WEGLD EGYENLEGEM",
     wb_players_label: "👕 JÁTÉKOS NFT-JEIM",
@@ -2015,6 +2018,9 @@ function updateWalletStatusUI() {
   const wsConnectBtn = document.getElementById("ws-connect-btn");
   const wsRefreshBtn = document.getElementById("ws-refresh-btn");
   const wsDisconnectBtn = document.getElementById("ws-disconnect-btn");
+  const navDisconnectBtn = document.getElementById("nav-disconnect-btn");
+  const modalConnStatus = document.getElementById("modal-connected-status");
+  const modalConnAddr = document.getElementById("modal-connected-addr");
 
   const providerNames = {
     xportal: "📱 xPortal App",
@@ -2025,14 +2031,37 @@ function updateWalletStatusUI() {
 
   if (connectedAddress) {
     if (navLabel) navLabel.textContent = shortErd(connectedAddress);
+    if (navDisconnectBtn) navDisconnectBtn.classList.remove("hidden");
+    if (modalConnStatus) modalConnStatus.classList.remove("hidden");
+    if (modalConnAddr) modalConnAddr.textContent = shortErd(connectedAddress);
+
     if (wsDot) wsDot.classList.add("connected");
     if (wsTitle) {
       wsTitle.textContent =
-        currentLang === "ro"
+        currentLang === "hu"
+          ? "🟢 MultiversX Tárca Csatlakoztatva"
+          : currentLang === "ro"
           ? "🟢 Portofel MultiversX Conectat"
           : "🟢 MultiversX Wallet Connected";
     }
-    if (wsSub) wsSub.textContent = connectedAddress;
+    if (wsSub) {
+      wsSub.innerHTML = `
+        <span class="ws-connected-addr-box">
+          <code>${shortErd(connectedAddress)}</code>
+          <button type="button" class="copy-addr-mini-btn" id="copy-ws-addr-btn" title="Teljes cím másolása / Copy Full Address">📋 Másolás</button>
+        </span>
+      `;
+      document.getElementById("copy-ws-addr-btn")?.addEventListener("click", () => {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(connectedAddress);
+          const btn = document.getElementById("copy-ws-addr-btn");
+          if (btn) {
+            btn.textContent = "✔ Másolva!";
+            setTimeout(() => { if (btn) btn.textContent = "📋 Másolás"; }, 2000);
+          }
+        }
+      });
+    }
     if (wsProvPill) {
       wsProvPill.textContent = providerNames[connectedProvider] || "⚡ MultiversX";
       wsProvPill.classList.remove("hidden");
@@ -2048,6 +2077,9 @@ function updateWalletStatusUI() {
     if (wsDisconnectBtn) wsDisconnectBtn.classList.remove("hidden");
   } else {
     if (navLabel) navLabel.textContent = I18N[currentLang].nav_connect;
+    if (navDisconnectBtn) navDisconnectBtn.classList.add("hidden");
+    if (modalConnStatus) modalConnStatus.classList.add("hidden");
+
     if (wsDot) wsDot.classList.remove("connected");
     if (wsTitle) wsTitle.textContent = I18N[currentLang].ws_not_connected;
     if (wsSub) wsSub.textContent = I18N[currentLang].ws_connect_prompt;
@@ -3467,6 +3499,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (connectedAddress) fetchConnectedWalletData(connectedAddress);
   });
   document.getElementById("ws-disconnect-btn")?.addEventListener("click", disconnectWallet);
+  document.getElementById("nav-disconnect-btn")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    disconnectWallet();
+  });
+  document.getElementById("modal-disconnect-btn")?.addEventListener("click", () => {
+    disconnectWallet();
+    closeWalletModal();
+  });
 
   // DEX Mode Tabs (Buy / Sell) & Flip Button
   document.querySelectorAll(".dex-tab").forEach((btn) => {
