@@ -113,8 +113,8 @@ const I18N = {
     opt_keepers: "🧤 Goalkeepers (51+ Minted)",
     btn_load_nft: "Load NFT",
     btn_random_nft: "🎲 Random",
-    ctrl_presets: "2. AI Meme Generator & Presets (EN / RO)",
-    btn_ai_meme: "AI Generate Meme",
+    ctrl_presets: "2. 🎙️ Locker Room Banter Generator & Presets",
+    btn_ai_meme: "🎙️ LOCKER ROOM BANTER BOT ⚡",
     btn_copy_meme: "Copy Image",
     mood_all: "🎲 All Themes",
     mood_degen: "🔥 Degen / Trading",
@@ -281,8 +281,8 @@ const I18N = {
     opt_keepers: "🧤 Portari (51+ Mintați)",
     btn_load_nft: "Încarcă NFT",
     btn_random_nft: "🎲 Aleatoriu",
-    ctrl_presets: "2. Generator Meme AI & Dume de Vestiar (EN / RO)",
-    btn_ai_meme: "✨ Generează Meme AI",
+    ctrl_presets: "2. 🎙️ Generator Dume de Vestiar & Sabloane",
+    btn_ai_meme: "🎙️ DUMA DE VESTIAR A LUI NEA GICĂ ⚡",
     btn_copy_meme: "Copiază Imaginea",
     mood_all: "🎲 Toate Temele",
     mood_degen: "🔥 Degen / Trading",
@@ -334,6 +334,154 @@ const I18N = {
     manual_erd_label: "Lipește orice adresă MultiversX (erd1...) pentru a încărca instant NFT-urile și soldul:",
     btn_load_wallet: "Conectează",
     footer_disclaimer: "Notă: $EFOO (EFOO-8fe2d4) este un meme token comunitar pe blockchain-ul MultiversX creat pentru divertisment, cultura fotbalului și umor degen. Nimic de pe acest site nu reprezintă sfat financiar. Nu băga banii de întreținere la pariuri în Liga de Duminică."
+  },
+  hu: {
+    nav_sub: "SUNDAY LEAGUE DEGEN FC",
+    nav_wallethub: "🧤 Tárca & Swap/Mint",
+    nav_game: "⚽ EFOO FOMO Játék",
+    nav_locker: "🎨 Meme Stúdió",
+    nav_tokenomics: "🔥 92.9% Égetés",
+    nav_brandkit: "🛡️ Brand Kit",
+    nav_connect: "Tárca Csatlakoztatás",
+    hero_badge: "2022-BEN SZÜLETETT • ÚJJÁSZÜLETVE MINT 100% KULTUSZ MEME & WEB3 KLUB A MULTIVERSX-EN",
+    hero_title: "TÚL CSÓRÓK A BAJNOKOK LIGÁJÁHOZ.<br /><span class='neon-text'>TÚL DEGENEK A FIFA-HOZ.</span>",
+    hero_lead: "Üdvözlünk a <strong>Sunday League Degen FC ($EFOO)</strong> klubban — ahol a pálya műfüves, a bíró langyos sörrel lekenyerezhető, a csatárunk földönkívüli mezben és <strong>a teljes tokenkészlet 92.91%-a már porrá égett</strong>!",
+    token_id_label: "ESDT TOKEN AZONOSÍTÓ:",
+    copy_btn: "📋 Másolás",
+    copied_btn: "✔ Másolva!",
+    cta_connect_buy: "Tárca Csatlakoztatás • $EFOO & NFT Mint",
+    cta_play_fomo: "EFOO FOMO Büntetőpárbaj",
+    cta_meme_studio: "Meme Stúdió Megnyitása",
+    hero_card_quote: "\"Edzőbá becserélt a 88. percben, rápillantottam az 1 perces chartra és kilőttem a labdát a parkolóba.\"",
+    hero_skip_btn: "Ugrás a Swap & Minthez ⤵",
+    hfw_pot_label: "AKTÍV STADION NYEREMÉNYALAP",
+    hfw_prompt: "🎯 Rúgj azonnali büntetőt itt a Hero-ban:",
+    act_1_nav: "2022 Korporatív Illúzió",
+    act_2_nav: "92.91% Készlet Elhamvasztása",
+    act_3_nav: "Sunday League Degen Újjászületés",
+    act_4_nav: "EFOO FOMO 90+5' Tetőpont",
+    scroll_hint_text: "GÖRGESS LE AZ ÚJJÁSZÜLETÉSHEZ",
+    scoreboard_title: "STADION TELEMETRIA — EFOO-8fe2d4",
+    stat_burned_label: "🔥 ÖSSZES ELÉGETETT TOKEN",
+    stat_burned_sub: "A 100,000,000,000 kezdeti készletből",
+    stat_supply_label: "⚽ JÁTÉKBAN MARADT KÉSZLET",
+    stat_supply_sub: "canMint: false (Véglegesen lezárva)",
+    stat_holders_label: "🏟️ ON-CHAIN ULTRA (TULAJDONOSOK)",
+    stat_nfts_label: "🃏 VERETETT KLUB NFT-K",
+    stat_nfts_sub: "628 Játékos + 51 Kapus veretve (Folyamatos kibocsátás)",
+    wh_kicker: "⚡ MULTIVERSX WEB3 JÁTÉKOS TERMINÁL",
+    wh_title: "AZ ÖLTÖZŐM, KÖZVETLEN $EFOO SWAP ÉS NFT MINTELÉS",
+    wh_desc: "Csatlakozz <strong>xPortal</strong>, <strong>DeFi Extension</strong> vagy <strong>Web Wallet</strong> segítségével az egyenleged megtekintéséhez, vásárolj $EFOO-t és veress új NFT-ket!",
+    ws_not_connected: "Nincs Csatlakoztatva — Vendég Néző Mód",
+    ws_connect_prompt: "Csatlakoztasd MultiversX tárcádat az $EFOO egyenleged és NFT-id betöltéséhez.",
+    btn_connect_wallet: "xPortal / WebWallet / Extension Csatlakoztatás",
+    btn_disconnect: "Szétkapcsolás",
+    wb_efoo_label: "⚽ SAJÁT $EFOO EGYENLEGEM",
+    wb_egld_label: "⚡ EGLD ÉS WEGLD EGYENLEGEM",
+    wb_players_label: "👕 JÁTÉKOS NFT-JEIM",
+    wb_players_sub: "Gyűjtemény: EFOOTBALL-91a4eb",
+    wb_keepers_label: "🧤 KAPUS NFT-JEIM",
+    wb_keepers_sub: "Gyűjtemény: GOALKEEPER-cb9e3e",
+    squad_gallery_title: "🏟️ AZ ÖLTÖZŐM — ON-CHAIN NFT CSAPAT",
+    squad_gallery_sub: "Csatlakoztasd a tárcádat a saját EFOOTBALL és GOALKEEPER NFT-id kezeléséhez.",
+    swap_title: "VÁSÁROLJ $EFOO-T KÖZVETLENÜL A WEBOLDALON",
+    swap_subtitle: "Azonnali on-chain swap a OneDex (EFOO/WEGLD) vagy xExchange (EFOO/USDC) szerződéseken keresztül.",
+    sbb_title: "Kezdő Csomag: Vegyél 1.000.000 $EFOO-t ➔ KAPSZ 1.500.000 $EFOO-t!",
+    sbb_sub: "+500.000 $EFOO bónusz jóváírás a Tartalék Seifből az első vásárlásra!",
+    swap_pay_label: "Fizetsz",
+    swap_receive_label: "Kapsz (Becsült $EFOO)",
+    btn_exec_swap: "$EFOO Vásárlása On-Chain",
+    btn_wrap_egld: "EGLD ➔ WEGLD Átváltás (1-Kattintás)",
+    mint_title: "ÚJ JÁTÉKOSOK ÉS KAPUSOK VERETÉSE",
+    mint_subtitle: "Veress új generatív NFT-ket az EFootball-X szerződésből vagy vegyél a XOXNO piacon!",
+    mint_player_desc: "Liga 1 & BL Játékos NFT (+15% pontosság & 2x szorzó a játékban!). A veretés aktív!",
+    mint_keeper_desc: "Legendás kapusok aktív veretéssel! Deblokkolja a kapus védőpajzsot & 3x szorzót!",
+    btn_mint_player: "Játékos Veretése",
+    btn_mint_keeper: "Kapus Veretése",
+    btn_xoxno_players: "Játékosok a XOXNO-n ↗",
+    btn_xoxno_keepers: "Kapusok a XOXNO-n ↗",
+    game_kicker: "🎮 VALÓDI HASZNOSSÁG AZ NFT-KNEK & $EFOO-NAK",
+    game_title: "EFOO FOMO: 90+5' TIZENEGYES & HOSSZABBÍTÁS JACKPOT",
+    game_desc: "Az NFT-jeid és $EFOO tokenjeid valódi szupererőket nyitnak a 60FPS Stadion Arénában!",
+    game_pot_label: "90+5' POT:",
+    game_leader_label: "👑 VEZETŐ:",
+    fomo_last_striker: "👟 UTOLSÓ RÚGÓ (VEZETŐ):",
+    btn_kick_fomo: "100.000 $EFOO Beküldése a Potba (Óra Reset)",
+    btn_share_score: "Büntető Rekordom Megosztása X-en",
+    fomo_rule_1: "🔥 <strong>50% Mega Égetés:</strong> Minden FOMO pot fele azonnal a megsemmisítő címre kerül.",
+    fomo_rule_2: "🃏 <strong>NFT Tulajdonosi Előny:</strong> 3+ NFT birtoklása duplázza a jegyed súlyát!",
+    var_kicker: "📺 HIVATALOS VAR VIZSGÁLAT",
+    var_title: "NINCS TÖBB 2022-ES DUMA. ÜDV A DEGEN KORSZAKBAN.",
+    var_desc: "2022-ben még öltönyös projektet akartunk. Aztán a medvepiac páros lábbal ránk csúszott a tizenhatoson. Megnéztük a VAR monitort, kirúgtuk az öltönyösöket, elégettük a tokenek 92.91%-át és a legtisztább futball meme coinná váltunk a MultiversX-en.",
+    var_old_1: "❌ \"Nyerj 1x iPhone 14-et minden 1,000 eladott NFT után\"",
+    var_old_2: "❌ \"Bonyolult kamatos kamat matematika és passzív jövedelem\"",
+    var_old_3: "❌ \"Vállalati whitepaperek, amiket soha senki nem olvasott el\"",
+    var_old_4: "❌ \"Vártuk, hogy a FIFA vagy az UEFA visszahívjon\"",
+    var_new_1: "✅ 92.91% a teljes készletből MÁR ELÉGETVE on-chain",
+    var_new_2: "✅ 10,328 tárca tart már $EFOO-t szerte a MultiversX hálózatán",
+    var_new_3: "✅ 628+ zseniális játékos és 51+ kapus veretve eddig",
+    var_new_4: "✅ Web3 Öltöző, azonnali Swap/Mint és EFOO FOMO büntetőpárbaj",
+    locker_kicker: "👕 AZ ÖLTÖZŐ (ÉLŐ ON-CHAIN MEME STÚDIÓ)",
+    locker_title: "KÉSZÍTS SAJÁT SUNDAY LEAGUE $EFOO MEMÉT",
+    locker_desc: "Tölts be bármelyik veretett <strong>EFOOTBALL-91a4eb</strong> vagy <strong>GOALKEEPER-cb9e3e</strong> NFT-t közvetlenül a blockchainről (vagy a tárcádból!), dobj rá egy kíméletlen öltözői dumát és töltsd le a képet!",
+    ctrl_collection: "1. Válassz Gyűjteményt és Mezszámot",
+    opt_players: "⚽ Mezőnyjátékosok (628+ Veretve)",
+    opt_keepers: "🧤 Kapusok (51+ Veretve)",
+    btn_load_nft: "NFT Betöltése",
+    btn_random_nft: "🎲 Véletlenszerű",
+    ctrl_presets: "2. 🎙️ Edzőbá Dumagyára & Sablonok (HU / EN / RO)",
+    btn_ai_meme: "🎙️ EDZŐBÁ ÖLTÖZŐI DUMAGYÁRA ⚡",
+    btn_copy_meme: "Kép Másolása",
+    mood_all: "🎲 Összes Téma",
+    mood_degen: "🔥 Degen / Kriptó",
+    mood_sunday: "🍺 Kocsmaliga / Pálya",
+    mood_var: "🟥 Bíró & VAR",
+    mood_keeper: "🧤 Kapus Bakik",
+    hint_share_x: "A 'Megosztás X-en' gombra kattintva kimásoljuk a képet és megírjuk a tweetet! Nyomj Ctrl+V-t az X-en a kép csatolásához!",
+    ctrl_top_text: "3. Felső Szöveg",
+    ctrl_bottom_text: "4. Alsó Csattanó",
+    btn_download_meme: "Meme Letöltése (PNG)",
+    btn_share_x: "Megosztás X-en (Twitter)",
+    loading_nft: "⚽ Játékos behívása a MultiversX blockchainről...",
+    tok_kicker: "🔥 DEFLÁCIÓS DEGENOMIKA",
+    tok_title: "92.91% MÁR ELÉGETVE. NULLA ÚJ EMISSZIÓ.",
+    tok_desc: "A legtöbb meme coin 100% készlettel indul és rád önti. Az $EFOO már elhamvasztott közel 93 milliárd tokent a kezdeti 100 milliárdból.",
+    feat_1_title: "Meccs Gól Égetések (Goal Burns)",
+    feat_1_desc: "Minden nagy derbinél (El Clásico, BL, válogatott), élő Goal Burn-t tartunk! Minden gól = millió elégetett $EFOO a Tartalékból.",
+    feat_2_title: "10,328 Tárca a Lelátón",
+    feat_2_desc: "Több mint 10.300 MultiversX cím tartja már az $EFOO-t. Bármelyik vételi hullám azonnal függőleges zöld gyertyát gyújt.",
+    feat_3_title: "Ultra VIP Klub",
+    feat_3_desc: "Tarts 3+ játékos vagy 1+ kapus NFT-t és tagja vagy a Sunday League Vezetőségének: 3x szorzó a játékban és szavazati jog!",
+    brand_kicker: "🎨 HIVATALOS MÁRKA ÉS GITHUB MX-ASSETS KIT",
+    brand_title: "A RAKÉTALABDA ÉS A KOCSMALIGA IDENTITÁS",
+    brand_desc: "Nagy felbontású PNG és SVG vektorok X-hez, Linktree-hez, xPortalhoz és Explorerhez!",
+    brand_banner_title: "Hivatalos Fejléc Banner X-re (Twitter) & Közösségnek (1500×500 PNG & SVG)",
+    brand_banner_sub: "Lángoló Rakétalabda + Sunday League Degen FC Szlogen",
+    btn_dl_banner_png: "PNG Letöltése 1500×500 (X/Twitterhez)",
+    asset_crest_desc: "Hivatalos Champions Cyber-Rocket címer szuperszonikus rakétalabdával és neon energiagyűrűvel.",
+    asset_efoo_desc: "Hivatalos Champions Cyber-Rocket Token embléma xPortalhoz és Explorerhez (PR #4817).",
+    asset_players_desc: "Hitelesített Játékos gyűjtemény embléma és metaadatok (628+ veretve eddig, PR #4812).",
+    asset_keepers_desc: "Hitelesített Kapus gyűjtemény embléma és metaadatok (51+ veretve eddig, PR #4813).",
+    asset_lp1_desc: "Hivatalos OneDex EFOO/WEGLD LP token branding.",
+    asset_lp2_desc: "Hivatalos xExchange EFOO/USDC LP token branding.",
+    links_kicker: "🔗 HIVATALOS ELLENŐRZÖTT LINKEK",
+    links_title: "LÉPJ BE A STADIONBA",
+    hub_onedex: "EGLD / EFOO azonnali váltás",
+    hub_xex: "USDC / EFOO váltás (Kísérleti engedélyezése)",
+    hub_players: "Ellenőrzött Mezőnyjátékosok (628+ Veretve, EFOOTBALL-91a4eb)",
+    hub_keepers: "Ellenőrzött Kapusok (51+ Veretve, GOALKEEPER-cb9e3e)",
+    hub_explorer: "Ellenőrizd a 10,328 holdert és a 92.9% égetést",
+    hub_socials: "Csatlakozz az Ultrákhoz X-en és Telegramon",
+    modal_title: "CSATLAKOZTASD MULTIVERSX TÁRCÁDAT",
+    modal_desc: "Válaszd ki a kívánt MultiversX tárcát az egyenlegeid megtekintéséhez és a tranzakciók aláírásához!",
+    prov_xportal_sub: "Olvasd be a hivatalos QR-kódot az xPortal alkalmazással",
+    qr_instructions: "Nyisd meg az xPortal appot a telefonodon ➔ bökj a QR-kód olvasóra (jobb fent) ➔ olvasd be és hagyd jóvá a kapcsolatot:",
+    prov_ext_sub: "Chrome / Brave / Edge böngésző bővítmény csatlakozás",
+    prov_web_sub: "Hivatalos Web Wallet átirányítás (Keystore, Ledger, Passkey, PEM)",
+    modal_or: "VAGY AZONNALI TÁRCA MEGTEKINTŐ",
+    manual_erd_label: "Illessz be bármilyen MultiversX címet (erd1...) az azonnali ellenőrzéshez:",
+    btn_load_wallet: "Betöltés",
+    footer_disclaimer: "Nyilatkozat: Az $EFOO (EFOO-8fe2d4) egy közösségi meme token a MultiversX blockchainen, kizárólag szórakozási, futball-kultúra és bajtársi célokra. Semmi ezen a weboldalon nem minősül pénzügyi tanácsadásnak."
   }
 };
 
@@ -358,6 +506,28 @@ const MEME_PRESETS = {
       label: "🏖️ Beach Ball Degen",
       top: "CHAMPIONS LEAGUE BUDGET: $0",
       bottom: "SUNDAY LEAGUE $EFOO VIBES: PRICELESS"
+    }
+  ],
+  hu: [
+    {
+      label: "🍺 2022 iPhone vs Sör",
+      top: "IPHONE 14-ET ÍGÉRTEK 2022-BEN",
+      bottom: "MARADTUNK A 92.9% ÉGÉSNÉL ÉS A MELEG SÖRNÉL"
+    },
+    {
+      label: "👽 Alien Csatár",
+      top: "EDZŐBÁ MONDTA, HOGY VEGYEK BITCOINT",
+      bottom: "ÉN $EFOO-T VETTEM ÉS BEÁLLÍTOTTAM EGY ALIENT"
+    },
+    {
+      label: "📈 1 perces gyertya a pályán",
+      top: "A BÍRÓ PIROS LAPOT AD A KÖZÉPPÁLYÁSNAK",
+      bottom: "MERT MINDEN GYERTYÁJA TÚLSÁGOSAN ZÖLD"
+    },
+    {
+      label: "🏖️ Kocsmaliga Legendák",
+      top: "BAJNOKOK LIGÁJA KÖLTSÉGVETÉS: $0",
+      bottom: "SUNDAY LEAGUE $EFOO ÉLETÉRZÉS: MEGFIZETHETETLEN"
     }
   ],
   ro: [
@@ -387,13 +557,32 @@ const MEME_PRESETS = {
 const AI_MEME_CATALOG = {
   degen: {
     en: [
-      { top: "BOUGHT $EFOO AT THE TOP", bottom: "STILL CHEAPER THAN A CHAMPIONS LEAGUE TICKET" },
-      { top: "PORTFOLIO DOWN 40%?", bottom: "WE SCORE 3 GOALS IN 90+5' AND WE'RE GREEN" },
-      { top: "92.9% BURNED ON MULTIVERSX", bottom: "ONLY THING BURNING FASTER IS MY HAMSTRING" },
-      { top: "TRADING 1-MINUTE CANDLES", bottom: "WHILE TAKING A CORNER KICK" },
-      { top: "WIFE THINKS I'M PLAYING FIFA", bottom: "I'M RUNNING A SUNDAY LEAGUE SYNDICATE" },
+      { top: "BOUGHT $EFOO AT THE ALL-TIME HIGH", bottom: "STILL CHEAPER THAN A CHAMPIONS LEAGUE TICKET" },
+      { top: "PORTFOLIO DOWN 40% IN THE BEAR MARKET?", bottom: "WE SCORE 3 GOALS IN 90+5' AND WE'RE GREEN" },
+      { top: "92.9% BURNED ON MULTIVERSX", bottom: "ONLY THING BURNING FASTER IS OUR MIDFIELDER'S HAMSTRING" },
+      { top: "TRADING 1-MINUTE DEX CANDLES", bottom: "WHILE SIMULTANEOUSLY TAKING A CORNER KICK" },
+      { top: "WIFE THINKS I'M AT THE GYM", bottom: "I'M RUNNING A SUNDAY LEAGUE SYNDICATE ON MULTIVERSX" },
       { top: "BEAR MARKET TACKLED MY WALLET", bottom: "BUT $EFOO SCORED ON THE COUNTER-ATTACK" },
-      { top: "CHECKING DEXSCREENER AT 3 AM", bottom: "DREAMING OF A 100X OVERHEAD KICK" }
+      { top: "CHECKING DEXSCREENER AT 3 AM", bottom: "DREAMING OF A 100X OVERHEAD BICYCLE KICK" },
+      { top: "SOLD MY RUNNER-UP MEDAL FOR $EFOO", bottom: "IF IT PUMPS I BUY THE STADIUM, IF IT DUMPS I WALK HOME" },
+      { top: "25.4M $EFOO INJURY TIME JACKPOT", bottom: "FASTER HEART RATE THAN SPRINTING 100 METERS" },
+      { top: "MY ACCOUNTANT ASKED ABOUT CAPITAL GAINS", bottom: "I SHOWED HIM MY 90+5' PENALTY REPLAY" },
+      { top: "CHAMPIONS LEAGUE TICKET: $400", bottom: "SUNDAY LEAGUE WITH $EFOO ON-CHAIN: PRICELESS" },
+      { top: "FORGOT TO PAY THE RENT TODAY", bottom: "BUT BOUGHT THE $EFOO DIP BEFORE HALFTIME" }
+    ],
+    hu: [
+      { top: "ELADTAM A BICIKLIT ÉS $EFOO-T VETTEM", bottom: "HA PUMPOL CSAPATBUSZT VESZEK, HA DUMPOL GYALOG JÁROK MECCSRE" },
+      { top: "92.9% TOKEN ELÉGETVE A BLOCKCHAINEN", bottom: "EGYETLEN DOLOG ÉG GYORSABBAN: A VÉDŐNK TÜDEJE A 10. PERCBEN" },
+      { top: "A FELESÉGEM AZT HISZI, EDZŐTEREMBEN VAGYOK", bottom: "ÉN MEG A MECCS KÖZBEN NYOMOM AZ EFOO FOMO TIZENEGYESEKET" },
+      { top: "1 PERCES GYERTYÁKAT NÉZ A CSATÁRUNK", bottom: "A SZÖGLETET MEG EGYENEST A PARKOLÓBA TEKERTE" },
+      { top: "A PORTFÓLIÓM PIROS, MINT A BÍRÓ LAPJA", bottom: "DE A 90+5'-BEN GÓLT RÚGUNK ÉS MINDEN ZÖLD LESZ" },
+      { top: "SZÖGLET ÉS $EFOO BUY ORDER EGYSZERRE", bottom: "EGYSZERRE LIKVIDÁLTUK A KAPUST ÉS A SHORTOSOKAT" },
+      { top: "ARANYLABDÁRÓL ÁLMODIK EDZŐBÁ", bottom: "DE MÁR ANNAK IS ÖRÜLÜNK, HA NEM A BÜFÉ ABLAKÁT TÖRJÜK BE" },
+      { top: "A LAKBÉRT NEM FIZETTEM BE A HÉTEN", bottom: "MERT JÖTT A DIP ÉS MEGNYERTÜK A KOCSMALIGÁT" },
+      { top: "25.4M $EFOO HOSSZABBÍTÁS POT", bottom: "GYORSABB PULZUS, MINT 12 PERC SPRINT UTÁN" },
+      { top: "IPHONE 14-ET ÍGÉRTEK 2022-BEN", bottom: "DE A 93% BURN ÉS A KOCSMALIGA SOKKAL JOBBAN PÖRÖG" },
+      { top: "BAJNOKOK LIGÁJA JEGY: 150 EZER FT", bottom: "SUNDAY LEAGUE $EFOO MECCS: MEGFIZETHETETLEN ÉLETÉRZÉS" },
+      { top: "MINDENKI A BITCOIN FELEZÉST VÁRJA", bottom: "MI MEG A 92.9% UTÁNI KÖVETKEZŐ GÓL ÉGETÉST" }
     ],
     ro: [
       { top: "AM VÂNDUT MAȘINA SĂ IAU $EFOO", bottom: "DACĂ PUMPEAZĂ IAU CLUBUL, DACĂ NU VIN PE JOS LA MECI" },
@@ -402,18 +591,35 @@ const AI_MEME_CATALOG = {
       { top: "AM SCHIMBAT EGLD PE $EFOO LA PAUZĂ", bottom: "ÎN MINUTUL 90 ERAM PE PROFIT LA TERASĂ" },
       { top: "NEVASTA CREDE CĂ SUNT LA SALĂ", bottom: "EU DAU PENALTY-URI ON-CHAIN ÎN EFOO FOMO" },
       { top: "CUMPĂRĂ LA DIP, VINDE LA GOL", bottom: "FILOZOFIA OFICIALĂ SUNDAY LEAGUE DEGEN FC" },
-      { top: "TOȚI VOR BALONUL DE AUR", bottom: "NOI VREM DOAR VERDE PE ONEDEX ȘI XEXCHANGE" }
+      { top: "TOȚI VOR BALONUL DE AUR", bottom: "NOI VREM DOAR VERDE PE ONEDEX ȘI XEXCHANGE" },
+      { top: "AM VÂNDUT GOLF 4 SĂ IAU $EFOO", bottom: "ACUM SUNT TITULAR PE SINTETIC LA RAPID" },
+      { top: "25.4M $EFOO JACKPOT ÎN PRELUNGIRI", bottom: "PULSLUL MAI MARE DECÂT DUPĂ 2 CAFELE ȘI O ȚIGARĂ" }
     ]
   },
   sunday: {
     en: [
-      { top: "WARMED UP WITH A CIGARETTE", bottom: "SUBBED OFF IN MINUTE 12 FOR BEER HYDRATION" },
-      { top: "TACTICAL MASTERCLASS:", bottom: "KICK IT LONG AND PRAY TO MULTIVERSX" },
+      { top: "WARMED UP WITH A CIGARETTE AND COLD COFFEE", bottom: "SUBBED OFF IN MINUTE 12 FOR BEER HYDRATION" },
+      { top: "TACTICAL MASTERCLASS FROM COACH:", bottom: "KICK IT LONG AND PRAY TO MULTIVERSX" },
       { top: "ASTROTURF TEMPERATURE: 60°C", bottom: "KNEE SCRAPES HEAL, $EFOO GLORY IS FOREVER" },
-      { top: "CALLED IN SICK FOR WORK", bottom: "STARTING AS FALSE 9 IN SUNDAY LEAGUE" },
-      { top: "COACH: 'PASS AND MOVE!'", bottom: "ME: DRIBBLES INTO 4 DEFENDERS AND CALLS FOUL" },
-      { top: "BEACH BALL IN THE BOX", bottom: "STILL BETTER BALL CONTROL THAN OUR STRIKER" },
-      { top: "MISSED AN OPEN GOAL FROM 2 YARDS", bottom: "BLAMED THE SHADOW OF THE FLOODLIGHT" }
+      { top: "CALLED IN SICK FOR WORK ON MONDAY", bottom: "STARTING AS FALSE 9 IN SUNDAY LEAGUE ON SUNDAY" },
+      { top: "COACH: 'PASS AND MOVE, LADS!'", bottom: "ME: DRIBBLES INTO 4 DEFENDERS AND CALLS A FOUL" },
+      { top: "BEACH BALL BOUNCING IN THE BOX", bottom: "STILL BETTER BALL CONTROL THAN OUR STRIKER" },
+      { top: "MISSED AN OPEN GOAL FROM 1 YARD", bottom: "BLAMED THE SHADOW OF THE FLOODLIGHT" },
+      { top: "PRE-MATCH HYDRATION PROTOCOL:", bottom: "TWO PINTS OF LAGER AND A COLD KEBAB" },
+      { top: "9 AM HANGOVER KICKOFF IN THE RAIN", bottom: "RUNNING ON 2% BATTERY AND PURE $EFOO FOMO" },
+      { top: "TRIED A 40-YARD RABONA SHOT", bottom: "PULLED BOTH HAMSTRINGS BEFORE THE BALL HIT GROUND" }
+    ],
+    hu: [
+      { top: "BEMELEGÍTÉS: EGY KÁVÉ ÉS EGY KOSZTOS CIGI", bottom: "CSERE A 12. PERCBEN, MERT MEGHÚZÓDOTT A SÖRHAS" },
+      { top: "EDZŐBÁ TIKITAKA TÁRGYALÁSA:", bottom: "RÚGD EL A P.CSÁBA, A TÖBBIT ELINTÉZI A MULTIVERSX" },
+      { top: "VASÁRNAP REGGEL 9:00 KOCSMALIGA", bottom: "A TESTÜNK MÉG ALSZIK, DE A DEGEN LELKÜNK MÁR TÁMAD" },
+      { top: "MŰFÜVES PÁLYA 38 FOKBAN", bottom: "A TÉRDED LEÉG, DE A GYŐZELMI SÖR ÉS AZ $EFOO ÖRÖK" },
+      { top: "AZ ÜRES KAPUTÓL 1 MÉTERRE ÁLL A CSATÁR", bottom: "MEGIJEDT A REFLEKTOR ÁRNYÉKÁTÓL ÉS BEDOBÁS LETT" },
+      { top: "EDZŐBÁ ÜVÖLT A PARTVONALRÓL:", bottom: "'PASSZOLJAD MÁR!', DE Ő MINDENKIT LECSELEZNE" },
+      { top: "HARMADIK FÉLIDŐ A KOCSMÁBAN", bottom: "OTT MI VAGYUNK A BAJNOKOK LIGÁJA GYŐZTESEI" },
+      { top: "MECCS UTÁNI KEBAB ÉS PET-ES SÖR", bottom: "EZ A MI TÁPLÁLKOZÁSTUDOMÁNYI CSÚCSPROGRAMUNK" },
+      { top: "FAUDI SZÖGLETNÉL MINDENKI LEFEJELI A LEVEGŐT", bottom: "A LABDA MEG KIPATTOG A SAROKBA" },
+      { top: "LUMBÁGÓ A MELEGEDÉSNÉL?", bottom: "EGY KORPÁS SÖR ÉS KÉSZEN ÁLLSZ A TIZENEGYESRE" }
     ],
     ro: [
       { top: "ÎNCĂLZIRE CU O ȚIGARĂ ȘI O BERE", bottom: "SCHIMBARE ÎN MINUTUL 15 CĂ M-A LUAT SPATELE" },
@@ -427,11 +633,20 @@ const AI_MEME_CATALOG = {
   },
   var: {
     en: [
-      { top: "VAR CHECKING FOR 7 MINUTES", bottom: "REFEREE IS JUST CHECKING HIS DEX WALLET" },
-      { top: "CLEAR HANDBALL IN THE BOX", bottom: "REF SAYS: 'BALL TO HAND, PLAY ON DEGEN'" },
-      { top: "RED CARD FOR TACKLING THE REF?", bottom: "I WAS JUST TRYING TO SHOW HIM MY $EFOO BAG" },
-      { top: "REFEREE BRIBED WITH COLD PET BEER", bottom: "OFFSIDE RULE OFFICIALLY SUSPENDED TODAY" },
-      { top: "LINE DRAWER IN VAR ROOM", bottom: "USING RULER PURCHASED ON XOXNO" }
+      { top: "VAR CHECKING FOR 7 MINUTES", bottom: "REFEREE IS JUST APPROVING A $EFOO SWAP ON XPORTAL" },
+      { top: "CLEAR HANDBALL IN THE PENALTY BOX", bottom: "REF SAYS: 'NATURAL SILHOUETTE OF A SUNDAY DEGEN'" },
+      { top: "RED CARD FOR TACKLING THE REFEREE?", bottom: "I WAS JUST TRYING TO SHOW HIM MY $EFOO WALLET" },
+      { top: "FOUR PINTS OF COLD LAGER IN THE REF'S ROOM", bottom: "OFFSIDE LAW OFFICIALLY SUSPENDED FOR TODAY'S MATCH" },
+      { top: "DRAWING LINES IN THE VAR BOOTH", bottom: "USING A BROKEN RULER BOUGHT ON XOXNO MARKETPLACE" },
+      { top: "REFEREE BLOWS WHISTLE AT 90+2'", bottom: "REALIZED HE HAS 3 MILLION $EFOO IN FOMO POT AT 90+5'" }
+    ],
+    hu: [
+      { top: "A BÍRÓ 8 PERCIG NÉZI A VAR MONITORT", bottom: "VALÓJÁBAN AZ XPORTAL TÁRCÁJÁT FRISSÍTI A MOBILJÁN" },
+      { top: "PIROS LAPOT ADOTT A BÍRÓ A 4. PERCBEN", bottom: "CSAK MEG AKARTAM MUTATNI NEKI AZ $EFOO ZÖLD GYERTYÁT" },
+      { top: "EGY REKESZ HIDEG SÖR A BÍRÓ ÖLTÖZŐJÉBE", bottom: "A LES SZABÁLYA AZNAPRA HIVATALOSAN HATÁLYON KÍVÜL HELYEZVE" },
+      { top: "SZEMMEL LÁTHATÓ KEZEZÉS A TIZENEGYESPONTNÁL", bottom: "BÍRÓ: 'TESTHEZ SIMULT, MEHET TOVÁBB A DEGEN FOCI'" },
+      { top: "A PARTJELZŐ ELALUDT A ZÁSZLÓJÁN", bottom: "CSAK AKKOR ÉBRED FEL, HA GÓL ÉS TOKEN BURN VAN" },
+      { top: "BÍRÓ SPORI LEFÚJTA A MECCSET A 89. PERCBEN", bottom: "ESZÉBE JUTOTT HOGY INDUL A 90+5' EFOO JACKPOT" }
     ],
     ro: [
       { top: "SE UITĂ ARBITRUL LA VAR DE 5 MINUTE", bottom: "DE FAPT SE UITA LA GRAFICUL $EFOO PE TELEFON" },
@@ -443,11 +658,20 @@ const AI_MEME_CATALOG = {
   },
   keeper: {
     en: [
-      { top: "51+ GOALKEEPERS MINTED SO FAR", bottom: "CONCEDES 8 GOALS, STILL ASKS FOR MAN OF THE MATCH" },
-      { top: "GOALKEEPER DIVING FOR THE BALL", bottom: "ENDED UP IN THE CAR PARK BEHIND THE PITCH" },
-      { top: "WALL SET UP PERFECTLY", bottom: "BALL FLIES STRAIGHT THROUGH THE MIDDLE" },
-      { top: "KEEPER: 'I HAD IT COVERED!'", bottom: "BALL IS ALREADY NETTED IN TOP BINS" },
-      { top: "GLOVES SMELL LIKE 2022", bottom: "REFLEXES POWERED BY $EFOO ADRENALINE" }
+      { top: "51+ GOALKEEPERS MINTED ON-CHAIN", bottom: "CONCEDES 8 GOALS, STILL DEMANDS MAN OF THE MATCH" },
+      { top: "GOALKEEPER DIVING MAJESTICALLY", bottom: "ENDED UP IN THE BURGER VAN BEHIND THE PITCH" },
+      { top: "WALL SET UP PERFECTLY WITH 5 DEFENDERS", bottom: "BALL FLIES STRAIGHT THROUGH EVERYONE'S LEGS" },
+      { top: "KEEPER SHOUTS: 'MY BALL, I GOT IT!'", bottom: "WATCHES THE FLAMING ROCKET HIT TOP BINS" },
+      { top: "GLOVES HAVE HOLES IN BOTH PALMS", bottom: "BUT HE CLAIMS +10 REFLEX BOOST ON BLOCKCHAIN" },
+      { top: "GOALKEEPER CHECKING HIS PHONE DURING A CORNER", bottom: "BECAUSE HIS $EFOO STAKING REWARDS JUST UNLOCKED" }
+    ],
+    hu: [
+      { top: "51+ KAPUS MINTELVE A BLOCKCHAINEN", bottom: "KAPOTT 7 GÓLT, DE A MECCS EMBERE DÍJAT KÖVETELI" },
+      { top: "A KAPUS HATALMASAT VETŐDÖTT", bottom: "EGYENEST BELE A PÁLYA MÖGÖTTI GYROSOS BÜFÉBE" },
+      { top: "ÜVÖLTI: 'ENYÉÉÉM, ENYÉM, HAGYJAD!'", bottom: "ÉS NÉZI, AHOGY A RAKÉTALABDA KISZAKÍTJA A HÁLÓT" },
+      { top: "4 EMBERES FALAT ÉPÍTETT A SZABADRÚGÁSHOZ", bottom: "A LABDA MIND A NÉGY VÉDŐ LÁBA KÖZÖTT BEPATTOGOTT" },
+      { top: "LYUKAS A KESZTYŰ, DE A SZÍVÜNK TISZTA", bottom: "A BLOCKCHAINEN GARANTÁLTAN NEM KAPUNK GÓLT" },
+      { top: "A KAPUS A SZÖGLET KÖZBEN AZ XPORTALT BÖNGÉSZI", bottom: "MERT ÉPPEN LEJÁRT AZ $EFOO STAKINGJE" }
     ],
     ro: [
       { top: "51+ PORTARI MINTAȚI PÂNĂ ACUM", bottom: "IA 6 GOLURI DAR CERE NOTA 10 PENTRU DEGAJĂRI" },
@@ -457,6 +681,71 @@ const AI_MEME_CATALOG = {
       { top: "MĂNUȘI CU GAURĂ ÎN PALMĂ", bottom: "DAR PE BLOCKCHAIN ARE PARADĂ GARANTATĂ" }
     ]
   }
+};
+
+const BANTER_TEMPLATES = {
+  hu: [
+    {
+      top: (name) => `${name.toUpperCase()} A 88. PERCBEN BECSERÉLVE`,
+      bottom: () => "A SZÖGLETNÉL MÁR AZ 1 PERCES $EFOO GYERTYÁT PÖRGETI A MOBILJÁN"
+    },
+    {
+      top: (name) => `EDZŐBÁ RÁSZÓLT: 'PASSZOLJAD MÁR, ${name.toUpperCase()}!'`,
+      bottom: () => "DE Ő MINDENKIT LECSELEZVE A PARKOLÓBA LÖVI A LABDÁT"
+    },
+    {
+      top: (name) => `${name.toUpperCase()} TIZENEGYESHEZ KÉSZÜL A 90+5'-BEN`,
+      bottom: () => "A KAPUS MÁR A 25.4M $EFOO JACKPOTOT ÜNNEPLI"
+    },
+    {
+      top: (name) => `92.9% TOKEN PORRÁ ÉGETVE A MULTIVERSX-EN`,
+      bottom: (name) => `DE ${name.toUpperCase()} VÁDLIJA GYORSABBAN ÉG A KOCSMALIGÁBAN`
+    },
+    {
+      top: (name) => `A BÍRÓ PIROS LAPOT ADOTT ${name.toUpperCase()}-NEK`,
+      bottom: () => "MERT A KIPÁRCOLT RAKÉTALABDA BETÖRTE A BÜFÉ ABLAKÁT"
+    },
+    {
+      top: (name) => `${name.toUpperCase()} A KISPADON BEMELEGÍT`,
+      bottom: () => "EGY PET-ES SÖRREL ÉS KÉT $EFOO BUY ORDERREL A ZSEBÉBEN"
+    }
+  ],
+  en: [
+    {
+      top: (name) => `${name.toUpperCase()} SUBBED ON AT MINUTE 88`,
+      bottom: () => "ALREADY CHECKING 1M DEX CANDLES AT THE CORNER FLAG"
+    },
+    {
+      top: (name) => `COACH SHOUTS: 'JUST PASS THE BALL ${name.toUpperCase()}!'`,
+      bottom: () => "DRIBBLES INTO 4 DEFENDERS AND CALLS FOR A FOUL"
+    },
+    {
+      top: (name) => `${name.toUpperCase()} STEPPING UP FOR 90+5' PENALTY`,
+      bottom: () => "ROCKET SHOT STRAIGHT INTO THE 25.4M $EFOO JACKPOT"
+    },
+    {
+      top: (name) => `92.9% SUPPLY BURNED ON MULTIVERSX`,
+      bottom: (name) => `STILL LESS TOXIC THAN ${name.toUpperCase()}'S HALFTIME ENERGY DRINK`
+    },
+    {
+      top: (name) => `STRAIGHT RED CARD FOR ${name.toUpperCase()} IN MINUTE 4`,
+      bottom: () => "TOLD THE REFEREE HIS WALLET WAS DOWN BAD TODAY"
+    }
+  ],
+  ro: [
+    {
+      top: (name) => `${name.toUpperCase()} INTRĂ PE TEREN ÎN MINUTUL 88`,
+      bottom: () => "SE UITĂ PE GRAFICUL DE 1 MINUT DIRECT DIN CAREU"
+    },
+    {
+      top: (name) => `NEA GICĂ STRIGĂ LA ${name.toUpperCase()}: 'DĂ-I DRUMU LA PAS!'`,
+      bottom: () => "TRAGE DIRECT ÎN GRĂTARUL CU MICI DE DUPĂ GARD"
+    },
+    {
+      top: (name) => `92.9% TOKENI ARȘI PE BLOCKCHAIN`,
+      bottom: (name) => `DAR ${name.toUpperCase()} MAI ARE SUFLET DOAR PENTRU O BERE LA PAUZĂ`
+    }
+  ]
 };
 
 // On-Chain Smart Contract Constants (Verified on MultiversX Mainnet)
@@ -619,7 +908,7 @@ function setLanguage(lang) {
     btn.classList.toggle("active", btn.getAttribute("data-set-lang") === lang);
   });
 
-  const dict = I18N[lang];
+  const dict = I18N[lang] || I18N.en;
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
     if (dict[key]) {
@@ -688,6 +977,32 @@ const HERO_ACTS = {
       kicker: "ACTUL IV • MINUTUL 90+5': PUNCTUL CULMINANT EFOO FOMO",
       title: "MINUTUL 90+5' PRELUNGIRI.<br /><span class='gold-text'>ULTIMUL MARCATOR IA TOT POTUL!</span>",
       desc: "Transformarea e completă! Execută un penalty chiar acum în Hero sau șutează <strong>100,000 $EFOO</strong> în Potul de Prelungiri pentru a reseta ceasul la <code>05:00</code> — <strong>50% merge la Ultimul Marcator</strong>, iar <strong>50% se ard pe loc</strong>!"
+    }
+  },
+  hu: {
+    1: {
+      clock: "⚽ 12:00' — 2022 TÉLI MEDVEPIAC",
+      kicker: "I. FELVONÁS • 2022: A KORPORATÍV ILLÚZIÓ ÉS VAR PIROS LAP",
+      title: "TÚL CSÓRÓK A BAJNOKOK LIGÁJÁHOZ.<br /><span class='neon-text'>TÚL DEGENEK A FIFA-HOZ.</span>",
+      desc: "2022-ben még öltönyt hordtunk, whitepapert írtunk és iPhone 14-et ígértünk, miközben a medvepiac páros lábbal ránk csúszott. <strong>Görgess le</strong>, hogy megnézd, ahogy a VAR bíró lefújja a komédiát és a kohóba dobja a 2022-es terveket!"
+    },
+    2: {
+      clock: "🔥 45:00' — A 92.91%-OS KOHÓ",
+      kicker: "II. FELVONÁS • A HATALMAS 92.91%-OS ELÉGETÉS",
+      title: "92,915,321,677 $EFOO<br /><span class='fire-text'>PORRÁ ÉGETVE A MULTIVERSX-EN.</span>",
+      desc: "A kezdeti <strong>100 milliárd</strong> tokenből örökre elhamvasztottunk <strong>92.91%</strong>-ot! Csupán <strong>7.08 milliárd $EFOO</strong> maradt forgalomban (<code>canMint: false</code>), és már <strong>10,328 tárca</strong> tartja a lelátón."
+    },
+    3: {
+      clock: "⚡ 75:00' — REFLEKTOROK FELKAPCSOLVA • DEGEN ÚJJÁSZÜLETÉS",
+      kicker: "III. FELVONÁS • ÚJJÁSZÜLETVE MINT SUNDAY LEAGUE DEGEN FC",
+      title: "628+ VERETETT CSATÁR.<br /><span class='neon-text'>51+ VERETETT KAPUS.</span>",
+      desc: "A 2022-es hamvakból megszületett a <strong>Sunday League Degen FC ($EFOO)</strong>! Hitelesített <code>EFOOTBALL-91a4eb</code> és <code>GOALKEEPER-cb9e3e</code> NFT-jeink (a veretés jelenleg is aktív!) valódi szupererőket adnak: 2x–3x szorzókat, védőpajzsot és azonnali swapot!"
+    },
+    4: {
+      clock: "🏆 90+5' — HOSSZABBÍTÁS EFOO FOMO JACKPOT",
+      kicker: "IV. FELVONÁS • 90+5' HOSSZABBÍTÁS: AZ EFOO FOMO TETŐPONTJA",
+      title: "90+5' HOSSZABBÍTÁS.<br /><span class='gold-text'>AZ UTOLSÓ RÚGÓ VISZI A TELJES POTOT!</span>",
+      desc: "Az átalakulás befejeződött! Rúgj azonnali tizenegyest itt a Hero-ban vagy küldj be <strong>100.000 $EFOO</strong>-t a Hosszabbítás Potba, hogy újraindítsd a <code>05:00</code> órát — <strong>50% az Utolsó Rúgóé</strong>, <strong>50% pedig azonnal megsemmisül</strong>!"
     }
   }
 };
@@ -2531,19 +2846,65 @@ function renderMemePresets() {
   });
 }
 
-function generateAiMeme() {
+const recentMemeHistory = [];
+
+function getProceduralOrCatalogMeme(category, lang, nftMeta) {
+  const chosenLang = ["hu", "ro", "en"].includes(lang) ? lang : "en";
+  const nftName = nftMeta?.name || (category === "keeper" ? "Goalkeeper Titan" : "Alien Striker #619");
+
+  // 35% chance to generate a procedural template meme using the loaded NFT name
+  const templates = BANTER_TEMPLATES[chosenLang] || BANTER_TEMPLATES.en;
+  if (templates && templates.length > 0 && Math.random() < 0.38) {
+    const tpl = templates[Math.floor(Math.random() * templates.length)];
+    const top = tpl.top(nftName);
+    const bottom = tpl.bottom(nftName);
+    if (!recentMemeHistory.includes(top)) {
+      recentMemeHistory.push(top);
+      if (recentMemeHistory.length > 12) recentMemeHistory.shift();
+      return { top, bottom, source: "procedural" };
+    }
+  }
+
+  // Fallback / standard selection from expanded comedic catalog
+  const catalogList = (AI_MEME_CATALOG[category] && (AI_MEME_CATALOG[category][chosenLang] || AI_MEME_CATALOG[category].en)) || [];
+  if (catalogList.length === 0) {
+    return {
+      top: "SUNDAY LEAGUE DEGEN FC",
+      bottom: "92.9% BURNED ON MULTIVERSX",
+      source: "fallback"
+    };
+  }
+
+  // Filter out recently shown memes
+  const freshCandidates = catalogList.filter((item) => !recentMemeHistory.includes(item.top));
+  const pool = freshCandidates.length > 0 ? freshCandidates : catalogList;
+  const picked = pool[Math.floor(Math.random() * pool.length)];
+
+  recentMemeHistory.push(picked.top);
+  if (recentMemeHistory.length > 12) recentMemeHistory.shift();
+
+  return { top: picked.top, bottom: picked.bottom, source: "catalog" };
+}
+
+async function generateAiMeme() {
   const aiBtn = document.getElementById("ai-generate-meme-btn");
-  const origHtml = aiBtn ? aiBtn.innerHTML : "";
+  const canvasFrame = document.querySelector(".canvas-frame");
+
+  // Show live thinking status on the button
   if (aiBtn) {
-    aiBtn.innerHTML = currentLang === "ro" ? "⚡ Se gândește AI-ul..." : "⚡ AI Cooking...";
+    const loadingText = currentLang === "hu"
+      ? "🧠 Edzőbá taktikát főz..."
+      : currentLang === "ro"
+        ? "🧠 Nea Gică analizează duma..."
+        : "🧠 Coach is Cooking Banter...";
+    aiBtn.innerHTML = `⚡ <span>${loadingText}</span>`;
     aiBtn.disabled = true;
   }
 
-  // Determine mood category
+  // Determine category & keeper bias
   let category = currentMemeMood;
+  const isKeeperNft = currentNftMeta?.identifier?.startsWith("GOALKEEPER") || currentNftMeta?.collection === "GOALKEEPER-cb9e3e";
   if (!category || category === "all") {
-    // If the loaded NFT is a goalkeeper, give higher probability (40%) to goalkeeper jokes
-    const isKeeperNft = currentNftMeta?.identifier?.startsWith("GOALKEEPER");
     if (isKeeperNft && Math.random() < 0.45) {
       category = "keeper";
     } else {
@@ -2552,29 +2913,80 @@ function generateAiMeme() {
     }
   }
 
-  const catalogList = (AI_MEME_CATALOG[category] && (AI_MEME_CATALOG[category][currentLang] || AI_MEME_CATALOG[category].en)) || [];
-  if (catalogList.length > 0) {
-    const curTop = (document.getElementById("meme-top-input")?.value || "").trim().toUpperCase();
-    const candidates = catalogList.filter((item) => item.top.toUpperCase() !== curTop);
-    const chosen = candidates.length > 0
-      ? candidates[Math.floor(Math.random() * candidates.length)]
-      : catalogList[Math.floor(Math.random() * catalogList.length)];
+  let finalMeme = null;
 
-    const topInput = document.getElementById("meme-top-input");
-    const bottomInput = document.getElementById("meme-bottom-input");
-    if (topInput) topInput.value = chosen.top;
-    if (bottomInput) bottomInput.value = chosen.bottom;
+  // 1. Attempt ultra-fast live AI request (2200ms timeout)
+  try {
+    const nftName = currentNftMeta?.name || (isKeeperNft ? "Goalkeeper Titan" : "Alien Striker #619");
+    const langLabel = currentLang === "hu" ? "Hungarian" : currentLang === "ro" ? "Romanian" : "English";
+    const prompt = `Sunday League Degen FC ($EFOO on MultiversX) football meme.
+Theme: ${category}. Player: ${nftName}. Language: ${langLabel}.
+Format STRICTLY as:
+TOP: <line 1 in ALL CAPS>
+BOTTOM: <punchline in ALL CAPS>
+No markdown, no quotes, no extra text.`;
 
-    drawMemeCanvas();
-    updateTweetShareLink();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2200);
+
+    const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}?seed=${Math.floor(Math.random() * 999999)}`, {
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const rawText = await res.text();
+      const topMatch = rawText.match(/TOP:\s*(.+)/i);
+      const bottomMatch = rawText.match(/BOTTOM:\s*(.+)/i);
+      if (topMatch && bottomMatch) {
+        const cleanTop = topMatch[1].replace(/["*#_`]/g, "").trim().toUpperCase();
+        const cleanBot = bottomMatch[1].replace(/["*#_`]/g, "").trim().toUpperCase();
+        if (cleanTop.length > 3 && cleanBot.length > 3 && cleanTop.length < 80 && cleanBot.length < 80) {
+          finalMeme = { top: cleanTop, bottom: cleanBot, source: "live_ai" };
+        }
+      }
+    }
+  } catch (err) {
+    // Timeout or network offline -> silently continue to high-craft procedural engine
   }
 
+  // 2. High-Craft Procedural & Comedic Banter Engine Fallback
+  if (!finalMeme) {
+    finalMeme = getProceduralOrCatalogMeme(category, currentLang, currentNftMeta);
+  }
+
+  // Apply to text fields
+  const topInput = document.getElementById("meme-top-input");
+  const bottomInput = document.getElementById("meme-bottom-input");
+  if (topInput) topInput.value = finalMeme.top;
+  if (bottomInput) bottomInput.value = finalMeme.bottom;
+
+  // Render canvas & update share links
+  drawMemeCanvas();
+  updateTweetShareLink();
+
+  // Visual celebration flash on the meme canvas
+  if (canvasFrame) {
+    canvasFrame.classList.remove("meme-flash");
+    void canvasFrame.offsetWidth; // trigger reflow
+    canvasFrame.classList.add("meme-flash");
+    setTimeout(() => canvasFrame.classList.remove("meme-flash"), 650);
+  }
+
+  // Restore button with cool name
   setTimeout(() => {
     if (aiBtn) {
-      aiBtn.innerHTML = origHtml || (currentLang === "ro" ? "✨ Generează Meme AI" : "✨ AI Generate Meme");
+      const coolName = I18N[currentLang]?.btn_ai_meme || (
+        currentLang === "hu"
+          ? "🎙️ EDZŐBÁ ÖLTÖZŐI DUMAGYÁRA ⚡"
+          : currentLang === "ro"
+            ? "🎙️ DUMA DE VESTIAR A LUI NEA GICĂ ⚡"
+            : "🎙️ LOCKER ROOM BANTER BOT ⚡"
+      );
+      aiBtn.innerHTML = `🎙️ <span data-i18n="btn_ai_meme">${coolName}</span>`;
       aiBtn.disabled = false;
     }
-  }, 320);
+  }, 380);
 }
 
 function toHexNonce(nonce) {
