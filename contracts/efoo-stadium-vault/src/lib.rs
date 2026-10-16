@@ -199,12 +199,14 @@ pub trait EfooStadiumVault {
         require!(price > 0, "Price must be greater than 0");
 
         let efoo_id = self.efoo_token_id().get();
-        let is_valid_currency = payment_token.is_egld() || payment_token == EgldOrEsdtTokenIdentifier::esdt(efoo_id);
+        let is_valid_currency = payment_token.is_egld() || (!payment_token.is_egld() && payment_token.unwrap_esdt() == efoo_id);
         require!(is_valid_currency, "Listing currency must be native EGLD or $EFOO");
 
         let caller = self.blockchain().get_caller();
-        let (token_id, nonce, amount) = self.call_value().single_esdt();
-        require!(amount == 1, "Only 1 NFT can be listed per transaction");
+        let payment = self.call_value().single_esdt();
+        require!(payment.amount == 1, "Only 1 NFT can be listed per transaction");
+        let token_id = payment.token_identifier;
+        let nonce = payment.token_nonce;
 
         let listing = NftListing {
             seller: caller,
@@ -323,7 +325,7 @@ pub trait EfooStadiumVault {
         require!(new_price > 0, "Price must be greater than 0");
 
         let efoo_id = self.efoo_token_id().get();
-        let is_valid_currency = new_payment_token.is_egld() || new_payment_token == EgldOrEsdtTokenIdentifier::esdt(efoo_id);
+        let is_valid_currency = new_payment_token.is_egld() || (!new_payment_token.is_egld() && new_payment_token.unwrap_esdt() == efoo_id);
         require!(is_valid_currency, "Listing currency must be native EGLD or $EFOO");
 
         require!(
@@ -364,7 +366,7 @@ pub trait EfooStadiumVault {
         if token_identifier.is_egld() {
             self.send().direct_egld(&owner, &amount);
         } else {
-            let esdt_id = token_identifier.into_esdt_option().unwrap();
+            let esdt_id = token_identifier.unwrap_esdt();
             self.send().direct_esdt(&owner, &esdt_id, 0, &amount);
         }
     }
