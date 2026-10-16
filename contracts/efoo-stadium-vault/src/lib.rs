@@ -29,9 +29,18 @@ pub trait EfooStadiumVault {
     #[init]
     fn init(
         &self,
-        efoo_token_id: TokenIdentifier,
-        burn_address: ManagedAddress,
+        opt_efoo_token_id: OptionalValue<TokenIdentifier>,
+        opt_burn_address: OptionalValue<ManagedAddress>,
     ) {
+        let efoo_token_id = match opt_efoo_token_id {
+            OptionalValue::Some(id) => id,
+            OptionalValue::None => TokenIdentifier::from("EFOO-8fe2d4"),
+        };
+        let burn_address = match opt_burn_address {
+            OptionalValue::Some(addr) => addr,
+            OptionalValue::None => ManagedAddress::zero(),
+        };
+
         self.efoo_token_id().set(&efoo_token_id);
         self.burn_address().set(&burn_address);
 
