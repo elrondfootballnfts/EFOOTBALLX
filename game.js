@@ -4878,7 +4878,8 @@ async function signWithExtension(preparedTxs) {
 }
 
 async function connectDefiExtension() {
-  if (!window.elrondWallet) {
+  const ext = window.elrondWallet || window.multiversx || window.elrond;
+  if (!ext) {
     window.open(
       "https://chromewebstore.google.com/detail/multiversx-defi-wallet/dngmlblcodfobpdpecaadgfbcggfjfnm",
       "_blank"
@@ -4886,18 +4887,29 @@ async function connectDefiExtension() {
     return;
   }
   try {
-    const res = await sendExtensionMessage("connect", {});
-    const addr = typeof res === "string" ? res : res && res.address ? res.address : "";
+    let addr = "";
+    if (typeof ext.login === "function") {
+      const res = await ext.login();
+      addr = typeof res === "string" ? res : res && res.address ? res.address : "";
+    } else {
+      const res = await sendExtensionMessage("connect", {});
+      addr = typeof res === "string" ? res : res && res.address ? res.address : "";
+    }
     if (addr && addr.startsWith("erd1")) {
       connectWithAddress(addr, "extension");
       showToast(
-        currentLang === "ro"
-          ? `✅ Conectat prin MultiversX DeFi Extension (${shortErd(addr)})!`
+        currentLang === "hu"
+          ? `✅ Sikeresen csatlakozva: ${shortErd(addr)}!`
           : `✅ Connected via MultiversX DeFi Extension (${shortErd(addr)})!`
       );
     }
   } catch (err) {
     console.warn("Extension connect cancelled or failed:", err);
+    showToast(
+      currentLang === "hu"
+        ? "❌ A tárca csatlakozást elutasítottad vagy megszakadt."
+        : "❌ Extension connection cancelled or rejected."
+    );
   }
 }
 
@@ -4939,6 +4951,17 @@ function disconnectWallet() {
   connectedProvider = "";
   wcSessionTopic = "";
   pendingGateAction = null;
+
+  // Revoke authorization from browser extension so it prompts next time
+  const ext = window.elrondWallet || window.multiversx || window.elrond;
+  if (ext && typeof ext.logout === "function") {
+    try {
+      ext.logout();
+    } catch (e) {}
+  }
+  try {
+    sendExtensionMessage("logout", {});
+  } catch (e) {}
 
   // Clear all wallet keys from localStorage
   try {

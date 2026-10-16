@@ -569,15 +569,28 @@ function renderTelemetry() {
 // ============================================================================
 function initMarketWallet() {
   try {
-    let savedAddr = localStorage.getItem("multiversx_address") || sessionStorage.getItem("multiversx_address") || localStorage.getItem("efoo_connected_address");
+    // Check if returning from official MultiversX Web Wallet login callback
+    const urlParams = new URLSearchParams(window.location.search);
+    const callbackAddr = urlParams.get("address");
+    if (callbackAddr && callbackAddr.startsWith("erd1")) {
+      localStorage.setItem("multiversx_address", callbackAddr);
+      localStorage.setItem("multiversx_provider", "webwallet");
+      localStorage.setItem("efoo_wallet_address", callbackAddr);
+      localStorage.setItem("efoo_wallet_provider", "webwallet");
+      const cleanUrl = window.location.pathname + (urlParams.get("tab") ? "?tab=" + urlParams.get("tab") : "");
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+
+    let savedAddr = localStorage.getItem("multiversx_address") || sessionStorage.getItem("multiversx_address") || localStorage.getItem("efoo_wallet_address");
     // Clear out any legacy placeholder docs address
     if (savedAddr && savedAddr.startsWith("erd1qyu5wthldz")) {
       savedAddr = null;
       localStorage.removeItem("multiversx_address");
       sessionStorage.removeItem("multiversx_address");
+      localStorage.removeItem("efoo_wallet_address");
       localStorage.removeItem("efoo_connected_address");
     }
-    const savedProv = localStorage.getItem("multiversx_provider") || sessionStorage.getItem("multiversx_provider");
+    const savedProv = localStorage.getItem("multiversx_provider") || sessionStorage.getItem("multiversx_provider") || localStorage.getItem("efoo_wallet_provider");
     if (savedAddr && savedAddr.startsWith("erd1")) {
       marketWallet.address = savedAddr;
       marketWallet.provider = savedProv || "webwallet";
@@ -668,6 +681,13 @@ function disconnectWallet() {
   marketWallet.address = null;
   marketWallet.provider = null;
   marketWallet.ownedNfts = [];
+
+  const ext = window.elrondWallet || window.multiversx || window.elrond;
+  if (ext && typeof ext.logout === "function") {
+    try {
+      ext.logout();
+    } catch (e) {}
+  }
   try {
     localStorage.removeItem("multiversx_address");
     localStorage.removeItem("multiversx_provider");
@@ -1904,7 +1924,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const qrImg = document.getElementById("m-xportal-qr-img");
     if (qrBox && qrImg) {
       qrBox.classList.remove("hidden");
-      qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Fmaiar.page.link%2Fconnect";
+      const callbackUrl = window.location.origin + window.location.pathname;
+      const loginUrl = `https://wallet.multiversx.com/hook/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(loginUrl)}`;
     }
   });
 
@@ -1916,18 +1938,33 @@ document.addEventListener("DOMContentLoaded", () => {
         const addr = typeof res === "string" ? res : (res && res.address ? res.address : "");
         if (addr && addr.startsWith("erd1")) {
           connectManualAddress(addr);
+          showMarketToast(
+            currentMarketLang === "hu"
+              ? `✅ Sikeresen csatlakozva: ${addr.slice(0, 6)}...${addr.slice(-4)}`
+              : `✅ Connected: ${addr.slice(0, 6)}...${addr.slice(-4)}`
+          );
           return;
         }
       } catch (e) {
         console.warn("Extension login error:", e);
+        showMarketToast(
+          currentMarketLang === "hu"
+            ? "❌ A csatlakozást elutasítottad vagy megszakadt a tárcában."
+            : "❌ Extension connection cancelled or rejected."
+        );
+        return;
       }
     }
-    // Fallback: connect real user wallet
-    connectManualAddress("erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq");
+    showMarketToast(
+      currentMarketLang === "hu"
+        ? "⚠️ Nem található MultiversX DeFi Wallet bővítmény a böngésződben!"
+        : "⚠️ MultiversX DeFi Wallet extension not detected in your browser!"
+    );
   });
 
   document.getElementById("m-login-webwallet")?.addEventListener("click", () => {
-    connectManualAddress("erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq");
+    const callbackUrl = window.location.origin + window.location.pathname;
+    window.location.href = `https://wallet.multiversx.com/hook/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
   });
 
   // Close Modals
