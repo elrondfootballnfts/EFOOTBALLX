@@ -2446,7 +2446,7 @@ async function openNftDetailsModal(nft) {
   if (collEl) collEl.textContent = `${nft.collection || "EFOOTBALL-91a4eb"} • ${nft.identifier}`;
 
   if (playBtn) {
-    playBtn.href = `game.html?v=20261016_v9&nft=${encodeURIComponent(nft.identifier)}`;
+    playBtn.href = `game?v=20261016_v9&nft=${encodeURIComponent(nft.identifier)}`;
   }
   if (xoxnoBtn) {
     xoxnoBtn.href = `https://xoxno.com/nft/${encodeURIComponent(nft.identifier)}`;
@@ -2651,7 +2651,7 @@ function renderOwnedNftsGallery() {
 
     card.querySelector(".use-game-btn").addEventListener("click", (e) => {
       e.stopPropagation();
-      window.location.href = `game.html?v=20261016_v9&nft=${encodeURIComponent(nft.identifier)}`;
+      window.location.href = `game?v=20261016_v9&nft=${encodeURIComponent(nft.identifier)}`;
     });
 
     grid.appendChild(card);
@@ -4059,8 +4059,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("share-score-x-btn")?.addEventListener("click", () => {
     const shareTxt =
       currentLang === "ro"
-        ? `⚽ Am marcat ${gameState.goals} goluri (${gameState.score.toLocaleString()} puncte) în jocul #EFOO FOMO Penalty Shootout pe #MultiversX! 🔥\n\nJoacă acum cu NFT-urile tale: https://efoo.optibase.ro/game.html\n@EFootball_X`
-        : `⚽ I just scored ${gameState.goals} goals (${gameState.score.toLocaleString()} pts) in the #EFOO FOMO Penalty Shootout on #MultiversX! 🔥\n\nPlay now with your NFTs: https://efoo.optibase.ro/game.html\n@EFootball_X`;
+        ? `⚽ Am marcat ${gameState.goals} goluri (${gameState.score.toLocaleString()} puncte) în jocul #EFOO FOMO Penalty Shootout pe #MultiversX! 🔥\n\nJoacă acum cu NFT-urile tale: https://efoo.optibase.ro/game\n@EFootball_X`
+        : `⚽ I just scored ${gameState.goals} goals (${gameState.score.toLocaleString()} pts) in the #EFOO FOMO Penalty Shootout on #MultiversX! 🔥\n\nPlay now with your NFTs: https://efoo.optibase.ro/game\n@EFootball_X`;
     window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(shareTxt)}`, "_blank");
   });
 

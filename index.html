@@ -24,6 +24,21 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
+  <!-- Clean URL: Strip amateur .html extension from browser address bar -->
+  <script>
+    (function() {
+      try {
+        var p = window.location.pathname;
+        if (p.endsWith('/index.html') || p === '/index.html' || p === 'index.html') {
+          var clean = p.replace(/\/?index\.html$/, '') || '/';
+          window.history.replaceState(null, '', clean + window.location.search + window.location.hash);
+        } else if (p.endsWith('.html')) {
+          var clean = p.replace(/\.html$/, '');
+          window.history.replaceState(null, '', clean + window.location.search + window.location.hash);
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
   <!-- Top Live Ticker Banner -->
@@ -52,14 +67,14 @@
       </a>
 
       <nav class="nav-links">
-        <a href="market.html" data-i18n="nav_wallethub">🛒 NFT &amp; Skill Market</a>
+        <a href="market" data-i18n="nav_wallethub">🛒 NFT &amp; Skill Market</a>
         <a href="#meme-locker" data-i18n="nav_locker">🎨 Meme Studio</a>
         <a href="#tokenomics" data-i18n="nav_tokenomics">🔥 92.9% Burn</a>
         <a href="#brand-kit" data-i18n="nav_brandkit">🛡️ Brand Kit</a>
       </nav>
 
       <div class="nav-actions">
-        <a href="game.html?v=20261016_v8" class="nav-game-pill" title="Play EFOO FOMO Arena">
+        <a href="game?v=20261016_v8" class="nav-game-pill" title="Play EFOO FOMO Arena">
           ⚽ <span class="ngp-text" data-i18n="nav_play_pill">PLAY GAME</span>
         </a>
         <div class="lang-switch" role="group" aria-label="Language Switcher">
@@ -109,7 +124,7 @@
         </div>
 
         <div style="display:flex; align-items:center; gap:8px;">
-          <a href="game.html?v=20261016_v8" class="hero-game-quick-pill" title="Play EFOO FOMO Arena">
+          <a href="game?v=20261016_v8" class="hero-game-quick-pill" title="Play EFOO FOMO Arena">
             ⚽ <span>PLAY GAME ↗</span>
           </a>
           <a href="#wallet-hub" class="skip-scroll-pill" data-i18n="hero_skip_btn">
@@ -127,7 +142,7 @@
             <div class="mhg-badge" data-i18n="mhg_badge">🚨 LIVE 90+5' FOMO ARENA</div>
             <div class="mhg-title" data-i18n="mhg_title">EFOO PENALTY SHOOTOUT</div>
             <div class="mhg-meta" data-i18n="mhg_meta">🏆 25,400,000 $EFOO Jackpot • 20 Levels • Super Skills</div>
-            <a href="game.html?v=20261016_v8" class="btn btn-primary mhg-play-btn" data-i18n="mhg_btn">
+            <a href="game?v=20261016_v8" class="btn btn-primary mhg-play-btn" data-i18n="mhg_btn">
               ⚽ PLAY NOW ➔
             </a>
           </div>
@@ -172,7 +187,7 @@
             </div>
 
             <div class="hero-cta-group">
-              <a href="game.html?v=20261016_v8" class="btn btn-primary" style="box-shadow:0 0 25px rgba(168,255,0,0.5);">
+              <a href="game?v=20261016_v8" class="btn btn-primary" style="box-shadow:0 0 25px rgba(168,255,0,0.5);">
                 ⚽ <span data-i18n="cta_play_fomo">Play EFOO FOMO Arena ↗</span>
               </a>
               <a href="#wallet-hub" class="btn btn-secondary">
@@ -318,7 +333,7 @@
               </div>
 
               <div class="hfw-actions">
-                <a href="game.html?v=20261016_v8" class="btn btn-primary btn-sm full-width" style="justify-content:center;">
+                <a href="game?v=20261016_v8" class="btn btn-primary btn-sm full-width" style="justify-content:center;">
                   ⚽ <span>ENTER FULL EFOO FOMO STADIUM GAME ↗</span>
                 </a>
                 <div class="hfw-sub-btns">
@@ -458,7 +473,7 @@
         </p>
 
         <div style="display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;">
-          <a href="game.html?v=20261016_v8" class="btn btn-primary" style="font-size:1.25rem; padding:16px 36px; box-shadow:0 0 36px rgba(168,255,0,0.5);">
+          <a href="game?v=20261016_v8" class="btn btn-primary" style="font-size:1.25rem; padding:16px 36px; box-shadow:0 0 36px rgba(168,255,0,0.5);">
             ⚽ LAUNCH EFOO FOMO STADIUM GAME ➔
           </a>
           <a href="#wallet-hub" class="btn btn-secondary" style="padding:15px 24px;">
@@ -1289,7 +1304,7 @@
           <div class="nft-modal-collection" id="nft-modal-collection">EFOOTBALL-91a4eb</div>
 
           <div class="nft-modal-actions">
-            <a id="nft-modal-play-btn" href="game.html?v=20261016_v8" class="btn btn-primary btn-sm btn-full">
+            <a id="nft-modal-play-btn" href="game?v=20261016_v8" class="btn btn-primary btn-sm btn-full">
               ⚽ Play in Penalty Game
             </a>
             <div class="nft-modal-sub-actions">
@@ -1340,7 +1355,7 @@
       <span class="msgb-pot" data-i18n="msgb_pot">🏆 25.4M $EFOO JACKPOT</span>
       <span class="msgb-sub" data-i18n="msgb_sub">90+5' Penalty Shootout</span>
     </div>
-    <a href="game.html?v=20261016_v10" class="msgb-btn" data-i18n="msgb_btn">
+    <a href="game?v=20261016_v10" class="msgb-btn" data-i18n="msgb_btn">
       ⚽ PLAY NOW ➔
     </a>
   </div>

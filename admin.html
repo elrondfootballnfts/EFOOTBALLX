@@ -10,6 +10,21 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css?v=20261016_v9" />
+  <!-- Clean URL: Strip amateur .html extension from browser address bar -->
+  <script>
+    (function() {
+      try {
+        var p = window.location.pathname;
+        if (p.endsWith('/index.html') || p === '/index.html' || p === 'index.html') {
+          var clean = p.replace(/\/?index\.html$/, '') || '/';
+          window.history.replaceState(null, '', clean + window.location.search + window.location.hash);
+        } else if (p.endsWith('.html')) {
+          var clean = p.replace(/\.html$/, '');
+          window.history.replaceState(null, '', clean + window.location.search + window.location.hash);
+        }
+      } catch (e) {}
+    })();
+  </script>
   <style>
     :root {
       --admin-gold: #ffb800;
@@ -307,7 +322,7 @@
     <h2 class="cloak-title">Page Not Found</h2>
     <p class="cloak-desc">The requested resource could not be found or you do not have permission to view it.</p>
     <div style="display: flex; gap: 12px;">
-      <a href="index.html" class="admin-btn admin-btn-outline" style="width: auto; text-decoration: none;">⬅ Return to Home</a>
+      <a href="/" class="admin-btn admin-btn-outline" style="width: auto; text-decoration: none;">⬅ Return to Home</a>
       <button id="btn-owner-auth-check" class="admin-btn admin-btn-gold" style="width: auto;">Connect Owner Wallet</button>
     </div>
   </div>

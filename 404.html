@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 - Out of Bounds | $EFOO Sunday League Degen FC</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="branding/rebranded/efoo-degen-crest-200x200.png" />
+  <script>
+    (function() {
+      try {
+        var p = window.location.pathname;
+        var clean = p.replace(/\/+$/, '');
+        if (clean === '/game' || clean === '/market' || clean === '/admin' || clean === '') {
+          window.location.replace((clean || '/') + window.location.search + window.location.hash);
+          return;
+        } else if (clean.endsWith('.html')) {
+          var stripped = clean.replace(/\.html$/, '');
+          window.location.replace(stripped + window.location.search + window.location.hash);
+          return;
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: radial-gradient(circle at 50% 20%, #0d2818 0%, #030705 85%);
+      color: #f8fafc;
+      font-family: 'Inter', -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+    .card {
+      max-width: 520px;
+      width: 100%;
+      background: rgba(14, 23, 18, 0.9);
+      border: 1px solid rgba(168, 255, 0, 0.25);
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(168, 255, 0, 0.12);
+      border-radius: 20px;
+      padding: 42px 28px;
+      backdrop-filter: blur(12px);
+    }
+    .logo {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 18px;
+      filter: drop-shadow(0 0 16px rgba(168, 255, 0, 0.5));
+    }
+    .status-code {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 5rem;
+      line-height: 1;
+      color: #a8ff00;
+      letter-spacing: 2px;
+      text-shadow: 0 0 20px rgba(168, 255, 0, 0.5);
+    }
+    .title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      letter-spacing: 1px;
+      margin: 8px 0 14px;
+      color: #ffffff;
+    }
+    .desc {
+      color: #94a3b8;
+      font-size: 0.98rem;
+      line-height: 1.5;
+      margin-bottom: 28px;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: #a8ff00;
+      color: #030705;
+      box-shadow: 0 0 20px rgba(168, 255, 0, 0.4);
+    }
+    .btn-primary:hover {
+      background: #baff29;
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(168, 255, 0, 0.6);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img src="branding/rebranded/efoo-degen-crest-200x200.png" alt="EFOO" class="logo" />
+    <div class="status-code">404</div>
+    <h1 class="title">OUT OF BOUNDS!</h1>
+    <p class="desc">The ball was kicked completely out of Sunday League stadium. The page you are looking for has been transferred or does not exist.</p>
+    <div class="actions">
+      <a href="game" class="btn btn-primary">⚽ Back to Stadium Game</a>
+      <a href="/" class="btn btn-secondary">🏠 Back to Home</a>
+      <a href="market" class="btn btn-secondary">🛒 Marketplace</a>
+    </div>
+  </div>
+</body>
+</html>

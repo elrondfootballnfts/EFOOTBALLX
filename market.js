@@ -1924,7 +1924,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const qrImg = document.getElementById("m-xportal-qr-img");
     if (qrBox && qrImg) {
       qrBox.classList.remove("hidden");
-      const callbackUrl = window.location.origin + window.location.pathname;
+      const callbackUrl = window.location.origin + window.location.pathname.replace(/\.html$/, "");
       const loginUrl = `https://wallet.multiversx.com/hook/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
       qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(loginUrl)}`;
     }
@@ -1963,7 +1963,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("m-login-webwallet")?.addEventListener("click", () => {
-    const callbackUrl = window.location.origin + window.location.pathname;
+    const callbackUrl = window.location.origin + window.location.pathname.replace(/\.html$/, "");
     window.location.href = `https://wallet.multiversx.com/hook/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
   });
 

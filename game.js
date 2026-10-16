@@ -4740,7 +4740,7 @@ function showToast(html, url = "", duration = 4000) {
 }
 
 function getCallbackUrl() {
-  return window.location.origin + window.location.pathname;
+  return window.location.origin + window.location.pathname.replace(/\.html$/, "");
 }
 
 function getMultiversXLoginHookUrl() {
@@ -6665,7 +6665,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Share on X
   document.getElementById("btn-sum-share")?.addEventListener("click", () => {
     const p = getPowers();
-    const txt = `⚽ Scored ${game.goals} goals & ${game.score.toLocaleString()} pts (${p.totalMult.toFixed(1)}x NFT Boost) in #EFOO FOMO Arena on #MultiversX! 🔥\n\nPlay now: https://efoo.optibase.ro/game.html\n@EFootball_X`;
+    const txt = `⚽ Scored ${game.goals} goals & ${game.score.toLocaleString()} pts (${p.totalMult.toFixed(1)}x NFT Boost) in #EFOO FOMO Arena on #MultiversX! 🔥\n\nPlay now: https://efoo.optibase.ro/game\n@EFootball_X`;
     window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(txt)}`, "_blank");
   });
 
@@ -6722,7 +6722,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Super Skills Shop & Marketplace Direct Navigation
   document.getElementById("open-skills-shop-btn")?.addEventListener("click", () => {
-    window.location.href = "market.html?tab=skills";
+    window.location.href = "market?tab=skills";
   });
   document.getElementById("close-skills-shop-btn")?.addEventListener("click", closeSkillsShopModal);
   document.getElementById("skills-shop-modal-overlay")?.addEventListener("click", (e) => {
@@ -6731,13 +6731,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Start Screen & Summary Screen Marketplace Triggers (Közvetlen navigáció a Piactér Skills fülére)
   document.getElementById("start-open-store-btn")?.addEventListener("click", () => {
-    window.location.href = "market.html?tab=skills";
+    window.location.href = "market?tab=skills";
   });
   document.getElementById("btn-sum-open-store")?.addEventListener("click", () => {
-    window.location.href = "market.html?tab=skills";
+    window.location.href = "market?tab=skills";
   });
   document.getElementById("btn-sum-skills-shop")?.addEventListener("click", () => {
-    window.location.href = "market.html?tab=skills";
+    window.location.href = "market?tab=skills";
   });
 
   // Marketplace Modal Tabs
@@ -6811,7 +6811,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderSkillsDeckUI();
   });
 
-  // Game.html Instant Wallet Explorer Form
+  // Game Instant Wallet Explorer Form
   const handleGameManualConnect = () => {
     const input = document.getElementById("game-manual-erd-input");
     const addr = (input ? input.value : "").trim();

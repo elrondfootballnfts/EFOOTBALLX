@@ -10,9 +10,9 @@
   <meta name="theme-color" content="#030705" />
   <meta name="format-detection" content="telephone=no" />
   <title>EFOO FOMO Arena | 90+5' Fullscreen Penalty Shootout</title>
-  <link rel="canonical" href="https://efoo.optibase.ro/game.html" />
+  <link rel="canonical" href="https://efoo.optibase.ro/game" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://efoo.optibase.ro/game.html" />
+  <meta property="og:url" content="https://efoo.optibase.ro/game" />
   <meta property="og:title" content="EFOO FOMO Arena | 90+5' Fullscreen NFT Penalty Shootout" />
   <meta property="og:description" content="Aim, curve & blast the flaming Rocket Ball with your MultiversX EFOOTBALL & GOALKEEPER NFTs!" />
   <meta property="og:image" content="https://efoo.optibase.ro/branding/rebranded/x-header-banner-1500x500.png" />
@@ -30,6 +30,22 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <link rel="stylesheet" href="game.css?v=20261016_v10" />
+
+  <!-- Clean URL: Strip amateur .html extension from browser address bar -->
+  <script>
+    (function() {
+      try {
+        var p = window.location.pathname;
+        if (p.endsWith('/index.html') || p === '/index.html' || p === 'index.html') {
+          var clean = p.replace(/\/?index\.html$/, '') || '/';
+          window.history.replaceState(null, '', clean + window.location.search + window.location.hash);
+        } else if (p.endsWith('.html')) {
+          var clean = p.replace(/\.html$/, '');
+          window.history.replaceState(null, '', clean + window.location.search + window.location.hash);
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body class="arcade-body">
 
@@ -44,10 +60,10 @@
     <header class="hud-top-bar start-hidden">
       <!-- Left: Back button + TV Scorebug -->
       <div class="hud-left-group">
-        <a href="index.html" class="hud-icon-btn" id="hud-exit-btn" title="Back to Main Website">
+        <a href="/" class="hud-icon-btn" id="hud-exit-btn" title="Back to Main Website">
           ⬅ <span data-i18n="btn_exit">EXIT</span>
         </a>
-        <a href="market.html" class="hud-icon-btn" id="hud-market-btn" style="color:#ffb800; border-color:rgba(255,184,0,0.4);" title="NFT &amp; Skills Market">
+        <a href="market" class="hud-icon-btn" id="hud-market-btn" style="color:#ffb800; border-color:rgba(255,184,0,0.4);" title="NFT &amp; Skills Market">
           🛒 <span>MARKET</span>
         </a>
 
@@ -138,7 +154,7 @@
         <button type="button" id="disconnect-wallet-btn" class="hud-icon-btn hidden" title="Disconnect Wallet">
           🚪
         </button>
-        <a href="admin.html" id="hud-owner-admin-btn" class="hud-icon-btn hidden" style="color:#ffb800; border-color:rgba(255,184,0,0.5); font-weight:800; font-family:'JetBrains Mono',monospace; font-size:0.75rem; text-decoration:none;" title="Master Contract Administration">👑 ADMIN</a>
+        <a href="admin" id="hud-owner-admin-btn" class="hud-icon-btn hidden" style="color:#ffb800; border-color:rgba(255,184,0,0.5); font-weight:800; font-family:'JetBrains Mono',monospace; font-size:0.75rem; text-decoration:none;" title="Master Contract Administration">👑 ADMIN</a>
       </div>
     </header>
 
@@ -148,7 +164,7 @@
     <div class="hud-skills-dock" id="hud-skills-dock">
       <div class="skills-dock-header">
         <span class="skills-dock-title">⚡ SUPER SKILLS</span>
-        <a href="market.html?tab=skills" class="btn-skills-shop" id="open-skills-shop-btn" style="text-decoration:none; display:inline-flex; align-items:center;">
+        <a href="market?tab=skills" class="btn-skills-shop" id="open-skills-shop-btn" style="text-decoration:none; display:inline-flex; align-items:center;">
           🛒 SKILLS STORE (+)
         </a>
       </div>
@@ -226,7 +242,7 @@
         <!-- Top Header Navigation -->
         <header class="hub-header">
           <div class="hub-brand-group">
-            <a href="index.html" class="hub-exit-btn" id="start-exit-btn" title="Back to EFOO Homepage">
+            <a href="/" class="hub-exit-btn" id="start-exit-btn" title="Back to EFOO Homepage">
               ⬅ EXIT HOME
             </a>
             <div class="hub-logo-wrap">
@@ -365,10 +381,10 @@
                 </p>
               </div>
               <div class="hmb-actions">
-                <a href="market.html?tab=skills" id="start-open-store-btn" class="hmb-btn-skills">
+                <a href="market?tab=skills" id="start-open-store-btn" class="hmb-btn-skills">
                   ⚡ SKILLS STORE (-20%)
                 </a>
-                <a href="market.html" class="hmb-btn-market">
+                <a href="market" class="hmb-btn-market">
                   🃏 OPEN NFT MARKETPLACE ↗
                 </a>
               </div>
@@ -617,7 +633,7 @@
           <button type="button" id="btn-sum-replay" class="sum-btn-primary replay">
             🔄 PLAY AGAIN
           </button>
-          <a href="index.html" class="sum-btn-secondary" id="btn-sum-exit">
+          <a href="/" class="sum-btn-secondary" id="btn-sum-exit">
             🏠 MAIN MENU
           </a>
         </div>
@@ -681,7 +697,7 @@
 
         <!-- Secondary Icon Toolbar -->
         <div class="sum-clean-subtools">
-          <a href="market.html?tab=skills" id="btn-sum-skills-shop" class="sum-subtool-btn" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
+          <a href="market?tab=skills" id="btn-sum-skills-shop" class="sum-subtool-btn" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
             🛒 Skills Store (-20%)
           </a>
           <button type="button" id="btn-sum-share" class="sum-subtool-btn">
@@ -780,7 +796,7 @@
               <small style="color:#ffb800;">Weekend Jackpot Payout: 65% (1st) • 25% (2nd) • 10% (3rd) to Top Ultras!</small>
             </div>
           </div>
-          <a href="market.html" class="arcade-btn gold" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">Market 🛒</a>
+          <a href="market" class="arcade-btn gold" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">Market 🛒</a>
         </div>
       </div>
     </div>
