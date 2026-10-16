@@ -1188,32 +1188,44 @@ function updateStrikerCardAssets(idx) {
   if (hudName) hudName.textContent = activeStriker.name;
   if (hudTrait) hudTrait.textContent = p.aimBonusPct > 0 ? `${activeStriker.trait} • AIM +${p.aimBonusPct}%` : `${activeStriker.trait} • LVL ${game.level}`;
 
+  // Squad Selection Modal elements
   const startImg = document.getElementById("start-striker-img");
   const startName = document.getElementById("start-striker-name");
-  const startOvr = document.getElementById("start-striker-ovr");
-  const startTrait = document.getElementById("start-striker-trait");
   const startRarity = document.getElementById("start-striker-rarity");
-  const startPreview = document.getElementById("start-striker-skills-preview");
+  const startMedia = document.getElementById("striker-slot-media");
+  const startPowers = document.getElementById("start-striker-powers");
 
   if (startImg) startImg.src = cors;
   if (startName) startName.textContent = activeStriker.name;
-  if (startOvr) startOvr.textContent = String(activeStriker.ovr || 85);
-  if (startTrait) startTrait.textContent = activeStriker.trait;
   if (startRarity) {
-    startRarity.textContent = rInfo.name;
-    startRarity.className = `sh-rarity-badge rarity-${rInfo.id}`;
+    startRarity.textContent = `${rInfo.icon} ${rInfo.name} #${rInfo.rank}`;
+    startRarity.style.borderColor = rInfo.color;
+    startRarity.style.color = rInfo.color;
   }
-  if (startPreview) {
-    startPreview.innerHTML = "";
-    const icons = ["🎯", "🚀", "🧊", "🌀"];
-    for (let i = 0; i < 4; i++) {
-      const span = document.createElement("span");
-      const unlocked = i < rInfo.slots;
-      span.className = `sk-pill ${unlocked ? "active" : "locked"}`;
-      span.textContent = unlocked ? icons[i] : "🔒";
-      span.title = unlocked ? `Unlocked (${rInfo.name})` : `Locked (Requires higher rarity)`;
-      startPreview.appendChild(span);
-    }
+  if (startMedia) {
+    startMedia.style.borderColor = rInfo.color;
+    startMedia.style.boxShadow = rInfo.color !== "#71717a" ? `0 0 16px ${rInfo.color}66` : "none";
+  }
+  if (startPowers) {
+    const icons = [
+      { name: "🔥 ROCKET", active: rInfo.slots >= 3 },
+      { name: "🌪️ CURVE", active: rInfo.slots >= 2 },
+      { name: "🧊 FREEZE", active: rInfo.slots >= 4 },
+      { name: "💰 GOLD x2", active: rInfo.slots >= 5 },
+      { name: `⚡ ${rInfo.mult.toFixed(1)}x MULT`, active: true }
+    ];
+    startPowers.innerHTML = icons
+      .filter((i) => i.active)
+      .map((i) => `<span class="smc-power-pill">${i.name}</span>`)
+      .join("");
+  }
+
+  // Update start screen badge
+  const cscSquad = document.getElementById("csc-squad-status");
+  if (cscSquad) {
+    cscSquad.innerHTML = `⚽ <span>${activeStriker.name} (${rInfo.name})</span>`;
+    cscSquad.style.borderColor = rInfo.color;
+    cscSquad.style.color = rInfo.color;
   }
 
   const introImg = document.getElementById("intro-striker-img");
@@ -1233,32 +1245,37 @@ function updateKeeperAssets(idx) {
 
   const rInfo = getNftRarityInfo(activeKeeper);
 
+  // Squad Selection Modal elements
   const startK = document.getElementById("start-keeper-img");
   const startKName = document.getElementById("start-keeper-name");
-  const startKOvr = document.getElementById("start-keeper-ovr");
-  const startKTrait = document.getElementById("start-keeper-trait");
   const startKRarity = document.getElementById("start-keeper-rarity");
-  const startKPreview = document.getElementById("start-keeper-skills-preview");
+  const startKMedia = document.getElementById("keeper-slot-media");
+  const startKPowers = document.getElementById("start-keeper-powers");
 
   if (startK) startK.src = cors;
   if (startKName) startKName.textContent = activeKeeper.name;
-  if (startKOvr) startKOvr.textContent = String(activeKeeper.ovr || 85);
-  if (startKTrait) startKTrait.textContent = activeKeeper.trait;
   if (startKRarity) {
-    startKRarity.textContent = rInfo.name;
-    startKRarity.className = `sh-rarity-badge rarity-${rInfo.id}`;
+    startKRarity.textContent = `${rInfo.icon} ${rInfo.name} #${rInfo.rank}`;
+    startKRarity.style.borderColor = rInfo.color;
+    startKRarity.style.color = rInfo.color;
   }
-  if (startKPreview) {
-    startKPreview.innerHTML = "";
-    const kIcons = ["🛡️", "🧤", "⏱️", "👁️"];
-    for (let i = 0; i < 4; i++) {
-      const span = document.createElement("span");
-      const unlocked = i < rInfo.slots;
-      span.className = `sk-pill ${unlocked ? "active" : "locked"}`;
-      span.textContent = unlocked ? kIcons[i] : "🔒";
-      span.title = unlocked ? `Unlocked (${rInfo.name})` : `Locked (Requires higher rarity)`;
-      startKPreview.appendChild(span);
-    }
+  if (startKMedia) {
+    startKMedia.style.borderColor = rInfo.color;
+    startKMedia.style.boxShadow = rInfo.color !== "#71717a" ? `0 0 16px ${rInfo.color}66` : "none";
+  }
+  if (startKPowers) {
+    const shieldsCount = rInfo.slots >= 5 ? 3 : rInfo.slots >= 3 ? 2 : 1;
+    const kIcons = [
+      { name: "🧱 WALL", active: rInfo.slots >= 3 },
+      { name: "🧤 REACH", active: rInfo.slots >= 2 },
+      { name: "⏱️ SLOW", active: rInfo.slots >= 4 },
+      { name: "👁️ RADAR", active: rInfo.slots >= 5 },
+      { name: `🛡️ ${shieldsCount} SHIELDS`, active: true }
+    ];
+    startKPowers.innerHTML = kIcons
+      .filter((i) => i.active)
+      .map((i) => `<span class="smc-power-pill" style="border-color:#38bdf8; color:#38bdf8; background:rgba(56,189,248,0.12);">${i.name}</span>`)
+      .join("");
   }
 
   const introK = document.getElementById("intro-keeper-img");
@@ -2286,125 +2303,77 @@ function openSummaryModal() {
   game.score += bonus;
   refreshHudUI();
 
-  const whalePotential = Math.max(
-    game.score,
-    Math.round(game.rawBaseScore * 7.0 + Math.max(3, game.userGoals) * 2500)
-  );
-
+  // Core Scorecard
   const actualScoreEl = document.getElementById("sum-score-actual");
-  if (actualScoreEl) actualScoreEl.textContent = game.score.toLocaleString("en-US");
-  const whaleScoreEl = document.getElementById("sum-score-whale");
-  if (whaleScoreEl) whaleScoreEl.textContent = `${whalePotential.toLocaleString("en-US")} 🏆`;
+  if (actualScoreEl) actualScoreEl.textContent = `${game.score.toLocaleString("en-US")} PTS`;
 
-  // Headline
+  const matchStatsEl = document.getElementById("sum-match-stats");
+  if (matchStatsEl) {
+    const savesCount = Math.max(0, 5 - game.aiGoals);
+    matchStatsEl.textContent = `⚽ ${game.userGoals} Goals • 🧤 ${savesCount} Saves`;
+  }
+
+  // Headline & Trophy
   const titleEl = document.getElementById("sum-title");
-  const kickerEl = document.getElementById("sum-kicker");
+  const subEl = document.getElementById("sum-clean-sub");
+  const trophyEl = document.getElementById("sum-clean-trophy");
+
+  if (trophyEl) {
+    trophyEl.textContent = userWon ? "🏆" : isTie ? "🤝" : "💔";
+  }
+
   if (titleEl) {
     titleEl.textContent = userWon
-      ? (isHu
-        ? `🏆 120' BÜNTETŐPÁRBAJ GYŐZELEM! (${game.userGoals} - ${game.aiGoals})`
-        : (isRo
-          ? `🏆 VICTORIE LA PENALTY-URI! (${game.userGoals} - ${game.aiGoals})`
-          : `🏆 SHOOTOUT VICTORY! (${game.userGoals} - ${game.aiGoals})`))
+      ? `SHOOTOUT VICTORY! (${game.userGoals} - ${game.aiGoals})`
       : isTie
-      ? (isHu
-        ? `⚖️ DÖNTETLEN PÁRBAJ (${game.userGoals} - ${game.aiGoals})`
-        : (isRo
-          ? `⚖️ EGALITATE LA PENALTY-URI (${game.userGoals} - ${game.aiGoals})`
-          : `⚖️ SHOOTOUT DRAW (${game.userGoals} - ${game.aiGoals})`))
-      : (isHu
-        ? `❌ ELVESZÍTETT PÁRBAJ (${game.userGoals} - ${game.aiGoals})`
-        : (isRo
-          ? `❌ MECI PIERDUT (${game.userGoals} - ${game.aiGoals})`
-          : `❌ SHOOTOUT DEFEAT (${game.userGoals} - ${game.aiGoals})`));
+      ? `SHOOTOUT DRAW (${game.userGoals} - ${game.aiGoals})`
+      : `SHOOTOUT DEFEAT (${game.userGoals} - ${game.aiGoals})`;
     titleEl.style.color = userWon ? "#a8ff00" : isTie ? "#ffb800" : "#fca5a5";
   }
-  if (kickerEl) {
-    const tier = getLevelTier(game.level);
-    kickerEl.textContent = `🏁 120' AET • ${activeStriker.name} ⚡ VS ⚡ ${activeKeeper.name}`;
+
+  if (subEl) {
+    subEl.textContent = userWon
+      ? (perfect ? "🌟 PERFECT 5-ROUND CLEAN SHEET!" : "5 Rounds Completed • Shootout Won")
+      : isTie
+      ? "Shootout Finished Level • Decided on Penalties"
+      : "Opponent Scored Decisive Penalty • Try Again!";
   }
 
   const lvlLine = document.getElementById("sum-level-line");
   if (lvlLine) {
-    const bonusTxt = bonus > 0 ? ` • ${isHu ? "Bónusz" : (isRo ? "Bonus" : "Bonus")} <strong>+${bonus.toLocaleString("en-US")}</strong>${perfect ? " ⭐ CLEAN SHEET" : ""}` : "";
-    lvlLine.innerHTML = isHu
-      ? `⚽ Te góljaid: <strong>${game.userGoals}</strong> • 🧤 Gép góljai: <strong>${game.aiGoals}</strong>${bonusTxt}`
-      : (isRo
-        ? `⚽ Golurile tale: <strong>${game.userGoals}</strong> • 🧤 Golurile AI: <strong>${game.aiGoals}</strong>${bonusTxt}`
-        : `⚽ Your Goals: <strong>${game.userGoals}</strong> • 🧤 AI Goals: <strong>${game.aiGoals}</strong>${bonusTxt}`);
-  }
-
-  // Marketplace callout in summary
-  const sumMarketTitle = document.getElementById("sum-market-title");
-  const sumMarketDesc = document.getElementById("sum-market-desc");
-  if (sumMarketTitle) {
-    sumMarketTitle.textContent = isHu
-      ? "KÉPESSÉGEK ÚJRATÖLTÉSE (-10% CSOMAGOK)"
-      : (isRo ? "REÎNCARCĂ SUPER PUTERILE (-10% PACHETE)" : "RESTOCK SUPER SKILLS (-10% PACKS)");
-  }
-  if (sumMarketDesc) {
-    sumMarketDesc.textContent = isHu
-      ? "Fogyóban a készleted? Vegyél 5x csomagot 10% kedvezménnyel a következő szinthez!"
-      : (isRo ? "Reîncarcă pachete 5x cu 10% reducere pentru a bate portarul boss!" : "Refill 5x packs with 10% discount to beat the next boss keeper!");
-  }
-
-  // Buttons: next level only when cleared; otherwise retry
-  const nextBtn = document.getElementById("btn-sum-next");
-  const replayLbl = document.querySelector("#btn-sum-replay span");
-  if (nextBtn) {
-    const show = cleared && game.level < MAX_LEVEL;
-    nextBtn.classList.toggle("hidden", !show);
-    const nl = nextBtn.querySelector("span");
-    if (nl) nl.textContent = isHu ? `KÖVETKEZŐ: ${game.level + 1}. SZINT` : (isRo ? `NIVELUL ${game.level + 1}` : `NEXT: LEVEL ${game.level + 1}`);
-  }
-  if (replayLbl) {
-    replayLbl.textContent = cleared
-      ? (isHu ? "SZINT ÚJRAJÁTSZÁSA" : (isRo ? "REJOACĂ NIVELUL" : "REPLAY LEVEL"))
-      : (isHu ? "ÚJRA PRÓBÁLOM" : (isRo ? "ÎNCEARCĂ DIN NOU" : "RETRY LEVEL"));
-  }
-
-  // Progress, leaderboard, daily streak
-  let info = null;
-  try {
-    info = typeof metaOnMatchEnd === "function"
-      ? metaOnMatchEnd({ level: game.level, score: game.score, goals: game.goals, cleared, perfect })
-      : null;
-  } catch (e) {
-    console.error("metaOnMatchEnd error:", e);
-  }
-
-  const rankLine = document.getElementById("sum-rank-line");
-  if (rankLine) {
-    rankLine.textContent = "";
-    if (info && info.rankPromise) {
-      info.rankPromise.then((txt) => {
-        if (txt && game.phase === "summary") rankLine.textContent = txt;
-      }).catch(() => {});
-    }
-    if (info && info.unlockedNow) {
-      rankLine.textContent = isHu
-        ? `🔓 ${info.newLevel}. SZINT FELOLDVA!`
-        : (isRo ? `🔓 LEVEL ${info.newLevel} DEBLOCAT!` : `🔓 LEVEL ${info.newLevel} UNLOCKED!`);
-    }
-  }
-
-  const fomoLine = document.getElementById("sum-fomo-line");
-  if (fomoLine) {
-    if (walletState.efooBalance < 5000000) {
-      const tier2Score = Math.round(game.score * 2.5);
-      fomoLine.innerHTML = isHu
-        ? `⚡ <strong>TIER BÓNUSZ HIÁNY:</strong> <strong>5M $EFOO-val (Rocket Striker)</strong> ez a menet <strong>${tier2Score.toLocaleString("hu-HU")} pont (+2.5x)</strong> lett volna!<br />🎁 <em>Első vásárlás? Válaszd a 0.035 EGLD Starter Csomagot és kapsz 1 500 000 $EFOO-t (+500k $EFOO Bónusz a Széfből)!</em>`
-        : (isRo
-          ? `⚡ <strong>REGRET DE TIER:</strong> Cu <strong>5M $EFOO (Rocket Striker)</strong>, acest meci ar fi avut <strong>${tier2Score.toLocaleString("en-US")} puncte (+2.5x)</strong>!<br />🎁 <em>Primă achiziție? Ia Starter Pack de 0.035 EGLD și primești 1.500.000 $EFOO (+500k $EFOO Bonus din Seif)!</em>`
-          : `⚡ <strong>TIER REGRET:</strong> With <strong>5M $EFOO (Rocket Striker)</strong>, this run would score <strong>${tier2Score.toLocaleString("en-US")} pts (+2.5x)</strong>!<br />🎁 <em>First time? Buy the 0.035 EGLD Starter Pack to get 1,500,000 $EFOO (+500k $EFOO Bonus from Stadium Vault)!</em>`);
+    if (userWon) {
+      lvlLine.textContent = `⭐ Round Completed • Ready for Next Challenge (+${bonus.toLocaleString("en-US")} Bonus)`;
+      lvlLine.style.color = "#a8ff00";
     } else {
-      fomoLine.innerHTML = isHu
-        ? `🏆 <strong>PRO CSAPAT KVALIFIKÁLVA!</strong> <strong>${game.goals} gólt</strong> lőttél <strong>${p.totalMult.toFixed(1)}x</strong> bónusszal! Vásárolj szuperképességeket a Boltban, vagy szerezz több NFT-t a <strong>15.0x</strong> szorzóért!`
-        : (isRo
-          ? `🏆 <strong>ECHIPĂ PRO CALIFICATĂ!</strong> Ai marcat <strong>${game.goals} goluri</strong> cu <strong>${p.totalMult.toFixed(1)}x</strong> boost! Cumpără skill-uri cu $EFOO sau mintează mai mulți jucători pt. <strong>11.0x</strong>!`
-          : `🏆 <strong>PRO SQUAD QUALIFIED!</strong> You scored <strong>${game.goals} goals</strong> at <strong>${p.totalMult.toFixed(1)}x</strong> boost! Buy super skills with $EFOO or mint more NFTs to reach <strong>11.0x</strong>!`);
+      lvlLine.textContent = `⚡ Need more power? Equip rarer NFTs or restock Skills in the Store!`;
+      lvlLine.style.color = "#ffb800";
     }
   }
+
+  // Primary Buttons
+  const nextBtn = document.getElementById("btn-sum-next");
+  const replayBtn = document.getElementById("btn-sum-replay");
+  if (nextBtn) {
+    const showNext = userWon && game.level < MAX_LEVEL;
+    nextBtn.classList.toggle("hidden", !showNext);
+    nextBtn.textContent = `🚀 NEXT LEVEL (ROUND ${game.level + 1})`;
+  }
+  if (replayBtn) {
+    replayBtn.textContent = userWon ? "🔄 PLAY AGAIN" : "🔄 RETRY MATCH";
+  }
+
+  // Secondary Tools
+  document.getElementById("btn-sum-skills-shop")?.addEventListener("click", () => {
+    closeSummaryModal();
+    openSkillsShopModal();
+  });
+  document.getElementById("btn-sum-perks")?.addEventListener("click", () => {
+    document.getElementById("boost-modal-overlay")?.classList.remove("hidden");
+  });
+  document.getElementById("btn-sum-share")?.addEventListener("click", () => {
+    const tweet = `I just scored ${game.score.toLocaleString()} PTS in the $EFOO 120' Penalty Shootout on MultiversX! ⚽🔥 Can you beat my streak? @ElrondFootball`;
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`, "_blank");
+  });
 
   document.getElementById("summary-screen-overlay")?.classList.remove("hidden");
 }
@@ -5336,7 +5305,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("summary-screen-overlay")?.classList.add("hidden");
     if (!canPlayMatch()) {
       setStartScreenState(true);
-      updateEntryGateUI();
       return;
     }
     const p = getPowers();
@@ -5350,8 +5318,61 @@ document.addEventListener("DOMContentLoaded", () => {
     startNextShotRound();
   };
 
-  document.getElementById("btn-start-match")?.addEventListener("click", launchMatchWithIntro);
-  document.getElementById("btn-sum-replay")?.addEventListener("click", launchMatchWithIntro);
+  // Squad Selection Modal (Choose player & goalkeeper after start or via button)
+  const openSquadSelect = () => {
+    document.getElementById("squad-select-modal")?.classList.remove("hidden");
+    updateStrikerCardAssets(strikerIdx);
+    updateKeeperAssets(keeperIdx);
+  };
+  const closeSquadSelect = () => {
+    document.getElementById("squad-select-modal")?.classList.add("hidden");
+  };
+
+  document.getElementById("btn-open-squad-select")?.addEventListener("click", openSquadSelect);
+  document.getElementById("close-squad-select-btn")?.addEventListener("click", closeSquadSelect);
+  document.getElementById("squad-select-modal")?.addEventListener("click", (e) => {
+    if (e.target && e.target.id === "squad-select-modal") closeSquadSelect();
+  });
+
+  document.getElementById("btn-confirm-squad")?.addEventListener("click", () => {
+    closeSquadSelect();
+    launchMatchWithIntro();
+  });
+
+  document.getElementById("btn-quick-rookie")?.addEventListener("click", () => {
+    updateStrikerCardAssets(0);
+    updateKeeperAssets(0);
+    closeSquadSelect();
+    launchMatchWithIntro();
+  });
+
+  document.getElementById("btn-start-match")?.addEventListener("click", () => {
+    // If player has connected NFTs in wallet, let them choose their squad after clicking Start!
+    if (walletState.ownedNfts && walletState.ownedNfts.length > 0) {
+      openSquadSelect();
+    } else {
+      launchMatchWithIntro();
+    }
+  });
+
+  document.getElementById("btn-clean-sound-toggle")?.addEventListener("click", () => {
+    audio.enabled = !audio.enabled;
+    const btn = document.getElementById("btn-clean-sound-toggle");
+    if (btn) btn.textContent = audio.enabled ? "🔊 Sound ON" : "🔇 Sound OFF";
+    const sfxLbl = document.getElementById("sfx-label");
+    if (sfxLbl) sfxLbl.textContent = audio.enabled ? "ON" : "OFF";
+  });
+
+  document.getElementById("btn-sum-replay")?.addEventListener("click", () => {
+    document.getElementById("summary-screen-overlay")?.classList.add("hidden");
+    launchMatchWithIntro();
+  });
+  document.getElementById("btn-sum-next")?.addEventListener("click", () => {
+    document.getElementById("summary-screen-overlay")?.classList.add("hidden");
+    if (game.level < MAX_LEVEL) game.level += 1;
+    launchMatchWithIntro();
+  });
+
   document.getElementById("close-summary-modal-btn")?.addEventListener("click", closeSummaryModal);
   document.getElementById("summary-screen-overlay")?.addEventListener("click", (e) => {
     if (e.target && e.target.id === "summary-screen-overlay") {

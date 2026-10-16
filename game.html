@@ -25,11 +25,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@500;700;800&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=20261016_v8" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="game.css?v=20261016_v7" />
+  <link rel="stylesheet" href="game.css?v=20261016_v8" />
 </head>
 <body class="arcade-body">
 
@@ -214,140 +214,124 @@
     </footer>
 
     <!-- ===================================================================
-         OVERLAY 1: GATED ARCADE START SCREEN (PRE-MATCH LOCKER ROOM)
+         OVERLAY 1: CLEAN ARCADE START SCREEN (REBUILT FROM SCRATCH)
          =================================================================== -->
     <div class="arcade-overlay" id="start-screen-overlay">
-      <div class="start-screen-container">
+      <div class="clean-start-card">
 
-        <!-- Top Header: Exit Home & Quick Pot Badge -->
-        <div class="start-top-bar-row">
-          <a href="index.html" class="start-exit-btn" id="start-exit-btn" title="Back to EFOO Homepage">
-            ⬅ EXIT TO HOME
+        <!-- Top row: subtle exit & jackpot badge -->
+        <div class="csc-top-row">
+          <a href="index.html" class="csc-subtle-link" id="start-exit-btn" title="Back to EFOO Homepage">
+            ⬅ EXIT HOME
           </a>
-          <div class="start-pot-pill">
-            🏆 <span>25,400,000 $EFOO JACKPOT</span>
+          <div class="csc-jackpot-pill">
+            🏆 <span>25.4M $EFOO JACKPOT</span>
+          </div>
+          <div class="csc-squad-status" id="csc-squad-status">
+            ⚽ <span>ROOKIE SQUAD</span>
           </div>
         </div>
 
-        <!-- INTERACTIVE PRE-MATCH LOCKER ROOM (STRIKER & KEEPER SELECTION) -->
-        <div class="start-hero-cards">
-          <!-- 1. Striker Selector Card -->
-          <div class="sh-nft-card" id="select-striker-card">
-            <div class="sh-card-nav">
-              <button type="button" class="sh-nav-btn" id="prev-striker-btn" title="Previous Striker">◀</button>
-              <span class="sh-card-role">⚽ STRIKER</span>
-              <button type="button" class="sh-nav-btn" id="next-striker-btn" title="Next Striker">▶</button>
+        <!-- Center branding & hero -->
+        <div class="csc-hero">
+          <div class="csc-emblem-wrap">
+            <img src="branding/original/assests-2022/logo.png" alt="$EFOO Rocket Ball" class="csc-rocket-ball" />
+          </div>
+          <h1 class="csc-title">
+            $EFOO <span>PENALTY SHOOTOUT</span>
+          </h1>
+          <p class="csc-subtitle">
+            120' Extra-Time Tiebreak • 5 Sudden Death Penalty Rounds
+          </p>
+
+          <div class="csc-highlights">
+            <span class="csc-hl-pill">⚽ Alternating Kicking &amp; Saving</span>
+            <span class="csc-hl-pill">🃏 Rarer NFT = More Super Skills</span>
+            <span class="csc-hl-pill">🏆 Free-to-Play Instant Ready</span>
+          </div>
+        </div>
+
+        <!-- Big Prominent Kickoff CTA -->
+        <div class="csc-action-wrap">
+          <button type="button" id="btn-start-match" class="csc-play-btn">
+            ⚽ START 120' PENALTY SHOOTOUT
+          </button>
+        </div>
+
+        <!-- Clean bottom tools -->
+        <div class="csc-bottom-tools">
+          <button type="button" id="btn-open-squad-select" class="csc-tool-btn">
+            👕 Choose Player &amp; Goalkeeper
+          </button>
+          <span class="csc-dot">•</span>
+          <button type="button" id="start-open-store-btn" class="csc-tool-btn">
+            🛒 Skills Store
+          </button>
+          <span class="csc-dot">•</span>
+          <button type="button" id="btn-clean-sound-toggle" class="csc-tool-btn">
+            🔊 Sound ON
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         OVERLAY 1.5: SQUAD SELECTION MODAL (CHOOSE STRIKER & GOALKEEPER)
+         =================================================================== -->
+    <div class="arcade-overlay hidden" id="squad-select-modal">
+      <div class="squad-modal-card">
+        <button type="button" id="close-squad-select-btn" class="modal-close" aria-label="Close">✕</button>
+
+        <div class="smc-head">
+          <h2>👕 CHOOSE YOUR SQUAD</h2>
+          <p>Select your Striker and Goalkeeper to equip their unlocked superpowers &amp; score multiplier</p>
+        </div>
+
+        <div class="smc-squad-slots">
+          <!-- 1. Striker Selector -->
+          <div class="smc-slot-card" id="select-striker-card">
+            <div class="smc-slot-nav">
+              <button type="button" class="smc-nav-btn" id="prev-striker-btn">◀</button>
+              <span class="smc-slot-title">⚽ STRIKER</span>
+              <button type="button" class="smc-nav-btn" id="next-striker-btn">▶</button>
             </div>
-            <div class="sh-card-media-wrap">
+            <div class="smc-slot-media" id="striker-slot-media">
               <img id="start-striker-img" src="branding/original/EFOOTBALL-91a4eb/logo.png" alt="Striker NFT" />
-              <span class="sh-rarity-badge rarity-legendary" id="start-striker-rarity">LEGENDARY</span>
-              <span class="sh-ovr-badge" id="start-striker-ovr">99</span>
+              <span class="smc-rank-badge" id="start-striker-rarity">👑 MYTHIC #1</span>
             </div>
-            <strong class="sh-card-name" id="start-striker-name">ELRONDFOOTBALL #619</strong>
-            <small class="sh-card-trait" id="start-striker-trait">👽 ALIEN STRIKER • 4 SKILLS</small>
-            <div class="sh-skills-preview" id="start-striker-skills-preview">
-              <span class="sk-pill active">🎯</span>
-              <span class="sk-pill active">🚀</span>
-              <span class="sk-pill active">❄️</span>
-              <span class="sk-pill active">🌀</span>
+            <strong class="smc-card-name" id="start-striker-name">ELRONDFOOTBALL #614</strong>
+            <div class="smc-powers-list" id="start-striker-powers">
+              <!-- Populated dynamically with skills -->
             </div>
           </div>
 
-          <!-- Center 120' Shootout Trophy Emblem -->
-          <div class="sh-center-divider">
-            <img src="branding/original/assests-2022/logo.png" alt="$EFOO Rocket Ball" class="sh-center-ball" />
-            <span class="sh-vs-badge">120' EXTRA TIME</span>
-          </div>
-
-          <!-- 2. Goalkeeper Selector Card -->
-          <div class="sh-nft-card keeper" id="select-keeper-card">
-            <div class="sh-card-nav">
-              <button type="button" class="sh-nav-btn" id="prev-keeper-btn" title="Previous Goalkeeper">◀</button>
-              <span class="sh-card-role">🧤 GOALKEEPER</span>
-              <button type="button" class="sh-nav-btn" id="next-keeper-btn" title="Next Goalkeeper">▶</button>
+          <!-- 2. Goalkeeper Selector -->
+          <div class="smc-slot-card keeper" id="select-keeper-card">
+            <div class="smc-slot-nav">
+              <button type="button" class="smc-nav-btn" id="prev-keeper-btn">◀</button>
+              <span class="smc-slot-title">🧤 GOALKEEPER</span>
+              <button type="button" class="smc-nav-btn" id="next-keeper-btn">▶</button>
             </div>
-            <div class="sh-card-media-wrap">
+            <div class="smc-slot-media keeper" id="keeper-slot-media">
               <img id="start-keeper-img" src="branding/original/GOALKEEPER-cb9e3e/logo.png" alt="Goalkeeper NFT" />
-              <span class="sh-rarity-badge rarity-legendary" id="start-keeper-rarity">LEGENDARY</span>
-              <span class="sh-ovr-badge" id="start-keeper-ovr">99</span>
+              <span class="smc-rank-badge keeper" id="start-keeper-rarity">👑 MYTHIC #1</span>
             </div>
-            <strong class="sh-card-name" id="start-keeper-name">GOALKEEPER #2</strong>
-            <small class="sh-card-trait" id="start-keeper-trait">🧱 WALL OF DEGENS • TELEPATHY</small>
-            <div class="sh-skills-preview" id="start-keeper-skills-preview">
-              <span class="sk-pill active">🛡️</span>
-              <span class="sk-pill active">🧤</span>
-              <span class="sk-pill active">⏱️</span>
-              <span class="sk-pill active">👁️</span>
+            <strong class="smc-card-name" id="start-keeper-name">GOALKEEPER #1</strong>
+            <div class="smc-powers-list" id="start-keeper-powers">
+              <!-- Populated dynamically with shields/skills -->
             </div>
           </div>
         </div>
 
-        <h1 class="start-mega-title">
-          120' <span>TIE-BREAK</span> PENALTY SHOOTOUT
-        </h1>
-
-        <div class="start-visual-steps">
-          <div class="svs-pill">⚽ <span data-i18n="step_shootout_turns">Alternate Kicking &amp; Goalkeeping</span></div>
-          <div class="svs-pill">🃏 <span data-i18n="step_rarity_skills">Rarer NFT = <strong>More Super Skills</strong></span></div>
-          <div class="svs-pill">🏆 <span data-i18n="step_f2p_ready">Free-to-Play: <strong>Rookie F2P Squad</strong></span></div>
+        <div class="smc-actions-row">
+          <button type="button" id="btn-confirm-squad" class="csc-play-btn">
+            🚀 CONFIRM SQUAD &amp; PLAY
+          </button>
+          <button type="button" id="btn-quick-rookie" class="csc-subtle-link">
+            ⚡ Reset to Default Rookie Squad
+          </button>
         </div>
-
-        <!-- FREE-TO-PLAY & WALLET STATUS STRIP -->
-        <div class="entry-gate-card" id="entry-gate-card">
-          <div class="eg-status-header" id="eg-status-header">
-            <span class="eg-lock-badge" id="eg-lock-badge">⚽ 120' TIE-BREAK PENALTY SHOOTOUT • FREE-TO-PLAY READY</span>
-          </div>
-
-          <div class="eg-wallet-stats" id="eg-wallet-stats">
-            <span id="eg-wallet-line">Play free with your Rookie squad! Connect your MultiversX wallet to unlock your Club NFTs &amp; super skills.</span>
-          </div>
-
-          <!-- Optional Instant Purchase / Mint Box for Web3 players -->
-          <div class="eg-buy-offer" id="eg-buy-offer">
-            <div class="eg-buy-info">
-              <strong style="color:#a8ff00;">🎁 UNLOCK WALLET &amp; SUPER SKILLS</strong>
-              <small id="eg-buy-sub">Buy $EFOO or mint Club NFTs to unlock super skills &amp; 10x score boosts!</small>
-            </div>
-            <div class="eg-buy-actions">
-              <button type="button" id="gate-buy-starter-btn" class="arcade-btn neon">
-                🎁 <span>STARTER (0.035 EGLD ➔ 1.5M)</span>
-              </button>
-              <button type="button" id="gate-buy-efoo-btn" class="arcade-btn gold">
-                ⚡ <span>PRO PACK (0.1 EGLD ➔ ~3M)</span>
-              </button>
-              <button type="button" id="gate-mint-nft-btn" class="arcade-btn">
-                🃏 <span>MINT NFT (0.08 EGLD)</span>
-              </button>
-              <button type="button" id="gate-refresh-btn" class="arcade-btn hidden" title="Refresh">
-                🔄
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- MARKETPLACE & CLUB SKILLS LOCKER (PRE-MATCH) -->
-        <div class="start-market-card" id="start-market-card">
-          <div class="smc-header">
-            <div class="smc-title">
-              <span class="smc-icon">🛒</span>
-              <div>
-                <strong id="start-market-title">SUPER SKILLS STORE (PRE-MATCH)</strong>
-                <small id="start-market-sub">Stock up on super skills with 10% discount on 5x packs before the shootout!</small>
-              </div>
-            </div>
-            <button type="button" class="arcade-btn neon" id="start-open-store-btn">
-              <span>🛒 OPEN STORE (-10%)</span>
-            </button>
-          </div>
-          <div class="smc-chips" id="start-skills-chips">
-            <!-- Dynamically populated with current owned skills -->
-          </div>
-        </div>
-
-        <button type="button" id="btn-start-match" class="btn-play-arcade">
-          ⚽ <span id="btn-start-match-label">START 120' PENALTY SHOOTOUT</span>
-        </button>
-
       </div>
     </div>
 
@@ -431,79 +415,66 @@
     </div>
 
     <!-- ===================================================================
-         OVERLAY 3: POST-MATCH SUMMARY & FOMO SCORE COMPARISON
+         OVERLAY 3: POST-MATCH SUMMARY (REBUILT FROM SCRATCH - ZERO SCROLLBAR)
          =================================================================== -->
     <div class="arcade-overlay hidden" id="summary-screen-overlay">
-      <div class="summary-modal-card">
-        <button type="button" id="close-summary-modal-btn" class="summary-close-btn" aria-label="Close">✕</button>
-        <span style="font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:#a8ff00;" id="sum-kicker">
-          🏁 FULL TIME WHISTLE
-        </span>
-        <h2 style="font-family:'Bebas Neue',sans-serif; font-size:2.8rem; line-height:1; margin-top:4px;" id="sum-title">
-          MATCH OVER!
-        </h2>
+      <div class="clean-summary-card">
+        <button type="button" id="close-summary-modal-btn" class="modal-close" aria-label="Close">✕</button>
 
-        <div class="sum-compare-grid">
-          <div class="sum-box">
-            <span data-i18n="sum_your_score">YOUR SCORE</span>
-            <strong id="sum-score-actual">4,200</strong>
+        <!-- Result Header -->
+        <div class="sum-clean-head">
+          <span class="sum-clean-trophy" id="sum-clean-trophy">🏆</span>
+          <h2 class="sum-clean-title" id="sum-title">
+            SHOOTOUT VICTORY! (2 - 1)
+          </h2>
+          <p class="sum-clean-sub" id="sum-clean-sub">
+            5 Rounds Completed • Alternate Penalties
+          </p>
+        </div>
+
+        <!-- 2 Stat Boxes -->
+        <div class="sum-clean-stats-row">
+          <div class="sum-clean-stat-box">
+            <span class="scs-label">FINAL SCORE</span>
+            <strong class="scs-val neon" id="sum-score-actual">33,000</strong>
           </div>
-          <div class="sum-box fomo-gold">
-            <span data-i18n="sum_with_nfts">WITH 3+ NFTs &amp; 1M $EFOO</span>
-            <strong id="sum-score-whale">29,400 🏆</strong>
+          <div class="sum-clean-stat-box">
+            <span class="scs-label">MATCH STATS</span>
+            <strong class="scs-val" id="sum-match-stats">⚽ 2 Goals • 🧤 1 Save</strong>
           </div>
         </div>
 
-        <div style="font-size:0.88rem; color:#a8ff00; background:rgba(168,255,0,0.08); border:1px solid rgba(168,255,0,0.22); padding:10px 14px; border-radius:12px; margin-bottom:8px;" id="sum-level-line">
-          Goals: <strong>0</strong> • Needed: <strong>2</strong> of 5
+        <!-- Level indicator line -->
+        <div class="sum-clean-level-badge" id="sum-level-line">
+          ⭐ Level 1 Cleared • Clean Sheet Bonus +2,500
         </div>
 
-        <div style="font-size:0.84rem; color:#ffb800; font-weight:800; text-align:center; margin-bottom:8px;" id="sum-rank-line"></div>
-
-        <div style="font-size:0.84rem; color:#e2e8f0; background:rgba(255,255,255,0.05); padding:10px 14px; border-radius:12px;" id="sum-fomo-line">
-          🔒 Hold <strong>1+ NFT (0.08 EGLD)</strong> or <strong>1M+ $EFOO</strong> to unlock <strong>Sudden Death</strong> &amp; the <strong>25.4M $EFOO Jackpot</strong>!
-        </div>
-
-        <!-- RESTOCK & MARKETPLACE CALLOUT (JÁTÉK VÉGZETE UTÁN) -->
-        <div class="sum-market-banner" id="sum-market-banner">
-          <div class="smb-left">
-            <span class="smb-icon">🛒</span>
-            <div>
-              <strong id="sum-market-title" data-i18n="sum_market_title">RESTOCK SUPER SKILLS (-10% PACKS)</strong>
-              <small id="sum-market-desc" data-i18n="sum_market_sub">Refill 5x packs with 10% discount to beat the next boss keeper!</small>
-            </div>
-          </div>
-          <button type="button" id="btn-sum-open-store" class="arcade-btn neon">
-            <span data-i18n="btn_open_market">🛒 OPEN STORE (-10%)</span>
+        <!-- Primary Action Buttons (Max 2 large buttons) -->
+        <div class="sum-clean-actions">
+          <button type="button" id="btn-sum-next" class="sum-btn-primary next hidden">
+            🚀 NEXT LEVEL
           </button>
-        </div>
-
-        <div class="sum-actions-grid">
-          <button type="button" id="btn-sum-next" class="arcade-btn neon hidden" style="background:linear-gradient(90deg,#38bdf8,#0284c7); border-color:#38bdf8;">
-            🚀 <span>NEXT LEVEL</span>
+          <button type="button" id="btn-sum-replay" class="sum-btn-primary replay">
+            🔄 PLAY AGAIN
           </button>
-          <button type="button" id="btn-sum-replay" class="arcade-btn neon">
-            ⚽ <span data-i18n="btn_play_again">PLAY AGAIN</span>
-          </button>
-          <button type="button" id="btn-sum-skills-shop" class="arcade-btn gold">
-            🛒 <span data-i18n="btn_skills_market">STORE (-10%)</span>
-          </button>
-          <button type="button" id="btn-sum-starter" class="arcade-btn neon">
-            🎁 <span data-i18n="btn_starter_bonus">STARTER (0.035 EGLD ➔ 1.5M)</span>
-          </button>
-          <button type="button" id="btn-sum-share" class="arcade-btn">
-            🐦 <span data-i18n="btn_share_x">SHARE ON X</span>
-          </button>
-          <button type="button" id="btn-sum-buy" class="arcade-btn gold">
-            🔥 <span data-i18n="btn_buy_3m">BUY 3M $EFOO (0.1 EGLD)</span>
-          </button>
-          <button type="button" id="btn-sum-mint" class="arcade-btn gold">
-            🃏 <span data-i18n="btn_mint_nft">MINT NFT (0.08 EGLD)</span>
-          </button>
-          <a href="index.html" class="arcade-btn" id="btn-sum-exit" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.2); color:#f8fafc;">
-            ⬅ EXIT TO HOME
+          <a href="index.html" class="sum-btn-secondary" id="btn-sum-exit">
+            🏠 MAIN MENU
           </a>
         </div>
+
+        <!-- Secondary Icon Toolbar -->
+        <div class="sum-clean-subtools">
+          <button type="button" id="btn-sum-skills-shop" class="sum-subtool-btn">
+            🛒 Skills Store (-10%)
+          </button>
+          <button type="button" id="btn-sum-share" class="sum-subtool-btn">
+            🐦 Share Score
+          </button>
+          <button type="button" id="btn-sum-perks" class="sum-subtool-btn">
+            ⚡ NFT Superpowers
+          </button>
+        </div>
+
       </div>
     </div>
 
@@ -910,6 +881,6 @@
 
   </div>
 
-  <script src="game.js?v=20261016_v7"></script>
+  <script src="game.js?v=20261016_v8"></script>
 </body>
 </html>

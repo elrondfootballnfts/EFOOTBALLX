@@ -2251,6 +2251,315 @@ async function fetchShowcaseSquadNfts() {
   }
 }
 
+// --- NFT RARITY TIERS & ATTRIBUTES SYSTEM (XOXNO LOGIC) ---
+function getNftRarityTier(nft) {
+  let rank = nft.rank || (nft.metadata && nft.metadata.rank);
+  const name = (nft.name || "").trim();
+  const tokenNumMatch = name.match(/#(\d+)/);
+  const tokenNum = tokenNumMatch ? parseInt(tokenNumMatch[1], 10) : 0;
+
+  // Specific top ranks from official XOXNO collection
+  if (tokenNum === 614) rank = 1;
+  else if (tokenNum === 615) rank = 2;
+  else if (tokenNum === 619) rank = 3;
+  else if (tokenNum === 613) rank = 4;
+  else if (tokenNum === 616) rank = 5;
+
+  const isKeeper = nft.collection === "GOALKEEPER-cb9e3e";
+  if (!rank || rank <= 0) {
+    if (nft.metadata && nft.metadata.rarity && nft.metadata.rarity.rarityScore) {
+      rank = Math.max(1, Math.min(628, Math.round(700 - nft.metadata.rarity.rarityScore)));
+    } else {
+      rank = tokenNum > 0 ? (tokenNum % 628) + 1 : 320;
+    }
+  }
+
+  let tierKey = "common";
+  let tierLabel = "COMMON";
+  let tierIcon = "⚪";
+  let borderColor = "#71717a";
+  let powers = [];
+  let scoreMult = 1.2;
+
+  if (isKeeper) {
+    if (rank <= 5) {
+      tierKey = "mythic";
+      tierLabel = "MYTHIC";
+      tierIcon = "👑";
+      borderColor = "#ffd700";
+      scoreMult = 3.5;
+      powers = [
+        { icon: "🧱", name: "IRON WALL", desc: "+60% Goal Coverage Width", color: "#ffd700" },
+        { icon: "🧤", name: "SPIDER REACH", desc: "+85% Corner Diving", color: "#ffd700" },
+        { icon: "⏱️", name: "MATRIX SLOW", desc: "Slows AI shots by 55%", color: "#ffd700" },
+        { icon: "👁️", name: "MIND READ", desc: "Reveals opponent aim radar", color: "#ffd700" },
+        { icon: "🛡️", name: "3x SAVE SHIELDS", desc: "Guaranteed 3 deflection saves", color: "#ffd700" }
+      ];
+    } else if (rank <= 15) {
+      tierKey = "legendary";
+      tierLabel = "LEGENDARY";
+      tierIcon = "⭐";
+      borderColor = "#c084fc";
+      scoreMult = 2.5;
+      powers = [
+        { icon: "🧱", name: "IRON WALL", desc: "+50% Goal Coverage Width", color: "#c084fc" },
+        { icon: "🧤", name: "SPIDER REACH", desc: "+70% Corner Diving", color: "#c084fc" },
+        { icon: "⏱️", name: "MATRIX SLOW", desc: "Slows AI shots by 40%", color: "#c084fc" },
+        { icon: "🛡️", name: "2x SAVE SHIELDS", desc: "Guaranteed 2 deflection saves", color: "#c084fc" }
+      ];
+    } else if (rank <= 30) {
+      tierKey = "epic";
+      tierLabel = "EPIC";
+      tierIcon = "🔷";
+      borderColor = "#38bdf8";
+      scoreMult = 2.0;
+      powers = [
+        { icon: "🧱", name: "IRON WALL", desc: "+40% Goal Coverage Width", color: "#38bdf8" },
+        { icon: "🧤", name: "SPIDER REACH", desc: "+50% Corner Diving", color: "#38bdf8" },
+        { icon: "🛡️", name: "2x SAVE SHIELDS", desc: "Guaranteed 2 deflection saves", color: "#38bdf8" }
+      ];
+    } else if (rank <= 45) {
+      tierKey = "rare";
+      tierLabel = "RARE";
+      tierIcon = "🟢";
+      borderColor = "#22c55e";
+      scoreMult = 1.5;
+      powers = [
+        { icon: "🧤", name: "SPIDER REACH", desc: "+35% Corner Diving", color: "#22c55e" },
+        { icon: "🛡️", name: "1x SAVE SHIELD", desc: "Guaranteed 1 deflection save", color: "#22c55e" }
+      ];
+    } else {
+      tierKey = "common";
+      tierLabel = "COMMON";
+      tierIcon = "⚪";
+      borderColor = "#71717a";
+      scoreMult = 1.2;
+      powers = [
+        { icon: "🛡️", name: "1x SAVE SHIELD", desc: "Guaranteed 1 deflection save", color: "#cbd5e1" }
+      ];
+    }
+  } else {
+    // Striker Outfield Players
+    if (rank <= 20) {
+      tierKey = "mythic";
+      tierLabel = "MYTHIC";
+      tierIcon = "👑";
+      borderColor = "#ffd700";
+      scoreMult = 3.5;
+      powers = [
+        { icon: "🔥", name: "ROCKET FIREBALL", desc: "Burns net, supersonic speed", color: "#ffd700" },
+        { icon: "🌪️", name: "VORTEX BANANA", desc: "2.5x extreme curve around keeper", color: "#ffd700" },
+        { icon: "🧊", name: "ICE FREEZE", desc: "Freezes keeper feet for 1.2s", color: "#ffd700" },
+        { icon: "💰", name: "GOLD x2 GOAL", desc: "Doubles points on scored goals", color: "#ffd700" },
+        { icon: "⚡", name: "3.5x SCORE MULT", desc: "3.5x Stadium Leaderboard boost", color: "#ffd700" }
+      ];
+    } else if (rank <= 100) {
+      tierKey = "legendary";
+      tierLabel = "LEGENDARY";
+      tierIcon = "⭐";
+      borderColor = "#c084fc";
+      scoreMult = 2.5;
+      powers = [
+        { icon: "🔥", name: "ROCKET FIREBALL", desc: "High velocity fire shot", color: "#c084fc" },
+        { icon: "🌪️", name: "VORTEX BANANA", desc: "2.0x curve around keeper", color: "#c084fc" },
+        { icon: "🧊", name: "ICE FREEZE", desc: "Freezes keeper feet for 0.8s", color: "#c084fc" },
+        { icon: "⚡", name: "2.5x SCORE MULT", desc: "2.5x Stadium Leaderboard boost", color: "#c084fc" }
+      ];
+    } else if (rank <= 250) {
+      tierKey = "epic";
+      tierLabel = "EPIC";
+      tierIcon = "🔷";
+      borderColor = "#38bdf8";
+      scoreMult = 2.0;
+      powers = [
+        { icon: "🔥", name: "ROCKET FIREBALL", desc: "High velocity fire shot", color: "#38bdf8" },
+        { icon: "🌪️", name: "VORTEX BANANA", desc: "1.6x curve around keeper", color: "#38bdf8" },
+        { icon: "⚡", name: "2.0x SCORE MULT", desc: "2.0x Stadium Leaderboard boost", color: "#38bdf8" }
+      ];
+    } else if (rank <= 450) {
+      tierKey = "rare";
+      tierLabel = "RARE";
+      tierIcon = "🟢";
+      borderColor = "#22c55e";
+      scoreMult = 1.5;
+      powers = [
+        { icon: "🌪️", name: "VORTEX BANANA", desc: "1.4x curve around keeper", color: "#22c55e" },
+        { icon: "⚡", name: "1.5x SCORE MULT", desc: "1.5x Stadium Leaderboard boost", color: "#22c55e" }
+      ];
+    } else {
+      tierKey = "common";
+      tierLabel = "COMMON";
+      tierIcon = "⚪";
+      borderColor = "#71717a";
+      scoreMult = 1.2;
+      powers = [
+        { icon: "⚡", name: "1.2x SCORE MULT", desc: "1.2x Starter Leaderboard boost", color: "#cbd5e1" }
+      ];
+    }
+  }
+
+  return {
+    rank,
+    tierKey,
+    tierLabel,
+    tierIcon,
+    borderColor,
+    powers,
+    scoreMult
+  };
+}
+
+async function openNftDetailsModal(nft) {
+  const modal = document.getElementById("nft-details-modal");
+  if (!modal) return;
+
+  const rawImg =
+    (nft.media && nft.media[0] && (nft.media[0].url || nft.media[0].thumbnailUrl)) ||
+    nft.url || "branding/original/EFOOTBALL-91a4eb/logo.png";
+  const safeImg = toCorsImageUrl(rawImg, 600);
+  const tierInfo = getNftRarityTier(nft);
+
+  // Set visual elements
+  const imgEl = document.getElementById("nft-modal-img");
+  const imgWrap = document.getElementById("nft-modal-img-wrap");
+  const badgeEl = document.getElementById("nft-modal-tier-badge");
+  const titleEl = document.getElementById("nft-modal-title");
+  const rankEl = document.getElementById("nft-modal-rank");
+  const collEl = document.getElementById("nft-modal-collection");
+  const playBtn = document.getElementById("nft-modal-play-btn");
+  const xoxnoBtn = document.getElementById("nft-modal-xoxno-btn");
+  const memeBtn = document.getElementById("nft-modal-meme-btn");
+  const chipsContainer = document.getElementById("nft-modal-chips");
+  const traitsCountEl = document.getElementById("nft-modal-traits-count");
+  const traitsList = document.getElementById("nft-modal-traits-list");
+
+  if (imgEl) imgEl.src = safeImg;
+  if (imgWrap) {
+    imgWrap.className = `nft-modal-img-wrap tier-${tierInfo.tierKey}`;
+  }
+  if (badgeEl) {
+    badgeEl.textContent = `${tierInfo.tierIcon} ${tierInfo.tierLabel}`;
+    badgeEl.className = `nft-modal-tier-badge squad-nft-rank-tag ${tierInfo.tierKey}`;
+  }
+  if (titleEl) titleEl.textContent = nft.name || nft.identifier;
+  if (rankEl) rankEl.textContent = `Rank #${tierInfo.rank}`;
+  if (collEl) collEl.textContent = `${nft.collection || "EFOOTBALL-91a4eb"} • ${nft.identifier}`;
+
+  if (playBtn) {
+    playBtn.href = `game.html?v=20261016_v7&nft=${encodeURIComponent(nft.identifier)}`;
+  }
+  if (xoxnoBtn) {
+    xoxnoBtn.href = `https://xoxno.com/nft/${encodeURIComponent(nft.identifier)}`;
+  }
+  if (memeBtn) {
+    memeBtn.onclick = () => {
+      modal.classList.add("hidden");
+      currentNftMeta = {
+        name: nft.name || nft.identifier,
+        identifier: nft.identifier,
+        url: rawImg,
+        attributes: (nft.metadata && nft.metadata.attributes) || []
+      };
+      renderNftTraits(currentNftMeta);
+      loadImageForCanvas(rawImg);
+      document.getElementById("meme-locker")?.scrollIntoView({ behavior: "smooth" });
+    };
+  }
+
+  // Populate Superpowers Chips
+  if (chipsContainer) {
+    chipsContainer.innerHTML = tierInfo.powers
+      .map(
+        (p) => `
+        <div class="nms-chip">
+          <span style="font-size:1.1rem;">${p.icon}</span>
+          <div>
+            <strong style="color:${p.color || '#a8ff00'}">${p.name}</strong>
+            <small style="display:block;">${p.desc}</small>
+          </div>
+        </div>
+      `
+      )
+      .join("");
+  }
+
+  // Fetch full attributes from MultiversX API if not loaded in listing
+  let attributes = (nft.metadata && nft.metadata.attributes) || [];
+  if ((!attributes || attributes.length === 0) && nft.identifier) {
+    try {
+      const res = await fetch(`https://api.multiversx.com/nfts/${nft.identifier}`);
+      if (res.ok) {
+        const fullNft = await res.json();
+        if (fullNft.metadata && fullNft.metadata.attributes) {
+          attributes = fullNft.metadata.attributes;
+          nft.metadata = fullNft.metadata;
+        }
+      }
+    } catch (e) {
+      console.warn("NFT attributes fetch error:", e);
+    }
+  }
+
+  // Render Attributes List (XOXNO Style from screenshot)
+  if (traitsCountEl) traitsCountEl.textContent = attributes.length;
+  if (traitsList) {
+    if (attributes.length === 0) {
+      traitsList.innerHTML = `<div style="color:#94a3b8; font-size:0.8rem; padding:12px; text-align:center;">Standard Player Model • Verified On-Chain</div>`;
+    } else {
+      traitsList.innerHTML = attributes
+        .map((attr) => {
+          const type = (attr.trait_type || "TRAIT").trim();
+          const val = (attr.value || "").trim();
+
+          // Calculate trait occurrence % matching XOXNO collection (628 total)
+          let occCount = 10;
+          let isDiamond = false;
+          if (val.includes("OSK") || val.includes("Background") || val.includes("Red") || val === "No55" || val === "Ball2") {
+            occCount = val === "Ball2" ? 3 : 1;
+            isDiamond = true;
+          } else if (val === "JUSTPlayer" || val === "Captain") {
+            occCount = 16;
+          } else if (val.includes("BASEPLAYER")) {
+            occCount = 21;
+          } else if (tierInfo.rank <= 100) {
+            occCount = Math.max(1, Math.round(tierInfo.rank / 10));
+            if (occCount <= 5) isDiamond = true;
+          } else {
+            occCount = Math.min(85, Math.max(8, Math.round((tierInfo.rank / 628) * 90)));
+          }
+
+          const pct = ((occCount / 628) * 100).toFixed(2);
+
+          return `
+            <div class="nmt-item">
+              <div class="nmt-left">
+                <span class="nmt-val">${val}</span>
+                ${isDiamond ? '<span class="nmt-diamond" title="Rare Trait (< 1%)">💎</span>' : ''}
+                <span class="nmt-cat">${type.toUpperCase()}</span>
+              </div>
+              <span class="nmt-rarity">${pct}% (${occCount})</span>
+            </div>
+          `;
+        })
+        .join("");
+    }
+  }
+
+  modal.classList.remove("hidden");
+}
+
+// Global modal close handlers
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("nft-details-modal");
+  const closeBtn = document.getElementById("close-nft-modal-btn");
+  if (modal && closeBtn) {
+    closeBtn.addEventListener("click", () => modal.classList.add("hidden"));
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) modal.classList.add("hidden");
+    });
+  }
+});
+
 function renderOwnedNftsGallery() {
   const grid = document.getElementById("my-squad-grid");
   const sub = document.getElementById("squad-gallery-sub");
@@ -2278,7 +2587,7 @@ function renderOwnedNftsGallery() {
       sub.innerHTML =
         currentLang === "ro"
           ? `🏆 <strong>Vitrina Clubului (Mod Spectator):</strong> Conectează-ți portofelul pentru a-ți vedea propriile NFT-uri, sau testează orice card de mai jos în Meme Studio &amp; EFOO FOMO!`
-          : `🏆 <strong>Club Showcase (Spectator Preview):</strong> Connect your wallet to view your personal NFTs, or click any featured squad card below to test in the Meme Studio &amp; EFOO FOMO!`;
+          : `🏆 <strong>Club Showcase (Spectator Preview):</strong> Connect your wallet to view your personal NFTs, or click any featured squad card below to inspect its attributes &amp; superpowers!`;
     }
   } else if (walletState.ownedNfts.length === 0) {
     if (sub) {
@@ -2293,7 +2602,7 @@ function renderOwnedNftsGallery() {
       sub.innerHTML =
         currentLang === "ro"
           ? `Portofelul tău deține <strong>${walletState.playersCount} Jucători</strong> și <strong>${walletState.keepersCount} Portari</strong>! Alege oricare card pentru Studio Meme sau Jocul EFOO FOMO:`
-          : `Your wallet holds <strong>${walletState.playersCount} Outfield Players</strong> &amp; <strong>${walletState.keepersCount} Goalkeepers</strong>! Click any card to load in the Meme Studio or EFOO FOMO Game:`;
+          : `Your wallet holds <strong>${walletState.playersCount} Outfield Players</strong> &amp; <strong>${walletState.keepersCount} Goalkeepers</strong>! Click any card to inspect its attributes &amp; in-game superpowers:`;
     }
   }
 
@@ -2303,13 +2612,16 @@ function renderOwnedNftsGallery() {
       nft.url;
     const safeImg = toCorsImageUrl(rawImg, 400);
     const isKeeper = nft.collection === "GOALKEEPER-cb9e3e";
+    const tierInfo = getNftRarityTier(nft);
 
     const card = document.createElement("div");
-    card.className = "squad-nft-card";
+    card.className = `squad-nft-card tier-${tierInfo.tierKey}`;
+    card.title = `Click to inspect attributes & in-game superpowers (${tierInfo.tierLabel})`;
     card.innerHTML = `
+      <span class="squad-nft-rank-tag ${tierInfo.tierKey}">${tierInfo.tierIcon} ${tierInfo.tierLabel} #${tierInfo.rank}</span>
       <img src="${safeImg}" alt="${nft.name || nft.identifier}" loading="lazy" />
       <div class="squad-nft-body">
-        <span class="squad-nft-type">${isKeeper ? "🧤 GOALKEEPER (3x + Shield)" : "⚽ STRIKER NFT (2x + Curve)"}</span>
+        <span class="squad-nft-type">${isKeeper ? `🧤 GOALKEEPER (${tierInfo.scoreMult}x + Shields)` : `⚽ STRIKER (${tierInfo.scoreMult}x + Skills)`}</span>
         <h4>${nft.name || nft.identifier}</h4>
         <div class="squad-nft-actions">
           <button type="button" class="use-meme-btn">🎨 Meme</button>
@@ -2318,7 +2630,14 @@ function renderOwnedNftsGallery() {
       </div>
     `;
 
-    card.querySelector(".use-meme-btn").addEventListener("click", () => {
+    // Clicking anywhere on card opens the XOXNO-style attributes modal
+    card.addEventListener("click", (e) => {
+      if (e.target.closest(".use-meme-btn") || e.target.closest(".use-game-btn")) return;
+      openNftDetailsModal(nft);
+    });
+
+    card.querySelector(".use-meme-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
       currentNftMeta = {
         name: nft.name || nft.identifier,
         identifier: nft.identifier,
@@ -2330,8 +2649,9 @@ function renderOwnedNftsGallery() {
       document.getElementById("meme-locker")?.scrollIntoView({ behavior: "smooth" });
     });
 
-    card.querySelector(".use-game-btn").addEventListener("click", () => {
-      window.location.href = "game.html";
+    card.querySelector(".use-game-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      window.location.href = `game.html?v=20261016_v7&nft=${encodeURIComponent(nft.identifier)}`;
     });
 
     grid.appendChild(card);

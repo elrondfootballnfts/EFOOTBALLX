@@ -678,6 +678,520 @@ body.start-screen-active .hud-top-bar,
   display: none !important;
 }
 
+/* ============================================================================
+   REBUILT CLEAN START SCREEN, SQUAD SELECTION MODAL & CLEAN SUMMARY SCREEN
+   ============================================================================ */
+
+/* 1. CLEAN START CARD (100% Focused, Zero Clutter, Zero Scrollbar) */
+.clean-start-card {
+  width: 95%;
+  max-width: 500px;
+  background: linear-gradient(165deg, rgba(8, 22, 14, 0.98), rgba(3, 9, 6, 0.99));
+  border: 2px solid rgba(168, 255, 0, 0.5);
+  border-radius: 22px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95), 0 0 35px rgba(168, 255, 0, 0.2);
+  padding: 24px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  margin: auto;
+  overflow: hidden;
+}
+
+.csc-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.csc-subtle-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #a8ff00;
+  text-decoration: none;
+  background: rgba(168, 255, 0, 0.1);
+  border: 1px solid rgba(168, 255, 0, 0.3);
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.csc-subtle-link:hover {
+  background: #a8ff00;
+  color: #050a07;
+}
+
+.csc-jackpot-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #ffb800;
+  background: rgba(255, 184, 0, 0.12);
+  border: 1px solid rgba(255, 184, 0, 0.4);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.csc-squad-status {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.csc-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.csc-emblem-wrap {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 16px rgba(168, 255, 0, 0.6));
+  animation: rocketBallFloat 3s ease-in-out infinite;
+}
+
+@keyframes rocketBallFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.csc-rocket-ball {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.csc-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.6rem;
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+.csc-title span {
+  color: #a8ff00;
+  text-shadow: 0 0 16px rgba(168, 255, 0, 0.6);
+}
+
+.csc-subtitle {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  margin: 0;
+  font-weight: 500;
+}
+
+.csc-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.csc-hl-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.csc-action-wrap {
+  width: 100%;
+}
+
+.csc-play-btn {
+  width: 100%;
+  height: 52px;
+  background: linear-gradient(135deg, #a8ff00, #4ade80);
+  border: none;
+  border-radius: 14px;
+  color: #040c06;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.55rem;
+  letter-spacing: 0.05em;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(168, 255, 0, 0.45);
+  transition: all 0.18s ease;
+}
+.csc-play-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(168, 255, 0, 0.7);
+  background: linear-gradient(135deg, #bbf7d0, #a8ff00);
+}
+.csc-play-btn:active {
+  transform: scale(0.98);
+}
+
+.csc-bottom-tools {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.csc-tool-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 6px;
+  transition: color 0.15s ease;
+}
+.csc-tool-btn:hover {
+  color: #a8ff00;
+}
+.csc-dot {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 0.8rem;
+}
+
+/* 2. SQUAD SELECTION MODAL */
+.squad-modal-card {
+  width: 95%;
+  max-width: 620px;
+  background: #08160f;
+  border: 2px solid rgba(168, 255, 0, 0.4);
+  border-radius: 22px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.95);
+  padding: 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: auto;
+}
+
+.smc-head h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+.smc-head p {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 2px 0 0 0;
+}
+
+.smc-squad-slots {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 540px) {
+  .smc-squad-slots {
+    grid-template-columns: 1fr;
+  }
+}
+
+.smc-slot-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid #71717a;
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+.smc-slot-card.keeper {
+  border-color: #38bdf8;
+}
+
+.smc-slot-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.smc-slot-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #a8ff00;
+}
+.smc-slot-card.keeper .smc-slot-title {
+  color: #38bdf8;
+}
+
+.smc-nav-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+.smc-nav-btn:hover {
+  background: var(--pitch-green, #a8ff00);
+  color: #000;
+}
+
+.smc-slot-media {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #040906;
+}
+.smc-slot-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.smc-rank-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.66rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid #ffd700;
+  color: #ffd700;
+}
+
+.smc-card-name {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.smc-powers-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.smc-power-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: rgba(168, 255, 0, 0.12);
+  border: 1px solid rgba(168, 255, 0, 0.3);
+  color: #a8ff00;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.smc-actions-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+/* 3. CLEAN POST-MATCH SUMMARY CARD (ZERO SCROLLBAR!) */
+.clean-summary-card {
+  width: 95%;
+  max-width: 480px;
+  background: linear-gradient(165deg, rgba(8, 22, 14, 0.98), rgba(3, 9, 6, 0.99));
+  border: 2px solid #a8ff00;
+  border-radius: 22px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.95), 0 0 35px rgba(168, 255, 0, 0.25);
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  margin: auto;
+  overflow: hidden;
+}
+
+.sum-clean-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.sum-clean-trophy {
+  font-size: 2.6rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.6));
+}
+.sum-clean-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.3rem;
+  line-height: 1;
+  color: #a8ff00;
+  margin: 6px 0 2px 0;
+  letter-spacing: 0.04em;
+}
+.sum-clean-sub {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.sum-clean-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.sum-clean-stat-box {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.scs-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+.scs-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+.scs-val.neon {
+  color: #a8ff00;
+  text-shadow: 0 0 12px rgba(168, 255, 0, 0.45);
+}
+
+.sum-clean-level-badge {
+  background: rgba(168, 255, 0, 0.09);
+  border: 1px solid rgba(168, 255, 0, 0.25);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  color: #a8ff00;
+  text-align: center;
+  font-weight: 600;
+}
+
+.sum-clean-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sum-btn-primary {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  border: none;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.45rem;
+  letter-spacing: 0.04em;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.16s ease;
+}
+.sum-btn-primary.next {
+  background: linear-gradient(135deg, #38bdf8, #0284c7);
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+}
+.sum-btn-primary.replay {
+  background: linear-gradient(135deg, #a8ff00, #4ade80);
+  color: #040c06;
+  box-shadow: 0 6px 20px rgba(168, 255, 0, 0.4);
+}
+.sum-btn-primary:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+.sum-btn-primary:active {
+  transform: scale(0.98);
+}
+
+.sum-btn-secondary {
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.sum-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.sum-clean-subtools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.sum-subtool-btn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 6px 4px;
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  text-align: center;
+}
+.sum-subtool-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
 /* Outer Flex Wrapper that Vertically Centers When Space Permits, Never Clips Top */
 .start-screen-container {
   margin: auto 0;
@@ -688,61 +1202,6 @@ body.start-screen-active .hud-top-bar,
   align-items: center;
   position: relative;
   padding: 4px 0;
-}
-
-/* Start Screen Top Bar Row (Exit Button + Live Pot) */
-.start-top-bar-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-bottom: 8px;
-  gap: 8px;
-}
-
-.start-exit-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(6, 14, 10, 0.92);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1.5px solid rgba(168, 255, 0, 0.45);
-  color: #a8ff00;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.74rem;
-  font-weight: 800;
-  padding: 5px 12px;
-  border-radius: 999px;
-  text-decoration: none;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
-  transition: all 0.2s ease;
-}
-
-.start-exit-btn:hover {
-  background: #a8ff00;
-  color: #06130c;
-  box-shadow: 0 0 20px rgba(168, 255, 0, 0.7);
-  transform: translateY(-1px);
-}
-
-.start-exit-btn:active {
-  transform: scale(0.96);
-}
-
-.start-pot-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 184, 0, 0.12);
-  border: 1px solid rgba(255, 184, 0, 0.4);
-  color: #ffb800;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
-  font-weight: 800;
-  padding: 5px 12px;
-  border-radius: 999px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
 }
 
 /* PRE-MATCH LOCKER ROOM (COMPACT HERO CARDS) */

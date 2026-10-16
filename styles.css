@@ -3335,6 +3335,372 @@ body {
   color: #05080c;
 }
 
+/* --- NFT Rarity Tiers & Dynamic Borders (Requested by User) --- */
+.squad-nft-card {
+  cursor: pointer;
+  position: relative;
+}
+
+.squad-nft-card.tier-mythic {
+  border: 2px solid #ffd700;
+  box-shadow: 0 0 18px rgba(255, 215, 0, 0.45);
+}
+.squad-nft-card.tier-mythic:hover {
+  border-color: #ffe066;
+  box-shadow: 0 0 26px rgba(255, 215, 0, 0.65);
+}
+
+.squad-nft-card.tier-legendary {
+  border: 2px solid #c084fc;
+  box-shadow: 0 0 16px rgba(192, 132, 252, 0.4);
+}
+.squad-nft-card.tier-legendary:hover {
+  border-color: #d8b4fe;
+  box-shadow: 0 0 24px rgba(192, 132, 252, 0.6);
+}
+
+.squad-nft-card.tier-epic {
+  border: 2px solid #38bdf8;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
+}
+.squad-nft-card.tier-epic:hover {
+  border-color: #7dd3fc;
+  box-shadow: 0 0 22px rgba(56, 189, 248, 0.55);
+}
+
+.squad-nft-card.tier-rare {
+  border: 2px solid #22c55e;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.3);
+}
+.squad-nft-card.tier-rare:hover {
+  border-color: #4ade80;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+}
+
+.squad-nft-card.tier-common {
+  border: 1px solid #71717a;
+  box-shadow: none;
+}
+.squad-nft-card.tier-common:hover {
+  border-color: #a1a1aa;
+}
+
+/* Card Rarity Badge */
+.squad-nft-rank-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.squad-nft-rank-tag.mythic {
+  background: rgba(255, 215, 0, 0.22);
+  border: 1px solid #ffd700;
+  color: #ffd700;
+}
+.squad-nft-rank-tag.legendary {
+  background: rgba(192, 132, 252, 0.22);
+  border: 1px solid #c084fc;
+  color: #c084fc;
+}
+.squad-nft-rank-tag.epic {
+  background: rgba(56, 189, 248, 0.22);
+  border: 1px solid #38bdf8;
+  color: #38bdf8;
+}
+.squad-nft-rank-tag.rare {
+  background: rgba(34, 197, 94, 0.22);
+  border: 1px solid #22c55e;
+  color: #22c55e;
+}
+.squad-nft-rank-tag.common {
+  background: rgba(113, 113, 122, 0.28);
+  border: 1px solid #71717a;
+  color: #cbd5e1;
+}
+
+/* --- XOXNO-STYLE NFT DETAILS MODAL --- */
+.nft-modal-card {
+  background: #0b1411;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  max-width: 860px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px;
+  position: relative;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+}
+
+.nft-modal-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .nft-modal-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.nft-modal-media-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.nft-modal-img-wrap {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  background: #050a08;
+  border: 2px solid #71717a;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.nft-modal-img-wrap.tier-mythic {
+  border-color: #ffd700;
+  box-shadow: 0 0 26px rgba(255, 215, 0, 0.5);
+}
+.nft-modal-img-wrap.tier-legendary {
+  border-color: #c084fc;
+  box-shadow: 0 0 22px rgba(192, 132, 252, 0.45);
+}
+.nft-modal-img-wrap.tier-epic {
+  border-color: #38bdf8;
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.4);
+}
+.nft-modal-img-wrap.tier-rare {
+  border-color: #22c55e;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.35);
+}
+.nft-modal-img-wrap.tier-common {
+  border-color: #71717a;
+  box-shadow: none;
+}
+
+.nft-modal-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nft-modal-tier-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.nft-modal-id-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.nft-modal-id-row h3 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+}
+
+.nft-modal-rank {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #a8ff00;
+}
+
+.nft-modal-collection {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  color: #94a3b8;
+}
+
+.nft-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.nft-modal-sub-actions {
+  display: flex;
+  gap: 8px;
+}
+.nft-modal-sub-actions > * {
+  flex: 1;
+  text-align: center;
+}
+
+/* Superpowers Box */
+.nft-modal-superpowers {
+  background: rgba(168, 255, 0, 0.04);
+  border: 1px solid rgba(168, 255, 0, 0.22);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.nms-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.nms-icon {
+  font-size: 1.4rem;
+}
+
+.nms-header strong {
+  display: block;
+  font-size: 0.88rem;
+  color: #a8ff00;
+  letter-spacing: 0.03em;
+}
+
+.nms-header small {
+  font-size: 0.74rem;
+  color: #94a3b8;
+}
+
+.nms-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.nms-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+}
+
+.nms-chip strong {
+  color: #ffffff;
+}
+
+.nms-chip small {
+  color: #94a3b8;
+  font-size: 0.72rem;
+}
+
+/* Attributes List (XOXNO Style from user screenshot) */
+.nft-modal-traits-wrap {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.nmt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.nmt-header small {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.nmt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 290px;
+  overflow-y: auto;
+}
+
+.nmt-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+.nmt-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nmt-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nmt-val {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.nmt-diamond {
+  color: #f43f5e;
+  font-size: 0.84rem;
+  filter: drop-shadow(0 0 4px #f43f5e);
+}
+
+.nmt-cat {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.66rem;
+  font-weight: 800;
+  color: #a8ff00;
+  background: rgba(168, 255, 0, 0.12);
+  border: 1px solid rgba(168, 255, 0, 0.25);
+  border-radius: 5px;
+  padding: 2px 7px;
+  letter-spacing: 0.04em;
+}
+
+.nmt-rarity {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+
 /* ==========================================================================
    PLAYABLE EFOO FOMO PENALTY SHOOTOUT & INJURY TIME POT
    ========================================================================== */
