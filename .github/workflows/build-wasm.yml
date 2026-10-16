@@ -22,9 +22,16 @@ jobs:
 
       - name: Build Smart Contract WASM
         run: |
+          set -o pipefail
           rustup target add wasm32-unknown-unknown
           cd contracts/efoo-stadium-vault/meta
           cargo run -- build 2>&1 | tee ../../../build.log
+          cd ../../..
+          echo "### Build Log" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat build.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          find . -name "*.wasm" -o -name "*.abi.json"
 
       - name: Upload Artifacts
         if: always()
@@ -33,7 +40,8 @@ jobs:
           name: efoo-stadium-vault-build
           path: |
             build.log
-            contracts/efoo-stadium-vault/output/*
+            **/*.wasm
+            **/*.abi.json
 
       - name: Commit and Push WASM to repo
         if: always()
