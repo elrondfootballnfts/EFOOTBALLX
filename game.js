@@ -132,40 +132,79 @@ const CONTRACTS = {
   WC_PROJECT_ID: "9b1a9564f91cb659ffe21b73d5c4e2d8"
 };
 
+const RARITY_TIERS = {
+  ROOKIE: { id: "rookie", name: "ROOKIE (F2P)", nameHu: "SZABADÚSZÓ", color: "#94a3b8", slots: 0, mult: 1.0 },
+  COMMON: { id: "common", name: "COMMON", nameHu: "COMMON", color: "#22c55e", slots: 1, mult: 2.0 },
+  RARE: { id: "rare", name: "RARE", nameHu: "RARE", color: "#38bdf8", slots: 2, mult: 3.5 },
+  EPIC: { id: "epic", name: "EPIC", nameHu: "EPIC", color: "#a855f7", slots: 3, mult: 6.0 },
+  LEGENDARY: { id: "legendary", name: "LEGENDARY", nameHu: "LEGENDÁS", color: "#ffb800", slots: 4, mult: 10.0 }
+};
+
+const ROOKIE_STRIKER = {
+  identifier: "ROOKIE-STRIKER",
+  name: "SUNDAY ROOKIE #10",
+  rarity: "ROOKIE",
+  ovr: 65,
+  trait: "⚡ FREE-TO-PLAY (Nincs szuperképesség)",
+  traitRo: "⚡ FREE-TO-PLAY (Fără super-puteri)",
+  url: "branding/original/EFOOTBALL-91a4eb/logo.png"
+};
+
+const ROOKIE_KEEPER = {
+  identifier: "ROOKIE-KEEPER",
+  name: "SUNDAY ROOKIE GK #1",
+  rarity: "ROOKIE",
+  jersey: "01",
+  ovr: 65,
+  trait: "🧤 FREE-TO-PLAY (Nincs szuperképesség)",
+  traitRo: "🧤 FREE-TO-PLAY (Fără super-puteri)",
+  url: "branding/original/GOALKEEPER-cb9e3e/logo.png"
+};
+
 const STRIKER_ROSTER = [
   {
     identifier: "EFOOTBALL-91a4eb-026b",
     name: "ELRONDFOOTBALL #619",
+    rarity: "LEGENDARY",
     ovr: 99,
-    trait: "👽 ALIEN STRIKER • CURVE+",
+    trait: "👽 ALIEN STRIKER • 4 KÉPESSÉG + RADAR",
+    traitRo: "👽 ALIEN STRIKER • 4 ABILITĂȚI + RADAR",
     url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/9734.png"
   },
   {
     identifier: "EFOOTBALL-91a4eb-0261",
     name: "ELRONDFOOTBALL #609",
-    ovr: 94,
-    trait: "⚡ LIGA 1 SNIPER",
+    rarity: "EPIC",
+    ovr: 95,
+    trait: "⚡ LIGA 1 SNIPER • 3 KÉPESSÉG",
+    traitRo: "⚡ LIGA 1 SNIPER • 3 ABILITĂȚI",
     url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/1477.png"
   },
   {
     identifier: "EFOOTBALL-91a4eb-0262",
     name: "ELRONDFOOTBALL #610",
-    ovr: 92,
-    trait: "🔥 ROCKET FINISHER",
+    rarity: "RARE",
+    ovr: 90,
+    trait: "🔥 ROCKET FINISHER • 2 KÉPESSÉG",
+    traitRo: "🔥 ROCKET FINISHER • 2 ABILITĂȚI",
     url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/2805.png"
   },
   {
     identifier: "EFOOTBALL-91a4eb-0264",
     name: "ELRONDFOOTBALL #612",
-    ovr: 95,
-    trait: "🎯 VINCLU SPECIALIST",
+    rarity: "RARE",
+    ovr: 88,
+    trait: "🎯 VINCLU SPECIALIST • 2 KÉPESSÉG",
+    traitRo: "🎯 VINCLU SPECIALIST • 2 ABILITĂȚI",
     url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/6632.png"
   },
   {
     identifier: "EFOOTBALL-91a4eb-0273",
     name: "ELRONDFOOTBALL #627",
-    ovr: 93,
-    trait: "🍺 PANENKA KING",
+    rarity: "COMMON",
+    ovr: 78,
+    trait: "🍺 PANENKA KING • 1 KÉPESSÉG",
+    traitRo: "🍺 PANENKA KING • 1 ABILITATE",
     url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/1688.png"
   }
 ];
@@ -175,37 +214,345 @@ const KEEPER_ROSTER = [
     identifier: "GOALKEEPER-cb9e3e-02",
     name: "GOALKEEPER #2",
     jersey: "02",
+    rarity: "LEGENDARY",
+    ovr: 99,
+    trait: "🧱 WALL OF DEGENS • TELEPÁTIA + 4 KÉPESSÉG",
+    traitRo: "🧱 WALL OF DEGENS • TELEPATIE + 4 ABILITĂȚI",
     url: "https://media.multiversx.com/nfts/asset/bafybeicbszzifxxcpnq3zrndfdtf45wouhyjbklwk4ffio365icb2ylgg4/230.png"
   },
   {
     identifier: "GOALKEEPER-cb9e3e-07",
     name: "GOALKEEPER #7",
     jersey: "07",
+    rarity: "EPIC",
+    ovr: 94,
+    trait: "🧤 OCTOPUS REACH • ÓRIÁSKÉZ + 3 KÉPESSÉG",
+    traitRo: "🧤 OCTOPUS REACH • SPIDER REACH + 3 ABILITĂȚI",
     url: "https://media.multiversx.com/nfts/asset/bafybeicbszzifxxcpnq3zrndfdtf45wouhyjbklwk4ffio365icb2ylgg4/440.png"
   },
   {
     identifier: "GOALKEEPER-cb9e3e-33",
     name: "GOALKEEPER #51",
     jersey: "51",
+    rarity: "RARE",
+    ovr: 86,
+    trait: "⚡ CAT REFLEX • ACÉLFAL + 2 KÉPESSÉG",
+    traitRo: "⚡ CAT REFLEX • IRON WALL + 2 ABILITĂȚI",
     url: "branding/original/GOALKEEPER-cb9e3e/logo.png"
   }
 ];
 
+function getNftRarityInfo(card) {
+  if (!card) return RARITY_TIERS.ROOKIE;
+  const key = (card.rarity || "COMMON").toUpperCase();
+  return RARITY_TIERS[key] || RARITY_TIERS.COMMON;
+}
+
 // ============================================================================
-// SYNTHESIZED WEB AUDIO STADIUM SFX ENGINE
+// MODERN SYNTHESIZED WEB AUDIO STADIUM SFX ENGINE (NO 90S CHIPTUNES)
 // ============================================================================
-class ArcadeAudio {
+class ModernStadiumAudio {
   constructor() {
     this.enabled = true;
     this.ctx = null;
+    this.noiseBuffer = null;
   }
 
   init() {
     if (!this.ctx) {
       const AC = window.AudioContext || window.webkitAudioContext;
-      if (AC) this.ctx = new AC();
+      if (AC) {
+        this.ctx = new AC();
+        this.buildNoiseBuffer();
+      }
     }
     if (this.ctx && this.ctx.state === "suspended") this.ctx.resume();
+  }
+
+  buildNoiseBuffer() {
+    if (!this.ctx) return;
+    const bufferSize = this.ctx.sampleRate * 2;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let b0 = 0, b1 = 0, b2 = 0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      data[i] = (b0 + b1 + b2 + white * 0.5362) * 0.11;
+    }
+    this.noiseBuffer = buffer;
+  }
+
+  // Modern acoustic football strike: transient leather snap + resonant sub-bass thump
+  playKick(isSweet, isRocket) {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // 1. Transient Leather Pop (short high-frequency click)
+    if (this.noiseBuffer) {
+      const nSrc = this.ctx.createBufferSource();
+      nSrc.buffer = this.noiseBuffer;
+      const nFilter = this.ctx.createBiquadFilter();
+      nFilter.type = "bandpass";
+      nFilter.frequency.setValueAtTime(isRocket ? 1800 : 1200, now);
+      nFilter.Q.setValueAtTime(2.5, now);
+      const nGain = this.ctx.createGain();
+      nGain.gain.setValueAtTime(0.35, now);
+      nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+      nSrc.connect(nFilter);
+      nFilter.connect(nGain);
+      nGain.connect(this.ctx.destination);
+      nSrc.start(now);
+      nSrc.stop(now + 0.03);
+    }
+
+    // 2. Sub-bass Football Body Thud (125Hz ramping down into 38Hz sub-bass)
+    const oSub = this.ctx.createOscillator();
+    const gSub = this.ctx.createGain();
+    oSub.type = "sine";
+    oSub.frequency.setValueAtTime(isSweet ? 145 : 120, now);
+    oSub.frequency.exponentialRampToValueAtTime(36, now + 0.18);
+    gSub.gain.setValueAtTime(isRocket ? 0.65 : 0.48, now);
+    gSub.gain.exponentialRampToValueAtTime(0.001, now + (isRocket ? 0.32 : 0.22));
+    oSub.connect(gSub);
+    gSub.connect(this.ctx.destination);
+    oSub.start(now);
+    oSub.stop(now + 0.35);
+
+    // 3. Midrange boot contact punch
+    const oMid = this.ctx.createOscillator();
+    const gMid = this.ctx.createGain();
+    oMid.type = "triangle";
+    oMid.frequency.setValueAtTime(isSweet ? 95 : 75, now);
+    oMid.frequency.linearRampToValueAtTime(45, now + 0.08);
+    gMid.gain.setValueAtTime(0.25, now);
+    gMid.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+    oMid.connect(gMid);
+    gMid.connect(this.ctx.destination);
+    oMid.start(now);
+    oMid.stop(now + 0.1);
+  }
+
+  // Realistic nylon goal net snap & swoosh
+  playNetSwish() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx || !this.noiseBuffer) return;
+    const now = this.ctx.currentTime;
+    const src = this.ctx.createBufferSource();
+    src.buffer = this.noiseBuffer;
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(3200, now);
+    filter.frequency.exponentialRampToValueAtTime(800, now + 0.28);
+    filter.Q.setValueAtTime(1.8, now);
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.linearRampToValueAtTime(0.28, now + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    src.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.ctx.destination);
+    src.start(now);
+    src.stop(now + 0.38);
+  }
+
+  // Authentic stadium crowd roar with bandpass noise crescendo and arena sub rumble
+  playGoalCheer() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    this.playNetSwish();
+
+    // 1. Stadium crowd roar using filtered noise
+    if (this.noiseBuffer) {
+      const src = this.ctx.createBufferSource();
+      src.buffer = this.noiseBuffer;
+      const bpf = this.ctx.createBiquadFilter();
+      bpf.type = "bandpass";
+      bpf.frequency.setValueAtTime(750, now);
+      bpf.frequency.linearRampToValueAtTime(1450, now + 0.45);
+      bpf.frequency.linearRampToValueAtTime(900, now + 1.8);
+      bpf.Q.setValueAtTime(1.2, now);
+
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.32, now + 0.18);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 2.0);
+
+      src.connect(bpf);
+      bpf.connect(gain);
+      gain.connect(this.ctx.destination);
+      src.start(now);
+      src.stop(now + 2.1);
+    }
+
+    // 2. Stadium sub-bass rumble
+    const sub = this.ctx.createOscillator();
+    const subG = this.ctx.createGain();
+    sub.type = "sine";
+    sub.frequency.setValueAtTime(58, now);
+    sub.frequency.exponentialRampToValueAtTime(32, now + 0.65);
+    subG.gain.setValueAtTime(0.001, now);
+    subG.gain.linearRampToValueAtTime(0.35, now + 0.08);
+    subG.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+    sub.connect(subG);
+    subG.connect(this.ctx.destination);
+    sub.start(now);
+    sub.stop(now + 0.75);
+  }
+
+  // Hollow aluminum goalpost clang with authentic inharmonic overtones
+  playPostClang() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const partials = [
+      { f: 835, g: 0.28, d: 0.8 },
+      { f: 1670, g: 0.16, d: 0.55 },
+      { f: 2420, g: 0.12, d: 0.4 },
+      { f: 3340, g: 0.08, d: 0.25 }
+    ];
+    partials.forEach((p) => {
+      const o = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      o.type = "sine";
+      o.frequency.setValueAtTime(p.f, now);
+      g.gain.setValueAtTime(p.g, now);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + p.d);
+      o.connect(g);
+      g.connect(this.ctx.destination);
+      o.start(now);
+      o.stop(now + p.d + 0.02);
+    });
+  }
+
+  // Padded leather glove punch / heroic save deflection
+  playSaveBlock() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // Leather friction / glove impact snap
+    if (this.noiseBuffer) {
+      const nSrc = this.ctx.createBufferSource();
+      nSrc.buffer = this.noiseBuffer;
+      const nF = this.ctx.createBiquadFilter();
+      nF.type = "bandpass";
+      nF.frequency.setValueAtTime(850, now);
+      nF.Q.setValueAtTime(3.0, now);
+      const nG = this.ctx.createGain();
+      nG.gain.setValueAtTime(0.28, now);
+      nG.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+      nSrc.connect(nF);
+      nF.connect(nG);
+      nG.connect(this.ctx.destination);
+      nSrc.start(now);
+      nSrc.stop(now + 0.07);
+    }
+
+    // Heavy padded thump (145Hz down to 48Hz)
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = "triangle";
+    o.frequency.setValueAtTime(145, now);
+    o.frequency.exponentialRampToValueAtTime(48, now + 0.15);
+    g.gain.setValueAtTime(0.42, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+    o.connect(g);
+    g.connect(this.ctx.destination);
+    o.start(now);
+    o.stop(now + 0.2);
+  }
+
+  // Professional Fox 40 referee whistle (dual acoustic frequencies 2850Hz & 3120Hz + breath air)
+  playWhistle() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    [2840, 3110].forEach((freq) => {
+      const o = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      o.type = "sine";
+      o.frequency.setValueAtTime(freq, now);
+      g.gain.setValueAtTime(0.001, now);
+      g.gain.linearRampToValueAtTime(0.12, now + 0.025);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+      o.connect(g);
+      g.connect(this.ctx.destination);
+      o.start(now);
+      o.stop(now + 0.45);
+    });
+
+    if (this.noiseBuffer) {
+      const nSrc = this.ctx.createBufferSource();
+      nSrc.buffer = this.noiseBuffer;
+      const nF = this.ctx.createBiquadFilter();
+      nF.type = "bandpass";
+      nF.frequency.setValueAtTime(3000, now);
+      nF.Q.setValueAtTime(4.0, now);
+      const nG = this.ctx.createGain();
+      nG.gain.setValueAtTime(0.001, now);
+      nG.gain.linearRampToValueAtTime(0.06, now + 0.02);
+      nG.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+      nSrc.connect(nF);
+      nF.connect(nG);
+      nG.connect(this.ctx.destination);
+      nSrc.start(now);
+      nSrc.stop(now + 0.42);
+    }
+  }
+
+  // Futuristic skill activation surge
+  playSkillFire() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(65, now);
+    o.frequency.exponentialRampToValueAtTime(420, now + 0.22);
+    g.gain.setValueAtTime(0.001, now);
+    g.gain.linearRampToValueAtTime(0.25, now + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    o.connect(g);
+    g.connect(this.ctx.destination);
+    o.start(now);
+    o.stop(now + 0.38);
+  }
+
+  // Matrix Time Warp slow-down sound
+  playMatrixSlow() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = "sawtooth";
+    o.frequency.setValueAtTime(220, now);
+    o.frequency.exponentialRampToValueAtTime(48, now + 0.45);
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(1200, now);
+    filter.frequency.linearRampToValueAtTime(180, now + 0.45);
+    g.gain.setValueAtTime(0.22, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+    o.connect(filter);
+    filter.connect(g);
+    g.connect(this.ctx.destination);
+    o.start(now);
+    o.stop(now + 0.52);
   }
 
   playIntroImpact() {
@@ -213,139 +560,23 @@ class ArcadeAudio {
     this.init();
     if (!this.ctx) return;
     const now = this.ctx.currentTime;
-    [220, 277.18, 329.63, 440].forEach((f, i) => {
-      const o = this.ctx.createOscillator();
-      const g = this.ctx.createGain();
-      o.type = "sawtooth";
-      o.frequency.setValueAtTime(f, now + i * 0.12);
-      g.gain.setValueAtTime(0.001, now + i * 0.12);
-      g.gain.exponentialRampToValueAtTime(0.1, now + i * 0.12 + 0.06);
-      g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.75);
-      o.connect(g);
-      g.connect(this.ctx.destination);
-      o.start(now + i * 0.12);
-      o.stop(now + i * 0.12 + 0.8);
-    });
-  }
-
-  playWhistle() {
-    if (!this.enabled) return;
-    this.init();
-    if (!this.ctx) return;
-    const now = this.ctx.currentTime;
-    const o = this.ctx.createOscillator();
-    const lfo = this.ctx.createOscillator();
-    const lg = this.ctx.createGain();
-    const g = this.ctx.createGain();
-    o.type = "sine";
-    o.frequency.setValueAtTime(2880, now);
-    lfo.frequency.setValueAtTime(42, now);
-    lg.gain.setValueAtTime(135, now);
-    lfo.connect(lg);
-    lg.connect(o.frequency);
-    g.gain.setValueAtTime(0.001, now);
-    g.gain.linearRampToValueAtTime(0.13, now + 0.03);
-    g.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
-    o.connect(g);
-    g.connect(this.ctx.destination);
-    o.start(now);
-    lfo.start(now);
-    o.stop(now + 0.45);
-    lfo.stop(now + 0.45);
-  }
-
-  playKick(isPerfect) {
-    if (!this.enabled) return;
-    this.init();
-    if (!this.ctx) return;
-    const now = this.ctx.currentTime;
-    const o = this.ctx.createOscillator();
-    const g = this.ctx.createGain();
-    o.type = isPerfect ? "triangle" : "sine";
-    o.frequency.setValueAtTime(isPerfect ? 185 : 135, now);
-    o.frequency.exponentialRampToValueAtTime(34, now + 0.22);
-    g.gain.setValueAtTime(0.32, now);
-    g.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
-    o.connect(g);
-    g.connect(this.ctx.destination);
-    o.start(now);
-    o.stop(now + 0.25);
-  }
-
-  playGoalCheer() {
-    if (!this.enabled) return;
-    this.init();
-    if (!this.ctx) return;
-    const now = this.ctx.currentTime;
-    [261.63, 329.63, 392, 523.25].forEach((f) => {
+    [130.81, 164.81, 196.0, 261.63].forEach((f, i) => {
       const o = this.ctx.createOscillator();
       const g = this.ctx.createGain();
       o.type = "triangle";
-      o.frequency.setValueAtTime(f, now);
-      g.gain.setValueAtTime(0.001, now);
-      g.gain.linearRampToValueAtTime(0.11, now + 0.05);
-      g.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+      o.frequency.setValueAtTime(f, now + i * 0.08);
+      g.gain.setValueAtTime(0.001, now + i * 0.08);
+      g.gain.linearRampToValueAtTime(0.18, now + i * 0.08 + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.65);
       o.connect(g);
       g.connect(this.ctx.destination);
-      o.start(now);
-      o.stop(now + 0.95);
+      o.start(now + i * 0.08);
+      o.stop(now + i * 0.08 + 0.7);
     });
-  }
-
-  playPostClang() {
-    if (!this.enabled) return;
-    this.init();
-    if (!this.ctx) return;
-    const now = this.ctx.currentTime;
-    [860, 1310].forEach((f) => {
-      const o = this.ctx.createOscillator();
-      const g = this.ctx.createGain();
-      o.type = "sine";
-      o.frequency.setValueAtTime(f, now);
-      g.gain.setValueAtTime(0.18, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
-      o.connect(g);
-      g.connect(this.ctx.destination);
-      o.start(now);
-      o.stop(now + 0.45);
-    });
-  }
-
-  playSaveBlock() {
-    if (!this.enabled) return;
-    this.init();
-    if (!this.ctx) return;
-    const now = this.ctx.currentTime;
-    const o = this.ctx.createOscillator();
-    const g = this.ctx.createGain();
-    o.type = "sawtooth";
-    o.frequency.setValueAtTime(105, now);
-    o.frequency.linearRampToValueAtTime(48, now + 0.25);
-    g.gain.setValueAtTime(0.16, now);
-    g.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
-    o.connect(g);
-    g.connect(this.ctx.destination);
-    o.start(now);
-    o.stop(now + 0.3);
   }
 
   playVarSiren() {
-    if (!this.enabled) return;
-    this.init();
-    if (!this.ctx) return;
-    const now = this.ctx.currentTime;
-    const o = this.ctx.createOscillator();
-    const g = this.ctx.createGain();
-    o.type = "sawtooth";
-    o.frequency.setValueAtTime(440, now);
-    o.frequency.linearRampToValueAtTime(880, now + 0.15);
-    o.frequency.linearRampToValueAtTime(440, now + 0.3);
-    g.gain.setValueAtTime(0.12, now);
-    g.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-    o.connect(g);
-    g.connect(this.ctx.destination);
-    o.start(now);
-    o.stop(now + 0.36);
+    this.playWhistle();
   }
 
   playHeartbeat() {
@@ -356,9 +587,9 @@ class ArcadeAudio {
     const o = this.ctx.createOscillator();
     const g = this.ctx.createGain();
     o.type = "sine";
-    o.frequency.setValueAtTime(68, now);
-    o.frequency.exponentialRampToValueAtTime(32, now + 0.12);
-    g.gain.setValueAtTime(0.32, now);
+    o.frequency.setValueAtTime(52, now);
+    o.frequency.exponentialRampToValueAtTime(30, now + 0.12);
+    g.gain.setValueAtTime(0.35, now);
     g.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
     o.connect(g);
     g.connect(this.ctx.destination);
@@ -367,7 +598,7 @@ class ArcadeAudio {
   }
 }
 
-const audio = new ArcadeAudio();
+const audio = new ModernStadiumAudio();
 
 // ============================================================================
 // STATE & IMAGE ASSETS
@@ -443,13 +674,7 @@ function toCorsUrl(rawUrl, size = 300) {
 }
 
 function canPlayMatch() {
-  return Boolean(
-    connectedAddress &&
-      VALID_WALLET_PROVIDERS.includes(connectedProvider) &&
-      walletState.verified &&
-      !walletState.loading &&
-      walletState.efooBalance >= MIN_EFOO_REQUIRED
-  );
+  return true; // Free-to-Play accessible to everyone: Rookie F2P with 0 base skills, or Web3 with unlocked NFT slots!
 }
 
 // ============================================================================
@@ -562,6 +787,60 @@ const SKILLS = [
   }
 ];
 
+// ============================================================================
+// GOALKEEPER SUPER SKILLS (USED DURING DEFENSE TURNS)
+// ============================================================================
+const KEEPER_SKILLS = [
+  {
+    id: "iron_wall",
+    icon: "🛡️",
+    name: "IRON WALL",
+    nameHu: "ACÉLFAL",
+    nameRo: "ZID DE OȚEL",
+    desc: "Reinforces goal posts & expands keeper save area by 50%.",
+    descHu: "A kapus teste megnő, a védési felület 50%-kal nagyobb.",
+    descRo: "Aria de intervenție a portarului crește cu 50%.",
+    price: 50000,
+    color: "#38bdf8"
+  },
+  {
+    id: "spider_reach",
+    icon: "🧤",
+    name: "SPIDER REACH",
+    nameHu: "POLIP NYÚLÁS",
+    nameRo: "REACH TENTACULAR",
+    desc: "Supernatural dive reach across the entire goalmouth.",
+    descHu: "Óriási kézméret és ugrótávolság az egész kapura.",
+    descRo: "Săritură extinsă și mănuși uriașe pe toată poarta.",
+    price: 75000,
+    color: "#22c55e"
+  },
+  {
+    id: "matrix_reflex",
+    icon: "⏱️",
+    name: "MATRIX TIME WARP",
+    nameHu: "MÁTRIX IDŐLASSÍTÁS",
+    nameRo: "MATRIX BULLET TIME",
+    desc: "Slows the ball speed by 50% giving full dive reaction time.",
+    descHu: "50%-kal lelassítja a labdát, megkönnyítve a védést.",
+    descRo: "Încetinește mingea cu 50% pentru reacție maximă.",
+    price: 90000,
+    color: "#a855f7"
+  },
+  {
+    id: "mind_read",
+    icon: "👁️",
+    name: "MIND READ RADAR",
+    nameHu: "GONDOLATOLVASÁS",
+    nameRo: "CITIREA MINȚII",
+    desc: "Holographic aura reveals exact AI shot target before the kick.",
+    descHu: "Holografikus aura mutatja a gép lövésének pontos helyét.",
+    descRo: "Aura holografică dezvăluie ținta exactă a șutului AI.",
+    price: 110000,
+    color: "#ffb800"
+  }
+];
+
 function randGauss() {
   let u = 0;
   let v = 0;
@@ -576,43 +855,33 @@ function clampNum(v, lo, hi) {
 }
 
 // ============================================================================
-// NFT QUANTITY & TOKEN PERKS (SKILL-BASED: STEADIER AIM, WIDER SWEET-SPOT)
+// NFT RARITY & SKILLS SCALING (ROOKIE F2P, COMMON, RARE, EPIC, LEGENDARY)
 // ============================================================================
 function getPowers() {
+  const strikerRarity = getNftRarityInfo(activeStriker);
+  const keeperRarity = getNftRarityInfo(activeKeeper);
   const pCount = walletState.playersCount;
   const kCount = walletState.keepersCount;
   const efoo = walletState.efooBalance;
 
-  let mult = 1.0;
-  let swayMul = 1;
-  let sweetBonus = 0;
-  let hasCurve = false;
-  let hasRadar = false;
-  let hasTwinBall = false;
+  // Unlocked skill slots determined by the active player / keeper rarity:
+  // ROOKIE: 0 slots (F2P) • COMMON: 1 slot • RARE: 2 slots • EPIC: 3 slots • LEGENDARY: 4 slots
+  const strikerSlots = strikerRarity.slots;
+  const keeperSlots = keeperRarity.slots;
 
-  if (pCount >= 6) {
-    mult = 10.0;
-    swayMul = 0.55;
-    sweetBonus = 0.06;
-    hasCurve = true;
-    hasRadar = true;
-    hasTwinBall = true;
-  } else if (pCount >= 3) {
-    mult = 5.0;
-    swayMul = 0.7;
-    sweetBonus = 0.04;
-    hasCurve = true;
-    hasRadar = true;
-  } else if (pCount >= 1) {
-    mult = 2.5;
-    swayMul = 0.85;
-    sweetBonus = 0.02;
-    hasCurve = true;
-  }
+  let mult = strikerRarity.mult;
+  let keeperMult = keeperRarity.mult;
 
-  // 1 clutch save shield max (rebound only, never saves repeated corner camping)
-  const maxShields = kCount >= 1 ? 1 : 0;
-  const keeperMult = kCount >= 2 ? 5.0 : kCount >= 1 ? 2.5 : 0;
+  // Synergies if user holds multiple NFTs
+  if (pCount >= 6) mult += 2.0;
+  else if (pCount >= 3) mult += 1.0;
+
+  let swayMul = 1.0;
+  if (strikerRarity.id === "legendary") swayMul = 0.55;
+  else if (strikerRarity.id === "epic") swayMul = 0.70;
+  else if (strikerRarity.id === "rare") swayMul = 0.85;
+  else if (strikerRarity.id === "common") swayMul = 0.95;
+
   const hasRocket = efoo >= MIN_EFOO_REQUIRED;
   const rocketPts = efoo >= 10000000 ? 3000 : hasRocket ? 1000 : 0;
 
@@ -620,18 +889,22 @@ function getPowers() {
     pCount,
     kCount,
     efoo,
+    strikerRarity,
+    keeperRarity,
+    strikerSlots,
+    keeperSlots,
     aimBonusPct: Math.round((1 - swayMul) * 100),
     swayMul,
-    sweetBonus,
-    keeperSigmaMul: hasCurve ? 1.15 : 1,
-    totalMult: mult + keeperMult,
-    maxShields,
-    hasCurve,
-    hasRadar,
-    hasTwinBall,
+    sweetBonus: strikerRarity.id === "legendary" ? 0.08 : (strikerRarity.id === "epic" ? 0.05 : 0.02),
+    keeperSigmaMul: 1.15,
+    totalMult: mult + (keeperMult - 1.0),
+    maxShields: keeperRarity.id === "legendary" || keeperRarity.id === "epic" ? 1 : 0,
+    hasCurve: strikerSlots >= 1,
+    hasRadar: strikerSlots >= 3 || keeperSlots >= 3,
+    hasTwinBall: strikerSlots >= 4,
     hasRocket,
     rocketPts,
-    isPro: pCount >= 1 || kCount >= 1 || hasRocket
+    isPro: pCount >= 1 || kCount >= 1 || hasRocket || strikerRarity.id !== "rookie"
   };
 }
 
@@ -639,30 +912,35 @@ function getPowers() {
 // GAMEPLAY & 3D CANVAS GEOMETRY STATE
 // ============================================================================
 const game = {
-  phase: "start", // "start" | "intro" | "aim" | "charging" | "flight" | "celebrate" | "var_review" | "summary"
+  phase: "start", // "start" | "intro" | "aim" | "charging" | "flight" | "defend_aim" | "defend_flight" | "celebrate" | "var_review" | "summary"
   round: 1,
   maxRounds: SHOTS_PER_MATCH,
+  shootoutTurn: "shoot", // "shoot" (user kicks) | "defend" (AI kicks, user dives)
+  userGoals: 0,
+  aiGoals: 0,
+  userShotHistory: [],
+  aiShotHistory: [],
+  aiTargetNx: 0,
+  aiTargetNy: 0,
   level: 1,
   levelCleared: false,
-  shotHistory: [], // ["goal", "miss", ...]
+  shotHistory: [], // legacy alias
   goals: 0,
   streak: 0,
   score: 0,
   rawBaseScore: 0,
   shieldsLeft: 0,
-  fomoSeconds: 282,
   fomoPot: 25400000,
   revivedThisMatch: false,
   varCountdown: 10,
   varTimerInterval: null,
 
-  // Super skills: armed = chosen for the NEXT kick, activeFx = what the current shot is using
+  // Super skills: armed = chosen for NEXT kick/defense, activeFx = what current shot is using
   armed: {},
   activeFx: {},
   skillFlash: null, // { text, color, life }
 
   // Aim coordinates relative to the goal: nx in [-1, 1] = post to post, ny in [0, 1] = grass to crossbar.
-  // The player may aim OUTSIDE the frame (nx up to ±1.55, ny up to 1.55) — wide / over the bar are possible!
   aimNx: -0.65,
   aimNy: 0.72,
   swayX: 0, // live crosshair shake (grows with level)
@@ -696,7 +974,7 @@ const game = {
     targetNx: 0,
     targetNy: 0,
     lean: 1, // the side he secretly favours this shot (-1 / +1)
-    leanShown: 1, // what the 3+ NFT radar claims (truthful only ~70% of the time)
+    leanShown: 1, // what radar claims
     bodyAngle: 0,
     targetAngle: 0,
     armReach: 0
@@ -730,50 +1008,151 @@ const game = {
   crowdLights: []
 };
 
-function updateStrikerCardAssets(idx) {
+function getAvailableStrikers() {
   const walletStrikers = (walletState.ownedNfts || [])
     .filter((n) => n.collection === "EFOOTBALL-91a4eb")
-    .map((n) => ({
-      identifier: n.identifier,
-      name: (n.name || n.identifier).toUpperCase(),
-      ovr: 99,
-      trait: "✅ YOUR WALLET NFT",
-      url: (n.media && n.media[0] && (n.media[0].url || n.media[0].thumbnailUrl)) || n.url
-    }));
+    .map((n, idx) => {
+      const rarity = (n.attributes && n.attributes.find((a) => a.trait_type === "Rarity")?.value) || 
+        (idx % 4 === 0 ? "LEGENDARY" : (idx % 3 === 0 ? "EPIC" : (idx % 2 === 0 ? "RARE" : "COMMON")));
+      const rInfo = RARITY_TIERS[rarity.toUpperCase()] || RARITY_TIERS.RARE;
+      return {
+        identifier: n.identifier,
+        name: (n.name || n.identifier).toUpperCase(),
+        rarity: rInfo.id.toUpperCase(),
+        ovr: 85 + rInfo.slots * 3,
+        trait: `⭐ ${rInfo.nameHu} • ${rInfo.slots} KÉPESSÉG HELY`,
+        traitRo: `⭐ ${rInfo.name} • ${rInfo.slots} SLOT-URI`,
+        url: (n.media && n.media[0] && (n.media[0].url || n.media[0].thumbnailUrl)) || n.url
+      };
+    });
 
-  const pool = walletStrikers.length > 0 ? [...walletStrikers, ...STRIKER_ROSTER] : STRIKER_ROSTER;
-  strikerIdx = idx % pool.length;
+  if (walletStrikers.length > 0) {
+    return [...walletStrikers, ...STRIKER_ROSTER];
+  }
+  return [ROOKIE_STRIKER, ...STRIKER_ROSTER];
+}
+
+function getAvailableKeepers() {
+  const walletKeepers = (walletState.ownedNfts || [])
+    .filter((n) => n.collection === "GOALKEEPER-cb9e3e")
+    .map((n, idx) => {
+      const rarity = (n.attributes && n.attributes.find((a) => a.trait_type === "Rarity")?.value) || 
+        (idx % 4 === 0 ? "LEGENDARY" : (idx % 3 === 0 ? "EPIC" : (idx % 2 === 0 ? "RARE" : "COMMON")));
+      const rInfo = RARITY_TIERS[rarity.toUpperCase()] || RARITY_TIERS.RARE;
+      return {
+        identifier: n.identifier,
+        name: (n.name || n.identifier).toUpperCase(),
+        jersey: String(n.nonce || "01").padStart(2, "0"),
+        rarity: rInfo.id.toUpperCase(),
+        ovr: 85 + rInfo.slots * 3,
+        trait: `🧤 ${rInfo.nameHu} • ${rInfo.slots} KÉPESSÉG HELY`,
+        traitRo: `🧤 ${rInfo.name} • ${rInfo.slots} SLOT-URI`,
+        url: (n.media && n.media[0] && (n.media[0].url || n.media[0].thumbnailUrl)) || n.url
+      };
+    });
+
+  if (walletKeepers.length > 0) {
+    return [...walletKeepers, ...KEEPER_ROSTER];
+  }
+  return [ROOKIE_KEEPER, ...KEEPER_ROSTER];
+}
+
+function updateStrikerCardAssets(idx) {
+  const pool = getAvailableStrikers();
+  strikerIdx = (idx % pool.length + pool.length) % pool.length;
   activeStriker = pool[strikerIdx];
 
   const cors = toCorsUrl(activeStriker.url, 300);
   imgs.striker.crossOrigin = "anonymous";
   imgs.striker.src = cors;
 
+  const rInfo = getNftRarityInfo(activeStriker);
   const p = getPowers();
-  document.getElementById("hud-striker-img").src = cors;
-  document.getElementById("hud-striker-ovr").textContent = String(activeStriker.ovr || 99);
-  document.getElementById("hud-striker-name").textContent = activeStriker.name;
-  document.getElementById("hud-striker-trait").textContent = p.aimBonusPct > 0 ? `${activeStriker.trait} • AIM +${p.aimBonusPct}%` : `${activeStriker.trait} • LVL ${game.level}`;
+
+  const hudImg = document.getElementById("hud-striker-img");
+  const hudOvr = document.getElementById("hud-striker-ovr");
+  const hudName = document.getElementById("hud-striker-name");
+  const hudTrait = document.getElementById("hud-striker-trait");
+  if (hudImg) hudImg.src = cors;
+  if (hudOvr) hudOvr.textContent = String(activeStriker.ovr || 85);
+  if (hudName) hudName.textContent = activeStriker.name;
+  if (hudTrait) hudTrait.textContent = p.aimBonusPct > 0 ? `${activeStriker.trait} • AIM +${p.aimBonusPct}%` : `${activeStriker.trait} • LVL ${game.level}`;
 
   const startImg = document.getElementById("start-striker-img");
+  const startName = document.getElementById("start-striker-name");
+  const startOvr = document.getElementById("start-striker-ovr");
+  const startTrait = document.getElementById("start-striker-trait");
+  const startRarity = document.getElementById("start-striker-rarity");
+  const startPreview = document.getElementById("start-striker-skills-preview");
+
+  if (startImg) startImg.src = cors;
+  if (startName) startName.textContent = activeStriker.name;
+  if (startOvr) startOvr.textContent = String(activeStriker.ovr || 85);
+  if (startTrait) startTrait.textContent = activeStriker.trait;
+  if (startRarity) {
+    startRarity.textContent = (currentLang === "hu" ? rInfo.nameHu : rInfo.name);
+    startRarity.className = `sh-rarity-badge rarity-${rInfo.id}`;
+  }
+  if (startPreview) {
+    startPreview.innerHTML = "";
+    const icons = ["🎯", "🚀", "🧊", "🌀"];
+    for (let i = 0; i < 4; i++) {
+      const span = document.createElement("span");
+      const unlocked = i < rInfo.slots;
+      span.className = `sk-pill ${unlocked ? "active" : "locked"}`;
+      span.textContent = unlocked ? icons[i] : "🔒";
+      span.title = unlocked ? `Feloldva (${rInfo.name})` : `Zárolva (Következő ritkaság szükséges)`;
+      startPreview.appendChild(span);
+    }
+  }
+
   const introImg = document.getElementById("intro-striker-img");
   const introName = document.getElementById("intro-striker-name");
-  if (startImg) startImg.src = cors;
   if (introImg) introImg.src = cors;
   if (introName) introName.textContent = activeStriker.name;
 }
 
 function updateKeeperAssets(idx) {
-  keeperIdx = idx % KEEPER_ROSTER.length;
-  activeKeeper = KEEPER_ROSTER[keeperIdx];
+  const pool = getAvailableKeepers();
+  keeperIdx = (idx % pool.length + pool.length) % pool.length;
+  activeKeeper = pool[keeperIdx];
+
   const cors = toCorsUrl(activeKeeper.url, 300);
   imgs.keeper.crossOrigin = "anonymous";
   imgs.keeper.src = cors;
 
+  const rInfo = getNftRarityInfo(activeKeeper);
+
   const startK = document.getElementById("start-keeper-img");
+  const startKName = document.getElementById("start-keeper-name");
+  const startKOvr = document.getElementById("start-keeper-ovr");
+  const startKTrait = document.getElementById("start-keeper-trait");
+  const startKRarity = document.getElementById("start-keeper-rarity");
+  const startKPreview = document.getElementById("start-keeper-skills-preview");
+
+  if (startK) startK.src = cors;
+  if (startKName) startKName.textContent = activeKeeper.name;
+  if (startKOvr) startKOvr.textContent = String(activeKeeper.ovr || 85);
+  if (startKTrait) startKTrait.textContent = activeKeeper.trait;
+  if (startKRarity) {
+    startKRarity.textContent = (currentLang === "hu" ? rInfo.nameHu : rInfo.name);
+    startKRarity.className = `sh-rarity-badge rarity-${rInfo.id}`;
+  }
+  if (startKPreview) {
+    startKPreview.innerHTML = "";
+    const kIcons = ["🛡️", "🧤", "⏱️", "👁️"];
+    for (let i = 0; i < 4; i++) {
+      const span = document.createElement("span");
+      const unlocked = i < rInfo.slots;
+      span.className = `sk-pill ${unlocked ? "active" : "locked"}`;
+      span.textContent = unlocked ? kIcons[i] : "🔒";
+      span.title = unlocked ? `Feloldva (${rInfo.name})` : `Zárolva (Következő ritkaság szükséges)`;
+      startKPreview.appendChild(span);
+    }
+  }
+
   const introK = document.getElementById("intro-keeper-img");
   const introKName = document.getElementById("intro-keeper-name");
-  if (startK) startK.src = cors;
   if (introK) introK.src = cors;
   if (introKName) introKName.textContent = activeKeeper.name;
 }
@@ -854,24 +1233,29 @@ function updateEntryGateUI() {
 
   if (!card || !badge || !walletLine || !startBtn) return;
 
-  // STATE 1: Not logged in
+  // STATE 1: Not logged in (Free-to-Play Rookie mode)
   if (!connectedAddress || !VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
-    card.classList.remove("unlocked", "insufficient");
+    card.classList.remove("insufficient");
+    card.classList.add("unlocked");
     refreshBtn?.classList.add("hidden");
     badge.textContent = isRo
-      ? "🔒 CONDIȚIE JOC: AUTENTIFICARE PORTOFEL + MIN. 1.000.000 $EFOO"
-      : "🔒 ENTRY REQUIREMENT: WALLET LOGIN + MIN. 1,000,000 $EFOO";
+      ? "⚽ MOD ROOKIE F2P ACTIV — CONECTEAZĂ PORTOFEL PENTRU BOOST NFT"
+      : (currentLang === "hu"
+        ? "⚽ ROOKIE F2P MÓD AKTÍV — CSATLAKOZTASS TÁRCÁT AZ NFT BÓNUSZOKHOZ"
+        : "⚽ ROOKIE F2P MODE ACTIVE — CONNECT WALLET FOR NFT BOOSTS");
     walletLine.innerHTML = isRo
-      ? "Conectează portofelul MultiversX pentru verificarea soldului <strong>$EFOO</strong> și a NFT-urilor."
-      : "Connect your MultiversX wallet to verify your <strong>$EFOO</strong> balance &amp; Club NFTs.";
+      ? "Joci gratuit cu jucători Rookie. Conectează portofelul MultiversX pentru super-puteri și multiplicator NFT!"
+      : (currentLang === "hu"
+        ? "Ingyenesen játszol Rookie játékosokkal. Csatlakoztass tárcát az NFT képességek és szorzók aktiválásához!"
+        : "Playing free with Rookie squad. Connect MultiversX wallet to unlock super skills and NFT multipliers!");
     startBtn.classList.remove("locked");
-    startBtn.innerHTML = `⚡ <span>${isRo ? "CONECTEAZĂ PORTOFELUL PENTRU JOC" : "CONNECT WALLET TO PLAY"}</span>`;
+    startBtn.innerHTML = `⚽ <span>${currentLang === "hu" ? "120' BÜNTETŐPÁRBAJ INDÍTÁSA" : (isRo ? "START PENALTY SHOOTOUT" : "START SHOOTOUT")}</span>`;
     return;
   }
 
   // STATE 2: Logged in, verifying on-chain balance
   if (walletState.loading || !walletState.verified) {
-    card.classList.remove("unlocked", "insufficient");
+    card.classList.remove("insufficient");
     refreshBtn?.classList.add("hidden");
     badge.textContent = isRo
       ? "⏳ SE VERIFICĂ PORTOFELUL PE BLOCKCHAIN..."
@@ -879,51 +1263,34 @@ function updateEntryGateUI() {
     walletLine.innerHTML = isRo
       ? `Portofel: <strong>${shortErd(connectedAddress)}</strong> • Se verifică soldul $EFOO și NFT-urile...`
       : `Wallet: <strong>${shortErd(connectedAddress)}</strong> • Checking $EFOO balance &amp; NFTs...`;
-    startBtn.classList.add("locked");
-    startBtn.innerHTML = `⏳ <span>${isRo ? "SE VERIFICĂ PORTOFELUL..." : "CHECKING WALLET..."}</span>`;
+    startBtn.classList.remove("locked");
+    startBtn.innerHTML = `⚽ <span>${currentLang === "hu" ? "120' BÜNTETŐPÁRBAJ INDÍTÁSA" : "START SHOOTOUT"}</span>`;
     return;
   }
 
   refreshBtn?.classList.remove("hidden");
 
-  // STATE 3: Logged in, but balance < 1,000,000 $EFOO
-  if (walletState.efooBalance < MIN_EFOO_REQUIRED) {
-    card.classList.remove("unlocked");
-    card.classList.add("insufficient");
-    const currentFormatted = Math.floor(walletState.efooBalance).toLocaleString("en-US");
-    const missingFormatted = Math.max(1, Math.ceil(MIN_EFOO_REQUIRED - walletState.efooBalance)).toLocaleString("en-US");
-
-    badge.textContent = isRo
-      ? "🔒 ACCES BLOCAT — MINIM 1.000.000 $EFOO NECESAR ÎN PORTOFEL"
-      : "🔒 ENTRY LOCKED — MINIMUM 1,000,000 $EFOO REQUIRED IN WALLET";
-    walletLine.innerHTML = isRo
-      ? `Portofel: <strong>${shortErd(connectedAddress)}</strong> • Sold: <strong style="color:#ef4444;">${currentFormatted} $EFOO</strong> • Lipsesc: <strong style="color:#ffb800;">${missingFormatted} $EFOO</strong>`
-      : `Wallet: <strong>${shortErd(connectedAddress)}</strong> • Balance: <strong style="color:#ef4444;">${currentFormatted} $EFOO</strong> • Needed: <strong style="color:#ffb800;">+${missingFormatted} $EFOO</strong>`;
-
-    startBtn.classList.add("locked");
-    startBtn.innerHTML = `🔒 <span>${isRo ? "BLOCAT — CUMPĂRĂ MIN. 1M $EFOO" : "LOCKED — BUY 1,000,000+ $EFOO TO PLAY"}</span>`;
-    return;
-  }
-
-  // STATE 4: Logged in AND meets >= 1,000,000 $EFOO requirement!
+  // STATE 3: Logged in, verified wallet
   card.classList.remove("insufficient");
   card.classList.add("unlocked");
   const balFormatted = Math.floor(walletState.efooBalance).toLocaleString("en-US");
 
   badge.textContent = isRo
-    ? "✅ PORTOFEL VERIFICAT — ACCES DEBLOCAT ÎN ARENĂ!"
-    : "✅ WALLET VERIFIED — STADIUM ACCESS UNLOCKED!";
+    ? "✅ PORTOFEL CONECTAT — ECHIPĂ ACTIVĂ!"
+    : (currentLang === "hu" ? "✅ TÁRCA CSATLAKOZTATVA — CSAPAT KÉSZEN ÁLL!" : "✅ WALLET CONNECTED — SQUAD READY!");
   walletLine.innerHTML = isRo
     ? `Portofel: <strong>${shortErd(connectedAddress)}</strong> • Sold: <strong>${balFormatted} $EFOO</strong> • NFT: <strong>${walletState.playersCount}⚽ ${walletState.keepersCount}🧤 (${p.totalMult.toFixed(1)}x Boost)</strong>`
     : `Wallet: <strong>${shortErd(connectedAddress)}</strong> • Balance: <strong>${balFormatted} $EFOO</strong> • Squad: <strong>${walletState.playersCount}⚽ ${walletState.keepersCount}🧤 (${p.totalMult.toFixed(1)}x Boost)</strong>`;
 
   startBtn.classList.remove("locked");
-  startBtn.innerHTML = `⚽ <span>${I18N_GAME[currentLang].btn_play_now}</span>`;
+  startBtn.innerHTML = `⚽ <span>${currentLang === "hu" ? "120' BÜNTETŐPÁRBAJ INDÍTÁSA" : (isRo ? "START PENALTY SHOOTOUT" : "START SHOOTOUT")}</span>`;
 }
 
 function refreshHudUI() {
   const p = getPowers();
   const lv = getLevelParams(game.level);
+  const isHu = currentLang === "hu";
+  const isRo = currentLang === "ro";
 
   document.getElementById("hud-mult-val").textContent = `${p.totalMult.toFixed(1)}x`;
   document.getElementById("hud-score-val").textContent = game.score.toLocaleString("en-US");
@@ -934,46 +1301,68 @@ function refreshHudUI() {
     lvlEl.textContent = String(game.level);
     lvlEl.style.color = getLevelTier(game.level).color;
   }
-  const goalsEl = document.getElementById("hud-goals-val");
-  if (goalsEl) {
-    goalsEl.textContent = `${game.goals}/${lv.goalsNeeded}`;
-    goalsEl.classList.toggle("done", game.goals >= lv.goalsNeeded);
+
+  // 120' Turn-based Shootout Scoreboard (TE vs GÉP)
+  const userGoalsEl = document.getElementById("hud-user-goals");
+  if (userGoalsEl) userGoalsEl.textContent = String(game.userGoals);
+  const aiGoalsEl = document.getElementById("hud-ai-goals");
+  if (aiGoalsEl) aiGoalsEl.textContent = String(game.aiGoals);
+
+  // Turn badge (TE LŐSZ vs TE VÉDESZ)
+  const turnBadge = document.getElementById("sb-turn-badge");
+  if (turnBadge) {
+    const isUserShoot = game.shootoutTurn === "shoot";
+    const turnText = isUserShoot
+      ? (isHu ? "TE LŐSZ" : isRo ? "ȘUTUL TĂU" : "YOU SHOOT")
+      : (isHu ? "TE VÉDESZ" : isRo ? "APĂRĂ" : "YOU DEFEND");
+    const turnIcon = isUserShoot ? "⚽" : "🧤";
+    turnBadge.innerHTML = `<span class="turn-icon">${turnIcon}</span> <strong>${turnText}</strong> <small>#${game.round}/${game.maxRounds}</small>`;
+    turnBadge.className = `sb-turn-badge ${isUserShoot ? "turn-shoot" : "turn-defend"}`;
   }
 
-  // Shot dots (one per round of the match)
-  const dotsWrap = document.getElementById("sb-shots-dots");
-  if (dotsWrap) {
-    dotsWrap.innerHTML = "";
-    const totalDots = Math.max(game.maxRounds, game.round);
-    for (let i = 0; i < totalDots; i++) {
+  // User 5-dot track
+  const userDotsWrap = document.getElementById("sb-user-dots");
+  if (userDotsWrap) {
+    userDotsWrap.innerHTML = "";
+    for (let i = 0; i < game.maxRounds; i++) {
       const span = document.createElement("span");
       span.className = "shot-dot";
-      if (i < game.shotHistory.length) {
-        span.classList.add(game.shotHistory[i]);
-      } else if (i === game.shotHistory.length && game.phase !== "summary") {
+      if (i < game.userShotHistory.length) {
+        span.classList.add(game.userShotHistory[i]);
+      } else if (i === game.userShotHistory.length && game.shootoutTurn === "shoot" && game.phase !== "summary") {
         span.classList.add("current");
       }
-      dotsWrap.appendChild(span);
+      userDotsWrap.appendChild(span);
+    }
+  }
+
+  // AI 5-dot track
+  const aiDotsWrap = document.getElementById("sb-ai-dots");
+  if (aiDotsWrap) {
+    aiDotsWrap.innerHTML = "";
+    for (let i = 0; i < game.maxRounds; i++) {
+      const span = document.createElement("span");
+      span.className = "shot-dot";
+      if (i < game.aiShotHistory.length) {
+        span.classList.add(game.aiShotHistory[i]);
+      } else if (i === game.aiShotHistory.length && game.shootoutTurn === "defend" && game.phase !== "summary") {
+        span.classList.add("current");
+      }
+      aiDotsWrap.appendChild(span);
     }
   }
 
   // Update Bottom-Right Visual Icon Slots
-  document.getElementById("vp-slot-1")?.classList.toggle("unlocked", p.pCount >= 1);
-  document.getElementById("vp-slot-2")?.classList.toggle("unlocked", p.pCount >= 3);
-  document.getElementById("vp-slot-3")?.classList.toggle("unlocked", p.pCount >= 6);
-  document.getElementById("vp-slot-keeper")?.classList.toggle("unlocked", p.kCount >= 1);
+  document.getElementById("vp-slot-1")?.classList.toggle("unlocked", p.pCount >= 1 || p.strikerSlots >= 1);
+  document.getElementById("vp-slot-2")?.classList.toggle("unlocked", p.pCount >= 3 || p.strikerSlots >= 2);
+  document.getElementById("vp-slot-3")?.classList.toggle("unlocked", p.pCount >= 6 || p.strikerSlots >= 3);
+  document.getElementById("vp-slot-keeper")?.classList.toggle("unlocked", p.kCount >= 1 || p.keeperSlots >= 1);
   document.getElementById("vp-slot-efoo")?.classList.toggle("unlocked", p.hasRocket);
 
   const shieldTag = document.getElementById("vp-shield-count");
   if (shieldTag) {
     shieldTag.textContent = game.shieldsLeft > 0 ? `${game.shieldsLeft}x SHIELD` : "SHIELD";
   }
-
-  // Boost Modal Mini Cards
-  document.getElementById("bt-card-1")?.classList.toggle("active", p.pCount >= 1 && p.pCount <= 2);
-  document.getElementById("bt-card-2")?.classList.toggle("active", p.pCount >= 3 && p.pCount <= 5);
-  document.getElementById("bt-card-3")?.classList.toggle("active", p.pCount >= 6);
-  document.getElementById("bt-card-4")?.classList.toggle("active", p.kCount >= 1);
 
   updateEntryGateUI();
   if (typeof metaRefreshUI === "function") metaRefreshUI();
@@ -1004,48 +1393,11 @@ function setStartScreenState(isActive) {
 }
 
 // ============================================================================
-// CINEMATIC INTRO & ROUND FLOW (STRICTLY GATED BY WALLET + 1,000,000 $EFOO)
+// CINEMATIC INTRO & 120' SHOOTOUT MATCH LAUNCH
 // ============================================================================
 function launchMatchWithIntro() {
   const isRo = currentLang === "ro";
-
-  // 1. Must be logged in with a real MultiversX wallet
-  if (!connectedAddress || !VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
-    setStartScreenState(true);
-    document.getElementById("summary-screen-overlay")?.classList.add("hidden");
-    triggerGateShake();
-    document.getElementById("wallet-modal-backdrop")?.classList.remove("hidden");
-    showToast(
-      isRo
-        ? "🔒 Conectează-ți portofelul MultiversX (minim 1.000.000 $EFOO necesar) pentru a porni jocul!"
-        : "🔒 Please connect your MultiversX wallet (minimum 1,000,000 $EFOO required) to launch the game!"
-    );
-    return;
-  }
-
-  // 2. Wait if wallet balance is still being fetched from blockchain
-  if (walletState.loading || !walletState.verified) {
-    showToast(
-      isRo
-        ? "⏳ Se verifică soldul portofelului pe MultiversX..."
-        : "⏳ Verifying your wallet balance on MultiversX..."
-    );
-    return;
-  }
-
-  // 3. Must hold at least 1,000,000 $EFOO in wallet
-  if (!canPlayMatch()) {
-    setStartScreenState(true);
-    document.getElementById("summary-screen-overlay")?.classList.add("hidden");
-    updateEntryGateUI();
-    triggerGateShake();
-    showToast(
-      isRo
-        ? "🔒 Minim 1.000.000 $EFOO necesar în portofel! Apasă pe 'STARTER (0.035 EGLD ➔ 1.5M)' pentru deblocare instantă!"
-        : "🔒 Minimum 1,000,000 $EFOO required in your wallet! Click 'STARTER (0.035 EGLD ➔ 1.5M)' to unlock immediately!"
-    );
-    return;
-  }
+  const isHu = currentLang === "hu";
 
   setStartScreenState(false);
   document.getElementById("summary-screen-overlay")?.classList.add("hidden");
@@ -1066,11 +1418,15 @@ function launchMatchWithIntro() {
   const p = getPowers();
   const lv = getLevelParams(game.level);
   const tier = getLevelTier(game.level);
-  updateKeeperAssets(game.level - 1);
 
   game.phase = "intro";
   game.round = 1;
   game.maxRounds = SHOTS_PER_MATCH;
+  game.shootoutTurn = "shoot";
+  game.userGoals = 0;
+  game.aiGoals = 0;
+  game.userShotHistory = [];
+  game.aiShotHistory = [];
   game.revivedThisMatch = false;
   game.levelCleared = false;
   game.shotHistory = [];
@@ -1084,13 +1440,14 @@ function launchMatchWithIntro() {
   game.activeFx = {};
   game.shieldsLeft = p.maxShields;
   refreshHudUI();
+  renderSkillsDeckUI();
 
   if (kickerEl) {
-    kickerEl.textContent = `🔥 LEVEL ${game.level} • ${isRo ? tier.nameRo : tier.name} • ${isRo ? "ÎNSCRIE" : "SCORE"} ${lv.goalsNeeded}/${SHOTS_PER_MATCH}`;
+    kickerEl.textContent = `🔥 120' AET • ${isHu ? tier.name : (isRo ? tier.nameRo : tier.name)} • 5 BÜNTETŐ KÖR`;
     kickerEl.style.color = tier.color;
   }
-  if (titleEl) titleEl.textContent = `LEVEL ${game.level} — ${isRo ? "ȘUTURI DE PEDEAPSĂ" : "PENALTY SHOOTOUT"}`;
-  if (perkEl) perkEl.textContent = `⚡ ${p.totalMult.toFixed(1)}x BOOST • AIM +${p.aimBonusPct}%`;
+  if (titleEl) titleEl.textContent = isHu ? "120' DÖNTETLEN — BÜNTETŐPÁRBAJ" : (isRo ? "120' EGALITATE — PENALTY SHOOTOUT" : "120' DRAW — PENALTY SHOOTOUT");
+  if (perkEl) perkEl.textContent = `⚡ ${p.totalMult.toFixed(1)}x BOOST • ${p.strikerRarity.name} STRIKER & ${p.keeperRarity.name} GK`;
   audio.playIntroImpact();
 
   let prog = 0;
@@ -1110,23 +1467,18 @@ function launchMatchWithIntro() {
 }
 
 function startNextShotRound() {
-  if (!canPlayMatch()) {
-    setStartScreenState(true);
-    updateEntryGateUI();
-    return;
-  }
-
+  game.shootoutTurn = "shoot";
   game.phase = "aim";
   game.isCharging = false;
   game.chargePower = 0;
   game.armed = {};
   game.activeFx = {};
+  game.ball = { active: false, t: 0 };
   game.swipe = { active: false, pointerId: null, points: [], startTime: 0 };
 
   const lv = getLevelParams(game.level);
-  updateKeeperAssets(game.level - 1);
 
-  // The keeper's secret gut-feeling side for THIS shot. The 3+ NFT radar only hints at it (and bluffs ~30%).
+  // The keeper's secret gut-feeling side for THIS shot
   game.keeper.lean = Math.random() < 0.5 ? -1 : 1;
   game.keeper.leanShown = Math.random() < 0.7 ? game.keeper.lean : -game.keeper.lean;
   game.keeper.targetNx = 0;
@@ -1138,11 +1490,13 @@ function startNextShotRound() {
   game.wind = lv.windMax > 0 ? (Math.random() * 2 - 1) * lv.windMax : 0;
 
   refreshHudUI();
+  renderSkillsDeckUI();
 }
 
 function consumeArmedSkills() {
   const fx = {};
-  SKILLS.forEach((s) => {
+  const allSkills = [...SKILLS, ...KEEPER_SKILLS];
+  allSkills.forEach((s) => {
     if (!game.armed[s.id]) return;
     const ok = typeof metaConsumeSkill === "function" ? metaConsumeSkill(s.id) : false;
     if (ok) fx[s.id] = true;
@@ -1385,7 +1739,9 @@ function onBallReachGoal(endScreenX, endScreenY) {
   if (scored) {
     const goalsAdded = b.isTwin ? 2 : 1;
     game.goals += goalsAdded;
+    game.userGoals += goalsAdded;
     game.streak += 1;
+    game.userShotHistory.push("goal");
     game.shotHistory.push("goal");
 
     const rawPts = Math.round(
@@ -1442,6 +1798,7 @@ function onBallReachGoal(endScreenX, endScreenY) {
     spawnSparks(endScreenX, endScreenY, "#a8ff00", 55);
   } else {
     game.streak = 0;
+    game.userShotHistory.push("miss");
     game.shotHistory.push("miss");
     game.shake = 6;
     const missText = {
@@ -1467,13 +1824,144 @@ function onBallReachGoal(endScreenX, endScreenY) {
 
   setTimeout(() => {
     game.bigBanner = "";
+    // After user's kick, transition to defense turn!
+    startDefenseTurn();
+  }, 1250);
+}
+
+function startDefenseTurn() {
+  game.shootoutTurn = "defend";
+  game.phase = "defend_aim";
+  game.isCharging = false;
+  game.chargePower = 0;
+  game.armed = {};
+  game.activeFx = {};
+  game.ball = { active: false, t: 0 };
+
+  const isHu = currentLang === "hu";
+  const isRo = currentLang === "ro";
+
+  // AI chooses a target across the goal corners/sides
+  const corners = [
+    { nx: -0.76, ny: 0.82 },
+    { nx: 0.76, ny: 0.82 },
+    { nx: -0.72, ny: 0.22 },
+    { nx: 0.72, ny: 0.22 },
+    { nx: 0.0, ny: 0.65 }
+  ];
+  const chosen = corners[Math.floor(Math.random() * corners.length)];
+  game.aiTargetNx = clampNum(chosen.nx + (Math.random() - 0.5) * 0.15, -0.92, 0.92);
+  game.aiTargetNy = clampNum(chosen.ny + (Math.random() - 0.5) * 0.15, 0.15, 0.95);
+
+  // Position keeper in center
+  game.keeper.nx = 0;
+  game.keeper.ny = 0.15;
+  game.keeper.targetNx = 0;
+  game.keeper.targetNy = 0.15;
+  game.keeper.bodyAngle = 0;
+  game.keeper.targetAngle = 0;
+  game.keeper.armReach = 0.35;
+
+  game.bigBanner = isHu
+    ? "🧤 TE VÉDESZ! KATTINTS A KAPURA A VÉDÉSHEZ!"
+    : (isRo ? "🧤 APĂRĂ! APASĂ PE POARTĂ PENTRU PARADĂ!" : "🧤 YOU DEFEND! CLICK/TAP TO DIVE & SAVE!");
+  game.bigBannerColor = "#38bdf8";
+
+  refreshHudUI();
+  renderSkillsDeckUI();
+
+  // After brief warning, AI shoots
+  setTimeout(() => {
+    game.bigBanner = "";
+    executeAiShot();
+  }, 1200);
+}
+
+function executeAiShot() {
+  const fx = consumeArmedSkills();
+  game.activeFx = fx;
+  game.phase = "defend_flight";
+
+  if (fx.matrix_reflex) {
+    audio.playMatrixSlow();
+  } else if (fx.iron_wall || fx.spider_reach || fx.mind_read) {
+    audio.playSkillFire();
+  }
+  audio.playKick(true, false);
+
+  const isHu = currentLang === "hu";
+  const isRo = currentLang === "ro";
+
+  const used = KEEPER_SKILLS.filter((s) => fx[s.id]);
+  if (used.length > 0) {
+    game.skillFlash = {
+      text: used.map((s) => `${s.icon} ${isHu ? s.nameHu : (isRo ? s.nameRo : s.name)}`).join(" + "),
+      color: used[0].color,
+      life: 1,
+      fresh: true
+    };
+  }
+
+  game.ball = {
+    active: true,
+    t: 0,
+    aimNx: game.aiTargetNx,
+    aimNy: game.aiTargetNy,
+    curveIntensity: (Math.random() - 0.5) * 0.45,
+    isSweet: Math.random() < 0.5,
+    isTwin: false,
+    speed: fx.matrix_reflex ? 0.021 : 0.044,
+    fx
+  };
+}
+
+function onAiBallReachGoal(endScreenX, endScreenY) {
+  const fx = game.activeFx || {};
+  const isHu = currentLang === "hu";
+  const isRo = currentLang === "ro";
+
+  const ballNx = game.ball.aimNx;
+  const ballNy = game.ball.aimNy;
+  const dist = Math.hypot(ballNx - game.keeper.nx, ballNy - game.keeper.ny);
+
+  // Save reach calculation
+  let reach = 0.38;
+  if (fx.iron_wall) reach += 0.22;
+  if (fx.spider_reach) reach += 0.32;
+
+  const isSaved = dist <= reach;
+
+  if (isSaved) {
+    game.aiShotHistory.push("miss");
+    audio.playSaveBlock();
+    spawnSparks(endScreenX, endScreenY, "#38bdf8", 50);
+    game.shake = 12;
+    game.bigBanner = isHu ? "🧤 HATALMAS VÉDÉS! KIVÉDTED A BÜNTETŐT!" : (isRo ? "🧤 PARADĂ DE SENZAȚIE!" : "🧤 MONSTER SAVE! PENALTY SAVED!");
+    game.bigBannerColor = "#38bdf8";
+  } else {
+    game.aiGoals += 1;
+    game.aiShotHistory.push("goal");
+    audio.playNetSwish();
+    game.netImpactX = endScreenX;
+    game.netImpactY = endScreenY;
+    game.netRipple = 0.9;
+    game.shake = 8;
+    game.bigBanner = isHu ? "⚽ A GÉP GÓLT LŐTT!" : (isRo ? "⚽ GOL ADVERSAR!" : "⚽ AI SCORED!");
+    game.bigBannerColor = "#ef4444";
+  }
+
+  game.phase = "celebrate";
+  refreshHudUI();
+
+  setTimeout(() => {
+    game.bigBanner = "";
     if (game.round >= game.maxRounds) {
       finishMatch();
     } else {
       game.round += 1;
       startNextShotRound();
     }
-  }, 1250);
+  }, 1350);
 }
 
 // End of the shoot-out: directly open match summary without blocking delay
@@ -1599,9 +2087,11 @@ function openSummaryModal() {
   const isRo = currentLang === "ro";
   const isHu = currentLang === "hu";
 
-  const cleared = game.goals >= lv.goalsNeeded;
+  const userWon = game.userGoals > game.aiGoals;
+  const isTie = game.userGoals === game.aiGoals;
+  const cleared = userWon;
   game.levelCleared = cleared;
-  const perfect = cleared && game.shotHistory.length > 0 && game.shotHistory.every((s) => s === "goal");
+  const perfect = userWon && game.userGoals === game.maxRounds && game.aiGoals === 0;
 
   // Level bonuses
   let bonus = 0;
@@ -1612,7 +2102,7 @@ function openSummaryModal() {
 
   const whalePotential = Math.max(
     game.score,
-    Math.round(game.rawBaseScore * 7.0 + Math.max(3, game.goals) * 2500)
+    Math.round(game.rawBaseScore * 7.0 + Math.max(3, game.userGoals) * 2500)
   );
 
   const actualScoreEl = document.getElementById("sum-score-actual");
@@ -1624,32 +2114,38 @@ function openSummaryModal() {
   const titleEl = document.getElementById("sum-title");
   const kickerEl = document.getElementById("sum-kicker");
   if (titleEl) {
-    titleEl.textContent = cleared
+    titleEl.textContent = userWon
       ? (isHu
-        ? `🏆 ${game.level}. SZINT TELJESÍTVE!`
+        ? `🏆 120' BÜNTETŐPÁRBAJ GYŐZELEM! (${game.userGoals} - ${game.aiGoals})`
         : (isRo
-          ? `🏆 LEVEL ${game.level} ÎNVINS!`
-          : `🏆 LEVEL ${game.level} CLEARED!`))
+          ? `🏆 VICTORIE LA PENALTY-URI! (${game.userGoals} - ${game.aiGoals})`
+          : `🏆 SHOOTOUT VICTORY! (${game.userGoals} - ${game.aiGoals})`))
+      : isTie
+      ? (isHu
+        ? `⚖️ DÖNTETLEN PÁRBAJ (${game.userGoals} - ${game.aiGoals})`
+        : (isRo
+          ? `⚖️ EGALITATE LA PENALTY-URI (${game.userGoals} - ${game.aiGoals})`
+          : `⚖️ SHOOTOUT DRAW (${game.userGoals} - ${game.aiGoals})`))
       : (isHu
-        ? `${game.level}. SZINT SIKERTELEN`
+        ? `❌ ELVESZÍTETT PÁRBAJ (${game.userGoals} - ${game.aiGoals})`
         : (isRo
-          ? `LEVEL ${game.level} ESUAT`
-          : `LEVEL ${game.level} FAILED`));
-    titleEl.style.color = cleared ? "#a8ff00" : "#fca5a5";
+          ? `❌ MECI PIERDUT (${game.userGoals} - ${game.aiGoals})`
+          : `❌ SHOOTOUT DEFEAT (${game.userGoals} - ${game.aiGoals})`));
+    titleEl.style.color = userWon ? "#a8ff00" : isTie ? "#ffb800" : "#fca5a5";
   }
   if (kickerEl) {
     const tier = getLevelTier(game.level);
-    kickerEl.textContent = `🏁 ${isRo ? tier.nameRo : tier.name} • ${activeKeeper.name}`;
+    kickerEl.textContent = `🏁 120' AET • ${activeStriker.name} ⚡ VS ⚡ ${activeKeeper.name}`;
   }
 
   const lvlLine = document.getElementById("sum-level-line");
   if (lvlLine) {
-    const bonusTxt = bonus > 0 ? ` • ${isHu ? "Bónusz" : (isRo ? "Bonus" : "Bonus")} <strong>+${bonus.toLocaleString("en-US")}</strong>${perfect ? " ⭐ PERFECT" : ""}` : "";
+    const bonusTxt = bonus > 0 ? ` • ${isHu ? "Bónusz" : (isRo ? "Bonus" : "Bonus")} <strong>+${bonus.toLocaleString("en-US")}</strong>${perfect ? " ⭐ CLEAN SHEET" : ""}` : "";
     lvlLine.innerHTML = isHu
-      ? `Gólok: <strong>${game.goals}/${lv.goalsNeeded}</strong> szükséges${bonusTxt}`
+      ? `⚽ Te góljaid: <strong>${game.userGoals}</strong> • 🧤 Gép góljai: <strong>${game.aiGoals}</strong>${bonusTxt}`
       : (isRo
-        ? `Goluri <strong>${game.goals}/${lv.goalsNeeded}</strong> necesare${bonusTxt}`
-        : `Goals <strong>${game.goals}</strong> • needed <strong>${lv.goalsNeeded}</strong> of ${SHOTS_PER_MATCH}${bonusTxt}`);
+        ? `⚽ Golurile tale: <strong>${game.userGoals}</strong> • 🧤 Golurile AI: <strong>${game.aiGoals}</strong>${bonusTxt}`
+        : `⚽ Your Goals: <strong>${game.userGoals}</strong> • 🧤 AI Goals: <strong>${game.aiGoals}</strong>${bonusTxt}`);
   }
 
   // Marketplace callout in summary
@@ -1823,8 +2319,22 @@ function initFullscreenStadiumCanvas() {
 
   function onPointerDown(e) {
     if (!canPlayMatch()) return;
-    if (game.phase !== "aim") return;
     if (e.pointerType === "mouse" && e.button !== 0) return;
+
+    if (game.shootoutTurn === "defend") {
+      const pos = getCanvasPos(e);
+      const g = getStageGeom();
+      const tapNx = clampNum((pos.x - g.cx) / (g.goalW * 0.5), -1.1, 1.1);
+      const tapNy = clampNum((g.goalBottom - pos.y) / g.goalH, 0.0, 1.1);
+      game.keeper.targetNx = tapNx;
+      game.keeper.targetNy = tapNy;
+      game.keeper.targetAngle = (tapNx > 0.1 ? 0.45 : (tapNx < -0.1 ? -0.45 : 0));
+      game.keeper.armReach = 0.85;
+      spawnSparks(pos.x, pos.y, "#38bdf8", 16);
+      return;
+    }
+
+    if (game.phase !== "aim") return;
 
     const pos = getCanvasPos(e);
     game.swipe = {
@@ -1844,6 +2354,16 @@ function initFullscreenStadiumCanvas() {
   function onPointerMove(e) {
     if (!canPlayMatch()) return;
     const pos = getCanvasPos(e);
+
+    if (game.shootoutTurn === "defend" && (game.phase === "defend_aim" || game.phase === "defend_flight")) {
+      const g = getStageGeom();
+      const tapNx = clampNum((pos.x - g.cx) / (g.goalW * 0.5), -1.1, 1.1);
+      const tapNy = clampNum((g.goalBottom - pos.y) / g.goalH, 0.0, 1.1);
+      game.keeper.targetNx = tapNx;
+      game.keeper.targetNy = tapNy;
+      game.keeper.targetAngle = (tapNx > 0.1 ? 0.35 : (tapNx < -0.1 ? -0.35 : 0));
+      return;
+    }
 
     if (!game.swipe || !game.swipe.active || game.swipe.pointerId !== e.pointerId) {
       if (game.phase === "aim" && e.pointerType === "mouse") {
@@ -2508,13 +3028,13 @@ function initFullscreenStadiumCanvas() {
       ctx.arc(pEnd.x, pEnd.y, 11, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
-    } else if (game.phase === "aim" && (!game.swipe || !game.swipe.active)) {
+    } else if ((game.phase === "aim" || game.phase === "defend_aim") && (!game.swipe || !game.swipe.active)) {
       // 7C. PULSING SWIPE TUTORIAL GUIDE ARROW & INSTRUCTION PILL
       const isRo = currentLang === "ro";
       const isHu = currentLang === "hu";
-      const guideTxt = isHu
-        ? "👆 LENDÍTSD MEG A LABDÁT A KAPU FELÉ!"
-        : (isRo ? "👆 TRAGE SPRE POARTĂ PENTRU ȘUT!" : "👆 SWIPE FROM BALL TO GOAL TO SHOOT!");
+      const guideTxt = game.shootoutTurn === "defend"
+        ? (isHu ? "🧤 KATTINTS A KAPURA A VÉDÉSHEZ!" : (isRo ? "🧤 APASĂ PE POARTĂ PENTRU PARADĂ!" : "🧤 CLICK / TAP THE GOAL TO DIVE & SAVE!"))
+        : (isHu ? "👆 LENDÍTSD MEG A LABDÁT A KAPU FELÉ!" : (isRo ? "👆 TRAGE SPRE POARTĂ PENTRU ȘUT!" : "👆 SWIPE FROM BALL TO GOAL TO SHOOT!"));
 
       const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.0055);
       const arrowTopY = g.spotY - 72 - pulse * 28;
@@ -2565,6 +3085,28 @@ function initFullscreenStadiumCanvas() {
       ctx.restore();
     }
 
+    // 7D. MIND READ HOLOGRAPHIC TARGET RADAR (DURING DEFENSE TURN)
+    if (game.shootoutTurn === "defend" && (fx.mind_read || game.armed.mind_read || p.hasRadar)) {
+      const radarX = g.cx + game.aiTargetNx * (g.goalW * 0.5);
+      const radarY = g.goalBottom - game.aiTargetNy * g.goalH;
+      const pulseR = 26 + Math.sin(Date.now() * 0.012) * 6;
+      ctx.save();
+      ctx.strokeStyle = "#ffb800";
+      ctx.lineWidth = 3.5;
+      ctx.shadowColor = "#ffb800";
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.arc(radarX, radarY, pulseR, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(255, 184, 0, 0.22)";
+      ctx.fill();
+      ctx.fillStyle = "#ffb800";
+      ctx.font = "800 11px 'JetBrains Mono', monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("👁️ MIND READ TARGET", radarX, radarY - pulseR - 8);
+      ctx.restore();
+    }
+
     // 8. FOREGROUND 3D STRIKER NFT HOLOGRAM ON PITCH (Never overlaps ball or skills dock)
     const strikerOffsetX = (H > W) ? Math.min(130, W * 0.30) : 135;
     drawPitchStrikerHologram(ctx, g.spotX - strikerOffsetX + game.strikerLunge, g.spotY - 28 - game.strikerLunge * 0.4);
@@ -2607,7 +3149,7 @@ function initFullscreenStadiumCanvas() {
 
     if (game.ball.active) {
       const b = game.ball;
-      b.t += 0.044;
+      b.t += (b.speed || 0.044);
       const u = Math.min(1, b.t);
       const iu = 1 - u;
 
@@ -2652,9 +3194,13 @@ function initFullscreenStadiumCanvas() {
 
       if (b.t >= 1) {
         b.active = false;
-        onBallReachGoal(endX, endY);
+        if (game.shootoutTurn === "defend") {
+          onAiBallReachGoal(endX, endY);
+        } else {
+          onBallReachGoal(endX, endY);
+        }
       }
-    } else if (game.phase === "aim" || game.phase === "charging") {
+    } else if (game.phase === "aim" || game.phase === "charging" || game.phase === "defend_aim") {
       const pulse = 30 + Math.sin(Date.now() * 0.008) * 1.8;
       drawBallSprite(ctx, g.spotX, g.spotY, pulse, Date.now() * 0.002);
     }
@@ -3892,7 +4438,8 @@ function getSkillPackPrice(s, count) {
 }
 
 function buySkillWithEfoo(skillId, count = 1) {
-  const s = SKILLS.find((x) => x.id === skillId);
+  const allSkills = [...SKILLS, ...KEEPER_SKILLS];
+  const s = allSkills.find((x) => x.id === skillId);
   if (!s) return;
   const cost = getSkillPackPrice(s, count);
   const isHu = currentLang === "hu";
@@ -3939,7 +4486,7 @@ function buySkillWithEfoo(skillId, count = 1) {
 }
 
 function armSkill(skillId) {
-  if (game.phase !== "aim" && game.phase !== "charging") return;
+  if (game.phase !== "aim" && game.phase !== "charging" && game.phase !== "defend_aim") return;
   const inv = getSkillsInventory();
   const currentCount = inv[skillId] || 0;
   if (currentCount <= 0 && !game.armed[skillId]) {
@@ -3960,22 +4507,46 @@ function renderSkillsDeckUI() {
   row.innerHTML = "";
   const isHu = currentLang === "hu";
   const isRo = currentLang === "ro";
+  const p = getPowers();
 
-  SKILLS.forEach((s) => {
+  const isDefending = game.shootoutTurn === "defend";
+  const currentDeck = isDefending ? KEEPER_SKILLS : SKILLS;
+  const maxSlots = isDefending ? p.keeperSlots : p.strikerSlots;
+
+  currentDeck.forEach((s, idx) => {
+    const isLockedByRarity = idx >= maxSlots;
     const count = inv[s.id] || 0;
-    const isArmed = !!game.armed[s.id];
+    const isArmed = !isLockedByRarity && !!game.armed[s.id];
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = `skill-slot-btn ${isArmed ? "armed" : ""} ${count <= 0 ? "empty" : ""}`;
+    btn.className = `skill-slot-btn ${isArmed ? "armed" : ""} ${count <= 0 ? "empty" : ""} ${isLockedByRarity ? "rarity-locked" : ""}`;
     const sName = isHu ? s.nameHu : (isRo ? s.nameRo : s.name);
     const sDesc = isHu ? s.descHu : (isRo ? s.descRo : s.desc);
-    btn.title = `${sName}: ${sDesc} (${count} owned)`;
-    btn.innerHTML = `
-      <span class="skill-slot-icon">${s.icon}</span>
-      <span class="skill-slot-name">${isArmed ? (isHu ? "AKTÍV!" : "ARMED!") : sName.split(" ")[0]}</span>
-      <span class="skill-slot-count">${count}</span>
-    `;
-    btn.addEventListener("click", () => armSkill(s.id));
+
+    if (isLockedByRarity) {
+      const requiredRarity = idx === 0 ? "COMMON" : idx === 1 ? "RARE" : idx === 2 ? "EPIC" : "LEGENDARY";
+      btn.title = isHu
+        ? `🔒 Zárolva! ${requiredRarity}+ NFT szükséges ehhez a képességhelyhez!`
+        : `🔒 Locked! ${requiredRarity}+ NFT required for this skill slot!`;
+      btn.innerHTML = `
+        <span class="skill-slot-icon">🔒</span>
+        <span class="skill-slot-name">${requiredRarity}</span>
+        <span class="skill-lock-badge">${requiredRarity[0]}</span>
+      `;
+      btn.addEventListener("click", () => {
+        showToast(isHu
+          ? `🔒 Ez a képességhely zárolva van! Válassz ${requiredRarity}+ NFT-t!`
+          : `🔒 This slot is locked! Select a ${requiredRarity}+ NFT!`);
+      });
+    } else {
+      btn.title = `${sName}: ${sDesc} (${count} owned)`;
+      btn.innerHTML = `
+        <span class="skill-slot-icon">${s.icon}</span>
+        <span class="skill-slot-name">${isArmed ? (isHu ? "AKTÍV!" : "ARMED!") : sName.split(" ")[0]}</span>
+        <span class="skill-slot-count">${count}</span>
+      `;
+      btn.addEventListener("click", () => armSkill(s.id));
+    }
     row.appendChild(btn);
   });
 }
@@ -3993,49 +4564,60 @@ function renderSkillsShopModal(highlightSkillId = null, highlightCount = 0) {
   const inv = getSkillsInventory();
 
   grid.innerHTML = "";
-  SKILLS.forEach((s) => {
-    const count = inv[s.id] || 0;
-    const card = document.createElement("div");
-    card.className = `skill-shop-card ${highlightSkillId === s.id ? "just-bought" : ""}`;
-    const name = isHu ? s.nameHu : (isRo ? s.nameRo : s.name);
-    const desc = isHu ? s.descHu : (isRo ? s.descRo : s.desc);
-    const singlePrice = (s.price / 1000).toFixed(0);
-    const packPrice5 = (getSkillPackPrice(s, 5) / 1000).toFixed(0);
-    const ownedText = isHu ? "Birtokolt" : (isRo ? "Deținute" : "Owned");
-    const discountLabel = isHu ? "-10% KEDVEZMÉNY" : (isRo ? "-10% REDUCERE" : "10% OFF");
-    const boughtFlash = isHu ? `✅ +${highlightCount}x SIKERES VÉTEL!` : (isRo ? `✅ +${highlightCount}x CUMPĂRAT!` : `✅ +${highlightCount}x PURCHASED!`);
 
-    card.innerHTML = `
-      <div class="ssc-info">
-        <div class="ssc-title" style="color:${s.color};">
-          <span>${s.icon}</span>
-          <strong>${name}</strong>
-          <span style="font-size:0.75rem; color:#a8ff00; background:rgba(168,255,0,0.12); padding:2px 8px; border-radius:6px; border:1px solid rgba(168,255,0,0.3);">(${ownedText}: ${count})</span>
-          ${highlightSkillId === s.id ? `<span style="font-size:0.75rem; color:#a8ff00; font-weight:800;">${boughtFlash}</span>` : ""}
+  const renderSection = (title, items) => {
+    const secHeader = document.createElement("div");
+    secHeader.style.cssText = "grid-column: 1 / -1; margin: 8px 0 4px; font-family: 'Bebas Neue', sans-serif; font-size: 1.25rem; letter-spacing: 0.05em; color: #a8ff00; border-bottom: 1px solid rgba(168,255,0,0.25); padding-bottom: 4px;";
+    secHeader.textContent = title;
+    grid.appendChild(secHeader);
+
+    items.forEach((s) => {
+      const count = inv[s.id] || 0;
+      const card = document.createElement("div");
+      card.className = `skill-shop-card ${highlightSkillId === s.id ? "just-bought" : ""}`;
+      const name = isHu ? s.nameHu : (isRo ? s.nameRo : s.name);
+      const desc = isHu ? s.descHu : (isRo ? s.descRo : s.desc);
+      const singlePrice = (s.price / 1000).toFixed(0);
+      const packPrice5 = (getSkillPackPrice(s, 5) / 1000).toFixed(0);
+      const ownedText = isHu ? "Birtokolt" : (isRo ? "Deținute" : "Owned");
+      const discountLabel = isHu ? "-10% KEDVEZMÉNY" : (isRo ? "-10% REDUCERE" : "10% OFF");
+      const boughtFlash = isHu ? `✅ +${highlightCount}x SIKERES VÉTEL!` : (isRo ? `✅ +${highlightCount}x CUMPĂRAT!` : `✅ +${highlightCount}x PURCHASED!`);
+
+      card.innerHTML = `
+        <div class="ssc-info">
+          <div class="ssc-title" style="color:${s.color};">
+            <span>${s.icon}</span>
+            <strong>${name}</strong>
+            <span style="font-size:0.75rem; color:#a8ff00; background:rgba(168,255,0,0.12); padding:2px 8px; border-radius:6px; border:1px solid rgba(168,255,0,0.3);">(${ownedText}: ${count})</span>
+            ${highlightSkillId === s.id ? `<span style="font-size:0.75rem; color:#a8ff00; font-weight:800;">${boughtFlash}</span>` : ""}
+          </div>
+          <small class="ssc-desc">${desc}</small>
         </div>
-        <small class="ssc-desc">${desc}</small>
-      </div>
-      <div class="ssc-actions">
-        <button type="button" class="arcade-btn neon" data-buy-single="${s.id}" title="${isHu ? '1 darab vásárlása' : 'Buy 1 item'}">
-          1x (${singlePrice}k $EFOO)
-        </button>
-        <button type="button" class="arcade-btn gold" data-buy-pack="${s.id}" title="${isHu ? '5 darabos csomag 10% kedvezménnyel!' : '5x Pack with 10% discount!'}">
-          5x (${packPrice5}k $EFOO) <span class="pack-discount-tag">🔥 ${discountLabel}</span>
-        </button>
-      </div>
-    `;
+        <div class="ssc-actions">
+          <button type="button" class="arcade-btn neon" data-buy-single="${s.id}" title="${isHu ? '1 darab vásárlása' : 'Buy 1 item'}">
+            1x (${singlePrice}k $EFOO)
+          </button>
+          <button type="button" class="arcade-btn gold" data-buy-pack="${s.id}" title="${isHu ? '5 darabos csomag 10% kedvezménnyel!' : '5x Pack with 10% discount!'}">
+            5x (${packPrice5}k $EFOO) <span class="pack-discount-tag">🔥 ${discountLabel}</span>
+          </button>
+        </div>
+      `;
 
-    card.querySelector(`[data-buy-single="${s.id}"]`)?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      buySkillWithEfoo(s.id, 1);
-    });
-    card.querySelector(`[data-buy-pack="${s.id}"]`)?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      buySkillWithEfoo(s.id, 5);
-    });
+      card.querySelector(`[data-buy-single="${s.id}"]`)?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        buySkillWithEfoo(s.id, 1);
+      });
+      card.querySelector(`[data-buy-pack="${s.id}"]`)?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        buySkillWithEfoo(s.id, 5);
+      });
 
-    grid.appendChild(card);
-  });
+      grid.appendChild(card);
+    });
+  };
+
+  renderSection(isHu ? "⚡ CSATÁR KÉPESSÉGEK (-10% CSOMAGOK)" : (isRo ? "⚡ ABILITĂȚI ATACATOR (-10% PACHETE)" : "⚡ STRIKER SUPER SKILLS (-10% PACKS)"), SKILLS);
+  renderSection(isHu ? "🧤 KAPUS KÉPESSÉGEK (-10% CSOMAGOK)" : (isRo ? "🧤 ABILITĂȚI PORTAR (-10% PACHETE)" : "🧤 GOALKEEPER SUPER SKILLS (-10% PACKS)"), KEEPER_SKILLS);
 }
 
 function setMarketplaceTab(tab) {
@@ -4503,12 +5085,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 90+5' Timer
-  setInterval(() => {
-    game.fomoSeconds = game.fomoSeconds > 0 ? game.fomoSeconds - 1 : 300;
-    const m = String(Math.floor(game.fomoSeconds / 60)).padStart(2, "0");
-    const s = String(game.fomoSeconds % 60).padStart(2, "0");
-    const el = document.getElementById("fomo-countdown");
-    if (el) el.textContent = `${m}:${s}`;
-  }, 1000);
+  // Start Screen Striker & Goalkeeper Selector Buttons
+  document.getElementById("prev-striker-btn")?.addEventListener("click", () => {
+    updateStrikerCardAssets(strikerIdx - 1);
+    refreshHudUI();
+    renderSkillsDeckUI();
+  });
+  document.getElementById("next-striker-btn")?.addEventListener("click", () => {
+    updateStrikerCardAssets(strikerIdx + 1);
+    refreshHudUI();
+    renderSkillsDeckUI();
+  });
+  document.getElementById("prev-keeper-btn")?.addEventListener("click", () => {
+    updateKeeperAssets(keeperIdx - 1);
+    refreshHudUI();
+    renderSkillsDeckUI();
+  });
+  document.getElementById("next-keeper-btn")?.addEventListener("click", () => {
+    updateKeeperAssets(keeperIdx + 1);
+    refreshHudUI();
+    renderSkillsDeckUI();
+  });
 });

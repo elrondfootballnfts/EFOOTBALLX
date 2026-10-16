@@ -48,25 +48,39 @@
         <div class="tv-scorebug">
           <div class="sb-club">
             <img src="branding/original/assests-2022/logo.png" alt="$EFOO" />
-            <span>DEGEN FC</span>
+            <span id="sb-turn-badge" class="sb-turn-badge">⚽ TE LŐSZ</span>
           </div>
 
-          <div class="sb-shots-dots" id="sb-shots-dots">
-            <span class="shot-dot current"></span>
-            <span class="shot-dot"></span>
-            <span class="shot-dot"></span>
-            <span class="shot-dot"></span>
-            <span class="shot-dot"></span>
+          <!-- Dual Team Shootout Dots: YOU vs AI -->
+          <div class="sb-shootout-score">
+            <div class="sb-team-score you">
+              <span class="sb-team-lbl">TE</span>
+              <strong id="hud-user-goals">0</strong>
+              <div class="sb-dots" id="sb-user-dots">
+                <span class="shot-dot current"></span>
+                <span class="shot-dot"></span>
+                <span class="shot-dot"></span>
+                <span class="shot-dot"></span>
+                <span class="shot-dot"></span>
+              </div>
+            </div>
+            <span class="sb-score-divider">-</span>
+            <div class="sb-team-score ai">
+              <strong id="hud-ai-goals">0</strong>
+              <span class="sb-team-lbl">AI</span>
+              <div class="sb-dots" id="sb-ai-dots">
+                <span class="shot-dot"></span>
+                <span class="shot-dot"></span>
+                <span class="shot-dot"></span>
+                <span class="shot-dot"></span>
+                <span class="shot-dot"></span>
+              </div>
+            </div>
           </div>
 
           <div class="sb-metric level-metric" id="hud-level-pill" title="Click to view/select levels (1-20)" style="cursor:pointer;">
             <span>LEVEL</span>
             <strong id="hud-level-val">1</strong>
-          </div>
-
-          <div class="sb-metric goals-metric" title="Target goals needed to clear level">
-            <span>GOALS</span>
-            <strong id="hud-goals-val">0/2</strong>
           </div>
 
           <div class="sb-metric">
@@ -81,10 +95,10 @@
         </div>
       </div>
 
-      <!-- Center: Live 90+5' FOMO Jackpot Pill (Click to open Pot/Boost Drawer) -->
+      <!-- Center: Live 120' AET Shootout Match Status -->
       <div class="hud-center-group">
-        <div class="hud-fomo-pill" id="open-pot-pill" title="Click to enter 90+5' FOMO Pot">
-          <span class="fomo-timer-badge">⏱️ 90+5' <span id="fomo-countdown">04:42</span></span>
+        <div class="hud-fomo-pill" id="open-pot-pill" title="Click to enter 120' Shootout Pot & Vault">
+          <span class="fomo-timer-badge">⚽ 120' DÖNTETLEN</span>
           <span class="fomo-pot-val" id="fomo-pot-amount">🏆 25,400,000 $EFOO</span>
         </div>
       </div>
@@ -205,59 +219,99 @@
           ⬅ EXIT TO HOME
         </a>
       </div>
+      <!-- INTERACTIVE PRE-MATCH LOCKER ROOM (STRIKER & KEEPER SELECTION) -->
       <div class="start-hero-cards">
-        <div class="sh-nft-card">
-          <img id="start-striker-img" src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2FQmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb%2F9734.png&w=240&h=240&fit=cover" alt="Striker NFT" />
-          <span>STRIKER #619</span>
+        <!-- 1. Striker Selector Card -->
+        <div class="sh-nft-card" id="select-striker-card">
+          <div class="sh-card-nav">
+            <button type="button" class="sh-nav-btn" id="prev-striker-btn" title="Előző csatár">◀</button>
+            <span class="sh-card-role">⚽ CSATÁR (STRIKER)</span>
+            <button type="button" class="sh-nav-btn" id="next-striker-btn" title="Következő csatár">▶</button>
+          </div>
+          <div class="sh-card-media-wrap">
+            <img id="start-striker-img" src="branding/original/EFOOTBALL-91a4eb/logo.png" alt="Striker NFT" />
+            <span class="sh-rarity-badge rarity-legendary" id="start-striker-rarity">LEGENDARY</span>
+            <span class="sh-ovr-badge" id="start-striker-ovr">99</span>
+          </div>
+          <strong class="sh-card-name" id="start-striker-name">ELRONDFOOTBALL #619</strong>
+          <small class="sh-card-trait" id="start-striker-trait">👽 ALIEN STRIKER • 4 KÉPESSÉG</small>
+          <div class="sh-skills-preview" id="start-striker-skills-preview">
+            <span class="sk-pill active">🎯</span>
+            <span class="sk-pill active">🚀</span>
+            <span class="sk-pill active">❄️</span>
+            <span class="sk-pill active">🌀</span>
+          </div>
         </div>
 
-        <img src="branding/original/assests-2022/logo.png" alt="$EFOO Rocket Ball" class="sh-center-ball" />
+        <!-- Center 120' Shootout Trophy Emblem -->
+        <div class="sh-center-divider">
+          <img src="branding/original/assests-2022/logo.png" alt="$EFOO Rocket Ball" class="sh-center-ball" />
+          <span class="sh-vs-badge">120' DÖNTETLEN</span>
+        </div>
 
-        <div class="sh-nft-card keeper">
-          <img id="start-keeper-img" src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2Fbafybeicbszzifxxcpnq3zrndfdtf45wouhyjbklwk4ffio365icb2ylgg4%2F230.png&w=240&h=240&fit=cover" alt="Goalkeeper NFT" />
-          <span>KEEPER #2</span>
+        <!-- 2. Goalkeeper Selector Card -->
+        <div class="sh-nft-card keeper" id="select-keeper-card">
+          <div class="sh-card-nav">
+            <button type="button" class="sh-nav-btn" id="prev-keeper-btn" title="Előző kapus">◀</button>
+            <span class="sh-card-role">🧤 KAPUS (GOALKEEPER)</span>
+            <button type="button" class="sh-nav-btn" id="next-keeper-btn" title="Következő kapus">▶</button>
+          </div>
+          <div class="sh-card-media-wrap">
+            <img id="start-keeper-img" src="branding/original/GOALKEEPER-cb9e3e/logo.png" alt="Goalkeeper NFT" />
+            <span class="sh-rarity-badge rarity-legendary" id="start-keeper-rarity">LEGENDARY</span>
+            <span class="sh-ovr-badge" id="start-keeper-ovr">99</span>
+          </div>
+          <strong class="sh-card-name" id="start-keeper-name">GOALKEEPER #2</strong>
+          <small class="sh-card-trait" id="start-keeper-trait">🧱 WALL OF DEGENS • TELEPÁTIA</small>
+          <div class="sh-skills-preview" id="start-keeper-skills-preview">
+            <span class="sk-pill active">🛡️</span>
+            <span class="sk-pill active">🧤</span>
+            <span class="sk-pill active">⏱️</span>
+            <span class="sk-pill active">👁️</span>
+          </div>
         </div>
       </div>
 
       <h1 class="start-mega-title">
-        EFOO <span>FOMO</span> 90+5'
+        120' <span>DÖNTETLEN</span> BÜNTETŐK
       </h1>
 
       <div class="start-visual-steps">
-        <div class="svs-pill">🎯 <span data-i18n="step_1">Aim &amp; Hold to Curve</span></div>
-        <div class="svs-pill">🃏 <span data-i18n="step_2">More NFTs = <strong>Up to 11x &amp; Radar</strong></span></div>
-        <div class="svs-pill">🏆 <span data-i18n="step_3">Pot: <strong>25,400,000 $EFOO</strong></span></div>
+        <div class="svs-pill">⚽ <span data-i18n="step_shootout_turns">Egyszer rúgsz, egyszer védesz</span></div>
+        <div class="svs-pill">🃏 <span data-i18n="step_rarity_skills">Ritkább NFT = <strong>Több szuperképesség</strong></span></div>
+        <div class="svs-pill">🏆 <span data-i18n="step_f2p_ready">NFT nélkül is játszható: <strong>Rookie F2P</strong></span></div>
       </div>
 
-      <!-- WALLET & MINIMUM 1,000,000 $EFOO ENTRY GATE CARD -->
+      <!-- FREE-TO-PLAY & WALLET STATUS STRIP -->
       <div class="entry-gate-card" id="entry-gate-card">
         <div class="eg-status-header" id="eg-status-header">
-          <span class="eg-lock-badge" id="eg-lock-badge">🔒 ENTRY REQUIREMENT: WALLET LOGIN + MIN. 1,000,000 $EFOO</span>
+          <span class="eg-lock-badge" id="eg-lock-badge">⚽ 120' TIE-BREAK PENALTY SHOOTOUT • FREE-TO-PLAY ACTIVE</span>
         </div>
 
         <div class="eg-wallet-stats" id="eg-wallet-stats">
-          <span id="eg-wallet-line" data-i18n="gate_connect_desc">Connect your MultiversX wallet to verify your $EFOO balance &amp; Club NFTs.</span>
+          <span id="eg-wallet-line">NFT nélkül is játszhatsz Rookie szinten! Csatlakoztass tárcát saját NFT-id és szuperképességeid feloldásához.</span>
         </div>
 
-        <!-- Instant Purchase Box (Always accessible when balance < 1M $EFOO) -->
+        <!-- Optional Instant Purchase / Mint Box for Web3 players -->
         <div class="eg-buy-offer" id="eg-buy-offer">
           <div class="eg-buy-info">
-            <strong style="color:#a8ff00;">🎁 FIRST-TIME STARTER PACK: +50% BONUS ACTIVE</strong>
-            <small id="eg-buy-sub" data-i18n="gate_buy_sub">Pay 0.035 EGLD (~$0.12) for 1,000,000 $EFOO ➔ RECEIVE 1,500,000 $EFOO! (+500k from Stadium Vault)</small>
+            <strong style="color:#a8ff00;">🎁 TÁRCA ÉS SZUPERKÉPESSÉGEK FELOLDÁSA</strong>
+            <small id="eg-buy-sub">Vásárolj $EFOO-t vagy mintej NFT játékost a szuperképességek és a 10x pontszorzó azonnali aktiválásához!</small>
           </div>
           <div class="eg-buy-actions">
             <button type="button" id="gate-buy-starter-btn" class="arcade-btn neon">
-              🎁 <span data-i18n="btn_buy_starter">STARTER (0.035 EGLD ➔ 1.5M)</span>
+              🎁 <span>STARTER (0.035 EGLD ➔ 1.5M)</span>
             </button>
             <button type="button" id="gate-buy-efoo-btn" class="arcade-btn gold">
-              ⚡ <span data-i18n="btn_buy_gate">PRO PACK (0.1 EGLD ➔ ~3M)</span>
+              ⚡ <span>PRO PACK (0.1 EGLD ➔ ~3M)</span>
             </button>
             <button type="button" id="gate-mint-nft-btn" class="arcade-btn">
-              🃏 <span data-i18n="btn_mint_nft">MINT NFT (0.08 EGLD)</span>
+              🃏 <span>MINT NFT (0.08 EGLD)</span>
             </button>
-            <button type="button" id="gate-refresh-btn" class="arcade-btn hidden" title="Re-check Wallet Balance">
+            <button type="button" id="gate-refresh-btn" class="arcade-btn hidden" title="Frissítés">
               🔄
             </button>
+          </div>
         </div>
       </div>
 
@@ -267,12 +321,12 @@
           <div class="smc-title">
             <span class="smc-icon">🛒</span>
             <div>
-              <strong id="start-market-title" data-i18n="start_market_title">SUPER SKILLS &amp; MARKETPLACE</strong>
-              <small id="start-market-sub" data-i18n="start_market_sub">Equip tactical power-ups (-10% on 5x packs) &amp; scout NFTs!</small>
+              <strong id="start-market-title">SZUPERKÉPESSÉGEK BOLTJA (INDÍTÁS ELŐTT)</strong>
+              <small id="start-market-sub">Tölts fel szuperképességeket 10% kedvezménnyel az 5x csomagokra a büntetőpárbaj előtt!</small>
             </div>
           </div>
           <button type="button" class="arcade-btn neon" id="start-open-store-btn">
-            <span data-i18n="btn_open_market">🛒 OPEN STORE (-10%)</span>
+            <span>🛒 BOLT MEGNYITÁSA (-10%)</span>
           </button>
         </div>
         <div class="smc-chips" id="start-skills-chips">
@@ -281,7 +335,7 @@
       </div>
 
       <button type="button" id="btn-start-match" class="btn-play-arcade">
-        ⚡ <span id="btn-start-match-label" data-i18n="btn_connect_to_play">CONNECT WALLET TO PLAY</span>
+        ⚽ <span id="btn-start-match-label">120' BÜNTETŐPÁRBAJ INDÍTÁSA</span>
       </button>
     </div>
 
