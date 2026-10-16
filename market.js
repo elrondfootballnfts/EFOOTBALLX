@@ -610,13 +610,38 @@ function disconnectWallet() {
   try {
     localStorage.removeItem("multiversx_address");
     localStorage.removeItem("multiversx_provider");
+    localStorage.removeItem("efoo_wallet_address");
+    localStorage.removeItem("efoo_wallet_provider");
+    localStorage.removeItem("efoo_connected_address");
+    localStorage.removeItem("efoo_wc_topic");
+    localStorage.removeItem("walletconnect");
+    localStorage.removeItem("efoo_user_wallet");
+
     sessionStorage.removeItem("multiversx_address");
     sessionStorage.removeItem("multiversx_provider");
+    sessionStorage.removeItem("efoo_connected_address");
+    sessionStorage.removeItem("efoo_wallet_address");
+    sessionStorage.removeItem("efoo_wallet_provider");
+    sessionStorage.removeItem("efoo_admin_session_auth_v1");
   } catch (e) {}
+
+  try {
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  } catch (e) {}
+
+  if (typeof updateOwnerAdminVisibility === "function") {
+    updateOwnerAdminVisibility("");
+  }
   updateWalletUI();
   renderMarketplaceGrid();
   renderMyLockerGrid();
-  showMarketToast("Logged out successfully.");
+  showMarketToast(
+    currentMarketLang === "hu"
+      ? "🚪 Sikeresen kijelentkeztél a piactérről!"
+      : "🚪 Logged out successfully."
+  );
 }
 
 function connectManualAddress(raw) {

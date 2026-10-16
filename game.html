@@ -266,6 +266,9 @@
             <button type="button" id="open-wallet-modal-btn-hub" class="hub-wallet-btn">
               ⚡ <span id="hub-wallet-label">CONNECT</span>
             </button>
+            <button type="button" id="hub-disconnect-wallet-btn" class="hub-ctrl-btn hub-disconnect-btn hidden" title="Disconnect Wallet / Kijelentkezés">
+              🚪 <span id="hub-disconnect-lbl">DISCONNECT</span>
+            </button>
           </div>
         </header>
 
@@ -793,6 +796,17 @@
             <h3>CONNECT WALLET</h3>
           </div>
           <button type="button" id="close-wallet-modal-btn" class="modal-close-btn">✕</button>
+        </div>
+
+        <!-- Active Connected Wallet Box (Shows when wallet is connected) -->
+        <div id="wallet-modal-active-card" class="wallet-active-card hidden" style="background:rgba(168,255,0,0.08); border:1.5px solid rgba(168,255,0,0.35); border-radius:12px; padding:12px 14px; margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <div style="flex:1; min-width:0;">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:0.68rem; color:#a8ff00; font-weight:800; letter-spacing:0.04em;">🟢 CONNECTED MULTIVERSX WALLET:</div>
+            <strong id="modal-active-erd" style="display:block; font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:#fff; word-break:break-all; margin-top:2px;">erd1...</strong>
+          </div>
+          <button type="button" id="modal-disconnect-wallet-btn" style="background:#ef4444; color:#fff; border:none; border-radius:8px; padding:8px 14px; font-size:0.75rem; font-weight:800; cursor:pointer; font-family:'JetBrains Mono',monospace; white-space:nowrap; transition:all 0.2s; box-shadow:0 0 12px rgba(239,68,68,0.4);">
+            🚪 DISCONNECT
+          </button>
         </div>
 
         <div class="wallet-providers-list" style="margin-top:12px;">

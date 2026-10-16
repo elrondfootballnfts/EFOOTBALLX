@@ -1906,9 +1906,18 @@ function updateEntryGateUI() {
   const p = getPowers();
 
   // Top bar wallet & disconnect buttons
+  const hubWalletLbl = document.getElementById("hub-wallet-label");
+  const hubDisconnectBtn = document.getElementById("hub-disconnect-wallet-btn");
+  const modalActiveCard = document.getElementById("wallet-modal-active-card");
+  const modalActiveErd = document.getElementById("modal-active-erd");
+
   if (connectedAddress && VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
     document.getElementById("nav-wallet-label").textContent = shortErd(connectedAddress);
     disconnectBtn?.classList.remove("hidden");
+    if (hubWalletLbl) hubWalletLbl.textContent = shortErd(connectedAddress);
+    if (hubDisconnectBtn) hubDisconnectBtn.classList.remove("hidden");
+    if (modalActiveCard) modalActiveCard.classList.remove("hidden");
+    if (modalActiveErd) modalActiveErd.textContent = connectedAddress;
     if (hudEfooLbl) {
       hudEfooLbl.textContent = walletState.loading
         ? "..."
@@ -1918,6 +1927,10 @@ function updateEntryGateUI() {
   } else {
     document.getElementById("nav-wallet-label").textContent = I18N_GAME[currentLang].btn_connect;
     disconnectBtn?.classList.add("hidden");
+    if (hubWalletLbl) hubWalletLbl.textContent = currentLang === "hu" ? "CSATLAKOZÁS" : "CONNECT";
+    if (hubDisconnectBtn) hubDisconnectBtn.classList.add("hidden");
+    if (modalActiveCard) modalActiveCard.classList.add("hidden");
+    if (modalActiveErd) modalActiveErd.textContent = "";
     if (hudEfooLbl) hudEfooLbl.textContent = I18N_GAME[currentLang].hud_no_wallet;
     hudEfooBadge?.classList.remove("active");
   }
@@ -2113,8 +2126,13 @@ function setStartScreenState(isActive) {
     if (typeof renderStartScreenLeaderboard === "function") renderStartScreenLeaderboard();
     if (typeof updateVaultUI === "function") updateVaultUI();
     const hubWalletLbl = document.getElementById("hub-wallet-label");
-    if (hubWalletLbl && connectedAddress) {
-      hubWalletLbl.textContent = shortErd(connectedAddress);
+    const hubDisconnectBtn = document.getElementById("hub-disconnect-wallet-btn");
+    if (connectedAddress && VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
+      if (hubWalletLbl) hubWalletLbl.textContent = shortErd(connectedAddress);
+      if (hubDisconnectBtn) hubDisconnectBtn.classList.remove("hidden");
+    } else {
+      if (hubWalletLbl) hubWalletLbl.textContent = currentLang === "hu" ? "CSATLAKOZÁS" : "CONNECT";
+      if (hubDisconnectBtn) hubDisconnectBtn.classList.add("hidden");
     }
     if (audio && audio.bgmEnabled && !audio.bgmPlaying) {
       audio.startBgm();
@@ -4895,9 +4913,36 @@ function disconnectWallet() {
   connectedProvider = "";
   wcSessionTopic = "";
   pendingGateAction = null;
-  localStorage.removeItem("efoo_wallet_address");
-  localStorage.removeItem("efoo_wallet_provider");
-  localStorage.removeItem("efoo_wc_topic");
+
+  // Clear all wallet keys from localStorage
+  try {
+    localStorage.removeItem("efoo_wallet_address");
+    localStorage.removeItem("efoo_wallet_provider");
+    localStorage.removeItem("efoo_connected_address");
+    localStorage.removeItem("efoo_wc_topic");
+    localStorage.removeItem("walletconnect");
+    localStorage.removeItem("multiversx_address");
+    localStorage.removeItem("multiversx_provider");
+    localStorage.removeItem("efoo_user_wallet");
+  } catch (e) {}
+
+  // Clear all session storage keys
+  try {
+    sessionStorage.removeItem("efoo_connected_address");
+    sessionStorage.removeItem("efoo_wallet_address");
+    sessionStorage.removeItem("efoo_wallet_provider");
+    sessionStorage.removeItem("efoo_admin_session_auth_v1");
+    sessionStorage.removeItem("multiversx_address");
+    sessionStorage.removeItem("multiversx_provider");
+  } catch (e) {}
+
+  // Strip query parameters from URL (?address=erd1...) so reloads do not auto-reconnect
+  try {
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  } catch (e) {}
+
   updateOwnerAdminVisibility("");
 
   walletState = {
@@ -4908,14 +4953,36 @@ function disconnectWallet() {
     efooBalance: 0,
     playersCount: 0,
     keepersCount: 0,
-    ownedNfts: []
+    ownedNfts: [],
+    username: "",
+    herotag: ""
   };
 
-  setStartScreenState(true);
+  // Reset active squad cards to Rookie defaults
+  strikerIdx = 0;
+  keeperIdx = 0;
+  activeStriker = ROOKIE_STRIKER;
+  activeKeeper = ROOKIE_KEEPER;
+  updateStrikerCardAssets(0);
+  updateKeeperAssets(0);
+
+  // Close modals
+  document.getElementById("wallet-modal-backdrop")?.classList.add("hidden");
   document.getElementById("intro-cinematic-overlay")?.classList.add("hidden");
   document.getElementById("summary-screen-overlay")?.classList.add("hidden");
-  updateStrikerCardAssets(0);
+
+  // Refresh all UI elements
+  updateEntryGateUI();
   refreshHudUI();
+  setStartScreenState(true);
+
+  showToast(
+    currentLang === "hu"
+      ? "🚪 Sikeresen kijelentkeztél a tárcádból!"
+      : (currentLang === "ro"
+        ? "🚪 Deconectat cu succes din portofel!"
+        : "🚪 Wallet disconnected successfully!")
+  );
 }
 
 async function fetchWalletNftsAndBalance(address) {
@@ -6488,8 +6555,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("boost-modal-overlay")?.classList.remove("hidden");
   });
 
-  // Disconnect Wallet button
+  // Disconnect Wallet buttons (HUD, Hub & Wallet Modal)
   document.getElementById("disconnect-wallet-btn")?.addEventListener("click", disconnectWallet);
+  document.getElementById("hub-disconnect-wallet-btn")?.addEventListener("click", disconnectWallet);
+  document.getElementById("modal-disconnect-wallet-btn")?.addEventListener("click", disconnectWallet);
 
   // Sound & Language Toggles
   document.getElementById("sfx-toggle-btn")?.addEventListener("click", () => {
