@@ -26,13 +26,7 @@ jobs:
           cd contracts/efoo-stadium-vault/meta
           cargo run -- build
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: efoo-stadium-vault-wasm
-          path: contracts/efoo-stadium-vault/output/*
-
-      - name: Publish WASM to site
+      - name: Verify and Publish WASM to site
         run: |
           mkdir -p contracts-dist
           cp contracts/efoo-stadium-vault/output/* contracts-dist/
@@ -41,3 +35,9 @@ jobs:
           git add -f contracts/efoo-stadium-vault/output/* contracts-dist/* || true
           git commit -m "build(wasm): automated contract build [skip ci]" || echo "No changes"
           git push origin HEAD:main || echo "Push skipped"
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: efoo-stadium-vault-wasm
+          path: contracts/efoo-stadium-vault/output/*

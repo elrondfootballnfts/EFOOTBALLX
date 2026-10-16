@@ -14,3 +14,11 @@ multiversx-sc = { version = "0.54.0" }
 
 [dev-dependencies]
 multiversx-sc-scenario = { version = "0.54.0" }
+
+[workspace]
+resolver = "2"
+members = [
+    ".",
+    "meta",
+    "wasm",
+]
