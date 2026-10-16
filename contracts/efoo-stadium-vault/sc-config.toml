@@ -1,0 +1,6 @@
+[settings]
+main = "main"
+
+[contracts.main]
+name = "efoo-stadium-vault"
+add-unlabelled = true

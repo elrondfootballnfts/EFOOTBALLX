@@ -10,22 +10,25 @@ permissions:
 
 jobs:
   build:
-    name: Build via Official MultiversX Contract Builder
+    name: Build Smart Contract WASM
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Compile Smart Contract with Official Docker Builder
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Build WASM
         run: |
-          docker run --rm -v ${{ github.workspace }}:/workspace multiversx/sdk-rust-contract-builder:v11.0.0 \
-            --project=/workspace/contracts/efoo-stadium-vault 2>&1 | tee docker_build.log || (cat docker_build.log && exit 1)
+          cd contracts/efoo-stadium-vault/meta
+          cargo run -- build
 
       - name: Verify Artifacts
         run: |
-          ls -la ${{ github.workspace }}/contracts/efoo-stadium-vault/output/
+          ls -la contracts/efoo-stadium-vault/output/
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -33,10 +36,12 @@ jobs:
           name: efoo-stadium-vault-wasm
           path: contracts/efoo-stadium-vault/output/*
 
-      - name: Commit and Push WASM to main branch
+      - name: Publish WASM to site
         run: |
+          mkdir -p contracts-dist
+          cp contracts/efoo-stadium-vault/output/* contracts-dist/
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f contracts/efoo-stadium-vault/output/*
-          git commit -m "build(wasm): official reproducible contract build [skip ci]" || echo "No changes"
-          git push origin HEAD:main || echo "Push fallback"
+          git add -f contracts/efoo-stadium-vault/output/* contracts-dist/* || true
+          git commit -m "build(wasm): automated contract build [skip ci]" || echo "No changes"
+          git push origin HEAD:main || echo "Push skipped"
