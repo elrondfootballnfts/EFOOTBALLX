@@ -36,9 +36,10 @@ jobs:
             contracts/efoo-stadium-vault/output/*
 
       - name: Commit and Push WASM to repo
+        if: always()
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f contracts/efoo-stadium-vault/output/
-          git commit -m "chore(build): automated WASM bytecode build [skip ci]" || echo "No changes to commit"
-          git push origin main || echo "Could not push, artifact available via uploads"
+          git add -f build.log contracts/efoo-stadium-vault/output/ || true
+          git commit -m "chore(build): automated WASM bytecode build and log [skip ci]" || echo "No changes to commit"
+          git push origin main || echo "Could not push"
