@@ -2932,6 +2932,25 @@ body.fx-gold-active #arcade-viewport {
     font-size: 1.35rem !important;
     margin-top: 4px !important;
   }
+  .start-screen-container .arcade-btn {
+    min-height: 32px !important;
+    padding: 5px 12px !important;
+    font-size: 0.68rem !important;
+    border-radius: 10px !important;
+  }
+  .smc-chips {
+    gap: 4px !important;
+    margin-top: 4px !important;
+    flex-wrap: nowrap !important;
+  }
+  .smc-chips > * {
+    padding: 3px 6px !important;
+    font-size: 0.62rem !important;
+    white-space: nowrap !important;
+  }
+  .eg-buy-actions {
+    gap: 4px !important;
+  }
 }
 
 
