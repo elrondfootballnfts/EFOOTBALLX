@@ -12,6 +12,23 @@ const KEEPER_COLLECTION = "GOALKEEPER-cb9e3e";
 const STADIUM_VAULT_SC = "erd1qqqqqqqqqqqqqpgqwdrgl4k7gfa26wp0xcje8qn9gucq87yx55hs39eend";
 const SC_HEX = "0000000000000000050073468fd6de427aad382f3625938265473003f886a52f";
 const EFOOREWARDS_WALLET = "erd1p5hfnx87q4pddwsyz23e5pqv8550rsfat902j6g4ckdh070055hshct4my";
+const WC_PROJECT_ID = "9b1a9564f91cb659ffe21b73d5c4e2d8";
+let marketWcSignClient = null;
+let marketWcSessionTopic = localStorage.getItem("efoo_wc_topic") || "";
+
+function isInsideXPortal() {
+  if (typeof window === "undefined") return false;
+  const ua = (navigator.userAgent || "").toLowerCase();
+  const params = new URLSearchParams(window.location.search);
+  return (
+    params.has("xportal") ||
+    params.get("ref") === "xportal" ||
+    ua.includes("xportal") ||
+    ua.includes("maiar") ||
+    typeof window.ReactNativeWebView !== "undefined" ||
+    (typeof window.webkit !== "undefined" && typeof window.webkit.messageHandlers !== "undefined")
+  );
+}
 
 // ============================================================================
 // BLOCKCHAIN & ON-CHAIN TRANSACTION HELPERS
@@ -44,6 +61,184 @@ function toBase64Data(str) {
     return btoa(str);
   } catch (e) {
     return btoa(unescape(encodeURIComponent(str)));
+  }
+}
+
+let currentMarketWcUri = "";
+
+function updateExtensionBadge() {
+  const badge = document.getElementById("m-ext-detect-badge");
+  if (!badge) return;
+  const isDetected = !!(window.elrondWallet || window.multiversx || window.elrond);
+  if (isDetected) {
+    badge.textContent = "🟢 Detected";
+    badge.style.background = "rgba(168,255,0,0.18)";
+    badge.style.color = "#a8ff00";
+    badge.style.borderColor = "rgba(168,255,0,0.5)";
+  } else {
+    badge.textContent = "Browser Ext";
+    badge.style.background = "rgba(255,255,255,0.08)";
+    badge.style.color = "#e4e4e7";
+    badge.style.borderColor = "rgba(255,255,255,0.15)";
+  }
+}
+
+async function terminateWalletConnectSessions(client, topic) {
+  if (!client) return;
+  try {
+    if (topic) {
+      await client.disconnect({
+        topic: topic,
+        reason: { code: 6000, message: "User disconnected" }
+      });
+    }
+  } catch (e) {
+    console.warn("WalletConnect disconnect topic notice:", e);
+  }
+  try {
+    const sessions = client.session?.getAll?.() || [];
+    for (const sess of sessions) {
+      try {
+        await client.disconnect({
+          topic: sess.topic,
+          reason: { code: 6000, message: "User disconnected" }
+        });
+      } catch (err) {}
+    }
+  } catch (e) {
+    console.warn("WalletConnect disconnect all sessions notice:", e);
+  }
+}
+
+async function initMarketXPortalWalletConnect() {
+  const qrBox = document.getElementById("m-xportal-qr-box");
+  const qrImg = document.getElementById("m-xportal-qr-img");
+  const bridge = document.getElementById("m-xportal-bridge-link");
+  const statusPill = document.getElementById("m-wc-status-pill");
+  if (qrBox) qrBox.classList.remove("hidden");
+  if (statusPill) statusPill.textContent = "⏳ Initializing WalletConnect v2 Relay...";
+
+  try {
+    if (!marketWcSignClient) {
+      let Mod;
+      try {
+        Mod = await import("https://esm.sh/@walletconnect/sign-client@2.11.0?bundle");
+      } catch (e) {
+        Mod = await import("https://cdn.jsdelivr.net/npm/@walletconnect/sign-client@2.11.0/+esm");
+      }
+      const SC = Mod.SignClient || Mod.default;
+      marketWcSignClient = await SC.init({
+        projectId: WC_PROJECT_ID,
+        relayUrl: "wss://relay.walletconnect.com",
+        metadata: {
+          name: "EFOO Marketplace",
+          description: "Sunday League Degen FC NFT & Skills Market",
+          url: window.location.origin,
+          icons: ["https://efoo.optibase.ro/branding/rebranded/efoo-degen-crest-200x200.png"]
+        }
+      });
+    }
+
+    const { uri, approval } = await marketWcSignClient.connect({
+      requiredNamespaces: {
+        mvx: {
+          chains: ["mvx:1"],
+          methods: ["mvx_signTransaction", "mvx_signTransactions", "mvx_signMessage"],
+          events: []
+        }
+      }
+    });
+
+    if (uri) {
+      currentMarketWcUri = uri;
+      if (qrImg) {
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=210x210&margin=10&color=050a07&bgcolor=a8ff00&data=${encodeURIComponent(uri)}`;
+      }
+      if (statusPill) {
+        statusPill.textContent = "⚡ Waiting for xPortal scan & approval...";
+      }
+      const deepLinkUrl = `https://maiar.page.link/?apn=com.elrond.maiar.wallet&isi=1519405832&ibi=com.elrond.maiar.wallet&link=https://xportal.com/?wallet-connect=${encodeURIComponent(uri)}`;
+      if (bridge) {
+        bridge.href = deepLinkUrl;
+        bridge.style.display = "inline-flex";
+      }
+      if (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "")) {
+        window.location.href = deepLinkUrl;
+      }
+    }
+
+    const session = await approval();
+    marketWcSessionTopic = session.topic;
+    localStorage.setItem("efoo_wc_topic", marketWcSessionTopic);
+    const accs = session?.namespaces?.mvx?.accounts || [];
+    if (accs.length > 0) {
+      const addr = accs[0].split(":").pop();
+      connectManualAddress(addr, "xportal");
+      document.getElementById("m-wallet-modal")?.classList.add("hidden");
+      showMarketToast(
+        currentMarketLang === "hu"
+          ? `✅ Sikeresen csatlakozva xPortallal: ${addr.slice(0, 6)}...${addr.slice(-4)}`
+          : `✅ Connected via xPortal: ${addr.slice(0, 6)}...${addr.slice(-4)}`
+      );
+    }
+  } catch (err) {
+    console.warn("WalletConnect init/approval notice:", err);
+    if (statusPill) statusPill.textContent = "⚠️ Connection cancelled or timed out.";
+    const callbackUrl = window.location.origin + window.location.pathname.replace(/\.html$/, "");
+    const loginUrl = `https://wallet.multiversx.com/hook/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+    if (qrImg) {
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=210x210&margin=10&color=050a07&bgcolor=a8ff00&data=${encodeURIComponent(loginUrl)}`;
+    }
+  }
+}
+
+async function connectMarketDefiExtension() {
+  const isHu = currentMarketLang === "hu";
+  let ext = window.elrondWallet || window.multiversx || window.elrond;
+  if (!ext) {
+    await new Promise((r) => setTimeout(r, 200));
+    ext = window.elrondWallet || window.multiversx || window.elrond;
+  }
+
+  if (!ext) {
+    const confirmInstall = confirm(
+      isHu
+        ? "A MultiversX DeFi Wallet bővítmény nem található ebben a böngészőben.\n\nKattints az OK gombra a MultiversX Web Wallet megnyitásához, vagy telepítsd a bővítményt a Chrome Áruházból!"
+        : "MultiversX DeFi Wallet Extension was not detected in this browser.\n\nPress OK to sign in via MultiversX Web Wallet instead (or install the extension from Chrome Web Store)."
+    );
+    if (confirmInstall) {
+      const callbackUrl = window.location.origin + window.location.pathname.replace(/\.html$/, "");
+      window.location.href = `https://wallet.multiversx.com/hook/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+    }
+    return;
+  }
+
+  try {
+    // Connect via standard inpage postMessage bridge (identical to app.js)
+    const res = await sendMarketExtensionMessage("connect", "");
+    const addr = typeof res === "string" ? res : (res && res.address ? res.address : "");
+    if (addr && addr.startsWith("erd1")) {
+      connectManualAddress(addr, "extension");
+      document.getElementById("m-wallet-modal")?.classList.add("hidden");
+      showMarketToast(
+        isHu
+          ? `✅ Sikeresen csatlakozva (DeFi Extension): ${addr.slice(0, 6)}...${addr.slice(-4)}`
+          : `✅ Connected via Extension: ${addr.slice(0, 6)}...${addr.slice(-4)}`
+      );
+      return;
+    }
+  } catch (err) {
+    console.warn("Market Extension connect failed:", err);
+    const msg = (err?.message || "").toLowerCase();
+    if (msg.includes("cancel") || msg.includes("reject") || msg.includes("denied")) {
+      showMarketToast(isHu ? "❌ A csatlakozást elutasítottad a tárcában." : "❌ Connection rejected by user.");
+      return;
+    }
+    showMarketToast(
+      isHu
+        ? "⚠️ Nem sikerült a csatlakozás a bővítményhez. Ellenőrizd, hogy a bővítmény engedélyezve van ezen az oldalon!"
+        : "⚠️ Could not connect to extension. Please ensure the extension is enabled on this site!"
+    );
   }
 }
 
@@ -178,10 +373,81 @@ async function sendMultiversxTransaction({ receiver, value = "0", data = "", gas
     version: 1
   }];
 
-  const ext = window.elrondWallet || window.multiversx || window.elrond;
-  const isExtension = marketWallet.provider === "extension" || (ext && marketWallet.provider !== "webwallet" && marketWallet.provider !== "xportal");
+  // PATH A: xPortal Mobile App (WalletConnect v2)
+  if (marketWallet.provider === "xportal") {
+    try {
+      showMarketToast(
+        isHu
+          ? "📱 Kérjük nyisd meg az xPortal appot a telefonodon a tranzakció jóváhagyásához!"
+          : "📱 Please check your xPortal Mobile App to approve & sign the transaction!"
+      );
 
-  // PATH A: MultiversX DeFi Wallet Extension (In-browser popup, ZERO redirects!)
+      if (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "")) {
+        const deepLink = `https://maiar.page.link/?apn=com.elrond.maiar.wallet&isi=1519405832&ibi=com.elrond.maiar.wallet&link=https://xportal.com/`;
+        setTimeout(() => {
+          window.location.href = deepLink;
+        }, 300);
+      }
+
+      if (!marketWcSignClient) {
+        let Mod;
+        try {
+          Mod = await import("https://esm.sh/@walletconnect/sign-client@2.11.0?bundle");
+        } catch (e) {
+          Mod = await import("https://cdn.jsdelivr.net/npm/@walletconnect/sign-client@2.11.0/+esm");
+        }
+        const SC = Mod.SignClient || Mod.default;
+        marketWcSignClient = await SC.init({
+          projectId: WC_PROJECT_ID,
+          relayUrl: "wss://relay.walletconnect.com"
+        });
+      }
+
+      const activeTopic = marketWcSessionTopic || localStorage.getItem("efoo_wc_topic");
+      if (!activeTopic) {
+        throw new Error(isHu ? "Nincs aktív xPortal kapcsolat. Kérjük csatlakozz újra!" : "No active xPortal session found. Please reconnect!");
+      }
+
+      const wcTxs = preparedTxs.map((t) => ({
+        ...t,
+        data: toBase64Data(t.data)
+      }));
+
+      const res = await marketWcSignClient.request({
+        topic: activeTopic,
+        chainId: "mvx:1",
+        request: {
+          method: "mvx_signTransaction",
+          params: { transaction: wcTxs[0] }
+        }
+      });
+
+      const signedTx = {
+        ...wcTxs[0],
+        ...res,
+        data: wcTxs[0].data,
+        dataIsBase64: true
+      };
+
+      const hashes = await broadcastMarketSignedTransactions([signedTx]);
+      if (hashes.length > 0) {
+        return { success: true, hash: hashes[0], method: "xportal" };
+      }
+      throw new Error(isHu ? "Nem sikerült a tranzakció kiküldése." : "Transaction broadcast failed.");
+    } catch (err) {
+      console.warn("xPortal signing error:", err);
+      const msg = (err?.message || "").toLowerCase();
+      if (msg.includes("cancel") || msg.includes("reject") || msg.includes("denied") || msg.includes("user cancel")) {
+        throw new Error(isHu ? "Tranzakció elutasítva az xPortalban." : "Transaction rejected in xPortal.");
+      }
+      throw err;
+    }
+  }
+
+  // PATH B: MultiversX DeFi Wallet Extension (In-browser popup, ZERO redirects!)
+  const ext = window.elrondWallet || window.multiversx || window.elrond;
+  const isExtension = marketWallet.provider === "extension" || (ext && marketWallet.provider !== "webwallet");
+
   if (isExtension || ext) {
     try {
       showMarketToast(
@@ -218,7 +484,7 @@ async function sendMultiversxTransaction({ receiver, value = "0", data = "", gas
     }
   }
 
-  // PATH B: Official MultiversX Web Wallet hook/sign (Contract call hook, zero redirects to /send!)
+  // PATH C: Official MultiversX Web Wallet hook/sign (Contract call hook, zero redirects to /send!)
   const callbackUrl = window.location.origin + window.location.pathname.replace(/\.html$/, "");
   const walletUrl = `https://wallet.multiversx.com/hook/sign?receiver=${encodeURIComponent(receiver)}&value=${encodeURIComponent(String(value || "0"))}&gasLimit=${gasLimit}&data=${encodeURIComponent(data)}&callbackUrl=${encodeURIComponent(callbackUrl)}`;
   window.open(walletUrl, "_blank");
@@ -835,11 +1101,32 @@ function updateWalletUI() {
   }
 }
 
-function disconnectWallet() {
+async function disconnectWallet() {
+  const topicToDisconnect = marketWcSessionTopic || localStorage.getItem("efoo_wc_topic") || "";
+
   marketWallet.address = null;
   marketWallet.provider = null;
   marketWallet.ownedNfts = [];
+  marketWcSessionTopic = "";
 
+  // 1. Actively terminate xPortal WalletConnect session so xPortal app closes session immediately
+  if (marketWcSignClient) {
+    terminateWalletConnectSessions(marketWcSignClient, topicToDisconnect);
+  } else if (topicToDisconnect) {
+    (async () => {
+      try {
+        let Mod = await import("https://esm.sh/@walletconnect/sign-client@2.11.0?bundle").catch(() => import("https://cdn.jsdelivr.net/npm/@walletconnect/sign-client@2.11.0/+esm"));
+        const SC = Mod.SignClient || Mod.default;
+        const tempClient = await SC.init({
+          projectId: WC_PROJECT_ID,
+          relayUrl: "wss://relay.walletconnect.com"
+        });
+        await terminateWalletConnectSessions(tempClient, topicToDisconnect);
+      } catch (e) {}
+    })();
+  }
+
+  // 2. Revoke DeFi Extension session
   const ext = window.elrondWallet || window.multiversx || window.elrond;
   if (ext && typeof ext.logout === "function") {
     try {
@@ -847,8 +1134,10 @@ function disconnectWallet() {
     } catch (e) {}
   }
   try {
-    sendMarketExtensionMessage("logout", {});
+    sendMarketExtensionMessage("logout", "");
   } catch (e) {}
+
+  // 3. Clear all storage keys
   try {
     localStorage.removeItem("multiversx_address");
     localStorage.removeItem("multiversx_provider");
@@ -881,8 +1170,8 @@ function disconnectWallet() {
   renderMyLockerGrid();
   showMarketToast(
     currentMarketLang === "hu"
-      ? "🚪 Sikeresen kijelentkeztél a piactérről!"
-      : "🚪 Logged out successfully."
+      ? "🚪 Sikeresen kijelentkeztél (xPortal és böngésző kapcsolat lezárva)!"
+      : "🚪 Logged out successfully (xPortal & browser sessions closed)."
   );
 }
 
@@ -1993,6 +2282,8 @@ function showMarketToast(msg) {
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
   initMarketWallet();
+  updateExtensionBadge();
+  setTimeout(updateExtensionBadge, 500);
   refreshOnChainVaultStats();
   renderMarketplaceGrid();
   renderSkillsStore();
@@ -2087,9 +2378,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Wallet Modal
   const walletModal = document.getElementById("m-wallet-modal");
   document.getElementById("m-btn-connect")?.addEventListener("click", () => {
+    updateExtensionBadge();
     walletModal?.classList.remove("hidden");
   });
   document.getElementById("btn-locker-connect")?.addEventListener("click", () => {
+    updateExtensionBadge();
     walletModal?.classList.remove("hidden");
   });
   document.getElementById("close-m-wallet-btn")?.addEventListener("click", () => {
@@ -2108,77 +2401,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Providers Demo QR & Web Wallet
+  // Providers: xPortal Mobile App (WalletConnect v2)
   document.getElementById("m-login-xportal")?.addEventListener("click", () => {
-    const qrBox = document.getElementById("m-xportal-qr-box");
-    const qrImg = document.getElementById("m-xportal-qr-img");
-    if (qrBox && qrImg) {
-      qrBox.classList.remove("hidden");
-      const callbackUrl = window.location.origin + window.location.pathname.replace(/\.html$/, "");
-      const loginUrl = `https://wallet.multiversx.com/hook/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
-      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(loginUrl)}`;
+    initMarketXPortalWalletConnect();
+  });
+
+  document.getElementById("m-copy-wc-uri-btn")?.addEventListener("click", () => {
+    if (currentMarketWcUri) {
+      navigator.clipboard.writeText(currentMarketWcUri);
+      const btn = document.getElementById("m-copy-wc-uri-btn");
+      if (btn) {
+        btn.textContent = "✅ Copied!";
+        setTimeout(() => { btn.textContent = "📋 Copy wc: URI"; }, 2000);
+      }
     }
   });
 
-  document.getElementById("m-login-extension")?.addEventListener("click", async () => {
-    const isHu = currentMarketLang === "hu";
-    let ext = window.elrondWallet || window.multiversx || window.elrond;
-    if (!ext) {
-      await new Promise(r => setTimeout(r, 150));
-      ext = window.elrondWallet || window.multiversx || window.elrond;
-    }
-
-    try {
-      let addr = "";
-      if (ext && typeof ext.init === "function") {
-        try { await ext.init(); } catch (e) {}
-      }
-      if (ext && typeof ext.login === "function") {
-        try {
-          const res = await ext.login();
-          addr = typeof res === "string" ? res : (res && res.address ? res.address : "");
-        } catch (e) {
-          const msg = (e?.message || "").toLowerCase();
-          if (msg.includes("cancel") || msg.includes("reject") || msg.includes("denied")) {
-            showMarketToast(isHu ? "❌ A csatlakozást elutasítottad a tárcában." : "❌ Connection rejected by user.");
-            return;
-          }
-          console.warn("Direct ext.login failed, trying postMessage bridge:", e);
-        }
-      }
-
-      // Universal MultiversX in-page postMessage bridge
-      if (!addr) {
-        const res = await sendMarketExtensionMessage("connect", {});
-        addr = typeof res === "string" ? res : (res && res.address ? res.address : "");
-      }
-
-      if (addr && addr.startsWith("erd1")) {
-        connectManualAddress(addr, "extension");
-        document.getElementById("m-wallet-modal")?.classList.add("hidden");
-        showMarketToast(
-          isHu
-            ? `✅ Sikeresen csatlakozva (DeFi Extension): ${addr.slice(0, 6)}...${addr.slice(-4)}`
-            : `✅ Connected via Extension: ${addr.slice(0, 6)}...${addr.slice(-4)}`
-        );
-        return;
-      }
-    } catch (e) {
-      console.warn("Extension login error:", e);
-      const errMsg = (e?.message || "").toLowerCase();
-      if (errMsg.includes("cancel") || errMsg.includes("reject") || errMsg.includes("denied")) {
-        showMarketToast(isHu ? "❌ A csatlakozást elutasítottad a tárcában." : "❌ Connection rejected by user.");
-        return;
-      }
-    }
-
-    showMarketToast(
-      isHu
-        ? "⚠️ Nem sikerült a csatlakozás a bővítményhez. Kérjük győződj meg róla, hogy a bővítmény telepítve van és engedélyezve ezen az oldalon!"
-        : "⚠️ Could not connect to MultiversX DeFi Wallet extension. Please ensure the extension is enabled on this site!"
-    );
+  // MultiversX DeFi Wallet Extension (In-page erdw bridge)
+  document.getElementById("m-login-extension")?.addEventListener("click", () => {
+    connectMarketDefiExtension();
   });
 
+  // MultiversX Web Wallet (wallet.multiversx.com)
   document.getElementById("m-login-webwallet")?.addEventListener("click", () => {
     const callbackUrl = window.location.origin + window.location.pathname.replace(/\.html$/, "");
     window.location.href = `https://wallet.multiversx.com/hook/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;

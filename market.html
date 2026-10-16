@@ -389,30 +389,47 @@
         <button type="button" class="m-prov-btn" id="m-login-xportal">
           <span class="mp-icon">📱</span>
           <div class="mp-info">
-            <strong>xPortal Mobile App</strong>
-            <small>Scan QR code with xPortal</small>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <strong>xPortal Mobile App</strong>
+              <span class="m-prov-tag" style="background:rgba(168,255,0,0.12); color:#a8ff00; font-size:0.68rem; font-weight:700; padding:2px 6px; border-radius:4px; border:1px solid rgba(168,255,0,0.3);">WalletConnect v2</span>
+            </div>
+            <small>Scan official wc: QR code in xPortal App or tap Deep Link</small>
           </div>
+          <span style="margin-left:auto; color:var(--neon); font-size:1.1rem;">→</span>
         </button>
 
         <div id="m-xportal-qr-box" class="m-qr-box hidden">
+          <div id="m-wc-status-pill" style="font-size:0.75rem; font-weight:700; color:#050a07; background:#a8ff00; border-radius:6px; padding:4px 8px; margin-bottom:8px;">⏳ Initializing WalletConnect v2 Relay...</div>
           <img id="m-xportal-qr-img" src="" alt="xPortal QR" width="200" height="200" />
-          <small>Scan with xPortal app to sign in</small>
+          <small style="display:block; margin:6px 0 8px; color:#18181b;">Open <strong>xPortal App</strong> ➔ tap QR scanner (top right) ➔ scan &amp; approve</small>
+          <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+            <a id="m-xportal-bridge-link" href="#" class="m-btn-primary" style="display:none; text-decoration:none; font-size:0.82rem; padding:6px 12px;">📱 Open in xPortal App ↗</a>
+            <button type="button" id="m-copy-wc-uri-btn" class="m-btn-sec" style="font-size:0.82rem; padding:6px 12px; cursor:pointer; background:#27272a; color:#fff; border:1px solid #3f3f46; border-radius:8px;">📋 Copy wc: URI</button>
+          </div>
         </div>
 
         <button type="button" class="m-prov-btn" id="m-login-extension">
           <span class="mp-icon">🧩</span>
           <div class="mp-info">
-            <strong>MultiversX DeFi Extension</strong>
-            <small>Browser wallet extension</small>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <strong>MultiversX DeFi Extension</strong>
+              <span id="m-ext-detect-badge" class="m-prov-tag" style="background:rgba(255,255,255,0.08); color:#e4e4e7; font-size:0.68rem; font-weight:700; padding:2px 6px; border-radius:4px; border:1px solid rgba(255,255,255,0.15);">Browser Ext</span>
+            </div>
+            <small>Connect Chrome / Brave / Edge MultiversX Extension</small>
           </div>
+          <span style="margin-left:auto; color:var(--neon); font-size:1.1rem;">→</span>
         </button>
 
         <button type="button" class="m-prov-btn" id="m-login-webwallet">
           <span class="mp-icon">🌐</span>
           <div class="mp-info">
-            <strong>MultiversX Web Wallet</strong>
-            <small>Official online wallet</small>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <strong>MultiversX Web Wallet</strong>
+              <span class="m-prov-tag" style="background:rgba(56,189,248,0.12); color:#38bdf8; font-size:0.68rem; font-weight:700; padding:2px 6px; border-radius:4px; border:1px solid rgba(56,189,248,0.3);">wallet.multiversx.com</span>
+            </div>
+            <small>Official online wallet (Keystore, Ledger, Passkey, PEM)</small>
           </div>
+          <span style="margin-left:auto; color:var(--neon); font-size:1.1rem;">→</span>
         </button>
 
         <!-- Instant Address Explorer -->
@@ -431,6 +448,6 @@
   <div id="m-toast" class="m-toast hidden"></div>
 
   <!-- Scripts -->
-  <script src="market.js?v=20261016_v5"></script>
+  <script src="market.js?v=20261016_v6"></script>
 </body>
 </html>

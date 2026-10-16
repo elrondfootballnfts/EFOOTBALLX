@@ -2027,13 +2027,88 @@ async function connectWithWalletAddress(address, providerType = "inspector") {
   await fetchConnectedWalletData(connectedAddress);
 }
 
-function disconnectWallet() {
+async function terminateWalletConnectSessions(client, topic) {
+  if (!client) return;
+  try {
+    if (topic) {
+      await client.disconnect({
+        topic: topic,
+        reason: { code: 6000, message: "User disconnected" }
+      });
+    }
+  } catch (e) {
+    console.warn("WalletConnect disconnect topic notice:", e);
+  }
+  try {
+    const sessions = client.session?.getAll?.() || [];
+    for (const sess of sessions) {
+      try {
+        await client.disconnect({
+          topic: sess.topic,
+          reason: { code: 6000, message: "User disconnected" }
+        });
+      } catch (err) {}
+    }
+  } catch (e) {
+    console.warn("WalletConnect disconnect all sessions notice:", e);
+  }
+}
+
+async function disconnectWallet() {
+  const topicToDisconnect = wcSessionTopic || localStorage.getItem("efoo_wc_topic") || "";
+
   connectedAddress = "";
   connectedProvider = "";
   wcSessionTopic = "";
-  localStorage.removeItem("efoo_wallet_address");
-  localStorage.removeItem("efoo_wallet_provider");
-  localStorage.removeItem("efoo_wc_topic");
+
+  // 1. Actively terminate xPortal WalletConnect session so xPortal app closes session immediately
+  if (wcSignClient) {
+    terminateWalletConnectSessions(wcSignClient, topicToDisconnect);
+  } else if (topicToDisconnect) {
+    (async () => {
+      try {
+        let SignClientMod = await import("https://esm.sh/@walletconnect/sign-client@2.11.0?bundle").catch(() => import("https://cdn.jsdelivr.net/npm/@walletconnect/sign-client@2.11.0/+esm"));
+        const SignClient = SignClientMod.SignClient || SignClientMod.default;
+        const tempClient = await SignClient.init({
+          projectId: WC_PROJECT_ID,
+          relayUrl: "wss://relay.walletconnect.com"
+        });
+        await terminateWalletConnectSessions(tempClient, topicToDisconnect);
+      } catch (e) {}
+    })();
+  }
+
+  // 2. Revoke DeFi Extension session
+  const ext = window.elrondWallet || window.multiversx || window.elrond;
+  if (ext && typeof ext.logout === "function") {
+    try { ext.logout(); } catch (e) {}
+  }
+  try { sendExtensionMessage("logout", ""); } catch (e) {}
+
+  // 3. Clear all storage keys
+  try {
+    localStorage.removeItem("efoo_wallet_address");
+    localStorage.removeItem("efoo_wallet_provider");
+    localStorage.removeItem("efoo_connected_address");
+    localStorage.removeItem("efoo_wc_topic");
+    localStorage.removeItem("walletconnect");
+    localStorage.removeItem("multiversx_address");
+    localStorage.removeItem("multiversx_provider");
+    localStorage.removeItem("efoo_user_wallet");
+
+    sessionStorage.removeItem("efoo_connected_address");
+    sessionStorage.removeItem("efoo_wallet_address");
+    sessionStorage.removeItem("efoo_wallet_provider");
+    sessionStorage.removeItem("efoo_admin_session_auth_v1");
+    sessionStorage.removeItem("multiversx_address");
+    sessionStorage.removeItem("multiversx_provider");
+  } catch (e) {}
+
+  try {
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  } catch (e) {}
 
   walletState.efooBalance = 0;
   walletState.egldBalance = 0;
@@ -2047,6 +2122,12 @@ function disconnectWallet() {
   renderOwnedNftsGallery();
   updateGamePowerUps();
   updateSwapEstimate();
+
+  showToast(
+    currentLang === "ro"
+      ? "🚪 Deconectat cu succes (xPortal și sesiunile au fost închise)!"
+      : "🚪 Logged out successfully (xPortal & browser sessions closed)!"
+  );
 }
 
 function updateWalletStatusUI() {
