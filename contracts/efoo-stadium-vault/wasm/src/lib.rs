@@ -15,6 +15,8 @@ multiversx_sc_wasm_adapter::endpoints! {
         init => init
         reviveStreakAndAdvance => revive_streak_and_advance
         retryCurrentRound => retry_current_round
+        depositToVaultPot => deposit_to_vault_pot
+        burnTokens => burn_tokens
         pauseContract => pause_contract
         unpauseContract => unpause_contract
         distributeWeekendVault => distribute_weekend_vault
@@ -22,6 +24,8 @@ multiversx_sc_wasm_adapter::endpoints! {
         buyNft => buy_nft
         delistNft => delist_nft
         updateListingPrice => update_listing_price
+        setGameFees => set_game_fees
+        emergencyWithdrawToken => emergency_withdraw_token
         getEfooTokenId => efoo_token_id
         getBurnAddress => burn_address
         getVaultPotBalance => vault_pot_balance

@@ -8,15 +8,22 @@ pub struct NftListing<M: ManagedTypeApi> {
     pub seller: ManagedAddress<M>,
     pub nft_token_id: TokenIdentifier<M>,
     pub nft_nonce: u64,
-    pub price_efoo: BigUint<M>,
+    pub payment_token: EgldOrEsdtTokenIdentifier<M>,
+    pub price: BigUint<M>,
 }
 
 /// MultiversX Smart Contract for EFOO Stadium Vault & P2P Marketplace
 /// - Defeat Streak Revive (50k EFOO: 50% Burned, 50% to Vault)
 /// - Round Retry (25k EFOO: 50% Burned, 50% to Vault)
+/// - Sponsor & Community Vault Injection (depositToVaultPot)
+/// - Direct Milestone Supply Burning (burnTokens)
+/// - Dynamic Game Fee Adjustment (setGameFees)
 /// - Weekend Jackpot Distribution: 65% (1st) / 25% (2nd) / 10% (3rd) with Rollover
-/// - Verifiable Deflationary Supply Burning (ESDTLocalBurn or unspendable dead address)
-/// - On-chain P2P NFT Escrow & Marketplace
+/// - Verifiable Deflationary Supply Burning (esdt_local_burn)
+/// - Multi-Currency P2P NFT Marketplace:
+///     * $EFOO: 95% to Seller, 5% Platform Fee (2.5% Burned, 2.5% to Weekend Vault)
+///     * EGLD: 97.5% to Seller, 2.5% Platform Fee sent directly to efoorewards wallet
+/// - Web3 Security Shield: Checks-Effects-Interactions (CEI) & Circuit Breaker (Pause/Unpause)
 #[multiversx_sc::contract]
 pub trait EfooStadiumVault {
     #[init]
@@ -29,13 +36,13 @@ pub trait EfooStadiumVault {
         self.burn_address().set(&burn_address);
 
         // 18 decimals factor
-        let factor = BigUint::from(10u64).pow(18);
+        let factor = BigUint::from(10u64).pow(18u32);
 
-        // 50,000 $EFOO Revive Streak & Advance Fee
+        // Default 50,000 $EFOO Revive Streak & Advance Fee
         let revive_advance_fee = BigUint::from(50_000u64) * &factor;
         self.revive_advance_fee().set(&revive_advance_fee);
 
-        // 25,000 $EFOO Retry Round Fee
+        // Default 25,000 $EFOO Retry Round Fee
         let retry_round_fee = BigUint::from(25_000u64) * &factor;
         self.retry_round_fee().set(&retry_round_fee);
 
@@ -51,8 +58,8 @@ pub trait EfooStadiumVault {
     // GAMEPLAY ENDPOINTS: STREAK REVIVE & ROUND RETRY (50% BURN / 50% VAULT)
     // =========================================================================
 
-    /// Option 1: Revive Win Streak & Advance to Next Round (50,000 $EFOO)
-    /// 50% is burned forever, 50% added to Stadium Vault Jackpot
+    /// Option 1: Revive Win Streak & Advance to Next Round (Default 50,000 $EFOO)
+    /// 50% is burned forever on-chain, 50% added to Stadium Vault Jackpot
     #[payable("*")]
     #[endpoint(reviveStreakAndAdvance)]
     fn revive_streak_and_advance(&self) {
@@ -61,7 +68,7 @@ pub trait EfooStadiumVault {
         require!(token == self.efoo_token_id().get(), "Invalid payment token");
         require!(
             payment >= self.revive_advance_fee().get(),
-            "Insufficient payment: 50,000 $EFOO required"
+            "Insufficient payment for streak revive"
         );
 
         let half_vault = &payment / 2u32;
@@ -70,12 +77,12 @@ pub trait EfooStadiumVault {
         // 50% added to the Stadium Vault Jackpot
         self.vault_pot_balance().update(|pot| *pot += &half_vault);
 
-        // 50% burned forever
+        // 50% burned forever on-chain
         self.execute_burn(&half_burn);
     }
 
-    /// Option 2: Retry Current Round (25,000 $EFOO)
-    /// 50% is burned forever, 50% added to Stadium Vault Jackpot. Streak is protected.
+    /// Option 2: Retry Current Round (Default 25,000 $EFOO)
+    /// 50% is burned forever on-chain, 50% added to Stadium Vault Jackpot. Streak is protected.
     #[payable("*")]
     #[endpoint(retryCurrentRound)]
     fn retry_current_round(&self) {
@@ -84,7 +91,7 @@ pub trait EfooStadiumVault {
         require!(token == self.efoo_token_id().get(), "Invalid payment token");
         require!(
             payment >= self.retry_round_fee().get(),
-            "Insufficient payment: 25,000 $EFOO required"
+            "Insufficient payment for round retry"
         );
 
         let half_vault = &payment / 2u32;
@@ -93,8 +100,32 @@ pub trait EfooStadiumVault {
         // 50% added to the Stadium Vault Jackpot
         self.vault_pot_balance().update(|pot| *pot += &half_vault);
 
-        // 50% burned forever
+        // 50% burned forever on-chain
         self.execute_burn(&half_burn);
+    }
+
+    /// Community / Sponsor Vault Injection:
+    /// Allows the team or sponsors to inject extra $EFOO directly into the Weekend Jackpot Pot
+    #[payable("*")]
+    #[endpoint(depositToVaultPot)]
+    fn deposit_to_vault_pot(&self) {
+        let (token, payment) = self.call_value().single_fungible_esdt();
+        require!(token == self.efoo_token_id().get(), "Payment must be in $EFOO");
+        require!(payment > 0, "Deposit amount must be greater than 0");
+
+        self.vault_pot_balance().update(|pot| *pot += &payment);
+    }
+
+    /// Direct Milestone / Marketing Token Burn:
+    /// Anyone or team can burn $EFOO supply directly through the contract, updating global stats
+    #[payable("*")]
+    #[endpoint(burnTokens)]
+    fn burn_tokens(&self) {
+        let (token, payment) = self.call_value().single_fungible_esdt();
+        require!(token == self.efoo_token_id().get(), "Payment must be in $EFOO");
+        require!(payment > 0, "Burn amount must be greater than 0");
+
+        self.execute_burn(&payment);
     }
 
     /// Internal burning logic:
@@ -107,28 +138,6 @@ pub trait EfooStadiumVault {
         // Physically burns the $EFOO supply on MultiversX ledger
         // Requires ESDTRoleLocalBurn granted to this Smart Contract address
         self.send().esdt_local_burn(&token_id, 0, burn_amount);
-    }
-
-    // =========================================================================
-    // EMERGENCY CIRCUIT BREAKER (PAUSE / UNPAUSE)
-    // =========================================================================
-
-    #[only_owner]
-    #[endpoint(pauseContract)]
-    fn pause_contract(&self) {
-        self.is_paused().set(true);
-    }
-
-    #[only_owner]
-    #[endpoint(unpauseContract)]
-    fn unpause_contract(&self) {
-        self.is_paused().set(false);
-    }
-
-    fn require_not_paused(&self) {
-        if !self.is_paused().is_empty() {
-            require!(!self.is_paused().get(), "Smart contract is currently paused");
-        }
     }
 
     // =========================================================================
@@ -178,38 +187,46 @@ pub trait EfooStadiumVault {
     }
 
     // =========================================================================
-    // P2P NFT MARKETPLACE (LIST, BUY, DELIST, EDIT PRICE)
+    // MULTI-CURRENCY P2P NFT MARKETPLACE (EFOO + EGLD)
     // =========================================================================
 
-    /// Seller lists their owned Striker or Goalkeeper NFT for sale in $EFOO
+    /// Seller lists their owned Striker or Goalkeeper NFT for sale
+    /// Accepts payment in either native EGLD or $EFOO
     #[payable("*")]
     #[endpoint(listNft)]
-    fn list_nft(&self, price_efoo: BigUint) {
+    fn list_nft(&self, payment_token: EgldOrEsdtTokenIdentifier, price: BigUint) {
         self.require_not_paused();
-        require!(price_efoo > 0, "Price must be greater than 0");
+        require!(price > 0, "Price must be greater than 0");
+
+        let efoo_id = self.efoo_token_id().get();
+        let is_valid_currency = payment_token.is_egld() || payment_token == EgldOrEsdtTokenIdentifier::esdt(efoo_id);
+        require!(is_valid_currency, "Listing currency must be native EGLD or $EFOO");
+
         let caller = self.blockchain().get_caller();
         let (token_id, nonce, amount) = self.call_value().single_esdt();
-        require!(amount == 1, "Only 1 NFT can be listed per call");
+        require!(amount == 1, "Only 1 NFT can be listed per transaction");
 
         let listing = NftListing {
             seller: caller,
             nft_token_id: token_id.clone(),
             nft_nonce: nonce,
-            price_efoo,
+            payment_token,
+            price,
         };
 
         self.nft_listings(&token_id, nonce).set(&listing);
     }
 
-    /// Buyer purchases listed NFT using $EFOO.
-    /// Checks-Effects-Interactions (CEI) compliant: state is cleared prior to transfers.
-    /// 99% sent to seller, 0.5% burned forever, 0.5% sent to Stadium Vault.
+    /// Buyer purchases listed NFT.
+    /// Checks-Effects-Interactions (CEI) compliant: listing is cleared prior to transfers.
+    ///
+    /// Fee Model:
+    /// - If $EFOO: 95% to Seller, 2.5% Burned, 2.5% to Weekend Vault Jackpot
+    /// - If EGLD: 97.5% to Seller, 2.5% Platform Fee sent directly to efoorewards wallet
     #[payable("*")]
     #[endpoint(buyNft)]
     fn buy_nft(&self, nft_token_id: TokenIdentifier, nft_nonce: u64) {
         self.require_not_paused();
-        let (payment_token, payment_amount) = self.call_value().single_fungible_esdt();
-        require!(payment_token == self.efoo_token_id().get(), "Payment must be in $EFOO");
 
         require!(
             !self.nft_listings(&nft_token_id, nft_nonce).is_empty(),
@@ -217,31 +234,57 @@ pub trait EfooStadiumVault {
         );
 
         let listing = self.nft_listings(&nft_token_id, nft_nonce).get();
-        require!(payment_amount >= listing.price_efoo, "Insufficient $EFOO paid");
-
         let buyer = self.blockchain().get_caller();
-
-        // 1% platform fee (0.5% burned, 0.5% to stadium vault)
-        let fee_vault = (&listing.price_efoo * 5u32) / 1000u32;
-        let fee_burn = (&listing.price_efoo * 5u32) / 1000u32;
-        let seller_payout = &listing.price_efoo - &fee_vault - &fee_burn;
 
         // CEI Pattern: Clear listing state BEFORE transferring funds or NFTs
         self.nft_listings(&nft_token_id, nft_nonce).clear();
 
-        // Payout seller
-        self.send().direct_esdt(&listing.seller, &payment_token, 0, &seller_payout);
+        if listing.payment_token.is_egld() {
+            // EGLD Payment Processing
+            let payment_egld = self.call_value().egld_value().clone_value();
+            require!(payment_egld >= listing.price, "Insufficient EGLD paid");
 
-        // Add 0.5% to stadium vault
-        self.vault_pot_balance().update(|p| *p += &fee_vault);
+            // 2.5% platform fee to owner (efoorewards), 97.5% to seller
+            let fee_egld = (&listing.price * 25u32) / 1000u32;
+            let seller_payout = &listing.price - &fee_egld;
 
-        // Burn 0.5%
-        self.execute_burn(&fee_burn);
+            // Payout seller in EGLD
+            self.send().direct_egld(&listing.seller, &seller_payout);
 
-        // Refund any excess payment to buyer
-        let excess = &payment_amount - &listing.price_efoo;
-        if excess > 0 {
-            self.send().direct_esdt(&buyer, &payment_token, 0, &excess);
+            // Send 2.5% platform fee directly to contract owner (efoorewards)
+            let owner_address = self.blockchain().get_owner_address();
+            self.send().direct_egld(&owner_address, &fee_egld);
+
+            // Refund any excess EGLD to buyer
+            let excess = &payment_egld - &listing.price;
+            if excess > 0 {
+                self.send().direct_egld(&buyer, &excess);
+            }
+        } else {
+            // $EFOO Payment Processing
+            let (payment_token, payment_amount) = self.call_value().single_fungible_esdt();
+            require!(payment_token == self.efoo_token_id().get(), "Payment must be in $EFOO");
+            require!(payment_amount >= listing.price, "Insufficient $EFOO paid");
+
+            // 5% platform fee split: 2.5% burned, 2.5% to stadium vault
+            let fee_vault = (&listing.price * 25u32) / 1000u32;
+            let fee_burn = (&listing.price * 25u32) / 1000u32;
+            let seller_payout = &listing.price - &fee_vault - &fee_burn; // 95%
+
+            // Payout 95% $EFOO to seller
+            self.send().direct_esdt(&listing.seller, &payment_token, 0, &seller_payout);
+
+            // Add 2.5% to stadium vault
+            self.vault_pot_balance().update(|p| *p += &fee_vault);
+
+            // Burn 2.5% permanently on-chain
+            self.execute_burn(&fee_burn);
+
+            // Refund any excess $EFOO to buyer
+            let excess = &payment_amount - &listing.price;
+            if excess > 0 {
+                self.send().direct_esdt(&buyer, &payment_token, 0, &excess);
+            }
         }
 
         // Transfer NFT to buyer
@@ -267,11 +310,22 @@ pub trait EfooStadiumVault {
         self.send().direct_esdt(&caller, &listing.nft_token_id, listing.nft_nonce, &BigUint::from(1u32));
     }
 
-    /// Owner updates price of their active listing
+    /// Owner updates price and/or currency of their active listing
     #[endpoint(updateListingPrice)]
-    fn update_listing_price(&self, nft_token_id: TokenIdentifier, nft_nonce: u64, new_price: BigUint) {
+    fn update_listing_price(
+        &self,
+        nft_token_id: TokenIdentifier,
+        nft_nonce: u64,
+        new_payment_token: EgldOrEsdtTokenIdentifier,
+        new_price: BigUint,
+    ) {
         let caller = self.blockchain().get_caller();
         require!(new_price > 0, "Price must be greater than 0");
+
+        let efoo_id = self.efoo_token_id().get();
+        let is_valid_currency = new_payment_token.is_egld() || new_payment_token == EgldOrEsdtTokenIdentifier::esdt(efoo_id);
+        require!(is_valid_currency, "Listing currency must be native EGLD or $EFOO");
+
         require!(
             !self.nft_listings(&nft_token_id, nft_nonce).is_empty(),
             "NFT listing not found"
@@ -280,8 +334,61 @@ pub trait EfooStadiumVault {
         let mut listing = self.nft_listings(&nft_token_id, nft_nonce).get();
         require!(listing.seller == caller, "Only listing seller can update price");
 
-        listing.price_efoo = new_price;
+        listing.payment_token = new_payment_token;
+        listing.price = new_price;
         self.nft_listings(&nft_token_id, nft_nonce).set(&listing);
+    }
+
+    // =========================================================================
+    // DYNAMIC OWNER CONTROLS & RESCUE
+    // =========================================================================
+
+    /// Allows owner to adjust game revive fees if token price fluctuates
+    #[only_owner]
+    #[endpoint(setGameFees)]
+    fn set_game_fees(&self, new_revive_advance_fee: BigUint, new_retry_round_fee: BigUint) {
+        require!(new_revive_advance_fee > 0, "Fee must be greater than 0");
+        require!(new_retry_round_fee > 0, "Fee must be greater than 0");
+
+        self.revive_advance_fee().set(&new_revive_advance_fee);
+        self.retry_round_fee().set(&new_retry_round_fee);
+    }
+
+    /// Emergency fund rescue: allows owner to rescue accidentally sent third-party tokens
+    #[only_owner]
+    #[endpoint(emergencyWithdrawToken)]
+    fn emergency_withdraw_token(&self, token_identifier: EgldOrEsdtTokenIdentifier, amount: BigUint) {
+        let owner = self.blockchain().get_owner_address();
+        require!(amount > 0, "Amount must be greater than 0");
+
+        if token_identifier.is_egld() {
+            self.send().direct_egld(&owner, &amount);
+        } else {
+            let esdt_id = token_identifier.into_esdt_option().unwrap();
+            self.send().direct_esdt(&owner, &esdt_id, 0, &amount);
+        }
+    }
+
+    // =========================================================================
+    // EMERGENCY CIRCUIT BREAKER (PAUSE / UNPAUSE)
+    // =========================================================================
+
+    #[only_owner]
+    #[endpoint(pauseContract)]
+    fn pause_contract(&self) {
+        self.is_paused().set(true);
+    }
+
+    #[only_owner]
+    #[endpoint(unpauseContract)]
+    fn unpause_contract(&self) {
+        self.is_paused().set(false);
+    }
+
+    fn require_not_paused(&self) {
+        if !self.is_paused().is_empty() {
+            require!(!self.is_paused().get(), "Smart contract is currently paused");
+        }
     }
 
     // =========================================================================
