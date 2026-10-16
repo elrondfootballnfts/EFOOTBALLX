@@ -9,6 +9,8 @@ const XOXNO_MARKETPLACE_SC = "erd1qqqqqqqqqqqqqpgq6wegs2xkypfpync8mn2sa5cmpqjlvr
 const EFOO_TOKEN_ID = "EFOO-8fe2d4";
 const STRIKER_COLLECTION = "EFOOTBALL-91a4eb";
 const KEEPER_COLLECTION = "GOALKEEPER-cb9e3e";
+const STADIUM_VAULT_SC = "erd1qqqqqqqqqqqqqpgqwdrgl4k7gfa26wp0xcje8qn9gucq87yx55hs39eend";
+const EFOOREWARDS_WALLET = "erd1p5hfnx87q4pddwsyz23e5pqv8550rsfat902j6g4ckdh070055hshct4my";
 
 const STORAGE_LISTINGS = "EFOO_NFT_MARKET_LISTINGS_V1";
 const STORAGE_VAULT_POT = "efoo_stadium_vault_pot";
@@ -419,6 +421,47 @@ function addVaultContributions(vaultAdd, burnAdd) {
   } catch (e) {}
   renderTelemetry();
   return stats;
+}
+
+async function refreshOnChainVaultStats() {
+  if (!STADIUM_VAULT_SC || !STADIUM_VAULT_SC.startsWith("erd1qqqq")) {
+    renderTelemetry();
+    return;
+  }
+  try {
+    const res = await fetch(`https://api.multiversx.com/accounts/${STADIUM_VAULT_SC}/tokens/${EFOO_TOKEN_ID}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.balance) {
+        const balanceBig = BigInt(data.balance);
+        const potTokens = Number(balanceBig / 1000000000000000000n);
+        localStorage.setItem(STORAGE_VAULT_POT, String(potTokens));
+      }
+    } else {
+      localStorage.setItem(STORAGE_VAULT_POT, "0");
+    }
+    const queryRes = await fetch("https://api.multiversx.com/query", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        scAddress: STADIUM_VAULT_SC,
+        funcName: "getTotalBurnedGames",
+        args: []
+      })
+    });
+    if (queryRes.ok) {
+      const qData = await queryRes.json();
+      if (qData && qData.data && qData.data.returnData && qData.data.returnData[0]) {
+        const hex = atob(qData.data.returnData[0]).split('').map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+        const burnedBig = BigInt('0x' + (hex || '0'));
+        const burnedTokens = Number(burnedBig / 1000000000000000000n);
+        localStorage.setItem(STORAGE_TOTAL_BURNED, String(burnedTokens));
+      }
+    }
+  } catch (e) {
+    console.warn("Could not refresh on-chain vault stats:", e);
+  }
+  renderTelemetry();
 }
 
 function renderTelemetry() {
@@ -1048,8 +1091,53 @@ async function executeBuyNft(item) {
   }
 
   // =========================================================================
-  // P2P COMMUNITY LISTING PURCHASE ($EFOO)
+  // P2P COMMUNITY LISTING PURCHASE ($EFOO / EGLD)
   // =========================================================================
+  const isEgld = item.currency === "EGLD";
+  if (isEgld) {
+    if (marketWallet.egldBalance < item.price) {
+      showMarketToast(
+        isHu
+          ? `⚠️ Nincs elegendő EGLD egyenleged! Ár: ${item.price} EGLD`
+          : `⚠️ Insufficient EGLD balance! Price: ${item.price} EGLD`
+      );
+      return;
+    }
+
+    // Deduct EGLD from buyer
+    marketWallet.egldBalance -= item.price;
+    updateWalletUI();
+
+    // EGLD Split: 97.5% to seller, 2.5% platform fee directly to efoorewards wallet
+    const platformFee = item.price * 0.025;
+    const sellerNet = item.price * 0.975;
+    console.log(`[P2P EGLD Trade] Total: ${item.price} EGLD | Seller: ${sellerNet.toFixed(4)} EGLD (97.5%) | efoorewards (${EFOOREWARDS_WALLET}): ${platformFee.toFixed(4)} EGLD (2.5%)`);
+
+    // Transfer ownership in marketplace
+    let listings = getMarketplaceListings();
+    listings = listings.filter((x) => x.id !== item.id);
+    saveMarketplaceListings(listings);
+
+    // Add to buyer's locker
+    if (!marketWallet.ownedNfts) marketWallet.ownedNfts = [];
+    marketWallet.ownedNfts.push({
+      ...item,
+      seller: marketWallet.address
+    });
+
+    renderMarketplaceGrid();
+    renderMyLockerGrid();
+    renderTelemetry();
+
+    showMarketToast(
+      isHu
+        ? `🎉 Sikeres vásárlás! ${item.name} a tiéd lett! 97.5% eladónak küldve, 2.5% platformdíj az efoorewards tárcába ment.`
+        : `🎉 Congratulations! ${item.name} is now in your Locker Room! (97.5% to seller, 2.5% platform fee to efoorewards).`
+    );
+    return;
+  }
+
+  // $EFOO Trade
   if (marketWallet.efooBalance < item.price) {
     showMarketToast(
       isHu
@@ -1063,9 +1151,11 @@ async function executeBuyNft(item) {
   marketWallet.efooBalance -= item.price;
   updateWalletUI();
 
-  // 1% platform fee (0.5% burned, 0.5% to stadium vault)
-  const feeHalf = Math.floor(item.price * 0.005);
-  addVaultContributions(feeHalf, feeHalf);
+  // EFOO Split: 95% to seller, 5% platform fee (2.5% burn 🔥, 2.5% to Stadium Vault jackpot 🏆)
+  const fee2_5 = Math.floor(item.price * 0.025);
+  const sellerNet = item.price - (fee2_5 * 2);
+  addVaultContributions(fee2_5, fee2_5);
+  console.log(`[P2P EFOO Trade] Total: ${item.price} $EFOO | Seller: ${sellerNet.toLocaleString()} (95%) | Burn: ${fee2_5.toLocaleString()} (2.5%) | Vault Pot: ${fee2_5.toLocaleString()} (2.5%)`);
 
   // Transfer ownership in marketplace
   let listings = getMarketplaceListings();
@@ -1085,8 +1175,8 @@ async function executeBuyNft(item) {
 
   showMarketToast(
     isHu
-      ? `🎉 Sikeres vásárlás! ${item.name} bekerült a saját öltöződbe! 1% díj elégetve & a Vaultba helyezve.`
-      : `🎉 Congratulations! ${item.name} is now in your Locker Room!`
+      ? `🎉 Sikeres vásárlás! ${item.name} a tiéd lett! 95% eladónak küldve, 2.5% elégetve 🔥, 2.5% a hétvégi Vault Jackpotba került 🏆!`
+      : `🎉 Congratulations! ${item.name} is now in your Locker Room! 95% to seller, 2.5% burned 🔥, 2.5% to Stadium Vault Jackpot 🏆!`
   );
 }
 
@@ -1323,7 +1413,7 @@ function showMarketToast(msg) {
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
   initMarketWallet();
-  renderTelemetry();
+  refreshOnChainVaultStats();
   renderMarketplaceGrid();
   renderSkillsStore();
   fetchLiveXoxnoListings();

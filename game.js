@@ -129,7 +129,16 @@ const CONTRACTS = {
   NFT_MINTER: "erd1qqqqqqqqqqqqqpgq78frnmw5sep0q4r2qd96y3d6f6p7ujwcys5s9evzym",
   FOMO_RESERVE: "erd1k8w7y5ftg2uax8v8ng8p5azjw96zzfgky9v3fydtpe2xwdz0007q3hl9z8",
   RESERVE_VAULT: "erd1lqh33j0geuxxa8wyj95wk8cy8yqf7gltn73mmdmtucvn332txarqzcdpzp",
+  STADIUM_VAULT_SC: "erd1qqqqqqqqqqqqqpgqwdrgl4k7gfa26wp0xcje8qn9gucq87yx55hs39eend",
   WC_PROJECT_ID: "9b1a9564f91cb659ffe21b73d5c4e2d8"
+};
+
+const EFOO_CONFIG = {
+  TOKEN_ID: "EFOO-8fe2d4",
+  STADIUM_VAULT_SC: "erd1qqqqqqqqqqqqqpgqwdrgl4k7gfa26wp0xcje8qn9gucq87yx55hs39eend",
+  BURN_ADDRESS: "erd1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gq4hu",
+  REVIVE_ADVANCE_FEE: 50000,
+  RETRY_ROUND_FEE: 25000
 };
 
 const STORAGE_VAULT_POT = "efoo_stadium_vault_pot";
@@ -185,6 +194,8 @@ async function refreshOnChainVaultStats() {
         const potTokens = Number(balanceBig / 1000000000000000000n);
         localStorage.setItem(STORAGE_VAULT_POT, String(potTokens));
       }
+    } else {
+      localStorage.setItem(STORAGE_VAULT_POT, "0");
     }
 
     // 2. Query totalBurnedGames view endpoint from SC
