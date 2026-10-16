@@ -27,7 +27,6 @@ jobs:
           cargo build --package efoo-stadium-vault-wasm --target wasm32-unknown-unknown --release
           mkdir -p output
           cp target/wasm32-unknown-unknown/release/efoo_stadium_vault_wasm.wasm output/efoo-stadium-vault.wasm
-          (cd meta && cargo run -- build) || echo "Meta ABI generation finished"
           ls -lh output/
 
       - name: Verify and Publish WASM to site
@@ -38,7 +37,7 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add -f contracts/efoo-stadium-vault/output/* contracts-dist/* || true
           git commit -m "build(wasm): automated contract build [skip ci]" || echo "No changes"
-          git push origin HEAD:main || echo "Push skipped"
+          git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:main || echo "Push skipped"
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4

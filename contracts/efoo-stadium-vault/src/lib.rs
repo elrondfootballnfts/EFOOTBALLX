@@ -199,7 +199,7 @@ pub trait EfooStadiumVault {
         require!(price > 0, "Price must be greater than 0");
 
         let efoo_id = self.efoo_token_id().get();
-        let is_valid_currency = payment_token.is_egld() || (!payment_token.is_egld() && payment_token.unwrap_esdt() == efoo_id);
+        let is_valid_currency = payment_token.is_egld() || (!payment_token.is_egld() && payment_token.clone().unwrap_esdt() == efoo_id);
         require!(is_valid_currency, "Listing currency must be native EGLD or $EFOO");
 
         let caller = self.blockchain().get_caller();
@@ -325,7 +325,7 @@ pub trait EfooStadiumVault {
         require!(new_price > 0, "Price must be greater than 0");
 
         let efoo_id = self.efoo_token_id().get();
-        let is_valid_currency = new_payment_token.is_egld() || (!new_payment_token.is_egld() && new_payment_token.unwrap_esdt() == efoo_id);
+        let is_valid_currency = new_payment_token.is_egld() || (!new_payment_token.is_egld() && new_payment_token.clone().unwrap_esdt() == efoo_id);
         require!(is_valid_currency, "Listing currency must be native EGLD or $EFOO");
 
         require!(

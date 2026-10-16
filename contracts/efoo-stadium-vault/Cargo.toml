@@ -19,6 +19,5 @@ multiversx-sc-scenario = { version = "0.54.0" }
 resolver = "2"
 members = [
     ".",
-    "meta",
     "wasm",
 ]
