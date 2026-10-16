@@ -10,44 +10,33 @@ permissions:
 
 jobs:
   build:
+    name: Build via Official MultiversX Contract Builder
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
         with:
-          targets: wasm32-unknown-unknown
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build Smart Contract WASM
+      - name: Compile Smart Contract with Official Docker Builder
         run: |
-          set -o pipefail
-          rustup target add wasm32-unknown-unknown
-          cd contracts/efoo-stadium-vault/meta
-          cargo run -- build 2>&1 | tee ../../../build.log
-          cd ../../..
-          echo "### Build Log" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          cat build.log >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          find . -name "*.wasm" -o -name "*.abi.json"
+          docker run --rm -v ${{ github.workspace }}:/workspace multiversx/sdk-rust-contract-builder:v8.0.1 \
+            --project=/workspace/contracts/efoo-stadium-vault
+
+      - name: Verify Artifacts
+        run: |
+          ls -la ${{ github.workspace }}/contracts/efoo-stadium-vault/output/
 
       - name: Upload Artifacts
-        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: efoo-stadium-vault-build
-          path: |
-            build.log
-            **/*.wasm
-            **/*.abi.json
+          name: efoo-stadium-vault-wasm
+          path: contracts/efoo-stadium-vault/output/*
 
-      - name: Commit and Push WASM to repo
-        if: always()
+      - name: Commit and Push WASM to main branch
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f build.log contracts/efoo-stadium-vault/output/ || true
-          git commit -m "chore(build): automated WASM bytecode build and log [skip ci]" || echo "No changes to commit"
-          git push origin main || echo "Could not push"
+          git add -f contracts/efoo-stadium-vault/output/*
+          git commit -m "build(wasm): official reproducible contract build [skip ci]" || echo "No changes"
+          git push origin HEAD:main || echo "Push fallback"
