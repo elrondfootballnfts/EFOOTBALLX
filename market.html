@@ -302,7 +302,7 @@
         <div class="m-form-field">
           <label for="list-input-price">Set Asking Price:</label>
           <div class="m-input-with-currency">
-            <input type="number" id="list-input-price" placeholder="e.g. 2500000" min="1000" step="1000" />
+            <input type="number" id="list-input-price" placeholder="e.g. 2,500,000" min="1000" step="1000" />
             <select id="list-select-currency" class="m-currency-select">
               <option value="EFOO">$EFOO</option>
               <option value="EGLD">EGLD</option>
@@ -312,12 +312,12 @@
 
         <div class="m-fee-summary">
           <div class="mfs-row">
-            <span>Platform Fee (0.5% Burn + 0.5% Stadium Vault):</span>
-            <strong class="neon">1.0%</strong>
+            <span id="list-fee-label">Platform Fee (2.5% Burn + 2.5% Stadium Vault):</span>
+            <strong class="neon" id="list-fee-pct">5.0%</strong>
           </div>
           <div class="mfs-row">
-            <span>You Receive:</span>
-            <strong id="list-calc-receive">99% of sale</strong>
+            <span id="list-receive-label">You Receive:</span>
+            <strong id="list-calc-receive">95% of sale</strong>
           </div>
         </div>
 
@@ -344,7 +344,7 @@
         <div class="m-form-field">
           <label for="edit-input-price">New Asking Price:</label>
           <div class="m-input-with-currency">
-            <input type="number" id="edit-input-price" placeholder="e.g. 1800000" min="1000" step="1000" />
+            <input type="number" id="edit-input-price" placeholder="e.g. 1,800,000" min="0.001" step="any" />
             <span class="m-currency-badge" id="edit-currency-badge">$EFOO</span>
           </div>
         </div>
