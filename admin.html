@@ -19,6 +19,29 @@
       --admin-card-bg: rgba(14, 23, 18, 0.92);
       --admin-border: rgba(255, 184, 0, 0.25);
     }
+    * {
+      box-sizing: border-box;
+      scrollbar-width: thin;
+      scrollbar-color: var(--admin-gold) #030705;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #030705;
+      border-radius: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #ffb800 0%, #b45309 100%);
+      border-radius: 8px;
+      border: 2px solid #030705;
+      box-shadow: 0 0 10px rgba(255, 184, 0, 0.35);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #fef08a 0%, #ffb800 100%);
+      box-shadow: 0 0 16px rgba(255, 184, 0, 0.7);
+    }
     body.admin-body {
       background: #030705 radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 184, 0, 0.08), transparent 70%);
       color: #f3f7f4;

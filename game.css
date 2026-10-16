@@ -6,6 +6,37 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(168, 255, 0, 0.5) #030805;
+}
+
+/* ============================================================================
+   GLOBAL THEMED SCROLLBAR (MATCHING $EFOO NEON TURF & DARK STADIUM PALETTE)
+   ============================================================================ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #030805;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #a8ff00 0%, #059669 100%);
+  border-radius: 8px;
+  border: 2px solid #030805;
+  box-shadow: 0 0 10px rgba(168, 255, 0, 0.35);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #d9f99d 0%, #a8ff00 100%);
+  box-shadow: 0 0 16px rgba(168, 255, 0, 0.75);
+}
+
+::-webkit-scrollbar-corner {
+  background: #030805;
 }
 
 html,
@@ -672,6 +703,29 @@ body.start-screen-active .hud-top-bar,
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
   pointer-events: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #a8ff00 #030805;
+}
+
+.arcade-overlay::-webkit-scrollbar {
+  width: 8px;
+}
+
+.arcade-overlay::-webkit-scrollbar-track {
+  background: #030805;
+  border-left: 1px solid rgba(168, 255, 0, 0.15);
+}
+
+.arcade-overlay::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #a8ff00 0%, #059669 100%);
+  border-radius: 8px;
+  border: 2px solid #030805;
+  box-shadow: 0 0 10px rgba(168, 255, 0, 0.35);
+}
+
+.arcade-overlay::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #d9f99d 0%, #a8ff00 100%);
+  box-shadow: 0 0 16px rgba(168, 255, 0, 0.7);
 }
 
 .hidden {
@@ -985,7 +1039,7 @@ body.start-screen-active .hud-top-bar,
 .smc-slot-media img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   pointer-events: none;
 }
 
@@ -1863,7 +1917,7 @@ body.start-screen-active .hud-top-bar,
   width: 100%;
   height: 168px;
   border-radius: 14px;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .intro-fighter-card strong {
@@ -3851,6 +3905,31 @@ body.fx-gold-active #arcade-viewport {
   overflow-x: hidden;
   box-sizing: border-box;
   animation: fadeInHub 0.35s ease-out;
+  scrollbar-width: thin;
+  scrollbar-color: #a8ff00 rgba(3, 9, 6, 0.95);
+}
+
+.ea-sports-hub::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ea-sports-hub::-webkit-scrollbar-track {
+  background: rgba(3, 9, 6, 0.9);
+  border-radius: 10px;
+  margin: 10px 0;
+  border-left: 1px solid rgba(168, 255, 0, 0.15);
+}
+
+.ea-sports-hub::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #a8ff00 0%, #10b981 100%);
+  border-radius: 10px;
+  border: 1px solid rgba(168, 255, 0, 0.4);
+  box-shadow: 0 0 10px rgba(168, 255, 0, 0.3);
+}
+
+.ea-sports-hub::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #d9f99d 0%, #a8ff00 100%);
+  box-shadow: 0 0 16px rgba(168, 255, 0, 0.7);
 }
 
 @keyframes fadeInHub {
@@ -4267,20 +4346,36 @@ body.fx-gold-active #arcade-viewport {
 
 .hpc-media {
   width: 100%;
-  height: 120px;
-  border-radius: 10px;
+  height: 210px;
+  border-radius: 12px;
   overflow: hidden;
-  background: #020503;
+  background: radial-gradient(circle at 50% 50%, rgba(168, 255, 0, 0.08) 0%, rgba(2, 6, 4, 0.96) 80%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.hub-player-card.keeper .hpc-media {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 184, 0, 0.08) 0%, rgba(2, 6, 4, 0.96) 80%);
 }
 
 .hpc-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain !important;
+  border-radius: 8px;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.65));
+  transition: transform 0.25s ease;
+}
+
+.hub-player-card:hover .hpc-media img {
+  transform: scale(1.04);
 }
 
 .hpc-info {
@@ -4538,6 +4633,27 @@ body.fx-gold-active #arcade-viewport {
 .hlb-table-wrap {
   max-height: 280px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #a8ff00 rgba(4, 12, 8, 0.95);
+}
+
+.hlb-table-wrap::-webkit-scrollbar {
+  width: 6px;
+}
+
+.hlb-table-wrap::-webkit-scrollbar-track {
+  background: rgba(4, 12, 8, 0.95);
+  border-radius: 6px;
+}
+
+.hlb-table-wrap::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #a8ff00, #059669);
+  border-radius: 6px;
+}
+
+.hlb-table-wrap::-webkit-scrollbar-thumb:hover {
+  background: #a8ff00;
+  box-shadow: 0 0 10px rgba(168, 255, 0, 0.6);
 }
 
 .hlb-table {
