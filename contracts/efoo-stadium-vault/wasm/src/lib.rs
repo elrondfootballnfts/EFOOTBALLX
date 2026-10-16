@@ -13,7 +13,6 @@ multiversx_sc_wasm_adapter::endpoints! {
     efoo_stadium_vault
     (
         init => init
-        upgrade => upgrade
         reviveStreakAndAdvance => revive_streak_and_advance
         retryCurrentRound => retry_current_round
         depositToVaultPot => deposit_to_vault_pot
