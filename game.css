@@ -4526,6 +4526,10 @@ body.fx-gold-active #arcade-viewport {
   color: #ffb800;
   cursor: pointer;
   transition: all 0.2s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hmb-btn-skills:hover {

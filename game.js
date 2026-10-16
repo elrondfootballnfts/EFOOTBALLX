@@ -6671,17 +6671,25 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target && e.target.id === "daily-streak-modal-overlay") closeStreak();
   });
 
-  // Super Skills Shop & Marketplace Modal
-  document.getElementById("open-skills-shop-btn")?.addEventListener("click", () => openSkillsShopModal("skills"));
+  // Super Skills Shop & Marketplace Direct Navigation
+  document.getElementById("open-skills-shop-btn")?.addEventListener("click", () => {
+    window.location.href = "market.html?tab=skills";
+  });
   document.getElementById("close-skills-shop-btn")?.addEventListener("click", closeSkillsShopModal);
   document.getElementById("skills-shop-modal-overlay")?.addEventListener("click", (e) => {
     if (e.target && e.target.id === "skills-shop-modal-overlay") closeSkillsShopModal();
   });
 
-  // Start Screen & Summary Screen Marketplace Triggers (INDÍTÁS ELŐTT & JÁTÉK VÉGZETE UTÁN)
-  document.getElementById("start-open-store-btn")?.addEventListener("click", () => openSkillsShopModal("skills"));
-  document.getElementById("btn-sum-open-store")?.addEventListener("click", () => openSkillsShopModal("skills"));
-  document.getElementById("btn-sum-skills-shop")?.addEventListener("click", () => openSkillsShopModal("skills"));
+  // Start Screen & Summary Screen Marketplace Triggers (Közvetlen navigáció a Piactér Skills fülére)
+  document.getElementById("start-open-store-btn")?.addEventListener("click", () => {
+    window.location.href = "market.html?tab=skills";
+  });
+  document.getElementById("btn-sum-open-store")?.addEventListener("click", () => {
+    window.location.href = "market.html?tab=skills";
+  });
+  document.getElementById("btn-sum-skills-shop")?.addEventListener("click", () => {
+    window.location.href = "market.html?tab=skills";
+  });
 
   // Marketplace Modal Tabs
   document.getElementById("tab-btn-skills")?.addEventListener("click", () => setMarketplaceTab("skills"));

@@ -1808,12 +1808,31 @@ document.addEventListener("DOMContentLoaded", () => {
     panelSkills?.classList.toggle("hidden", tab !== "skills");
 
     if (tab === "my_nfts") renderMyLockerGrid();
+    if (tab === "skills") renderSkillsStore();
   };
   window.switchMarketTab = switchTab;
 
   tabBrowse?.addEventListener("click", () => switchTab("browse"));
   tabMyNfts?.addEventListener("click", () => switchTab("my_nfts"));
   tabSkills?.addEventListener("click", () => switchTab("skills"));
+
+  // Check URL query parameters and hash (e.g. market.html?tab=skills or market.html#skills)
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get("tab") || (window.location.hash ? window.location.hash.replace("#", "") : "");
+    if (tabParam === "skills" || tabParam === "skills-store" || tabParam === "skill") {
+      switchTab("skills");
+    } else if (tabParam === "my_nfts" || tabParam === "locker") {
+      switchTab("my_nfts");
+    }
+  } catch (e) {}
+
+  window.addEventListener("hashchange", () => {
+    const h = window.location.hash.replace("#", "");
+    if (h === "skills" || h === "skills-store" || h === "skill") switchTab("skills");
+    else if (h === "my_nfts" || h === "locker") switchTab("my_nfts");
+    else if (h === "browse") switchTab("browse");
+  });
 
   // Filters
   document.querySelectorAll("[data-filter-col]").forEach((btn) => {
