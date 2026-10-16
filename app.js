@@ -1406,8 +1406,8 @@ function initHeroScrollytelling() {
   function smoothScrollTick() {
     const diff = targetHeroProgress - smoothP;
     if (Math.abs(diff) > 0.0004) {
-      // Smooth damping (0.055) so wheel ticks glide gently across Acts
-      smoothP += diff * 0.055;
+      // Responsive smooth damping (0.10) so wheel ticks glide responsively across Acts
+      smoothP += diff * 0.10;
       updateHeroScrollyState(smoothP);
     }
     requestAnimationFrame(smoothScrollTick);
@@ -3646,21 +3646,11 @@ document.addEventListener("DOMContentLoaded", () => {
     window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(shareTxt)}`, "_blank");
   });
 
-  // FOMO 90+5' Countdown Interval
-  setInterval(() => {
-    if (gameState.fomoSeconds > 0) {
-      gameState.fomoSeconds -= 1;
-    } else {
-      gameState.fomoSeconds = 300;
-    }
-    const mins = String(Math.floor(gameState.fomoSeconds / 60)).padStart(2, "0");
-    const secs = String(gameState.fomoSeconds % 60).padStart(2, "0");
-    const timeStr = `${mins}:${secs}`;
-    const clockEl = document.getElementById("fomo-countdown");
-    const heroClockEl = document.getElementById("hero-fomo-timer");
-    if (clockEl) clockEl.textContent = timeStr;
-    if (heroClockEl) heroClockEl.textContent = timeStr;
-  }, 1000);
+  // FOMO 120' AET Shootout Status
+  const heroClockEl = document.getElementById("hero-fomo-timer");
+  if (heroClockEl) {
+    heroClockEl.textContent = currentLang === "hu" ? "⚽ 120' BÜNTETŐK" : (currentLang === "ro" ? "⚽ 120' PENALTY" : "⚽ 120' PENALTIES");
+  }
 
   // Meme Studio Controls
   ["meme-top-input", "meme-bottom-input"].forEach((id) => {
