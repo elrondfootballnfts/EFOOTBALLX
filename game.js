@@ -1066,24 +1066,24 @@ class ModernStadiumAudio {
     o.stop(now + 0.2);
   }
 
-  // Professional Fox 40 referee whistle (dual acoustic frequencies 2850Hz & 3120Hz + breath air)
-  playWhistle() {
+  // Professional Fox 40 referee whistle blast (dual acoustic frequencies 2840Hz & 3110Hz + breath air)
+  playSingleWhistleBlast(startTime, duration = 0.38, gainMultiplier = 1.0) {
     if (!this.enabled) return;
     this.init();
     if (!this.ctx) return;
-    const now = this.ctx.currentTime;
+    const now = startTime !== null && startTime !== undefined ? startTime : this.ctx.currentTime;
     [2840, 3110].forEach((freq) => {
       const o = this.ctx.createOscillator();
       const g = this.ctx.createGain();
       o.type = "sine";
       o.frequency.setValueAtTime(freq, now);
       g.gain.setValueAtTime(0.001, now);
-      g.gain.linearRampToValueAtTime(0.12, now + 0.025);
-      g.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+      g.gain.linearRampToValueAtTime(0.13 * gainMultiplier, now + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, now + duration);
       o.connect(g);
       g.connect(this.ctx.destination);
       o.start(now);
-      o.stop(now + 0.45);
+      o.stop(now + duration + 0.02);
     });
 
     if (this.noiseBuffer) {
@@ -1095,14 +1095,32 @@ class ModernStadiumAudio {
       nF.Q.setValueAtTime(4.0, now);
       const nG = this.ctx.createGain();
       nG.gain.setValueAtTime(0.001, now);
-      nG.gain.linearRampToValueAtTime(0.06, now + 0.02);
-      nG.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+      nG.gain.linearRampToValueAtTime(0.06 * gainMultiplier, now + 0.015);
+      nG.gain.exponentialRampToValueAtTime(0.001, now + duration);
       nSrc.connect(nF);
       nF.connect(nG);
       nG.connect(this.ctx.destination);
       nSrc.start(now);
-      nSrc.stop(now + 0.42);
+      nSrc.stop(now + duration + 0.02);
     }
+  }
+
+  playWhistle() {
+    this.playSingleWhistleBlast(this.ctx?.currentTime, 0.42, 1.0);
+  }
+
+  // Classic football referee full-time triple whistle (pip, pip, piiiiiiiiiiiip!)
+  playMatchEndWhistle() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    // 1st blast: short (0.18s)
+    this.playSingleWhistleBlast(now, 0.18, 1.0);
+    // 2nd blast: short (0.18s) after 0.26s
+    this.playSingleWhistleBlast(now + 0.26, 0.18, 1.05);
+    // 3rd blast: long decisive full-time blast (0.72s) after 0.54s
+    this.playSingleWhistleBlast(now + 0.54, 0.72, 1.25);
   }
 
   // Futuristic skill activation surge
@@ -2141,8 +2159,8 @@ function setStartScreenState(isActive) {
     overlay?.classList.add("hidden");
     document.body.classList.remove("start-screen-active");
     hud?.classList.remove("start-hidden");
-    if (audio && audio.bgmPlaying) {
-      audio.stopBgm();
+    if (audio && audio.bgmEnabled && !audio.bgmPlaying) {
+      audio.startBgm();
     }
   }
 }
@@ -2151,6 +2169,10 @@ function setStartScreenState(isActive) {
 // CINEMATIC INTRO & 120' SHOOTOUT MATCH LAUNCH
 // ============================================================================
 function launchMatchWithIntro() {
+  game.matchEndWhistlePlayed = false;
+  if (audio && audio.bgmEnabled && !audio.bgmPlaying) {
+    audio.startBgm();
+  }
   setStartScreenState(false);
   document.getElementById("summary-screen-overlay")?.classList.add("hidden");
   document.getElementById("var-revive-overlay")?.classList.add("hidden");
@@ -2769,7 +2791,8 @@ function finishMatch() {
   try {
     const sw = window.innerWidth || 800;
     const sh = window.innerHeight || 600;
-    audio.playWhistle();
+    game.matchEndWhistlePlayed = true;
+    audio.playMatchEndWhistle();
     if (userWon) {
       audio.playGoalCheer();
       audio.playApplause();
@@ -2887,7 +2910,10 @@ function goNextLevel() {
 
 function openSummaryModal() {
   game.phase = "summary";
-  audio.playWhistle();
+  if (!game.matchEndWhistlePlayed) {
+    audio.playMatchEndWhistle();
+  }
+  game.matchEndWhistlePlayed = false;
 
   // Cancel any pending VAR timer and ensure VAR overlay is closed
   if (game.varTimerInterval) {
@@ -6843,7 +6869,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // First user interaction gesture to unlock Web Audio API background music
   const unlockBgmGesture = () => {
-    if (audio && audio.bgmEnabled && !audio.bgmPlaying && game.phase === "start") {
+    if (audio && audio.bgmEnabled && !audio.bgmPlaying) {
       audio.startBgm();
     }
   };
