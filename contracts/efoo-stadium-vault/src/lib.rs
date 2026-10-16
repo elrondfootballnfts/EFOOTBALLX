@@ -46,9 +46,11 @@ pub trait EfooStadiumVault {
         let retry_round_fee = BigUint::from(25_000u64) * &factor;
         self.retry_round_fee().set(&retry_round_fee);
 
-        // Initial Total Burned Counter
-        let initial_burned = BigUint::from(92_912_450_000u64) * &factor;
-        self.total_burned_games().set(&initial_burned);
+        // Initial Total In-Game Burned Counter starts strictly at 0
+        self.total_burned_games().set(&BigUint::zero());
+
+        // Initial Stadium Vault Pot balance starts strictly at 0
+        self.vault_pot_balance().set(&BigUint::zero());
 
         // Circuit breaker starts unpaused
         self.is_paused().set(false);
