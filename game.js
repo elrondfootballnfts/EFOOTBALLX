@@ -710,7 +710,8 @@ const audio = new ModernStadiumAudio();
 // ============================================================================
 // STATE & IMAGE ASSETS
 // ============================================================================
-let currentLang = localStorage.getItem("efoo_game_lang") || "en";
+let currentLang = "en";
+localStorage.setItem("efoo_game_lang", "en");
 let connectedAddress = localStorage.getItem("efoo_wallet_address") || "";
 let connectedProvider = localStorage.getItem("efoo_wallet_provider") || "";
 let wcSignClient = null;
@@ -1438,6 +1439,9 @@ function refreshHudUI() {
       span.className = "shot-dot";
       if (i < game.userShotHistory.length) {
         span.classList.add(game.userShotHistory[i]);
+        if (i === game.userShotHistory.length - 1 && game.phase === "celebrate" && game.shootoutTurn === "shoot") {
+          span.classList.add("just-scored");
+        }
       } else if (i === game.userShotHistory.length && game.shootoutTurn === "shoot" && game.phase !== "summary" && game.phase !== "match_result") {
         span.classList.add("current");
       }
@@ -1454,6 +1458,9 @@ function refreshHudUI() {
       span.className = "shot-dot";
       if (i < game.aiShotHistory.length) {
         span.classList.add(game.aiShotHistory[i]);
+        if (i === game.aiShotHistory.length - 1 && game.phase === "celebrate" && game.shootoutTurn === "defend") {
+          span.classList.add("just-scored");
+        }
       } else if (i === game.aiShotHistory.length && game.shootoutTurn === "defend" && game.phase !== "summary" && game.phase !== "match_result") {
         span.classList.add("current");
       }
@@ -1505,9 +1512,6 @@ function setStartScreenState(isActive) {
 // CINEMATIC INTRO & 120' SHOOTOUT MATCH LAUNCH
 // ============================================================================
 function launchMatchWithIntro() {
-  const isRo = currentLang === "ro";
-  const isHu = currentLang === "hu";
-
   setStartScreenState(false);
   document.getElementById("summary-screen-overlay")?.classList.add("hidden");
   document.getElementById("var-revive-overlay")?.classList.add("hidden");
@@ -1547,15 +1551,16 @@ function launchMatchWithIntro() {
   game.rawBaseScore = 0;
   game.armed = {};
   game.activeFx = {};
+  game.settledBall = null;
   game.shieldsLeft = p.maxShields;
   refreshHudUI();
   renderSkillsDeckUI();
 
   if (kickerEl) {
-    kickerEl.textContent = `🔥 120' AET • ${isHu ? tier.name : (isRo ? tier.nameRo : tier.name)} • 5 BÜNTETŐ KÖR`;
+    kickerEl.textContent = `🔥 120' AET • ${tier.name} • 5 PENALTY ROUNDS`;
     kickerEl.style.color = tier.color;
   }
-  if (titleEl) titleEl.textContent = isHu ? "120' DÖNTETLEN — BÜNTETŐPÁRBAJ" : (isRo ? "120' EGALITATE — PENALTY SHOOTOUT" : "120' DRAW — PENALTY SHOOTOUT");
+  if (titleEl) titleEl.textContent = "120' DRAW — PENALTY SHOOTOUT";
   if (perkEl) perkEl.textContent = `⚡ ${p.totalMult.toFixed(1)}x BOOST • ${p.strikerRarity.name} STRIKER & ${p.keeperRarity.name} GK`;
   audio.playIntroImpact();
 
@@ -1569,7 +1574,6 @@ function launchMatchWithIntro() {
     if (prog >= 1) {
       clearInterval(timer);
       if (introEl) introEl.classList.add("hidden");
-      audio.playWhistle();
       startNextShotRound();
     }
   }, 85);
@@ -1583,6 +1587,7 @@ function startNextShotRound() {
   game.armed = {};
   game.activeFx = {};
   game.ball = { active: false, t: 0 };
+  game.settledBall = null;
   game.swipe = { active: false, pointerId: null, points: [], startTime: 0 };
 
   const lv = getLevelParams(game.level);
@@ -1604,7 +1609,7 @@ function startNextShotRound() {
   refreshHudUI();
   renderSkillsDeckUI();
 
-  // ~1s initial pause, then referee whistles, then ~0.8s dramatic pause before aim phase begins
+  // ~1s initial pause, then referee whistles, then ~0.95s dramatic pause before aim phase begins
   setTimeout(() => {
     if (game.phase !== "shoot_ready") return;
     audio.playWhistle();
@@ -1617,7 +1622,7 @@ function startNextShotRound() {
       game.bigBanner = "";
       game.lastInteractionTime = Date.now();
       refreshHudUI();
-    }, 850);
+    }, 950);
   }, 1000);
 }
 
@@ -1840,7 +1845,9 @@ function releaseAndFireShot(finalPower, swipeCurve = 0, customTarget = null) {
     postIn: outcome.postIn,
     keeperAnticipated: outcome.keeperAnticipated,
     keeperWrongFooted: outcome.keeperWrongFooted,
-    speed: isWeak ? 0.026 : isSweet ? 0.035 : 0.040,
+    speed: isWeak ? 0.022 : isSweet ? 0.030 : 0.034,
+    duration: isWeak ? 0.85 : isSweet ? 0.65 : 0.62,
+    trail: [],
     fx
   };
 }
@@ -1964,6 +1971,7 @@ function startDefenseTurn() {
   game.armed = {};
   game.activeFx = {};
   game.ball = { active: false, t: 0 };
+  game.settledBall = null;
 
   // AI chooses a target across the goal corners/sides
   const corners = [
@@ -1992,19 +2000,20 @@ function startDefenseTurn() {
   refreshHudUI();
   renderSkillsDeckUI();
 
-  // ~1s initial pause, then referee whistles, then ~0.8s dramatic pause before AI shoots
+  // ~1s initial pause, then referee whistles, then ~0.95s dramatic pause before AI shoots
   setTimeout(() => {
     if (game.phase !== "defend_ready") return;
     audio.playWhistle();
-    game.bigBanner = "🎺 REFEREE WHISTLES! OPPONENT RUNNING UP!";
+    game.phase = "defend_aim";
+    game.lastInteractionTime = Date.now();
+    game.bigBanner = "🎺 REFEREE WHISTLES! DIVE NOW!";
     game.bigBannerColor = "#ffffff";
 
     setTimeout(() => {
-      if (game.phase !== "defend_ready") return;
+      if (game.phase !== "defend_aim" && game.phase !== "defend_ready") return;
       game.bigBanner = "";
-      game.lastInteractionTime = Date.now();
       executeAiShot();
-    }, 850);
+    }, 950);
   }, 1000);
 }
 
@@ -2041,7 +2050,9 @@ function executeAiShot() {
     curveIntensity: (Math.random() - 0.5) * 0.45,
     isSweet: Math.random() < 0.5,
     isTwin: false,
-    speed: fx.matrix_reflex ? 0.016 : 0.030,
+    speed: fx.matrix_reflex ? 0.014 : 0.026,
+    duration: fx.matrix_reflex ? 1.15 : 0.72,
+    trail: [],
     fx
   };
 }
@@ -2117,13 +2128,15 @@ function finishMatch() {
   };
 
   try {
+    const sw = window.innerWidth || 800;
+    const sh = window.innerHeight || 600;
     audio.playWhistle();
     if (userWon) {
       audio.playGoalCheer();
       audio.playApplause();
-      spawnSparks(W * 0.5, H * 0.4, "#a8ff00", 70);
-      spawnSparks(W * 0.5 - 120, H * 0.45, "#ffb800", 40);
-      spawnSparks(W * 0.5 + 120, H * 0.45, "#ffb800", 40);
+      spawnSparks(sw * 0.5, sh * 0.4, "#a8ff00", 70);
+      spawnSparks(sw * 0.5 - 120, sh * 0.45, "#ffb800", 40);
+      spawnSparks(sw * 0.5 + 120, sh * 0.45, "#ffb800", 40);
     } else if (isTie) {
       audio.playApplause();
     } else {
@@ -2527,10 +2540,9 @@ function initFullscreenStadiumCanvas() {
 
   function onPointerMove(e) {
     if (!canPlayMatch()) return;
-    game.lastInteractionTime = Date.now();
     const pos = getCanvasPos(e);
 
-    if (game.shootoutTurn === "defend" && (game.phase === "defend_aim" || game.phase === "defend_flight")) {
+    if (game.shootoutTurn === "defend" && (game.phase === "defend_ready" || game.phase === "defend_aim" || game.phase === "defend_flight")) {
       const g = getStageGeom();
       const tapNx = clampNum((pos.x - g.cx) / (g.goalW * 0.5), -1.1, 1.1);
       const tapNy = clampNum((g.goalBottom - pos.y) / g.goalH, 0.0, 1.1);
@@ -2547,6 +2559,7 @@ function initFullscreenStadiumCanvas() {
       return;
     }
 
+    game.lastInteractionTime = Date.now();
     const pts = game.swipe.points;
     const last = pts[pts.length - 1];
     const dist = Math.hypot(pos.x - last.x, pos.y - last.y);
@@ -3141,13 +3154,13 @@ function initFullscreenStadiumCanvas() {
       ctx.stroke();
       ctx.restore();
     } else if ((game.phase === "aim" || game.phase === "defend_aim") && (!game.swipe || !game.swipe.active)) {
-      // 7C. IDLE TUTORIAL GESTURE (Finger on Phone vs Mouse on PC after 2.5s inactivity)
+      // 7C. IDLE TUTORIAL GESTURE (Finger on Phone vs Mouse on PC after 1.6s inactivity)
       const now = Date.now();
       const idleTime = now - (game.lastInteractionTime || 0);
 
-      if (idleTime > 2500) {
-        const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 768);
-        const cycle = ((idleTime - 2500) % 2200) / 2200; // 2.2s repeat loop
+      if (idleTime > 1600) {
+        const isTouch = (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) || (window.innerWidth <= 820);
+        const cycle = ((idleTime - 1600) % 2100) / 2100; // 2.1s repeat loop
 
         ctx.save();
 
@@ -3185,11 +3198,11 @@ function initFullscreenStadiumCanvas() {
 
             // Draw faint glowing path of the demonstration swipe
             if (prog > 0.02) {
-              ctx.strokeStyle = "rgba(168, 255, 0, 0.4)";
-              ctx.lineWidth = 3.5;
+              ctx.strokeStyle = "rgba(168, 255, 0, 0.45)";
+              ctx.lineWidth = 4;
               ctx.lineCap = "round";
               ctx.shadowColor = "#a8ff00";
-              ctx.shadowBlur = 10;
+              ctx.shadowBlur = 12;
               ctx.beginPath();
               ctx.moveTo(startX, startY);
               const steps = Math.floor(prog * 18);
@@ -3209,11 +3222,11 @@ function initFullscreenStadiumCanvas() {
             const curX = iu * iu * startX + 2 * iu * prog * ctrlX + prog * prog * targetX;
             const curY = iu * iu * startY + 2 * iu * prog * ctrlY + prog * prog * targetY;
 
-            // Ripple pulse at start
-            if (prog < 0.22) {
-              const ripR = 10 + prog * 45;
-              ctx.strokeStyle = `rgba(168, 255, 0, ${0.7 - prog * 2.8})`;
-              ctx.lineWidth = 2;
+            // Ripple pulse at start when pressing down
+            if (prog < 0.25) {
+              const ripR = 10 + prog * 48;
+              ctx.strokeStyle = `rgba(168, 255, 0, ${0.75 - prog * 2.6})`;
+              ctx.lineWidth = 2.5;
               ctx.beginPath();
               ctx.arc(startX, startY, ripR, 0, Math.PI * 2);
               ctx.stroke();
@@ -3226,16 +3239,18 @@ function initFullscreenStadiumCanvas() {
             }
 
             // High-visibility instruction pill
-            const hintTxt = isTouch ? "👆 SWIPE FROM BALL TO GOAL TO SHOOT!" : "🖱️ HOLD CLICK & DRAG UP TO SHOOT!";
+            const hintTxt = isTouch
+              ? "👆 SWIPE BALL TO GOAL (DIRECTION & SPEED)"
+              : "🖱️ HOLD LEFT-CLICK & DRAG (DIRECTION & SPEED)";
             ctx.font = "800 12px 'JetBrains Mono', monospace";
             ctx.textAlign = "center";
             const pillW = ctx.measureText(hintTxt).width + 36;
             const pillY = Math.min(H - 45, g.spotY + 36);
 
             ctx.fillStyle = "rgba(4, 12, 7, 0.92)";
-            ctx.strokeStyle = "rgba(168, 255, 0, 0.65)";
+            ctx.strokeStyle = "rgba(168, 255, 0, 0.75)";
             ctx.lineWidth = 1.5;
-            ctx.shadowColor = "rgba(168, 255, 0, 0.4)";
+            ctx.shadowColor = "rgba(168, 255, 0, 0.45)";
             ctx.shadowBlur = 14;
             ctx.beginPath();
             ctx.roundRect(g.spotX - pillW / 2, pillY, pillW, 28, 14);
@@ -3251,7 +3266,7 @@ function initFullscreenStadiumCanvas() {
           const tgtY = g.goalBottom - game.aiTargetNy * g.goalH;
           const pulse = 0.5 + 0.5 * Math.sin(now * 0.008);
 
-          ctx.globalAlpha = 0.9;
+          ctx.globalAlpha = 0.92;
           if (isTouch) {
             drawTutorialFinger(ctx, tgtX, tgtY + 14, pulse > 0.5);
           } else {
@@ -3265,7 +3280,7 @@ function initFullscreenStadiumCanvas() {
           const pillY = Math.min(H - 45, g.spotY + 36);
 
           ctx.fillStyle = "rgba(4, 12, 7, 0.92)";
-          ctx.strokeStyle = "rgba(56, 189, 248, 0.65)";
+          ctx.strokeStyle = "rgba(56, 189, 248, 0.75)";
           ctx.lineWidth = 1.5;
           ctx.beginPath();
           ctx.roundRect(g.spotX - pillW / 2, pillY, pillW, 28, 14);
@@ -3306,7 +3321,12 @@ function initFullscreenStadiumCanvas() {
     const strikerOffsetX = (H > W) ? Math.min(130, W * 0.30) : 135;
     drawPitchStrikerHologram(ctx, g.spotX - strikerOffsetX + game.strikerLunge, g.spotY - 28 - game.strikerLunge * 0.4);
 
-    // 9. RADIAL POWER CHARGE RING, & FLYING ROCKET BALL
+    // 9. RADIAL POWER CHARGE RING, & FLYING ROCKET BALL (11 METERS PERSPECTIVE FLIGHT)
+    const nowFrame = performance.now();
+    const rawDt = game.lastFrameTime ? (nowFrame - game.lastFrameTime) / 1000 : 0.016;
+    game.lastFrameTime = nowFrame;
+    const dt = Math.min(0.05, Math.max(0.004, rawDt));
+
     ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
     ctx.beginPath();
     ctx.ellipse(g.spotX, g.spotY + 10, 16, 5, 0, 0, Math.PI * 2);
@@ -3344,22 +3364,68 @@ function initFullscreenStadiumCanvas() {
 
     if (game.ball.active) {
       const b = game.ball;
-      b.t += (b.speed || 0.044);
+      // Time-based 11m flight (0.62s - 0.85s) so it is clearly visible across 60Hz, 120Hz, and 144Hz screens!
+      const flightDuration = b.duration || 0.72;
+      b.t += dt / flightDuration;
       const u = Math.min(1, b.t);
       const iu = 1 - u;
 
       const endX = g.cx + b.aimNx * (g.goalW * 0.5);
       const endY = g.goalBottom - b.aimNy * g.goalH;
-      const ctrlX = (g.spotX + endX) * 0.5 + b.curveIntensity * 95;
-      const ctrlY = (g.spotY + endY) * 0.5 - 75;
+
+      // 3D arc & curve over the 11-meter distance from penalty spot to goal net
+      const arcLift = 68 + Math.abs(b.aimNy) * 32;
+      const ctrlX = (g.spotX + endX) * 0.5 + b.curveIntensity * 115;
+      const ctrlY = (g.spotY + endY) * 0.5 - arcLift;
 
       const bx = iu * iu * g.spotX + 2 * iu * u * ctrlX + u * u * endX;
       const by = iu * iu * g.spotY + 2 * iu * u * ctrlY + u * u * endY;
-      const rad = 30 * (1 - u * 0.48);
+
+      // Perspective depth scaling across 11 meters (32px at spot -> 14.5px inside goal net)
+      const rad = 32 * (1 - u * 0.54);
+
+      // 11m Ground Shadow traveling on the turf beneath the flying ball
+      const groundX = g.spotX + (endX - g.spotX) * u + b.curveIntensity * 35 * (2 * iu * u);
+      const groundY = g.spotY + (g.goalBottom - g.spotY) * u;
+      const shadowScale = 1 - u * 0.55;
+      ctx.save();
+      ctx.fillStyle = `rgba(0, 0, 0, ${0.42 * (1 - u * 0.35)})`;
+      ctx.beginPath();
+      ctx.ellipse(groundX, groundY + 6, Math.max(4, 18 * shadowScale), Math.max(2, 5.5 * shadowScale), 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Record & render 3D curved flight trail wake so the 11m trajectory into the net is unmistakable
+      if (!b.trail) b.trail = [];
+      b.trail.push({ x: bx, y: by, r: rad, u });
+      if (b.trail.length > 18) b.trail.shift();
+
+      if (b.trail.length > 1) {
+        ctx.save();
+        const wakeColor = (b.isSweet || p.hasRocket || fx.power)
+          ? "rgba(255, 136, 0, 0.45)"
+          : fx.curve
+          ? "rgba(192, 132, 252, 0.45)"
+          : "rgba(168, 255, 0, 0.38)";
+        for (let ti = 1; ti < b.trail.length; ti++) {
+          const p0 = b.trail[ti - 1];
+          const p1 = b.trail[ti];
+          const frac = ti / b.trail.length;
+          ctx.strokeStyle = wakeColor;
+          ctx.globalAlpha = frac * 0.75;
+          ctx.lineWidth = Math.max(2, p1.r * 0.85 * frac);
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(p0.x, p0.y);
+          ctx.lineTo(p1.x, p1.y);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
 
       // Rocket Fireball Flames & Sparks
       if (b.isSweet || p.hasRocket || fx.power) {
-        for (let k = 0; k < 3; k++) {
+        for (let k = 0; k < 2; k++) {
           game.particles.push({
             x: bx + (Math.random() - 0.5) * 12,
             y: by + (Math.random() - 0.5) * 12 + 6,
@@ -3382,22 +3448,37 @@ function initFullscreenStadiumCanvas() {
         });
       }
 
-      drawBallSprite(ctx, bx, by, rad, u * 18);
+      drawBallSprite(ctx, bx, by, rad, u * 22);
       if (b.isTwin) {
-        drawBallSprite(ctx, bx + Math.sin(u * 9) * 36, by - 14, rad * 0.9, -u * 18);
+        drawBallSprite(ctx, bx + Math.sin(u * 9) * 36, by - 14, rad * 0.9, -u * 22);
       }
 
       if (b.t >= 1) {
         b.active = false;
+        game.settledBall = {
+          x: endX,
+          y: Math.min(g.goalBottom - 6, endY + 10),
+          r: rad * 0.92,
+          until: Date.now() + 900
+        };
         if (game.shootoutTurn === "defend") {
           onAiBallReachGoal(endX, endY);
         } else {
           onBallReachGoal(endX, endY);
         }
       }
-    } else if (game.phase === "aim" || game.phase === "charging" || game.phase === "defend_aim") {
+    } else if (
+      game.phase === "shoot_ready" ||
+      game.phase === "aim" ||
+      game.phase === "charging" ||
+      game.phase === "defend_ready" ||
+      game.phase === "defend_aim"
+    ) {
       const pulse = 30 + Math.sin(Date.now() * 0.008) * 1.8;
       drawBallSprite(ctx, g.spotX, g.spotY, pulse, Date.now() * 0.002);
+    } else if (game.phase === "celebrate" && game.settledBall && Date.now() < game.settledBall.until) {
+      // Show ball resting in the back of the net after flying 11m
+      drawBallSprite(ctx, game.settledBall.x, game.settledBall.y, game.settledBall.r, 0.4);
     }
 
     // 10. RENDER PARTICLES
@@ -4617,12 +4698,12 @@ async function checkUrlWalletCallbacks() {
   return false;
 }
 
-function applyLang(lang) {
-  currentLang = (lang === "hu" || lang === "ro") ? lang : "en";
-  localStorage.setItem("efoo_lang", currentLang);
+function applyLang(_lang) {
+  currentLang = "en";
+  localStorage.setItem("efoo_game_lang", "en");
   const langLabel = document.getElementById("lang-label");
-  if (langLabel) langLabel.textContent = currentLang.toUpperCase();
-  const dict = I18N_GAME[currentLang] || I18N_GAME.en;
+  if (langLabel) langLabel.textContent = "EN";
+  const dict = I18N_GAME.en;
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const k = el.getAttribute("data-i18n");
     if (dict[k]) el.innerHTML = dict[k];
