@@ -518,6 +518,8 @@ body.start-screen-active .hud-top-bar,
   text-align: center;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  pointer-events: auto;
 }
 
 .hidden {
@@ -930,6 +932,11 @@ body.start-screen-active .hud-top-bar,
   position: relative;
   width: 100%;
   max-width: 540px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  pointer-events: auto;
   padding: 26px;
   border-radius: 24px;
   background: linear-gradient(155deg, rgba(12, 28, 19, 0.97), rgba(4, 10, 7, 0.99));

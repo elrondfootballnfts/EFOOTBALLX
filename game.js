@@ -1476,17 +1476,14 @@ function onBallReachGoal(endScreenX, endScreenY) {
   }, 1250);
 }
 
-// End of the shoot-out: VAR is ONLY offered after a failed level that ended on a miss.
-// A winning finish (level cleared, or the last shot was a goal) goes straight to the summary.
+// End of the shoot-out: directly open match summary without blocking delay
 function finishMatch() {
-  const lv = getLevelParams(game.level);
-  const cleared = game.goals >= lv.goalsNeeded;
-  const endedOnWinningStreak = game.streak > 0;
-  if (!cleared && !endedOnWinningStreak && !game.revivedThisMatch) {
-    openVarReviveOverlay();
-    return;
+  try {
+    openSummaryModal();
+  } catch (err) {
+    console.error("Error in openSummaryModal:", err);
+    document.getElementById("summary-screen-overlay")?.classList.remove("hidden");
   }
-  openSummaryModal();
 }
 
 function openVarReviveOverlay() {
@@ -1564,14 +1561,38 @@ function executeReviveBonusShot() {
 }
 
 function goNextLevel() {
-  const unlocked = typeof metaUnlockedLevel === "function" ? metaUnlockedLevel() : game.level + 1;
-  game.level = Math.min(MAX_LEVEL, Math.min(unlocked, game.level + 1));
+  const nextLvl = Math.min(MAX_LEVEL, game.level + 1);
+  game.level = nextLvl;
+  try {
+    const cur = typeof metaUnlockedLevel === "function" ? metaUnlockedLevel() : 1;
+    if (nextLvl > cur) {
+      localStorage.setItem(STORAGE_UNLOCKED_LEVEL, String(nextLvl));
+    }
+  } catch (e) {}
   launchMatchWithIntro();
 }
 
 function openSummaryModal() {
   game.phase = "summary";
   audio.playWhistle();
+
+  // Cancel any pending VAR timer and ensure VAR overlay is closed
+  if (game.varTimerInterval) {
+    clearInterval(game.varTimerInterval);
+    game.varTimerInterval = null;
+  }
+  document.getElementById("var-revive-overlay")?.classList.add("hidden");
+
+  // Reset skills, visual FX, ball, and keeper state so keeper is upright and not stuck in ice or dive
+  game.armed = {};
+  game.activeFx = {};
+  game.ball = { active: false, t: 0 };
+  game.keeper.targetNx = 0;
+  game.keeper.targetNy = 0;
+  game.keeper.targetAngle = 0;
+  game.keeper.bodyAngle = 0;
+  game.keeper.armReach = 0.22;
+  game.strikerLunge = 0;
 
   const p = getPowers();
   const lv = getLevelParams(game.level);
@@ -1594,8 +1615,10 @@ function openSummaryModal() {
     Math.round(game.rawBaseScore * 7.0 + Math.max(3, game.goals) * 2500)
   );
 
-  document.getElementById("sum-score-actual").textContent = game.score.toLocaleString("en-US");
-  document.getElementById("sum-score-whale").textContent = `${whalePotential.toLocaleString("en-US")} 🏆`;
+  const actualScoreEl = document.getElementById("sum-score-actual");
+  if (actualScoreEl) actualScoreEl.textContent = game.score.toLocaleString("en-US");
+  const whaleScoreEl = document.getElementById("sum-score-whale");
+  if (whaleScoreEl) whaleScoreEl.textContent = `${whalePotential.toLocaleString("en-US")} 🏆`;
 
   // Headline
   const titleEl = document.getElementById("sum-title");
@@ -1659,17 +1682,22 @@ function openSummaryModal() {
   }
 
   // Progress, leaderboard, daily streak
-  const info =
-    typeof metaOnMatchEnd === "function"
+  let info = null;
+  try {
+    info = typeof metaOnMatchEnd === "function"
       ? metaOnMatchEnd({ level: game.level, score: game.score, goals: game.goals, cleared, perfect })
       : null;
+  } catch (e) {
+    console.error("metaOnMatchEnd error:", e);
+  }
+
   const rankLine = document.getElementById("sum-rank-line");
   if (rankLine) {
     rankLine.textContent = "";
     if (info && info.rankPromise) {
       info.rankPromise.then((txt) => {
         if (txt && game.phase === "summary") rankLine.textContent = txt;
-      });
+      }).catch(() => {});
     }
     if (info && info.unlockedNow) {
       rankLine.textContent = isHu
@@ -1992,13 +2020,18 @@ function initFullscreenStadiumCanvas() {
     }
 
     // Update Articulated Goalkeeper Position (Slows down to 25% when Frozen)
-    const isKeeperFrozen = !!(fx.freeze || game.armed.freeze);
+    const isKeeperFrozen = (game.phase === "aim" || game.phase === "charging" || game.phase === "flight") && !!(fx.freeze || game.armed.freeze);
     const keeperSpeedMul = isKeeperFrozen ? 0.25 : 1.0;
     if (game.phase === "aim" || game.phase === "charging") {
       game.keeper.nx = Math.sin(Date.now() * 0.0045 * keeperSpeedMul) * (0.18 * (isKeeperFrozen ? 0.35 : 1.0));
       game.keeper.ny = Math.abs(Math.cos(Date.now() * 0.009 * keeperSpeedMul)) * (0.05 * (isKeeperFrozen ? 0.35 : 1.0));
       game.keeper.bodyAngle = Math.sin(Date.now() * 0.0045 * keeperSpeedMul) * (0.08 * (isKeeperFrozen ? 0.3 : 1.0));
       game.keeper.armReach = (0.25 + Math.sin(Date.now() * 0.008 * keeperSpeedMul) * 0.1) * (isKeeperFrozen ? 0.35 : 1.0);
+    } else if (game.phase === "summary" || game.phase === "start") {
+      game.keeper.nx += (0 - game.keeper.nx) * 0.12;
+      game.keeper.ny += (0 - game.keeper.ny) * 0.12;
+      game.keeper.bodyAngle += (0 - game.keeper.bodyAngle) * 0.12;
+      game.keeper.armReach = 0.22 + Math.sin(Date.now() * 0.0035) * 0.08;
     } else {
       game.keeper.nx += (game.keeper.targetNx - game.keeper.nx) * (0.22 * keeperSpeedMul);
       game.keeper.ny += (game.keeper.targetNy - game.keeper.ny) * (0.22 * keeperSpeedMul);
@@ -4225,12 +4258,15 @@ function metaOnMatchEnd({ level, score, goals, cleared, perfect }) {
   let unlockedNow = false;
   let newLevel = curUnlocked;
 
-  if (cleared && level >= curUnlocked && curUnlocked < MAX_LEVEL) {
-    newLevel = curUnlocked + 1;
-    unlockedNow = true;
-    try {
-      localStorage.setItem(STORAGE_UNLOCKED_LEVEL, String(newLevel));
-    } catch (e) {}
+  if (cleared) {
+    const targetUnlocked = Math.min(MAX_LEVEL, Math.max(curUnlocked, level + 1));
+    if (targetUnlocked > curUnlocked) {
+      newLevel = targetUnlocked;
+      unlockedNow = true;
+      try {
+        localStorage.setItem(STORAGE_UNLOCKED_LEVEL, String(newLevel));
+      } catch (e) {}
+    }
   }
 
   const rank = recordMatchToLeaderboard(score, goals, level);
