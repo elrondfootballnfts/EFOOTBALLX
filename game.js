@@ -5517,33 +5517,118 @@ function getDeterministicFootballNickname(address) {
   return FUNNY_FOOTBALL_NICKNAMES[hash % FUNNY_FOOTBALL_NICKNAMES.length];
 }
 
+// Herotag Registry & Resolver (Recognizes @hlnagy and resolves MultiversX Herotags)
+const KNOWN_HEROTAGS = {
+  "erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq": "hlnagy",
+  "erd1uaw4x3kretddfqx79qvvta9l29sdq7ad6lygavgynlq5mc52w0hqfzczm7": "augustintr",
+  "erd1qzm0h502r4x9uslqhfdjxrkmrwtq5qtle57queakzz6majydu3nswj6shc": "digitalmoney",
+  "erd1q4rrqj2fragmkz7x2jgpqy7svsunwd33hkl69v7h62nlwum9qunq3pllj3": "janhunedoara",
+  "erd14zpeqacvvt8mlyrqudcv0c9r9d28s7q4350h7602xwt8r3j3wzjlx6pj": "chuckszilard",
+  "erd136yy3cseqx6e0m8n8a54n8a385f096l863r3t700k7t9y3q36mtrv8": "souleymaz",
+  "erd14a9dmrpqf2x33x5k68p6z3x7v0w987y6q5r423a2b1c0d9e8788zrk": "quantumarun"
+};
+
+function getHerotagForAddress(address) {
+  if (!address) return "";
+  const lower = address.toLowerCase();
+  if (KNOWN_HEROTAGS[lower]) return KNOWN_HEROTAGS[lower];
+  if (connectedAddress && connectedAddress.toLowerCase() === lower) {
+    if (walletState.herotag) return walletState.herotag.replace(/\.elrond$/, "").replace(/^@/, "");
+    if (walletState.username) return walletState.username.replace(/\.elrond$/, "").replace(/^@/, "");
+  }
+  return "";
+}
+
+async function resolveHerotagAsync(address) {
+  if (!address) return;
+  const lower = address.toLowerCase();
+  if (KNOWN_HEROTAGS[lower]) return;
+  try {
+    const res = await fetch(`https://api.multiversx.com/accounts/${address}?fields=username`);
+    if (res.ok) {
+      const d = await res.json();
+      if (d && d.username) {
+        KNOWN_HEROTAGS[lower] = d.username.replace(/\.elrond$/, "").replace(/^@/, "");
+        renderLeaderboardModal();
+      }
+    }
+  } catch (e) {}
+}
+
 const DEFAULT_LEADERBOARD = [
-  { rank: 1, address: "erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq", herotag: "@hlnagy", level: 20, goals: 5, score: 74200, date: "Today" },
-  { rank: 2, address: "erd1k8w7y5ftg2uax8v8ng8p5azjw96zzfgky9v3fydtpe2xwdz0007q3hl9z8", herotag: "", level: 19, goals: 5, score: 68500, date: "Today" },
-  { rank: 3, address: "erd1zs55shr6trx5em9t60pnzwjdaak8atk0dpxzkuq7n4h4r4ejmthqjp6g44", herotag: "", level: 18, goals: 4, score: 59300, date: "Today" },
-  { rank: 4, address: "erd1uaw4x3kretddfqx79qvvta9l29sdq7ad6lygavgynlq5mc52w0hqfzczm7", herotag: "@augustintr", level: 16, goals: 4, score: 51200, date: "Yesterday" },
-  { rank: 5, address: "erd1qzm0h502r4x9uslqhfdjxrkmrwtq5qtle57queakzz6majydu3nswj6shc", herotag: "@digitalmoney", level: 15, goals: 4, score: 46800, date: "Yesterday" },
-  { rank: 6, address: "erd1q4rrqj2fragmkz7x2jgpqy7svsunwd33hkl69v7h62nlwum9qunq3pllj3", herotag: "@janhunedoara", level: 14, goals: 3, score: 41000, date: "2 days ago" },
-  { rank: 7, address: "erd1370z0cuvpn6826ffqg86n438a29r54f8m6940a4g322u7eeyzru87vkj", herotag: "", level: 13, goals: 3, score: 38200, date: "2 days ago" },
-  { rank: 8, address: "erd14zpeqacvvt8mlyrqudcv0c9r9d28s7q4350h7602xwt8r3j3wzjlx6pj", herotag: "@chuckszilard", level: 12, goals: 3, score: 35400, date: "2 days ago" },
-  { rank: 9, address: "erd136yy3cseqx6e0m8n8a54n8a385f096l863r3t700k7t9y3q36mtrv8", herotag: "@souleymaz", level: 11, goals: 3, score: 32600, date: "3 days ago" },
-  { rank: 10, address: "erd14a9dmrpqf2x33x5k68p6z3x7v0w987y6q5r423a2b1c0d9e8788zrk", herotag: "@quantumarun", level: 10, goals: 3, score: 29800, date: "3 days ago" }
+  { rank: 1, address: "erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq", herotag: "@hlnagy", level: 15, goals: 5, score: 1292220, date: "Today" },
+  { rank: 2, address: "erd1uaw4x3kretddfqx79qvvta9l29sdq7ad6lygavgynlq5mc52w0hqfzczm7", herotag: "@augustintr", level: 14, goals: 5, score: 857274, date: "Today" },
+  { rank: 3, address: "erd1qzm0h502r4x9uslqhfdjxrkmrwtq5qtle57queakzz6majydu3nswj6shc", herotag: "@digitalmoney", level: 13, goals: 4, score: 777240, date: "Today" },
+  { rank: 4, address: "erd1q4rrqj2fragmkz7x2jgpqy7svsunwd33hkl69v7h62nlwum9qunq3pllj3", herotag: "@janhunedoara", level: 12, goals: 4, score: 723588, date: "Yesterday" },
+  { rank: 5, address: "erd14zpeqacvvt8mlyrqudcv0c9r9d28s7q4350h7602xwt8r3j3wzjlx6pj", herotag: "@chuckszilard", level: 11, goals: 4, score: 672612, date: "Yesterday" },
+  { rank: 6, address: "erd136yy3cseqx6e0m8n8a54n8a385f096l863r3t700k7t9y3q36mtrv8", herotag: "@souleymaz", level: 10, goals: 4, score: 603896, date: "2 days ago" },
+  { rank: 7, address: "erd14a9dmrpqf2x33x5k68p6z3x7v0w987y6q5r423a2b1c0d9e8788zrk", herotag: "@quantumarun", level: 9, goals: 3, score: 522600, date: "2 days ago" },
+  { rank: 8, address: "erd1k8w7y5ftg2uax8v8ng8p5azjw96zzfgky9v3fydtpe2xwdz0007q3hl9z8", herotag: "", nickname: "Beer-Belly Striker #8", level: 8, goals: 3, score: 480200, date: "2 days ago" },
+  { rank: 9, address: "erd1zs55shr6trx5em9t60pnzwjdaak8atk0dpxzkuq7n4h4r4ejmthqjp6g44", herotag: "", nickname: "Panenka King #9", level: 7, goals: 3, score: 420500, date: "3 days ago" },
+  { rank: 10, address: "erd1370z0cuvpn6826ffqg86n438a29r54f8m6940a4g322u7eeyzru87vkj", herotag: "", nickname: "Turf Diver #10", level: 6, goals: 3, score: 382000, date: "3 days ago" }
 ];
 
 function getLeaderboard() {
+  let list = [];
   try {
     const raw = localStorage.getItem(STORAGE_LEADERBOARD);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].address && !parsed[0].name?.includes("Pelé") && !parsed[0].name?.includes("DegenStriker")) {
-        return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        list = parsed;
       }
     }
   } catch (e) {}
+
+  if (list.length === 0) {
+    list = [...DEFAULT_LEADERBOARD];
+  }
+
+  // STRICT UNIQUE ADDRESS DEDUPLICATION (Egy cím csak egyszer szerepelhet a ranglistán!)
+  // If an address has multiple rows, keep strictly their single HIGHEST score!
+  const bestByAddress = new Map();
+  list.forEach((row) => {
+    if (!row || !row.address) return;
+    const key = row.address.toLowerCase();
+
+    // Auto-resolve herotag
+    let hero = row.herotag;
+    const known = getHerotagForAddress(row.address);
+    if (known) hero = `@${known}`;
+
+    const scoreNum = Number(row.score) || 0;
+    const candidate = {
+      ...row,
+      herotag: hero || "",
+      score: scoreNum
+    };
+
+    const existing = bestByAddress.get(key);
+    if (!existing || scoreNum > existing.score) {
+      bestByAddress.set(key, candidate);
+    }
+  });
+
+  // If fewer than 10 unique addresses, fill remaining spots with other unique addresses from DEFAULT_LEADERBOARD
+  DEFAULT_LEADERBOARD.forEach((defRow) => {
+    const key = defRow.address.toLowerCase();
+    if (!bestByAddress.has(key)) {
+      bestByAddress.set(key, defRow);
+    }
+  });
+
+  // Convert map to array, sort descending by score, assign clean ranks (1 to 10)
+  const sorted = Array.from(bestByAddress.values());
+  sorted.sort((a, b) => b.score - a.score);
+  sorted.forEach((item, idx) => {
+    item.rank = idx + 1;
+  });
+
+  const finalTop10 = sorted.slice(0, 10);
   try {
-    localStorage.setItem(STORAGE_LEADERBOARD, JSON.stringify(DEFAULT_LEADERBOARD));
+    localStorage.setItem(STORAGE_LEADERBOARD, JSON.stringify(finalTop10));
   } catch (e) {}
-  return [...DEFAULT_LEADERBOARD];
+  return finalTop10;
 }
 
 function recordMatchToLeaderboard(score, goals, level) {
@@ -5551,35 +5636,69 @@ function recordMatchToLeaderboard(score, goals, level) {
   const list = getLeaderboard();
   const playerAddr = connectedAddress || "erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq";
 
-  let herotag = "";
-  const rawTag = walletState.herotag || walletState.username || "";
-  if (rawTag) {
-    const clean = rawTag.replace(/\.elrond$/, "");
-    herotag = clean.startsWith("@") ? clean : `@${clean}`;
+  let hero = walletState.herotag || walletState.username || getHerotagForAddress(playerAddr);
+  if (hero) {
+    hero = hero.replace(/\.elrond$/, "").replace(/^@/, "");
+    hero = `@${hero}`;
   }
 
-  const entry = {
-    rank: 0,
-    address: playerAddr,
-    herotag: herotag,
-    nickname: herotag ? "" : getDeterministicFootballNickname(playerAddr),
-    level,
-    goals,
-    score,
-    date: "Just now"
-  };
+  // Check if playerAddr already exists in the leaderboard (Only 1 entry per address!)
+  const existingIdx = list.findIndex(
+    (x) => x.address && x.address.toLowerCase() === playerAddr.toLowerCase()
+  );
 
-  list.push(entry);
-  list.sort((a, b) => b.score - a.score);
-  list.forEach((item, idx) => {
+  if (existingIdx !== -1) {
+    // Only update if new score is higher than their previous personal best!
+    if (score > list[existingIdx].score) {
+      list[existingIdx].score = score;
+      list[existingIdx].goals = goals;
+      list[existingIdx].level = level;
+      list[existingIdx].date = "Just now";
+      if (hero) list[existingIdx].herotag = hero;
+    } else {
+      // Keep previous higher score, but update herotag if now available
+      if (hero && !list[existingIdx].herotag) {
+        list[existingIdx].herotag = hero;
+      }
+    }
+  } else {
+    // New player address
+    list.push({
+      rank: 0,
+      address: playerAddr,
+      herotag: hero || "",
+      nickname: hero ? "" : getDeterministicFootballNickname(playerAddr),
+      level,
+      goals,
+      score,
+      date: "Just now"
+    });
+  }
+
+  // Guarantee strict deduplication by address
+  const bestByAddress = new Map();
+  list.forEach((row) => {
+    if (!row || !row.address) return;
+    const key = row.address.toLowerCase();
+    const existing = bestByAddress.get(key);
+    if (!existing || row.score > existing.score) {
+      bestByAddress.set(key, row);
+    }
+  });
+
+  const sorted = Array.from(bestByAddress.values());
+  sorted.sort((a, b) => b.score - a.score);
+  sorted.forEach((item, idx) => {
     item.rank = idx + 1;
   });
-  const top10 = list.slice(0, 10);
+
+  const top10 = sorted.slice(0, 10);
   try {
     localStorage.setItem(STORAGE_LEADERBOARD, JSON.stringify(top10));
   } catch (e) {}
-  const found = top10.find((x) => x === entry);
-  return found ? found.rank : null;
+
+  const myEntry = top10.find((x) => x.address.toLowerCase() === playerAddr.toLowerCase());
+  return myEntry ? myEntry.rank : null;
 }
 
 function renderLeaderboardModal() {
@@ -5588,24 +5707,50 @@ function renderLeaderboardModal() {
   const list = getLeaderboard();
   tbody.innerHTML = "";
 
+  // Dynamic calculation for weekly pot (65% / 25% / 10%)
+  const stats = getVaultStats();
+  const potVal = stats.pot;
+  const potAmountEl = document.getElementById("lb-pot-amount");
+  const share1st = document.getElementById("lb-share-1st");
+  const share2nd = document.getElementById("lb-share-2nd");
+  const share3rd = document.getElementById("lb-share-3rd");
+
+  if (potAmountEl) potAmountEl.textContent = `${potVal.toLocaleString("en-US")} $EFOO`;
+  if (share1st) share1st.textContent = `${Math.round(potVal * 0.65).toLocaleString("en-US")} $EFOO`;
+  if (share2nd) share2nd.textContent = `${Math.round(potVal * 0.25).toLocaleString("en-US")} $EFOO`;
+  if (share3rd) share3rd.textContent = `${Math.round(potVal * 0.10).toLocaleString("en-US")} $EFOO`;
+
   list.forEach((row) => {
     const tr = document.createElement("tr");
-    const isHero = !!(row.herotag && row.herotag.trim().length > 0);
+
+    // Resolve Herotag (Recognizes hlnagy for erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq)
+    let herotag = row.herotag;
+    if (!herotag || herotag.trim().length === 0) {
+      const known = getHerotagForAddress(row.address);
+      if (known) {
+        herotag = `@${known}`;
+        row.herotag = herotag;
+      } else {
+        resolveHerotagAsync(row.address);
+      }
+    }
+
+    const isHero = !!(herotag && herotag.trim().length > 0);
     const shortAddr = shortErd(row.address);
     const displayName = isHero
-      ? `<strong class="herotag-name" style="color:#a8ff00; text-shadow:0 0 10px rgba(168,255,0,0.5);">${escapeHtml(row.herotag)}</strong>`
+      ? `<strong class="herotag-name" style="color:#a8ff00; font-weight:800; font-size:0.95rem; text-shadow:0 0 10px rgba(168,255,0,0.5);">⚡ ${escapeHtml(herotag)}</strong>`
       : `<span class="generated-nickname" style="color:#94a3b8; font-style:italic;">${escapeHtml(row.nickname || row.name || getDeterministicFootballNickname(row.address))}</span>`;
 
     tr.innerHTML = `
       <td><strong>${row.rank === 1 ? "🥇 1" : row.rank === 2 ? "🥈 2" : row.rank === 3 ? "🥉 3" : `#${row.rank}`}</strong></td>
       <td>
         ${displayName}
-        <small style="color:#64748b; font-size:0.68rem; margin-left:6px;">(${shortAddr})</small>
+        <small style="color:#64748b; font-size:0.68rem; margin-left:6px; font-family:'JetBrains Mono',monospace;">(${shortAddr})</small>
       </td>
       <td><span style="color:#38bdf8; font-weight:800;">LVL ${row.level}</span></td>
       <td>⚽ ${row.goals}/5</td>
-      <td><strong style="color:#a8ff00;">${row.score.toLocaleString("en-US")}</strong></td>
-      <td style="color:#94a3b8; font-size:0.7rem;">${row.date}</td>
+      <td><strong style="color:#a8ff00; font-family:'JetBrains Mono',monospace;">${row.score.toLocaleString("en-US")}</strong></td>
+      <td style="color:#94a3b8; font-size:0.7rem;">${row.date || "Just now"}</td>
     `;
     tbody.appendChild(tr);
   });
