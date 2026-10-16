@@ -241,6 +241,12 @@ function updateVaultUI() {
   const sumBurnedEl = document.getElementById("sum-burned-val");
   if (sumBurnedEl) sumBurnedEl.textContent = `${burnedFormatted} $EFOO`;
 
+  const startPotEl = document.getElementById("start-vault-pot-val");
+  if (startPotEl) startPotEl.textContent = `${potFormatted} $EFOO`;
+
+  const startBurnedEl = document.getElementById("start-burned-val");
+  if (startBurnedEl) startBurnedEl.textContent = `${burnedFormatted} $EFOO`;
+
   const lbPotEl = document.getElementById("lb-pot-amount");
   if (lbPotEl) lbPotEl.textContent = `${potFormatted} $EFOO`;
 
@@ -573,6 +579,180 @@ class ModernStadiumAudio {
     this.enabled = true;
     this.ctx = null;
     this.noiseBuffer = null;
+    this.bgmEnabled = localStorage.getItem("efoo_bgm_enabled") !== "false";
+    this.bgmPlaying = false;
+    this.bgmInterval = null;
+    this.bgmStep = 0;
+    this.bgmGain = null;
+  }
+
+  // =========================================================================
+  // PLEASANT FOOTBALL SOUNDTRACK (BGM) SYNTHESIZER
+  // 118 BPM FIFA / EA SPORTS FC MENU GROOVE
+  // =========================================================================
+  startBgm() {
+    if (!this.bgmEnabled || this.bgmPlaying) return;
+    this.init();
+    if (!this.ctx) return;
+    if (this.ctx.state === "suspended") this.ctx.resume();
+
+    this.bgmPlaying = true;
+    this.bgmStep = 0;
+
+    if (!this.bgmGain) {
+      this.bgmGain = this.ctx.createGain();
+      this.bgmGain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+      this.bgmGain.connect(this.ctx.destination);
+    }
+
+    const stepDurationMs = (60 / 118 / 4) * 1000;
+    this.bgmInterval = setInterval(() => {
+      this.playBgmStep();
+    }, stepDurationMs);
+    this.updateBgmUI();
+  }
+
+  stopBgm() {
+    this.bgmPlaying = false;
+    if (this.bgmInterval) {
+      clearInterval(this.bgmInterval);
+      this.bgmInterval = null;
+    }
+    this.updateBgmUI();
+  }
+
+  toggleBgm() {
+    this.bgmEnabled = !this.bgmEnabled;
+    localStorage.setItem("efoo_bgm_enabled", String(this.bgmEnabled));
+    if (this.bgmEnabled) {
+      this.startBgm();
+    } else {
+      this.stopBgm();
+    }
+    this.updateBgmUI();
+    return this.bgmEnabled;
+  }
+
+  updateBgmUI() {
+    const lbl = document.getElementById("bgm-status-lbl");
+    const btn = document.getElementById("btn-toggle-bgm");
+    const on = this.bgmEnabled && this.bgmPlaying;
+    if (lbl) lbl.textContent = on ? "MUSIC ON" : "MUSIC OFF";
+    if (btn) btn.classList.toggle("active", on);
+  }
+
+  playBgmStep() {
+    if (!this.ctx || !this.bgmPlaying || !this.bgmGain) return;
+    const now = this.ctx.currentTime;
+    const step = this.bgmStep % 32;
+    this.bgmStep++;
+
+    // 1. Kick Drum (Quarter notes: 0, 4, 8, 12, 16, 20, 24, 28)
+    if (step % 4 === 0) {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(110, now);
+      osc.frequency.exponentialRampToValueAtTime(38, now + 0.08);
+      gain.gain.setValueAtTime(0.32, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      osc.connect(gain);
+      gain.connect(this.bgmGain);
+      osc.start(now);
+      osc.stop(now + 0.13);
+    }
+
+    // 2. Snare / Rim Clap (Offbeats: 4, 12, 20, 28)
+    if (step === 4 || step === 12 || step === 20 || step === 28) {
+      if (this.noiseBuffer) {
+        const nSrc = this.ctx.createBufferSource();
+        nSrc.buffer = this.noiseBuffer;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = "bandpass";
+        filter.frequency.setValueAtTime(1600, now);
+        filter.Q.setValueAtTime(1.8, now);
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+        nSrc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.bgmGain);
+        nSrc.start(now);
+        nSrc.stop(now + 0.1);
+      }
+    }
+
+    // 3. Hi-Hat Shaker (Steps 2, 6, 10, 14, 18, 22, 26, 30)
+    if (step % 2 === 0) {
+      if (this.noiseBuffer) {
+        const nSrc = this.ctx.createBufferSource();
+        nSrc.buffer = this.noiseBuffer;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = "highpass";
+        filter.frequency.setValueAtTime(7500, now);
+        const gain = this.ctx.createGain();
+        const vol = (step % 4 === 2) ? 0.08 : 0.04;
+        gain.gain.setValueAtTime(vol, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+        nSrc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.bgmGain);
+        nSrc.start(now);
+        nSrc.stop(now + 0.035);
+      }
+    }
+
+    // 4. Funky Synth Bassline (Em / G pentatonic groove)
+    const bassMap = {
+      0: 82.41,
+      3: 82.41,
+      6: 98.00,
+      8: 110.00,
+      11: 123.47,
+      14: 146.83,
+      16: 82.41,
+      19: 98.00,
+      22: 110.00,
+      26: 146.83,
+      28: 123.47,
+      30: 98.00
+    };
+
+    if (bassMap[step]) {
+      const bOsc = this.ctx.createOscillator();
+      const bFilter = this.ctx.createBiquadFilter();
+      const bGain = this.ctx.createGain();
+      bOsc.type = "sawtooth";
+      bOsc.frequency.setValueAtTime(bassMap[step], now);
+      bFilter.type = "lowpass";
+      bFilter.frequency.setValueAtTime(450, now);
+      bFilter.Q.setValueAtTime(3.5, now);
+      bFilter.frequency.exponentialRampToValueAtTime(140, now + 0.16);
+      bGain.gain.setValueAtTime(0.19, now);
+      bGain.gain.exponentialRampToValueAtTime(0.001, now + 0.17);
+      bOsc.connect(bFilter);
+      bFilter.connect(bGain);
+      bGain.connect(this.bgmGain);
+      bOsc.start(now);
+      bOsc.stop(now + 0.18);
+    }
+
+    // 5. Warm Chilled Neo-Soul Chords (Steps 0, 16)
+    if (step === 0 || step === 16) {
+      const chordFreqs = step === 0 ? [164.81, 196.00, 246.94, 293.66] : [130.81, 164.81, 196.00, 246.94];
+      chordFreqs.forEach((freq) => {
+        const cOsc = this.ctx.createOscillator();
+        const cGain = this.ctx.createGain();
+        cOsc.type = "triangle";
+        cOsc.frequency.setValueAtTime(freq, now);
+        cGain.gain.setValueAtTime(0.025, now);
+        cGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+        cOsc.connect(cGain);
+        cGain.connect(this.bgmGain);
+        cOsc.start(now);
+        cOsc.stop(now + 0.65);
+      });
+    }
   }
 
   init() {
@@ -1531,6 +1711,31 @@ function updateStrikerCardAssets(idx) {
     startPowers.innerHTML = pills.join("");
   }
 
+  // 3b. Hub Start Screen Striker Card
+  const hubStrikerImg = document.getElementById("hub-striker-img");
+  const hubStrikerName = document.getElementById("hub-striker-name");
+  const hubStrikerRarity = document.getElementById("hub-striker-rarity");
+  const hubStrikerTrait = document.getElementById("hub-striker-trait");
+  const hubStrikerCard = document.getElementById("hub-striker-card");
+
+  if (hubStrikerImg) hubStrikerImg.src = cors;
+  if (hubStrikerName) hubStrikerName.textContent = activeStriker.name;
+  if (hubStrikerRarity) {
+    const rankLabel = tInfo.rank === "F2P" ? "F2P" : `#${tInfo.rank}`;
+    hubStrikerRarity.textContent = `${tInfo.tierIcon} ${tInfo.tierLabel} ${rankLabel}`;
+    hubStrikerRarity.style.borderColor = tInfo.borderColor;
+    hubStrikerRarity.style.color = tInfo.borderColor;
+  }
+  if (hubStrikerTrait) {
+    hubStrikerTrait.textContent = activeStriker.trait || "FLAMING ROCKET BALL";
+  }
+  if (hubStrikerCard) {
+    hubStrikerCard.style.borderColor = tInfo.borderColor;
+    hubStrikerCard.style.boxShadow = (tInfo.tierKey !== "common" && tInfo.tierKey !== "rookie")
+      ? `0 0 24px ${tInfo.borderColor}44`
+      : "none";
+  }
+
   // 4. Update start screen badge
   const cscSquad = document.getElementById("csc-squad-status");
   if (cscSquad) {
@@ -1610,6 +1815,31 @@ function updateKeeperAssets(idx) {
       ? tInfo.powers.map(pw => `<span class="smc-power-pill" style="border-color:${tInfo.borderColor}77; color:${tInfo.borderColor}; background:${tInfo.borderColor}14;">${pw.icon} ${pw.name}</span>`)
       : [`<span class="smc-power-pill" style="border-color:#38bdf8; color:#38bdf8; background:rgba(56,189,248,0.12);">🛡️ 1 SHIELD</span>`];
     startKPowers.innerHTML = pills.join("");
+  }
+
+  // 3b. Hub Start Screen Keeper Card
+  const hubKeeperImg = document.getElementById("hub-keeper-img");
+  const hubKeeperName = document.getElementById("hub-keeper-name");
+  const hubKeeperRarity = document.getElementById("hub-keeper-rarity");
+  const hubKeeperTrait = document.getElementById("hub-keeper-trait");
+  const hubKeeperCard = document.getElementById("hub-keeper-card");
+
+  if (hubKeeperImg) hubKeeperImg.src = cors;
+  if (hubKeeperName) hubKeeperName.textContent = activeKeeper.name;
+  if (hubKeeperRarity) {
+    const rankLabel = tInfo.rank === "F2P" ? "F2P" : `#${tInfo.rank}`;
+    hubKeeperRarity.textContent = `${tInfo.tierIcon} ${tInfo.tierLabel} ${rankLabel}`;
+    hubKeeperRarity.style.borderColor = tInfo.borderColor;
+    hubKeeperRarity.style.color = tInfo.borderColor;
+  }
+  if (hubKeeperTrait) {
+    hubKeeperTrait.textContent = activeKeeper.trait || "SAVE SHIELD ACTIVE";
+  }
+  if (hubKeeperCard) {
+    hubKeeperCard.style.borderColor = tInfo.borderColor;
+    hubKeeperCard.style.boxShadow = (tInfo.tierKey !== "common" && tInfo.tierKey !== "rookie")
+      ? `0 0 24px ${tInfo.borderColor}44`
+      : "none";
   }
 
   const introK = document.getElementById("intro-keeper-img");
@@ -1880,10 +2110,22 @@ function setStartScreenState(isActive) {
     document.body.classList.add("start-screen-active");
     hud?.classList.add("start-hidden");
     updateStartSkillsChips();
+    if (typeof renderStartScreenLeaderboard === "function") renderStartScreenLeaderboard();
+    if (typeof updateVaultUI === "function") updateVaultUI();
+    const hubWalletLbl = document.getElementById("hub-wallet-label");
+    if (hubWalletLbl && connectedAddress) {
+      hubWalletLbl.textContent = shortErd(connectedAddress);
+    }
+    if (audio && audio.bgmEnabled && !audio.bgmPlaying) {
+      audio.startBgm();
+    }
   } else {
     overlay?.classList.add("hidden");
     document.body.classList.remove("start-screen-active");
     hud?.classList.remove("start-hidden");
+    if (audio && audio.bgmPlaying) {
+      audio.stopBgm();
+    }
   }
 }
 
@@ -5808,6 +6050,8 @@ function recordMatchToLeaderboard(score, goals, level) {
     localStorage.setItem(STORAGE_LEADERBOARD, JSON.stringify(top10));
   } catch (e) {}
 
+  if (typeof renderStartScreenLeaderboard === "function") renderStartScreenLeaderboard();
+
   const myEntry = top10.find((x) => x.address.toLowerCase() === playerAddr.toLowerCase());
   return myEntry ? myEntry.rank : null;
 }
@@ -5877,6 +6121,80 @@ function renderLeaderboardModal() {
       <td>⚽ ${row.goals}/5</td>
       <td><strong style="color:#a8ff00; font-family:'JetBrains Mono',monospace;">${row.score.toLocaleString("en-US")}</strong></td>
       <td style="color:#94a3b8; font-size:0.7rem;">${row.date || "Just now"}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderStartScreenLeaderboard() {
+  const tbody = document.getElementById("hub-lb-tbody");
+  const countEl = document.getElementById("hub-lb-players-count");
+  if (!tbody) return;
+
+  const list = getLeaderboard();
+  tbody.innerHTML = "";
+
+  if (countEl) {
+    countEl.textContent = list.length === 0
+      ? (currentLang === "hu" ? "Még nincs rangsorolt játékos" : "0 Players Ranked")
+      : (currentLang === "hu" ? `${list.length} rangsorolt góllövő` : `${list.length} Player${list.length === 1 ? "" : "s"} Ranked`);
+  }
+
+  if (list.length === 0) {
+    const emptyTr = document.createElement("tr");
+    emptyTr.innerHTML = `
+      <td colspan="4" style="text-align:center; padding:28px 12px; color:#94a3b8;">
+        <div style="font-size:1.8rem; margin-bottom:6px;">🏟️ ⚽</div>
+        <strong style="color:#fff; font-size:0.92rem; letter-spacing:0.04em;">MÉG NINCS HETI GÓLLÖVŐ</strong><br>
+        <span style="font-size:0.75rem; color:#64748b; margin-top:3px; display:inline-block;">Kattints a "PLAY MATCH NOW" gombra, lőj gólt és légy te az #1!</span>
+      </td>
+    `;
+    tbody.appendChild(emptyTr);
+    return;
+  }
+
+  // Display top 8 on the start screen hub
+  const topList = list.slice(0, 8);
+  topList.forEach((row) => {
+    const tr = document.createElement("tr");
+
+    let herotag = row.herotag;
+    if (!herotag || herotag.trim().length === 0) {
+      if (!row.isGuest && row.address && row.address.startsWith("erd1")) {
+        const known = getHerotagForAddress(row.address);
+        if (known) {
+          herotag = `@${known}`;
+          row.herotag = herotag;
+        } else {
+          resolveHerotagAsync(row.address);
+        }
+      }
+    }
+
+    const isHero = !!(herotag && herotag.trim().length > 0);
+    const shortAddr = row.isGuest ? "Guest" : shortErd(row.address);
+    const displayName = isHero
+      ? `<strong class="herotag-name" style="color:#a8ff00; font-weight:800; font-size:0.86rem; text-shadow:0 0 10px rgba(168,255,0,0.5);">⚡ ${escapeHtml(herotag)}</strong>`
+      : `<span class="generated-nickname" style="color:#e2e8f0; font-weight:600; font-size:0.82rem;">${escapeHtml(row.nickname || row.name || (row.isGuest ? "Guest Player" : getDeterministicFootballNickname(row.address)))}</span>`;
+
+    const rankPill = row.rank === 1
+      ? `<span style="color:#ffb800; font-weight:900; font-size:1.05rem;">🥇 1</span>`
+      : row.rank === 2
+      ? `<span style="color:#cbd5e1; font-weight:900; font-size:1.05rem;">🥈 2</span>`
+      : row.rank === 3
+      ? `<span style="color:#f97316; font-weight:900; font-size:1.05rem;">🥉 3</span>`
+      : `<span style="color:#94a3b8; font-weight:800; font-family:'JetBrains Mono',monospace;">#${row.rank}</span>`;
+
+    tr.innerHTML = `
+      <td>${rankPill}</td>
+      <td>
+        <div style="display:flex; flex-direction:column; gap:2px; line-height:1.2;">
+          <div>${displayName}</div>
+          <small style="color:#64748b; font-size:0.68rem; font-family:'JetBrains Mono',monospace;">${shortAddr} • LVL ${row.level}</small>
+        </div>
+      </td>
+      <td><span style="color:#e2e8f0; font-weight:700;">⚽ ${row.goals}/5</span></td>
+      <td style="text-align:right;"><strong style="color:#a8ff00; font-family:'JetBrains Mono',monospace; font-size:0.92rem;">${row.score.toLocaleString("en-US")}</strong></td>
     `;
     tbody.appendChild(tr);
   });
@@ -6048,8 +6366,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("btn-clean-sound-toggle")?.addEventListener("click", () => {
     audio.enabled = !audio.enabled;
-    const btn = document.getElementById("btn-clean-sound-toggle");
-    if (btn) btn.textContent = audio.enabled ? "🔊 Sound ON" : "🔇 Sound OFF";
+    const sfxHubLbl = document.getElementById("sfx-status-lbl");
+    if (sfxHubLbl) sfxHubLbl.textContent = audio.enabled ? "SFX ON" : "SFX OFF";
+    const sfxBtn = document.getElementById("btn-clean-sound-toggle");
+    if (sfxBtn) sfxBtn.classList.toggle("active", audio.enabled);
     const sfxLbl = document.getElementById("sfx-label");
     if (sfxLbl) sfxLbl.textContent = audio.enabled ? "ON" : "OFF";
   });
@@ -6387,4 +6707,69 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("game-manual-erd-input")?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") handleGameManualConnect();
   });
+
+  // =========================================================================
+  // EA SPORTS HUB / START SCREEN MAIN MENU EVENT LISTENERS
+  // =========================================================================
+  // Background Music Toggle
+  document.getElementById("btn-toggle-bgm")?.addEventListener("click", () => {
+    audio.toggleBgm();
+  });
+
+  // Hub Wallet Connect button
+  document.getElementById("open-wallet-modal-btn-hub")?.addEventListener("click", () => {
+    document.getElementById("wallet-modal-backdrop")?.classList.remove("hidden");
+  });
+
+  // Hub Striker cycling and switcher
+  document.getElementById("prev-striker-btn-hub")?.addEventListener("click", () => {
+    updateStrikerCardAssets(strikerIdx - 1);
+    refreshHudUI();
+    renderSkillsDeckUI();
+  });
+  document.getElementById("next-striker-btn-hub")?.addEventListener("click", () => {
+    updateStrikerCardAssets(strikerIdx + 1);
+    refreshHudUI();
+    renderSkillsDeckUI();
+  });
+  document.getElementById("hub-striker-media")?.addEventListener("click", () => {
+    updateStrikerCardAssets(strikerIdx + 1);
+    refreshHudUI();
+    renderSkillsDeckUI();
+  });
+  document.getElementById("btn-switch-striker")?.addEventListener("click", openSquadSelect);
+
+  // Hub Keeper cycling and switcher
+  document.getElementById("prev-keeper-btn-hub")?.addEventListener("click", () => {
+    updateKeeperAssets(keeperIdx - 1);
+    refreshHudUI();
+    renderSkillsDeckUI();
+  });
+  document.getElementById("next-keeper-btn-hub")?.addEventListener("click", () => {
+    updateKeeperAssets(keeperIdx + 1);
+    refreshHudUI();
+    renderSkillsDeckUI();
+  });
+  document.getElementById("hub-keeper-media")?.addEventListener("click", () => {
+    updateKeeperAssets(keeperIdx + 1);
+    refreshHudUI();
+    renderSkillsDeckUI();
+  });
+  document.getElementById("btn-switch-keeper")?.addEventListener("click", openSquadSelect);
+
+  // Hub Leaderboard refresh & details
+  document.getElementById("btn-refresh-hub-lb")?.addEventListener("click", () => {
+    renderStartScreenLeaderboard();
+    showToast(currentLang === "hu" ? "🔄 Ranglista frissítve!" : "🔄 Leaderboard refreshed!");
+  });
+  document.getElementById("open-full-ranks-modal")?.addEventListener("click", openLeaderboard);
+
+  // First user interaction gesture to unlock Web Audio API background music
+  const unlockBgmGesture = () => {
+    if (audio && audio.bgmEnabled && !audio.bgmPlaying && game.phase === "start") {
+      audio.startBgm();
+    }
+  };
+  window.addEventListener("pointerdown", unlockBgmGesture, { once: true });
+  window.addEventListener("keydown", unlockBgmGesture, { once: true });
 });

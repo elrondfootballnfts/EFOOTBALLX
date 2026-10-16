@@ -218,63 +218,216 @@
     </footer>
 
     <!-- ===================================================================
-         OVERLAY 1: CLEAN ARCADE START SCREEN (REBUILT FROM SCRATCH)
+         OVERLAY 1: AUTHENTIC EA SPORTS FC / eFOOTBALL MAIN STADIUM HUB
          =================================================================== -->
     <div class="arcade-overlay" id="start-screen-overlay">
-      <div class="clean-start-card">
+      <div class="ea-sports-hub">
 
-        <!-- Top row: subtle exit & jackpot badge -->
-        <div class="csc-top-row">
-          <a href="index.html" class="csc-subtle-link" id="start-exit-btn" title="Back to EFOO Homepage">
-            ⬅ EXIT HOME
-          </a>
-          <div class="csc-jackpot-pill">
-            🏆 <span>25.4M $EFOO JACKPOT</span>
+        <!-- Top Header Navigation -->
+        <header class="hub-header">
+          <div class="hub-brand-group">
+            <a href="index.html" class="hub-exit-btn" id="start-exit-btn" title="Back to EFOO Homepage">
+              ⬅ EXIT HOME
+            </a>
+            <div class="hub-logo-wrap">
+              <img src="branding/rebranded/efoo-degen-crest-200x200.png" alt="EFOO Logo" class="hub-logo-img" />
+              <div>
+                <span class="hub-game-tag">SUNDAY LEAGUE DEGEN FC</span>
+                <h1 class="hub-game-title">EFOO <span>PENALTY SHOOTOUT</span></h1>
+              </div>
+            </div>
           </div>
-          <div class="csc-squad-status" id="csc-squad-status">
-            ⚽ <span>ROOKIE SQUAD</span>
+
+          <div class="hub-telemetry-group">
+            <div class="hub-pot-badge" title="Live Stadium Vault Jackpot Balance">
+              <span class="hub-badge-icon">🏆</span>
+              <div>
+                <small class="hub-badge-lbl">VAULT JACKPOT</small>
+                <strong id="start-vault-pot-val">0 $EFOO</strong>
+              </div>
+            </div>
+
+            <div class="hub-burn-badge" title="Total In-Game Burned Tokens">
+              <span class="hub-badge-icon">🔥</span>
+              <div>
+                <small class="hub-badge-lbl">GAME BURNED</small>
+                <strong id="start-burned-val">0 $EFOO</strong>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <!-- Center branding & hero -->
-        <div class="csc-hero">
-          <div class="csc-emblem-wrap">
-            <img src="branding/original/assests-2022/logo.png" alt="$EFOO Rocket Ball" class="csc-rocket-ball" />
+          <div class="hub-controls-group">
+            <button type="button" id="btn-toggle-bgm" class="hub-ctrl-btn active" title="Toggle Stadium Menu Music">
+              🎵 <span id="bgm-status-lbl">MUSIC ON</span>
+            </button>
+            <button type="button" id="btn-clean-sound-toggle" class="hub-ctrl-btn active" title="Toggle SFX Sound">
+              🔊 <span id="sfx-status-lbl">SFX ON</span>
+            </button>
+            <button type="button" id="open-wallet-modal-btn-hub" class="hub-wallet-btn">
+              ⚡ <span id="hub-wallet-label">CONNECT</span>
+            </button>
           </div>
-          <h1 class="csc-title">
-            $EFOO <span>PENALTY SHOOTOUT</span>
-          </h1>
-          <p class="csc-subtitle">
-            120' Extra-Time Tiebreak • 5 Sudden Death Penalty Rounds
-          </p>
+        </header>
 
-          <div class="csc-highlights">
-            <span class="csc-hl-pill">⚽ Alternating Kicking &amp; Saving</span>
-            <span class="csc-hl-pill">🃏 Rarer NFT = More Super Skills</span>
-            <span class="csc-hl-pill">🏆 Free-to-Play Instant Ready</span>
+        <!-- Main Hub Grid: 2 Columns -->
+        <div class="hub-grid">
+
+          <!-- LEFT COLUMN: Quick Match + Squad Selection + Marketplace Banner -->
+          <div class="hub-col-main">
+
+            <!-- 1. BIG HERO KICKOFF CARD -->
+            <div class="hub-kickoff-card">
+              <div class="hk-badge-row">
+                <span class="hk-mode-pill">⚽ 120' EXTRA-TIME TIEBREAK</span>
+                <span class="hk-sub-pill">5 SUDDEN DEATH PENALTY ROUNDS</span>
+                <span class="hk-sub-pill">ALTERNATING KICKING &amp; SAVING</span>
+              </div>
+
+              <div class="hk-center-action">
+                <div class="hk-text-content">
+                  <h2 class="hk-title">KICK OFF <span>120' SHOOTOUT</span></h2>
+                  <p class="hk-desc">
+                    Score curving rocket penalties, dive to make match-winning saves as goalkeeper, and compete for the <strong>Weekend Stadium Vault Jackpot</strong>!
+                  </p>
+                </div>
+                <button type="button" id="btn-start-match" class="hk-kickoff-btn">
+                  <span class="hk-btn-icon">⚽</span>
+                  <span class="hk-btn-text">PLAY MATCH NOW ▶</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. SQUAD SELECTOR ROW (Csatár & Kapus Kiválasztása Nagyon Egyértelműen!) -->
+            <div class="hub-squad-section">
+              <div class="hss-header">
+                <div>
+                  <h3 class="hss-title">👕 ACTIVE SQUAD LINEUP</h3>
+                  <small class="hss-subtitle">Choose your active Striker and Goalkeeper to equip their unlocked superpowers &amp; multipliers</small>
+                </div>
+                <button type="button" id="btn-open-squad-select" class="hss-manage-btn">
+                  🔄 MANAGE FULL SQUAD LOCKER
+                </button>
+              </div>
+
+              <div class="hub-squad-cards">
+                <!-- Striker Card -->
+                <div class="hub-player-card striker" id="hub-striker-card">
+                  <div class="hpc-top">
+                    <span class="hpc-pos">⚽ STRIKER</span>
+                    <span class="hpc-ovr" id="hub-striker-rarity">👑 MYTHIC #1</span>
+                  </div>
+                  <div class="hpc-media" id="hub-striker-media" style="cursor:pointer;" title="Click to cycle striker">
+                    <img id="hub-striker-img" src="branding/original/EFOOTBALL-91a4eb/logo.png" alt="Striker" />
+                  </div>
+                  <div class="hpc-info">
+                    <strong class="hpc-name" id="hub-striker-name">ELRONDFOOTBALL #614</strong>
+                    <span class="hpc-trait" id="hub-striker-trait">FLAMING ROCKET BALL</span>
+                  </div>
+                  <div class="hpc-actions">
+                    <button type="button" class="hpc-cycle-btn" id="prev-striker-btn-hub">◀ PREV</button>
+                    <button type="button" class="hpc-switch-btn" id="btn-switch-striker">CHANGE STRIKER</button>
+                    <button type="button" class="hpc-cycle-btn" id="next-striker-btn-hub">NEXT ▶</button>
+                  </div>
+                </div>
+
+                <!-- Goalkeeper Card -->
+                <div class="hub-player-card keeper" id="hub-keeper-card">
+                  <div class="hpc-top">
+                    <span class="hpc-pos">🧤 GOALKEEPER</span>
+                    <span class="hpc-ovr" id="hub-keeper-rarity">🧤 WALL OF STEEL</span>
+                  </div>
+                  <div class="hpc-media" id="hub-keeper-media" style="cursor:pointer;" title="Click to cycle goalkeeper">
+                    <img id="hub-keeper-img" src="branding/original/GOALKEEPER-cb9e3e/logo.png" alt="Goalkeeper" />
+                  </div>
+                  <div class="hpc-info">
+                    <strong class="hpc-name" id="hub-keeper-name">GOALKEEPER #cb9e3e</strong>
+                    <span class="hpc-trait" id="hub-keeper-trait">SAVE SHIELD ACTIVE</span>
+                  </div>
+                  <div class="hpc-actions">
+                    <button type="button" class="hpc-cycle-btn" id="prev-keeper-btn-hub">◀ PREV</button>
+                    <button type="button" class="hpc-switch-btn" id="btn-switch-keeper">CHANGE KEEPER</button>
+                    <button type="button" class="hpc-cycle-btn" id="next-keeper-btn-hub">NEXT ▶</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. MARKETPLACE PROMO TILE (Piactér & Super Skills Nagyon Egyértelműen!) -->
+            <div class="hub-market-banner">
+              <div class="hmb-content">
+                <div class="hmb-badge">🛒 SUPER SKILLS &amp; P2P NFT MARKETPLACE</div>
+                <h3 class="hmb-title">EQUIP Decisive Perks &amp; Trade Squad NFTs</h3>
+                <p class="hmb-desc">
+                  Reload 5x Super Skill Bundles with <strong>10% Discount</strong> or trade verified Strikers &amp; Keepers directly with players. Every trade burns 2.5% $EFOO and deposits 2.5% into the Stadium Vault!
+                </p>
+              </div>
+              <div class="hmb-actions">
+                <button type="button" id="start-open-store-btn" class="hmb-btn-skills">
+                  ⚡ SKILLS STORE (-10%)
+                </button>
+                <a href="market.html" class="hmb-btn-market">
+                  🃏 OPEN NFT MARKETPLACE ↗
+                </a>
+              </div>
+            </div>
+
           </div>
-        </div>
 
-        <!-- Big Prominent Kickoff CTA -->
-        <div class="csc-action-wrap">
-          <button type="button" id="btn-start-match" class="csc-play-btn">
-            ⚽ START 120' PENALTY SHOOTOUT
-          </button>
-        </div>
+          <!-- RIGHT COLUMN: LIVE STADIUM LEADERBOARD (Közvetlenül az Első Oldalon!) -->
+          <div class="hub-col-side">
+            <div class="hub-leaderboard-card">
+              <div class="hlb-header">
+                <div>
+                  <h3 class="hlb-title">🏆 STADIUM LEADERBOARD</h3>
+                  <small class="hlb-subtitle">Top Scorers of the Week • Live Verification</small>
+                </div>
+                <button type="button" id="btn-refresh-hub-lb" class="hlb-refresh-btn" title="Refresh Leaderboard">
+                  🔄
+                </button>
+              </div>
 
-        <!-- Clean bottom tools -->
-        <div class="csc-bottom-tools">
-          <button type="button" id="btn-open-squad-select" class="csc-tool-btn">
-            👕 Choose Player &amp; Goalkeeper
-          </button>
-          <span class="csc-dot">•</span>
-          <button type="button" id="start-open-store-btn" class="csc-tool-btn">
-            🛒 Skills Store
-          </button>
-          <span class="csc-dot">•</span>
-          <button type="button" id="btn-clean-sound-toggle" class="csc-tool-btn">
-            🔊 Sound ON
-          </button>
+              <!-- Payout rule banner -->
+              <div class="hlb-payout-strip">
+                <div class="hlb-payout-col gold">
+                  <span>1ST PLACE</span>
+                  <strong>65% VAULT</strong>
+                </div>
+                <div class="hlb-payout-col silver">
+                  <span>2ND PLACE</span>
+                  <strong>25% VAULT</strong>
+                </div>
+                <div class="hlb-payout-col bronze">
+                  <span>3RD PLACE</span>
+                  <strong>10% VAULT</strong>
+                </div>
+              </div>
+
+              <!-- Live Leaderboard List -->
+              <div class="hlb-table-wrap">
+                <table class="hlb-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>PLAYER</th>
+                      <th>GOALS</th>
+                      <th style="text-align: right;">SCORE</th>
+                    </tr>
+                  </thead>
+                  <tbody id="hub-lb-tbody">
+                    <!-- Populated dynamically by renderStartScreenLeaderboard() -->
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="hlb-footer">
+                <span id="hub-lb-players-count">0 Players Ranked</span>
+                <button type="button" id="open-full-ranks-modal" class="hlb-view-all-btn">
+                  FULL DETAILS ↗
+                </button>
+              </div>
+            </div>
+          </div>
+
         </div>
 
       </div>

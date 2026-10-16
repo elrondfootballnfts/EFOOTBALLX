@@ -3830,5 +3830,760 @@ body.fx-gold-active #arcade-viewport {
   }
 }
 
+/* ==========================================================================
+   AUTHENTIC EA SPORTS FC / eFOOTBALL STADIUM MAIN MENU HUB
+   ========================================================================== */
+.ea-sports-hub {
+  width: 96%;
+  max-width: 1220px;
+  max-height: 94vh;
+  margin: auto;
+  background: linear-gradient(165deg, rgba(8, 22, 14, 0.96) 0%, rgba(3, 9, 6, 0.98) 100%);
+  border: 2px solid rgba(168, 255, 0, 0.4);
+  border-radius: 24px;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95), 0 0 50px rgba(168, 255, 0, 0.15);
+  backdrop-filter: blur(20px);
+  padding: 22px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  animation: fadeInHub 0.35s ease-out;
+}
+
+@keyframes fadeInHub {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* 1. TOP NAV */
+.hub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hub-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.hub-exit-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s;
+}
+
+.hub-exit-btn:hover {
+  color: #fff;
+  border-color: #a8ff00;
+  background: rgba(168, 255, 0, 0.1);
+}
+
+.hub-logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hub-logo-img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid #a8ff00;
+  box-shadow: 0 0 16px rgba(168, 255, 0, 0.35);
+}
+
+.hub-game-tag {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #a8ff00;
+}
+
+.hub-game-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1;
+}
+
+.hub-game-title span {
+  color: #ffb800;
+}
+
+/* Telemetry Pills */
+.hub-telemetry-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hub-pot-badge, .hub-burn-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 12px;
+  background: rgba(255, 184, 0, 0.08);
+  border: 1px solid rgba(255, 184, 0, 0.35);
+}
+
+.hub-burn-badge {
+  background: rgba(255, 94, 26, 0.08);
+  border-color: rgba(255, 94, 26, 0.35);
+}
+
+.hub-badge-icon {
+  font-size: 1.3rem;
+}
+
+.hub-badge-lbl {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.hub-pot-badge strong {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  color: #ffb800;
+}
+
+.hub-burn-badge strong {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  color: #ff5e1a;
+}
+
+/* Controls */
+.hub-controls-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hub-ctrl-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 7px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f3f7f4;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hub-ctrl-btn.active {
+  border-color: #a8ff00;
+  background: rgba(168, 255, 0, 0.12);
+  color: #a8ff00;
+  box-shadow: 0 0 10px rgba(168, 255, 0, 0.2);
+}
+
+.hub-ctrl-btn:hover {
+  transform: translateY(-1px);
+}
+
+.hub-wallet-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 7px 14px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #a8ff00, #23f7dd);
+  color: #030705;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.hub-wallet-btn:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+/* 2. MAIN 2-COLUMN GRID */
+.hub-grid {
+  display: grid;
+  grid-template-columns: 1fr 390px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 980px) {
+  .hub-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hub-col-main {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* 1. HERO KICKOFF CARD */
+.hub-kickoff-card {
+  background: linear-gradient(135deg, rgba(16, 42, 28, 0.85) 0%, rgba(6, 18, 12, 0.95) 100%);
+  border: 1.5px solid rgba(168, 255, 0, 0.45);
+  border-radius: 18px;
+  padding: 20px 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 25px rgba(168, 255, 0, 0.08);
+}
+
+.hub-kickoff-card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(168, 255, 0, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hk-badge-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.hk-mode-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #a8ff00;
+  background: rgba(168, 255, 0, 0.15);
+  border: 1px solid rgba(168, 255, 0, 0.4);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.hk-sub-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+.hk-center-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.hk-text-content {
+  flex: 1;
+  min-width: 250px;
+}
+
+.hk-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.2rem;
+  line-height: 0.95;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+}
+
+.hk-title span {
+  color: #a8ff00;
+}
+
+.hk-desc {
+  font-size: 0.86rem;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.hk-kickoff-btn {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+  color: #030705;
+  background: linear-gradient(135deg, #a8ff00 0%, #23f7dd 100%);
+  border: none;
+  border-radius: 14px;
+  padding: 16px 32px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 30px rgba(168, 255, 0, 0.4), 0 0 20px rgba(35, 247, 221, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.hk-kickoff-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 14px 40px rgba(168, 255, 0, 0.6), 0 0 30px rgba(35, 247, 221, 0.5);
+}
+
+/* 2. SQUAD SELECTOR ROW */
+.hub-squad-section {
+  background: rgba(14, 23, 18, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 18px 20px;
+}
+
+.hss-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.hss-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  margin: 0;
+}
+
+.hss-subtitle {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.hss-manage-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #a8ff00;
+  background: rgba(168, 255, 0, 0.08);
+  border: 1px solid rgba(168, 255, 0, 0.3);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.hss-manage-btn:hover {
+  background: rgba(168, 255, 0, 0.18);
+  transform: translateY(-1px);
+}
+
+.hub-squad-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .hub-squad-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hub-player-card {
+  background: rgba(6, 15, 10, 0.9);
+  border: 1.5px solid rgba(168, 255, 0, 0.25);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.2s;
+}
+
+.hub-player-card.keeper {
+  border-color: rgba(255, 184, 0, 0.3);
+}
+
+.hub-player-card:hover {
+  border-color: #a8ff00;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.hpc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hpc-pos {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #a8ff00;
+}
+
+.hub-player-card.keeper .hpc-pos {
+  color: #ffb800;
+}
+
+.hpc-ovr {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 7px;
+  border-radius: 6px;
+  color: #fff;
+}
+
+.hpc-media {
+  width: 100%;
+  height: 120px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #020503;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.hpc-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hpc-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hpc-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hpc-trait {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: #a8ff00;
+  letter-spacing: 0.02em;
+}
+
+.hub-player-card.keeper .hpc-trait {
+  color: #ffb800;
+}
+
+.hpc-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.hpc-cycle-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.hpc-cycle-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.hpc-switch-btn {
+  flex: 1;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(168, 255, 0, 0.12);
+  border: 1px solid rgba(168, 255, 0, 0.35);
+  color: #a8ff00;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.hub-player-card.keeper .hpc-switch-btn {
+  background: rgba(255, 184, 0, 0.12);
+  border-color: rgba(255, 184, 0, 0.35);
+  color: #ffb800;
+}
+
+.hpc-switch-btn:hover {
+  filter: brightness(1.2);
+}
+
+/* 3. MARKETPLACE BANNER */
+.hub-market-banner {
+  background: linear-gradient(135deg, rgba(30, 22, 5, 0.85) 0%, rgba(14, 10, 2, 0.95) 100%);
+  border: 1.5px solid rgba(255, 184, 0, 0.35);
+  border-radius: 18px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.hmb-content {
+  flex: 1;
+  min-width: 250px;
+}
+
+.hmb-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #ffb800;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.hmb-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+  color: #fff;
+  margin: 0 0 4px 0;
+}
+
+.hmb-desc {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.hmb-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hmb-btn-skills {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: rgba(255, 184, 0, 0.15);
+  border: 1px solid rgba(255, 184, 0, 0.4);
+  color: #ffb800;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.hmb-btn-skills:hover {
+  background: rgba(255, 184, 0, 0.28);
+}
+
+.hmb-btn-market {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ffb800, #ff8c00);
+  color: #030705;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 15px rgba(255, 184, 0, 0.3);
+}
+
+.hmb-btn-market:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+/* 4. RIGHT COLUMN: STADIUM LEADERBOARD */
+.hub-leaderboard-card {
+  background: rgba(14, 23, 18, 0.88);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.hlb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hlb-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  margin: 0;
+}
+
+.hlb-subtitle {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.72rem;
+}
+
+.hlb-refresh-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-radius: 8px;
+  padding: 5px 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.hlb-refresh-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: rotate(45deg);
+}
+
+.hlb-payout-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  text-align: center;
+}
+
+.hlb-payout-col {
+  padding: 6px 4px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hlb-payout-col.gold {
+  background: rgba(255, 184, 0, 0.1);
+  border-color: rgba(255, 184, 0, 0.35);
+}
+
+.hlb-payout-col.gold strong {
+  color: #ffb800;
+}
+
+.hlb-payout-col.silver strong {
+  color: #e2e8f0;
+}
+
+.hlb-payout-col.bronze strong {
+  color: #f97316;
+}
+
+.hlb-payout-col span {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem;
+  color: #94a3b8;
+}
+
+.hlb-payout-col strong {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.hlb-table-wrap {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.hlb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  text-align: left;
+}
+
+.hlb-table th {
+  padding: 6px 8px;
+  color: #64748b;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hlb-table td {
+  padding: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.hlb-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.hlb-view-all-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #a8ff00;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.hlb-view-all-btn:hover {
+  text-decoration: underline;
+}
+
 
 
