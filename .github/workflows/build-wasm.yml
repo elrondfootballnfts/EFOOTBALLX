@@ -1,0 +1,40 @@
+name: Build MultiversX WASM
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Build Smart Contract WASM
+        run: |
+          cd contracts/efoo-stadium-vault/meta
+          cargo run build
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: efoo-stadium-vault-wasm
+          path: contracts/efoo-stadium-vault/output/*
+
+      - name: Commit and Push WASM to repo
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f contracts/efoo-stadium-vault/output/
+          git commit -m "chore(build): automated WASM bytecode build [skip ci]" || echo "No changes to commit"
+          git push origin main || echo "Could not push, artifact available via uploads"
