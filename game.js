@@ -19,7 +19,7 @@ const I18N_GAME = {
     step_2: "More NFTs = <strong>Up to 15x & Radar</strong>",
     step_3: "Pot: <strong>25,400,000 $EFOO</strong>",
     gate_connect_desc: "Connect your MultiversX wallet to verify your $EFOO balance & Club NFTs.",
-    gate_buy_sub: "Pay 0.035 EGLD (~$0.12) for 1,000,000 $EFOO ➔ RECEIVE 1,500,000 $EFOO! (+500k from Stadium Vault)",
+    gate_buy_sub: "Pay 0.035 EGLD (~$0.12) for 1,000,000 $EFOO ➔ RECEIVE 1,500,000 $EFOO! (+500k One-Time Bonus from Stadium Vault)",
     btn_buy_starter: "STARTER (0.035 EGLD ➔ 1.5M)",
     btn_buy_gate: "PRO PACK (0.1 EGLD ➔ ~3M)",
     btn_connect_to_play: "CONNECT WALLET TO PLAY",
@@ -56,7 +56,7 @@ const I18N_GAME = {
     step_2: "Több NFT = <strong>Akár 15x & Radar</strong>",
     step_3: "Nyereményalap: <strong>25 400 000 $EFOO</strong>",
     gate_connect_desc: "Csatlakoztasd a MultiversX tárcád a $EFOO egyenleg és Club NFT-k ellenőrzéséhez.",
-    gate_buy_sub: "Fizess 0.035 EGLD-t (~$0.12) 1 000 000 $EFOO-ért ➔ KAPSZ 1 500 000 $EFOO-t! (+500k a Stadium Vaultból)",
+    gate_buy_sub: "Fizess 0.035 EGLD-t (~$0.12) 1 000 000 $EFOO-ért ➔ KAPSZ 1 500 000 $EFOO-t! (+500k Egyszeri Bónusz a Stadium Vaultból)",
     btn_buy_starter: "STARTER CSOMAG (0.035 EGLD ➔ 1.5M)",
     btn_buy_gate: "PRO CSOMAG (0.1 EGLD ➔ ~3M)",
     btn_connect_to_play: "TÁRCA CSATLAKOZTATÁSA A JÁTÉKHOZ",
@@ -93,7 +93,7 @@ const I18N_GAME = {
     step_2: "Mai multe NFT = <strong>11x & Radar</strong>",
     step_3: "Pot: <strong>25,400,000 $EFOO</strong>",
     gate_connect_desc: "Conectează portofelul MultiversX pentru a verifica soldul $EFOO & NFT-urile.",
-    gate_buy_sub: "Plătește 0.035 EGLD (~$0.12) pt. 1.000.000 $EFOO ➔ PRIMEȘTI 1.500.000 $EFOO! (+500k din Seif)",
+    gate_buy_sub: "Plătește 0.035 EGLD (~$0.12) pt. 1.000.000 $EFOO ➔ PRIMEȘTI 1.500.000 $EFOO! (+500k Bonus Unic din Seif)",
     btn_buy_starter: "STARTER (0.035 EGLD ➔ 1.5M)",
     btn_buy_gate: "PRO PACK (0.1 EGLD ➔ ~3M)",
     btn_connect_to_play: "CONECTEAZĂ PORTOFELUL",
@@ -2207,10 +2207,10 @@ function openSummaryModal() {
     if (walletState.efooBalance < 5000000) {
       const tier2Score = Math.round(game.score * 2.5);
       fomoLine.innerHTML = isHu
-        ? `⚡ <strong>TIER BÓNUSZ HIÁNY:</strong> <strong>5M $EFOO-val (Rocket Striker)</strong> ez a menet <strong>${tier2Score.toLocaleString("hu-HU")} pont (+2.5x)</strong> lett volna!<br />🎁 <em>Első vásárlás? Válaszd a 0.035 EGLD Starter Csomagot és kapsz 1 500 000 $EFOO-t (+50% Bónusz a Széfből)!</em>`
+        ? `⚡ <strong>TIER BÓNUSZ HIÁNY:</strong> <strong>5M $EFOO-val (Rocket Striker)</strong> ez a menet <strong>${tier2Score.toLocaleString("hu-HU")} pont (+2.5x)</strong> lett volna!<br />🎁 <em>Első vásárlás? Válaszd a 0.035 EGLD Starter Csomagot és kapsz 1 500 000 $EFOO-t (+500k $EFOO Bónusz a Széfből)!</em>`
         : (isRo
-          ? `⚡ <strong>REGRET DE TIER:</strong> Cu <strong>5M $EFOO (Rocket Striker)</strong>, acest meci ar fi avut <strong>${tier2Score.toLocaleString("en-US")} puncte (+2.5x)</strong>!<br />🎁 <em>Primă achiziție? Ia Starter Pack de 0.035 EGLD și primești 1.500.000 $EFOO (+50% Bonus din Seif)!</em>`
-          : `⚡ <strong>TIER REGRET:</strong> With <strong>5M $EFOO (Rocket Striker)</strong>, this run would score <strong>${tier2Score.toLocaleString("en-US")} pts (+2.5x)</strong>!<br />🎁 <em>First time? Buy the 0.035 EGLD Starter Pack to get 1,500,000 $EFOO (+50% Bonus from Stadium Vault)!</em>`);
+          ? `⚡ <strong>REGRET DE TIER:</strong> Cu <strong>5M $EFOO (Rocket Striker)</strong>, acest meci ar fi avut <strong>${tier2Score.toLocaleString("en-US")} puncte (+2.5x)</strong>!<br />🎁 <em>Primă achiziție? Ia Starter Pack de 0.035 EGLD și primești 1.500.000 $EFOO (+500k $EFOO Bonus din Seif)!</em>`
+          : `⚡ <strong>TIER REGRET:</strong> With <strong>5M $EFOO (Rocket Striker)</strong>, this run would score <strong>${tier2Score.toLocaleString("en-US")} pts (+2.5x)</strong>!<br />🎁 <em>First time? Buy the 0.035 EGLD Starter Pack to get 1,500,000 $EFOO (+500k $EFOO Bonus from Stadium Vault)!</em>`);
     } else {
       fomoLine.innerHTML = isHu
         ? `🏆 <strong>PRO CSAPAT KVALIFIKÁLVA!</strong> <strong>${game.goals} gólt</strong> lőttél <strong>${p.totalMult.toFixed(1)}x</strong> bónusszal! Vásárolj szuperképességeket a Boltban, vagy szerezz több NFT-t a <strong>15.0x</strong> szorzóért!`
@@ -4081,8 +4081,38 @@ async function signAndSendTxs(txList, actionKey = null) {
   window.location.href = `https://wallet.multiversx.com/hook/sign?${params.toString()}`;
 }
 
+function getClaimedBonusAddresses() {
+  try {
+    const raw = localStorage.getItem("efoo_claimed_bonus_addresses");
+    if (!raw) return [];
+    const list = JSON.parse(raw);
+    return Array.isArray(list) ? list : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function hasAddressClaimedBonus(addr) {
+  if (!addr) return false;
+  const list = getClaimedBonusAddresses();
+  return list.includes(addr.toLowerCase().trim());
+}
+
+function markAddressClaimedBonus(addr) {
+  if (!addr) return;
+  const clean = addr.toLowerCase().trim();
+  const list = getClaimedBonusAddresses();
+  if (!list.includes(clean)) {
+    list.push(clean);
+    localStorage.setItem("efoo_claimed_bonus_addresses", JSON.stringify(list));
+  }
+}
+
 function buyStarterPackOnChain() {
   const amt = 0.035;
+  if (connectedAddress && !hasAddressClaimedBonus(connectedAddress)) {
+    markAddressClaimedBonus(connectedAddress);
+  }
   const weiStr = (BigInt(Math.round(amt * 1e9)) * BigInt(1e9)).toString();
   const wrapper = CONTRACTS.WEGLD_WRAPPERS[walletState.shard] || CONTRACTS.WEGLD_WRAPPERS[0];
   const tokenHex = strToHex("WEGLD-bd4d79");

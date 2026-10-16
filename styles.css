@@ -2589,6 +2589,26 @@ body {
   font-family: 'JetBrains Mono', monospace;
 }
 
+.starter-bonus-banner.claimed {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: none;
+}
+
+.starter-bonus-banner.claimed .sbb-badge {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-muted);
+  box-shadow: none;
+}
+
+.starter-bonus-banner.claimed .sbb-text strong {
+  color: var(--text-muted);
+}
+
+.starter-bonus-banner.claimed .sbb-text span {
+  color: rgba(255, 255, 255, 0.45);
+}
+
 /* xExchange / OneDex Style Swap Box */
 .swap-widget-box {
   display: flex;

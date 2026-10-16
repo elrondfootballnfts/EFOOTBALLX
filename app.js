@@ -61,8 +61,12 @@ const I18N = {
     squad_gallery_sub: "Connect your wallet above to display your personal EFOOTBALL-91a4eb & GOALKEEPER-cb9e3e NFTs here.",
     swap_title: "BUY $EFOO DIRECTLY ON-SITE",
     swap_subtitle: "Execute an instant on-chain swap via OneDex (EFOO/WEGLD) or xExchange (EFOO/USDC) smart contracts using your connected wallet.",
-    sbb_title: "Starter Pack: Buy 1,000,000 $EFOO (0.035 EGLD) ➔ GET 1,500,000 $EFOO!",
-    sbb_sub: "+500,000 $EFOO bonus granted from Stadium Vault (erd1lqh3...zp) to kick off your match!",
+    sbb_badge: "🎁 +500,000 $EFOO BONUS",
+    sbb_title: "Starter Bonus: Buy min. 1,000,000 $EFOO ➔ GET +500,000 $EFOO BONUS!",
+    sbb_sub: "+500,000 $EFOO bonus granted from Stadium Vault (erd1lqh3...zp) — strictly 1x per address on min. 1M purchase!",
+    sbb_claimed_badge: "✔ BONUS ALREADY CLAIMED",
+    sbb_claimed_title: "500,000 $EFOO Bonus Already Claimed for this Wallet",
+    sbb_claimed_sub: "Each MultiversX address can receive the one-time 500,000 $EFOO bonus strictly once.",
     swap_pay_label: "You Pay",
     swap_receive_label: "You Receive (Estimated $EFOO)",
     btn_exec_swap: "Sign & Buy $EFOO On-Chain Now",
@@ -238,8 +242,12 @@ const I18N = {
     squad_gallery_sub: "Conectează portofelul mai sus pentru a-ți vedea cărțile NFT EFOOTBALL-91a4eb și GOALKEEPER-cb9e3e aici.",
     swap_title: "CUMPĂRĂ $EFOO DIRECT PE SITE",
     swap_subtitle: "Execută un swap on-chain instant prin contractele inteligente OneDex (EFOO/WEGLD) sau xExchange (EFOO/USDC).",
-    sbb_title: "Pachet Starter: Cumpără 1.000.000 $EFOO (0.035 EGLD) ➔ PRIMEȘTI 1.500.000 $EFOO!",
-    sbb_sub: "+500.000 $EFOO bonus oferit din Seiful Stadionului (erd1lqh3...zp) pentru startul meciului!",
+    sbb_badge: "🎁 BONUS +500.000 $EFOO",
+    sbb_title: "Bonus Starter: Cumpără min. 1.000.000 $EFOO ➔ PRIMEȘTI +500.000 $EFOO BONUS!",
+    sbb_sub: "+500.000 $EFOO bonus acordat din Seiful Stadionului (erd1lqh3...zp) — doar 1 dată per adresă, la achiziție de min. 1M!",
+    sbb_claimed_badge: "✔ BONUS DEJA REVENDICAT",
+    sbb_claimed_title: "Bonusul de 500.000 $EFOO a fost deja revendicat pentru acest portofel",
+    sbb_claimed_sub: "Fiecare adresă MultiversX poate primi bonusul de 500.000 $EFOO o singură dată.",
     swap_pay_label: "Plătești",
     swap_receive_label: "Primești (Estimat $EFOO)",
     btn_exec_swap: "Semnează & Cumpără $EFOO On-Chain",
@@ -413,8 +421,12 @@ const I18N = {
     squad_gallery_sub: "Csatlakoztasd a tárcádat a saját EFOOTBALL és GOALKEEPER NFT-id kezeléséhez.",
     swap_title: "VÁSÁROLJ $EFOO-T KÖZVETLENÜL A WEBOLDALON",
     swap_subtitle: "Azonnali on-chain swap a OneDex (EFOO/WEGLD) vagy xExchange (EFOO/USDC) szerződéseken keresztül.",
-    sbb_title: "Kezdő Csomag: Vegyél 1.000.000 $EFOO-t ➔ KAPSZ 1.500.000 $EFOO-t!",
-    sbb_sub: "+500.000 $EFOO bónusz jóváírás a Tartalék Seifből az első vásárlásra!",
+    sbb_badge: "🎁 +500.000 $EFOO BÓNUSZ",
+    sbb_title: "Kezdő Bónusz: Vásárolj min. 1.000.000 $EFOO-t ➔ KAPSZ +500.000 $EFOO BÓNUSZT!",
+    sbb_sub: "+500.000 $EFOO bónusz jóváírás a Tartalék Széfből (erd1lqh3...zp) — minden címnek csak egyszer, min. 1M vásárlásnál!",
+    sbb_claimed_badge: "✔ BÓNUSZ MÁR FELHASZNÁLVA",
+    sbb_claimed_title: "Ehhez a tárcához az 500.000 $EFOO bónuszt már felhasználták",
+    sbb_claimed_sub: "Minden MultiversX cím kizárólag egyszer jogosult az 500.000 $EFOO bónuszra.",
     swap_pay_label: "Fizetsz",
     swap_receive_label: "Kapsz (Becsült $EFOO)",
     btn_exec_swap: "$EFOO Vásárlása On-Chain",
@@ -928,6 +940,9 @@ function showToast(messageHtml, explorerUrl = "") {
 // ============================================================================
 function setLanguage(lang) {
   currentLang = lang;
+  try {
+    localStorage.setItem("efoo_lang", lang);
+  } catch (e) {}
   document.documentElement.lang = lang;
   document.documentElement.setAttribute("data-lang", lang);
 
@@ -944,6 +959,7 @@ function setLanguage(lang) {
   });
 
   updateWalletStatusUI();
+  updateStarterBonusBannerUI();
   updateSwapEstimate();
   renderMemePresets();
   updateTweetShareLink();
@@ -2007,6 +2023,7 @@ async function connectWithWalletAddress(address, providerType = "inspector") {
   localStorage.setItem("efoo_wallet_provider", connectedProvider);
   closeWalletModal();
   updateWalletStatusUI();
+  updateSwapEstimate();
   await fetchConnectedWalletData(connectedAddress);
 }
 
@@ -2121,6 +2138,7 @@ function updateWalletStatusUI() {
     const tierEl = document.getElementById("wallet-efoo-tier");
     if (tierEl) tierEl.textContent = "Spectator";
   }
+  updateStarterBonusBannerUI();
 }
 
 async function fetchConnectedWalletData(address) {
@@ -2452,6 +2470,61 @@ function setDexMode(mode) {
   updateSwapEstimate();
 }
 
+// ============================================================================
+// 1-TIME 500k $EFOO STARTER BONUS ADDRESS TRACKING (MIN. 1,000,000 $EFOO BUY)
+// ============================================================================
+function getClaimedBonusAddresses() {
+  try {
+    const raw = localStorage.getItem("efoo_claimed_bonus_addresses");
+    if (!raw) return [];
+    const list = JSON.parse(raw);
+    return Array.isArray(list) ? list : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function hasAddressClaimedBonus(addr) {
+  if (!addr) return false;
+  const list = getClaimedBonusAddresses();
+  return list.includes(addr.toLowerCase().trim());
+}
+
+function markAddressClaimedBonus(addr) {
+  if (!addr) return;
+  const clean = addr.toLowerCase().trim();
+  const list = getClaimedBonusAddresses();
+  if (!list.includes(clean)) {
+    list.push(clean);
+    localStorage.setItem("efoo_claimed_bonus_addresses", JSON.stringify(list));
+  }
+  updateStarterBonusBannerUI();
+  updateSwapEstimate();
+}
+
+function updateStarterBonusBannerUI() {
+  const banner = document.getElementById("starter-bonus-banner");
+  if (!banner) return;
+  const badgeEl = document.getElementById("sbb-badge") || banner.querySelector(".sbb-badge");
+  const titleEl = document.getElementById("sbb-title") || banner.querySelector("strong");
+  const subEl = document.getElementById("sbb-sub") || banner.querySelector("span");
+
+  const i18n = I18N[currentLang] || I18N.en;
+  const isClaimed = connectedAddress && hasAddressClaimedBonus(connectedAddress);
+
+  if (isClaimed) {
+    banner.classList.add("claimed");
+    if (badgeEl) badgeEl.textContent = i18n.sbb_claimed_badge || "✔ BONUS ALREADY CLAIMED";
+    if (titleEl) titleEl.textContent = i18n.sbb_claimed_title || "500,000 $EFOO Bonus Already Claimed for this Wallet";
+    if (subEl) subEl.textContent = i18n.sbb_claimed_sub || "Each MultiversX address can receive the one-time 500,000 $EFOO bonus strictly once.";
+  } else {
+    banner.classList.remove("claimed");
+    if (badgeEl) badgeEl.textContent = i18n.sbb_badge || "🎁 +500,000 $EFOO BONUS";
+    if (titleEl) titleEl.textContent = i18n.sbb_title || "Starter Bonus: Buy min. 1,000,000 $EFOO ➔ GET +500,000 $EFOO BONUS!";
+    if (subEl) subEl.textContent = i18n.sbb_sub || "+500,000 $EFOO bonus granted from Stadium Vault (erd1lqh3...zp) — strictly 1x per address on min. 1M purchase!";
+  }
+}
+
 function updateSwapEstimate() {
   const amt = Math.max(0, Number(document.getElementById("swap-input-amount")?.value || 0));
   const tok = document.getElementById("swap-input-token")?.value || "EGLD";
@@ -2488,11 +2561,15 @@ function updateSwapEstimate() {
     if (rateLabel) {
       rateLabel.textContent = `1 ${tok} ≈ ${spotRate.toLocaleString("en-US")} $EFOO`;
     }
+
+    const alreadyClaimed = connectedAddress && hasAddressClaimedBonus(connectedAddress);
+    const qualifiesForBonus = estOut >= 1000000 && !alreadyClaimed;
+
     if (outField) {
-      if (estOut >= 1000000) {
+      if (qualifiesForBonus) {
         outField.value = `~${estOut.toLocaleString("en-US")} + 500k BONUS = ~${(estOut + 500000).toLocaleString("en-US")} $EFOO 🎁`;
       } else {
-        outField.value = `~${estOut.toLocaleString("en-US")} EFOO`;
+        outField.value = `~${estOut.toLocaleString("en-US")} $EFOO`;
       }
     }
     if (balHint) {
@@ -2582,6 +2659,27 @@ function executeDirectSwapOnChain() {
   }
 
   const tok = document.getElementById("swap-input-token")?.value || "EGLD";
+
+  // Check if this swap qualifies for the 1-time 500k $EFOO bonus (min. 1M $EFOO buy)
+  let estOut = 0;
+  if (tok === "USDC") {
+    const amtInWithFee = amt * 0.997;
+    estOut = amt > 0 ? Math.floor((dexState.xexEfooReserve * amtInWithFee) / (dexState.xexUsdcReserve + amtInWithFee)) : 0;
+  } else {
+    const amtInWithFee = amt * 0.99;
+    estOut = amt > 0 ? Math.floor((dexState.onedexEfooReserve * amtInWithFee) / (dexState.onedexWegldReserve + amtInWithFee)) : 0;
+  }
+
+  if (estOut >= 1000000 && connectedAddress && !hasAddressClaimedBonus(connectedAddress)) {
+    markAddressClaimedBonus(connectedAddress);
+    showToast(
+      currentLang === "hu"
+        ? "🎁 Egyszeri +500.000 $EFOO bónusz rögzítve ehhez a címhez!"
+        : (currentLang === "ro"
+          ? "🎁 Bonus unic de +500.000 $EFOO înregistrat pentru această adresă!"
+          : "🎁 One-time +500,000 $EFOO bonus registered for this address!")
+    );
+  }
 
   if (tok === "EGLD") {
     // 2-Transaction Batch:
@@ -3739,7 +3837,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initial Data Loads & Hero Scrollytelling Engine
   initHeroScrollytelling();
-  setLanguage("en");
+  const initialLang = (typeof localStorage !== "undefined" && localStorage.getItem("efoo_lang")) || "en";
+  setLanguage(initialLang);
   fetchLiveTokenStats();
   fetchLiveDexReserves();
   fetchShowcaseSquadNfts();
