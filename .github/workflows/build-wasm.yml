@@ -20,8 +20,8 @@ jobs:
 
       - name: Compile Smart Contract with Official Docker Builder
         run: |
-          docker run --rm -v ${{ github.workspace }}:/workspace multiversx/sdk-rust-contract-builder:v8.0.1 \
-            --project=/workspace/contracts/efoo-stadium-vault
+          docker run --rm -v ${{ github.workspace }}:/workspace multiversx/sdk-rust-contract-builder:v11.0.0 \
+            --project=/workspace/contracts/efoo-stadium-vault 2>&1 | tee docker_build.log || (cat docker_build.log && exit 1)
 
       - name: Verify Artifacts
         run: |
