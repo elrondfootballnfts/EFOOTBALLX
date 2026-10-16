@@ -4,6 +4,8 @@
 // ============================================================================
 
 const MULTIVERSX_API = "https://api.multiversx.com";
+const XOXNO_API = "https://api.xoxno.com";
+const XOXNO_MARKETPLACE_SC = "erd1qqqqqqqqqqqqqpgq6wegs2xkypfpync8mn2sa5cmpqjlvrhwz5nqgepyg8";
 const EFOO_TOKEN_ID = "EFOO-8fe2d4";
 const STRIKER_COLLECTION = "EFOOTBALL-91a4eb";
 const KEEPER_COLLECTION = "GOALKEEPER-cb9e3e";
@@ -285,190 +287,112 @@ function getNftRarityTier(nft) {
 }
 
 // ============================================================================
-// INITIAL SEED LISTINGS (ACTIVE P2P COMMUNITY TRADES)
+// LIVE XOXNO MARKETPLACE INTEGRATION & AUTHENTIC P2P LISTINGS
+// Zero ghost items: If no NFTs are listed, the market is truly empty!
 // ============================================================================
-const DEFAULT_SEED_LISTINGS = [
-  {
-    id: "list-1",
-    identifier: "EFOOTBALL-91a4eb-026b",
-    collection: STRIKER_COLLECTION,
-    nonce: 619,
-    name: "ELRONDFOOTBALL #619",
-    rarity: "MYTHIC",
-    rank: 3,
-    ovr: 99,
-    trait: "👽 ALIEN STRIKER • 4 SKILLS + RADAR",
-    url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/9734.png",
-    price: 5000000,
-    currency: "EFOO",
-    seller: "erd1ultra93k2vlw849h7z8p49x2qms8237vdg84091vcs",
-    createdAt: Date.now() - 3600000 * 4,
-    attributes: [
-      { name: "OVR", value: "99" },
-      { name: "Skin", value: "Alien Green" },
-      { name: "Jersey", value: "Liga 1 Gold #10" },
-      { name: "Boots", value: "Supersonic Rocket" }
-    ]
-  },
-  {
-    id: "list-2",
-    identifier: "GOALKEEPER-cb9e3e-02",
-    collection: KEEPER_COLLECTION,
-    nonce: 2,
-    name: "GOALKEEPER #2",
-    jersey: "02",
-    rarity: "MYTHIC",
-    rank: 2,
-    ovr: 99,
-    trait: "🧱 WALL OF DEGENS • TELEPATHY + 4 SKILLS",
-    url: "https://media.multiversx.com/nfts/asset/bafybeicbszzifxxcpnq3zrndfdtf45wouhyjbklwk4ffio365icb2ylgg4/230.png",
-    price: 8500000,
-    currency: "EFOO",
-    seller: "erd1degen098vkl287y4hgt289xnc823901hfg82394723",
-    createdAt: Date.now() - 3600000 * 8,
-    attributes: [
-      { name: "OVR", value: "99" },
-      { name: "Gloves", value: "Titanium Spider" },
-      { name: "Kit", value: "Black Panther GK" }
-    ]
-  },
-  {
-    id: "list-3",
-    identifier: "EFOOTBALL-91a4eb-0261",
-    collection: STRIKER_COLLECTION,
-    nonce: 609,
-    name: "ELRONDFOOTBALL #609",
-    rarity: "LEGENDARY",
-    rank: 12,
-    ovr: 95,
-    trait: "⚡ LIGA 1 SNIPER • 3 SKILLS",
-    url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/1477.png",
-    price: 2800000,
-    currency: "EFOO",
-    seller: "erd1sniper823749812yhg83921kldhsa89213794h23",
-    createdAt: Date.now() - 3600000 * 12,
-    attributes: [
-      { name: "OVR", value: "95" },
-      { name: "Head", value: "Ultra Headband" },
-      { name: "Jersey", value: "Red Degen Stripes" }
-    ]
-  },
-  {
-    id: "list-4",
-    identifier: "GOALKEEPER-cb9e3e-07",
-    collection: KEEPER_COLLECTION,
-    nonce: 7,
-    name: "GOALKEEPER #7",
-    jersey: "07",
-    rarity: "LEGENDARY",
-    rank: 7,
-    ovr: 94,
-    trait: "🧤 OCTOPUS REACH • SPIDER ARMS + 3 SKILLS",
-    url: "https://media.multiversx.com/nfts/asset/bafybeicbszzifxxcpnq3zrndfdtf45wouhyjbklwk4ffio365icb2ylgg4/440.png",
-    price: 3500000,
-    currency: "EFOO",
-    seller: "erd1octo9923847h192837dhsa7283491hd892348h",
-    createdAt: Date.now() - 3600000 * 2,
-    attributes: [
-      { name: "OVR", value: "94" },
-      { name: "Reach", value: "Spider Tentacles" },
-      { name: "Kit", value: "Neon Green Keeper" }
-    ]
-  },
-  {
-    id: "list-5",
-    identifier: "EFOOTBALL-91a4eb-0262",
-    collection: STRIKER_COLLECTION,
-    nonce: 610,
-    name: "ELRONDFOOTBALL #610",
-    rarity: "EPIC",
-    rank: 65,
-    ovr: 90,
-    trait: "🔥 ROCKET FINISHER • 2 SKILLS",
-    url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/2805.png",
-    price: 1600000,
-    currency: "EFOO",
-    seller: "erd1finisher982374h1298hsa8723491h89234h8",
-    createdAt: Date.now() - 3600000 * 18,
-    attributes: [
-      { name: "OVR", value: "90" },
-      { name: "Hair", value: "Golden Mohawk" }
-    ]
-  },
-  {
-    id: "list-6",
-    identifier: "GOALKEEPER-cb9e3e-33",
-    collection: KEEPER_COLLECTION,
-    nonce: 51,
-    name: "GOALKEEPER #51",
-    jersey: "51",
-    rarity: "RARE",
-    rank: 210,
-    ovr: 86,
-    trait: "⚡ CAT REFLEX • IRON WALL + 2 SKILLS",
-    url: "branding/original/GOALKEEPER-cb9e3e/logo.png",
-    price: 1200000,
-    currency: "EFOO",
-    seller: "erd1catref892374h198273hsa872349817h2348",
-    createdAt: Date.now() - 3600000 * 24,
-    attributes: [
-      { name: "OVR", value: "86" },
-      { name: "Reflex", value: "Cat Lightning" }
-    ]
-  },
-  {
-    id: "list-7",
-    identifier: "EFOOTBALL-91a4eb-0264",
-    collection: STRIKER_COLLECTION,
-    nonce: 612,
-    name: "ELRONDFOOTBALL #612",
-    rarity: "RARE",
-    rank: 320,
-    ovr: 88,
-    trait: "🎯 TOP BINS SPECIALIST • 2 SKILLS",
-    url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/6632.png",
-    price: 1100000,
-    currency: "EFOO",
-    seller: "erd1topbin892347h192837hsa728349817h234",
-    createdAt: Date.now() - 3600000 * 30,
-    attributes: [
-      { name: "OVR", value: "88" },
-      { name: "Eyes", value: "Laser Focus" }
-    ]
-  },
-  {
-    id: "list-8",
-    identifier: "EFOOTBALL-91a4eb-0273",
-    collection: STRIKER_COLLECTION,
-    nonce: 627,
-    name: "ELRONDFOOTBALL #627",
-    rarity: "COMMON",
-    rank: 510,
-    ovr: 78,
-    trait: "🍺 PANENKA KING • 1 SKILL",
-    url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/1688.png",
-    price: 800000,
-    currency: "EFOO",
-    seller: "erd1beerstriker823749812yhg83921kldhsa892",
-    createdAt: Date.now() - 3600000 * 40,
-    attributes: [
-      { name: "OVR", value: "78" },
-      { name: "Meme", value: "Sunday Beer Cleats" }
-    ]
-  }
-];
+let cachedXoxnoListings = [];
+let isFetchingXoxno = false;
 
-// Load listings from LocalStorage or seed defaults
+// Fetch live listings from official XOXNO API (EFOOTBALL-91a4eb & GOALKEEPER-cb9e3e)
+async function fetchLiveXoxnoListings() {
+  if (isFetchingXoxno) return cachedXoxnoListings;
+  isFetchingXoxno = true;
+
+  const results = [];
+  const collections = [STRIKER_COLLECTION, KEEPER_COLLECTION];
+
+  for (const col of collections) {
+    try {
+      const filter = {
+        includeCount: true,
+        top: 50,
+        filters: {
+          collection: [col],
+          onSale: true
+        }
+      };
+      const url = `${XOXNO_API}/nft/query?filter=${encodeURIComponent(JSON.stringify(filter))}`;
+      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      if (res.ok) {
+        const data = await res.json();
+        const items = data.resources || data.items || [];
+        items.forEach((it) => {
+          if (!it || !it.saleInfo) return;
+          const s = it.saleInfo;
+          const payToken = s.paymentToken || "EGLD";
+          let price = 0;
+          if (payToken === "EGLD") {
+            price = s.minBidShort || (parseFloat(s.minBid || s.maxBid || "0") / 1e18);
+          } else {
+            price = parseFloat(s.minBid || s.maxBid || "0") / 1e18;
+          }
+
+          results.push({
+            id: `xoxno-${it.identifier}`,
+            isXoxno: true,
+            auctionId: s.auctionId,
+            marketplaceSc: it.currentOwner?.address || XOXNO_MARKETPLACE_SC,
+            identifier: it.identifier,
+            collection: it.collection || col,
+            nonce: it.nonce || 0,
+            name: it.name || it.identifier,
+            rarity: it.metadata?.rarity || "XOXNO Listed",
+            rank: it.metadata?.rank || (it.rarities?.openRarity?.rank) || (it.nonce ? (it.nonce % 628) + 1 : 100),
+            ovr: it.metadata?.attributes?.find((a) => a.trait_type === "OVR")?.value || 88,
+            trait: "Official XOXNO Marketplace Listing",
+            url: it.media?.avifUrl || it.media?.webpUrl || it.url || (col === KEEPER_COLLECTION ? "branding/original/GOALKEEPER-cb9e3e/logo.png" : "branding/original/EFOOTBALL-91a4eb/logo.png"),
+            price: price,
+            rawPrice: s.minBid || s.maxBid || "0",
+            currency: payToken,
+            seller: s.seller || it.owner?.address || "XOXNO Seller",
+            createdAt: s.startTime ? s.startTime * 1000 : Date.now(),
+            attributes: it.metadata?.attributes || []
+          });
+        });
+      }
+    } catch (e) {
+      console.warn("XOXNO listings fetch failed for", col, e);
+    }
+  }
+
+  isFetchingXoxno = false;
+  cachedXoxnoListings = results;
+  renderMarketplaceGrid();
+  renderTelemetry();
+  return results;
+}
+
+// Load player-created listings from LocalStorage (Purging legacy dummy seed items)
 function getMarketplaceListings() {
   try {
     const raw = localStorage.getItem(STORAGE_LISTINGS);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) {
+        // Strict filter: purge any legacy phantom mock items
+        const realListings = parsed.filter(
+          (x) =>
+            x &&
+            x.seller &&
+            !x.seller.startsWith("erd1ultra") &&
+            !x.seller.startsWith("erd1degen") &&
+            !x.seller.startsWith("erd1sniper") &&
+            !x.seller.startsWith("erd1octo") &&
+            !x.seller.startsWith("erd1finisher") &&
+            !x.seller.startsWith("erd1catref") &&
+            !x.seller.startsWith("erd1topbin") &&
+            !x.seller.startsWith("erd1beerstriker")
+        );
+        return realListings;
+      }
     }
   } catch (e) {}
-  saveMarketplaceListings(DEFAULT_SEED_LISTINGS);
-  return DEFAULT_SEED_LISTINGS;
+  return [];
+}
+
+function getAllActiveListings() {
+  const p2p = getMarketplaceListings();
+  return [...p2p, ...cachedXoxnoListings];
 }
 
 function saveMarketplaceListings(listings) {
@@ -511,7 +435,7 @@ function renderTelemetry() {
   if (potEl) potEl.textContent = `${stats.pot.toLocaleString("en-US")} $EFOO`;
   if (burnedEl) burnedEl.textContent = `${stats.burned.toLocaleString("en-US")} $EFOO`;
 
-  const listings = getMarketplaceListings();
+  const listings = getAllActiveListings();
   if (countEl) countEl.textContent = `${listings.length} NFTs`;
 }
 
@@ -547,10 +471,10 @@ async function fetchWalletBalances(address) {
       const tok = await tokRes.json();
       marketWallet.efooBalance = parseFloat(tok.balance) / 1e18;
     } else {
-      marketWallet.efooBalance = 1500000; // Demo starter credit for testing
+      marketWallet.efooBalance = 0;
     }
   } catch (e) {
-    marketWallet.efooBalance = 1500000;
+    marketWallet.efooBalance = 0;
   }
   updateWalletUI();
 }
@@ -560,7 +484,7 @@ async function fetchWalletNfts(address) {
     const res = await fetch(`${MULTIVERSX_API}/accounts/${address}/nfts?collections=${STRIKER_COLLECTION},${KEEPER_COLLECTION}&size=100`);
     if (res.ok) {
       const nfts = await res.json();
-      if (Array.isArray(nfts) && nfts.length > 0) {
+      if (Array.isArray(nfts)) {
         marketWallet.ownedNfts = nfts;
         renderMyLockerGrid();
         return;
@@ -568,28 +492,7 @@ async function fetchWalletNfts(address) {
     }
   } catch (e) {}
 
-  // Fallback demo squad if fresh address has no on-chain NFTs yet
-  marketWallet.ownedNfts = [
-    {
-      identifier: "EFOOTBALL-91a4eb-026b",
-      collection: STRIKER_COLLECTION,
-      nonce: 619,
-      name: "ELRONDFOOTBALL #619",
-      rarity: "MYTHIC",
-      rank: 3,
-      url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/9734.png"
-    },
-    {
-      identifier: "GOALKEEPER-cb9e3e-07",
-      collection: KEEPER_COLLECTION,
-      nonce: 7,
-      name: "GOALKEEPER #7",
-      jersey: "07",
-      rarity: "LEGENDARY",
-      rank: 7,
-      url: "https://media.multiversx.com/nfts/asset/bafybeicbszzifxxcpnq3zrndfdtf45wouhyjbklwk4ffio365icb2ylgg4/440.png"
-    }
-  ];
+  marketWallet.ownedNfts = [];
   renderMyLockerGrid();
 }
 
@@ -656,7 +559,36 @@ function renderMarketplaceGrid() {
   if (!grid) return;
   grid.innerHTML = "";
 
-  const allListings = getMarketplaceListings();
+  const allListings = getAllActiveListings();
+  const isHu = currentMarketLang === "hu";
+  const isRo = currentMarketLang === "ro";
+
+  // If no listings exist at all on the market (Zero ghost items!)
+  if (allListings.length === 0) {
+    grid.innerHTML = `
+      <div class="m-empty-state" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; background: rgba(12, 20, 29, 0.6); border: 1px dashed rgba(255,255,255,0.15); border-radius: 16px;">
+        <div style="font-size: 3.2rem; margin-bottom: 12px;">🏟️</div>
+        <h3 style="font-family: var(--font-bebas); font-size: 2rem; color: #fff; letter-spacing: 0.05em; margin-bottom: 8px;">
+          ${isHu ? "A PIAC JELENLEG ÜRES" : isRo ? "PIAȚA ESTE MOMENTAN LIBERĂ" : "THE MARKET IS CURRENTLY EMPTY"}
+        </h3>
+        <p style="color: var(--text-sub); max-width: 520px; margin: 0 auto 20px; font-size: 0.95rem; line-height: 1.6;">
+          ${isHu 
+            ? "Nincs aktív eladásra kínált játékos vagy kapus sem a játékosoknál, sem az XOXNO-n. Légy az első, aki meghirdet egy NFT-t a saját Öltözőjéből!"
+            : isRo
+            ? "Nu există NFT-uri listate la vânzare de către jucători sau pe piața XOXNO. Fii primul care își scoate la vânzare un atacant sau portar din vestiar!"
+            : "No NFTs are currently listed for sale by players or on XOXNO. Be the first to list a Striker or Goalkeeper from your personal Locker Room!"}
+        </p>
+        <button type="button" class="m-btn-primary" id="btn-empty-goto-locker" style="display:inline-flex; align-items:center; gap:8px;">
+          🎒 ${isHu ? "Ugrás a Saját Öltözőhöz & Eladás" : isRo ? "Deschide Vestiarul & Vinde" : "Open My Locker & Sell"}
+        </button>
+      </div>
+    `;
+
+    document.getElementById("btn-empty-goto-locker")?.addEventListener("click", () => {
+      document.getElementById("tab-btn-my-nfts")?.click();
+    });
+    return;
+  }
 
   // Apply Category Filter
   let filtered = allListings.filter((item) => {
@@ -693,15 +625,13 @@ function renderMarketplaceGrid() {
   if (filtered.length === 0) {
     grid.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 48px; color: var(--text-sub);">
-        <h3>No NFTs match the selected filter.</h3>
-        <p>Try switching to 'All' or check back soon!</p>
+        <h3>${isHu ? "Nincs a szűrésnek megfelelő NFT." : "No NFTs match the selected filter."}</h3>
+        <p>${isHu ? "Próbáld meg az 'Összes' fület!" : "Try switching to 'All' or check back soon!"}</p>
       </div>
     `;
     return;
   }
 
-  const isHu = currentMarketLang === "hu";
-  const isRo = currentMarketLang === "ro";
   const curAddr = marketWallet.address ? marketWallet.address.toLowerCase() : "";
 
   filtered.forEach((item) => {
@@ -711,7 +641,10 @@ function renderMarketplaceGrid() {
     const card = document.createElement("div");
     card.className = `m-nft-card tier-${tier.tierKey}`;
 
-    const formattedPrice = item.price.toLocaleString("en-US");
+    const formattedPrice = item.currency === "EGLD"
+      ? (typeof item.price === "number" ? item.price.toFixed(3) : item.price)
+      : item.price.toLocaleString("en-US");
+
     const sellerShort = isOwner
       ? (isHu ? "Te (Tulajdonos)" : (isRo ? "Tu (Proprietar)" : "You (Owner)"))
       : `${item.seller.slice(0, 6)}...${item.seller.slice(-4)}`;
@@ -722,7 +655,14 @@ function renderMarketplaceGrid() {
         <div class="mnc-rank-badge" style="border-color:${tier.borderColor}; color:${tier.borderColor};">
           ${tier.tierIcon} Rank #${tier.rank} • ${tier.tierLabel}
         </div>
-        <div class="mnc-col-tag">${item.jersey ? "🧤 KEEPER" : "⚽ STRIKER"}</div>
+        ${
+          item.isXoxno
+            ? `<div class="mnc-xoxno-badge" title="Verified listing on XOXNO Marketplace">
+                 <span class="mnc-xoxno-dot">⚡</span>
+                 <span>XOXNO</span>
+               </div>`
+            : `<div class="mnc-col-tag">${item.jersey ? "🧤 KEEPER" : "⚽ STRIKER"}</div>`
+        }
       </div>
 
       <div class="mnc-body">
@@ -731,7 +671,7 @@ function renderMarketplaceGrid() {
           <span class="mnc-ovr">${item.ovr || 85} OVR</span>
         </div>
 
-        <p class="mnc-trait-desc">${item.trait || "Sunday League Degen Ultra"}</p>
+        <p class="mnc-trait-desc">${item.trait || (item.isXoxno ? "Listed on XOXNO Marketplace" : "Sunday League Degen Ultra")}</p>
 
         <div class="mnc-powers-row">
           ${tier.powers.slice(0, 3).map((p) => `<span class="mnc-power-pill">${p}</span>`).join("")}
@@ -741,7 +681,7 @@ function renderMarketplaceGrid() {
           <div class="mnc-price-box">
             <span class="mnc-price-lbl">ASKING PRICE</span>
             <strong class="mnc-price-val">${formattedPrice} $${item.currency || "EFOO"}</strong>
-            <span class="mnc-seller-lbl">Seller: ${sellerShort}</span>
+            <span class="mnc-seller-lbl">${item.isXoxno ? "⚡ XOXNO Listing" : `Seller: ${sellerShort}`}</span>
           </div>
 
           <div class="mnc-action-wrap">
@@ -751,7 +691,9 @@ function renderMarketplaceGrid() {
                      <button type="button" class="mnc-btn-edit" data-edit="${item.id}">✏️ Edit</button>
                      <button type="button" class="mnc-btn-delist" data-delist="${item.id}">✕ Delist</button>
                    </div>`
-                : `<button type="button" class="mnc-btn-buy" data-buy="${item.id}">⚡ BUY</button>`
+                : `<button type="button" class="mnc-btn-buy" data-buy="${item.id}">
+                     ${item.isXoxno ? "⚡ BUY (XOXNO)" : "⚡ BUY"}
+                   </button>`
             }
           </div>
         </div>
@@ -763,7 +705,7 @@ function renderMarketplaceGrid() {
       openNftDetailsModal(item);
     });
 
-    // Buy Action
+    // Buy Action (Direct XOXNO Smart Contract or P2P)
     card.querySelector(`[data-buy="${item.id}"]`)?.addEventListener("click", (e) => {
       e.stopPropagation();
       executeBuyNft(item);
@@ -973,15 +915,108 @@ function buySkillCharge(skill, count) {
 // ============================================================================
 // BUY / LIST / DELIST / EDIT P2P LOGIC
 // ============================================================================
-function executeBuyNft(item) {
+async function executeBuyNft(item) {
   if (!marketWallet.address) {
     document.getElementById("m-wallet-modal")?.classList.remove("hidden");
-    showMarketToast("⚠️ Please connect your wallet first to purchase this NFT!");
+    showMarketToast(
+      currentMarketLang === "hu"
+        ? "⚠️ Kérlek előbb csatlakoztasd a tárcádat a vásárláshoz!"
+        : "⚠️ Please connect your MultiversX wallet first to purchase this NFT!"
+    );
     return;
   }
 
   const isHu = currentMarketLang === "hu";
 
+  // =========================================================================
+  // DIRECT XOXNO SMART CONTRACT PURCHASE (NO REDIRECT TO XOXNO.COM)
+  // Executes directly via MultiversX protocol from our dApp
+  // =========================================================================
+  if (item.isXoxno) {
+    try {
+      showMarketToast(
+        isHu
+          ? `⚡ XOXNO Tranzakció előkészítése: ${item.name}...`
+          : `⚡ Preparing direct XOXNO Smart Contract purchase: ${item.name}...`
+      );
+
+      // Build data field: buy@<auctionId_hex>@<collection_hex>@<nonce_hex>@01
+      const auctionNum = item.auctionId || 0;
+      let auctionHex = auctionNum.toString(16);
+      if (auctionHex.length % 2 !== 0) auctionHex = "0" + auctionHex;
+
+      const colStr = item.collection || STRIKER_COLLECTION;
+      const encoder = new TextEncoder();
+      const colHex = Array.from(encoder.encode(colStr))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+
+      const nonceNum = item.nonce || 0;
+      let nonceHex = nonceNum.toString(16);
+      if (nonceHex.length % 2 !== 0) nonceHex = "0" + nonceHex;
+
+      const dataField = `buy@${auctionHex}@${colHex}@${nonceHex}@01`;
+      const receiverSc = item.marketplaceSc || XOXNO_MARKETPLACE_SC;
+
+      let valueStr = "0";
+      if (item.currency === "EGLD") {
+        if (item.rawPrice && item.rawPrice !== "0") {
+          valueStr = String(item.rawPrice);
+        } else {
+          valueStr = BigInt(Math.floor(Number(item.price) * 1e18)).toString();
+        }
+      }
+
+      // Check balance
+      if (item.currency === "EGLD" && marketWallet.egldBalance < Number(item.price)) {
+        showMarketToast(
+          isHu
+            ? `⚠️ Nincs elegendő EGLD egyenleged! Szükséges: ${item.price} EGLD`
+            : `⚠️ Insufficient EGLD balance! Needed: ${item.price} EGLD`
+        );
+        return;
+      }
+
+      // Direct Browser Extension execution (MultiversX DeFi Extension)
+      const provider = window.multiversx || window.elrond;
+      if (provider && provider.signAndSendTransaction) {
+        const txPayload = {
+          value: valueStr,
+          receiver: receiverSc,
+          data: dataField,
+          gasLimit: 35000000,
+          chainID: "1"
+        };
+        const res = await provider.signAndSendTransaction(txPayload);
+        showMarketToast(
+          isHu
+            ? `🎉 XOXNO Vásárlási tranzakció sikeresen kiküldve! (Tx: ${res?.hash?.slice(0, 10) || "OK"}...) Az NFT a tárcádba érkezik!`
+            : `🎉 XOXNO Buy transaction dispatched! (Tx: ${res?.hash?.slice(0, 10) || "OK"}...) NFT is on its way to your wallet!`
+        );
+      } else {
+        // Direct Web Wallet hook without leaving Sunday League Degen FC
+        const walletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${receiverSc}&value=${valueStr}&gasLimit=35000000&data=${encodeURIComponent(dataField)}&callbackUrl=${encodeURIComponent(window.location.href)}`;
+        window.open(walletUrl, "_blank");
+        showMarketToast(
+          isHu
+            ? `📱 Írd alá a tranzakciót a felugró MultiversX tárca ablakban! Az NFT közvetlenül a Te címedre kerül.`
+            : `📱 Sign transaction in your MultiversX wallet. NFT transfers directly to you!`
+        );
+      }
+    } catch (e) {
+      console.error("XOXNO purchase failed:", e);
+      showMarketToast(
+        isHu
+          ? `❌ Hiba a vásárlási tranzakció során: ${e.message || "Tranzakció megszakítva"}`
+          : `❌ Purchase transaction error: ${e.message || "Cancelled"}`
+      );
+    }
+    return;
+  }
+
+  // =========================================================================
+  // P2P COMMUNITY LISTING PURCHASE ($EFOO)
+  // =========================================================================
   if (marketWallet.efooBalance < item.price) {
     showMarketToast(
       isHu
@@ -1258,6 +1293,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderTelemetry();
   renderMarketplaceGrid();
   renderSkillsStore();
+  fetchLiveXoxnoListings();
 
   // Tabs
   const tabBrowse = document.getElementById("tab-btn-browse");
@@ -1280,6 +1316,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (tab === "my_nfts") renderMyLockerGrid();
   };
+  window.switchMarketTab = switchTab;
 
   tabBrowse?.addEventListener("click", () => switchTab("browse"));
   tabMyNfts?.addEventListener("click", () => switchTab("my_nfts"));
