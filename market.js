@@ -420,12 +420,44 @@ function renderTelemetry() {
   const potEl = document.getElementById("tele-vault-val");
   const burnedEl = document.getElementById("tele-burned-val");
   const countEl = document.getElementById("tele-listings-count");
+  const floorValEl = document.getElementById("tele-floor-val");
+  const floorSubEl = document.getElementById("tele-floor-sub");
 
   if (potEl) potEl.textContent = `${stats.pot.toLocaleString("en-US")} $EFOO`;
   if (burnedEl) burnedEl.textContent = `${stats.burned.toLocaleString("en-US")} $EFOO`;
 
   const listings = getAllActiveListings();
   if (countEl) countEl.textContent = `${listings.length} NFTs`;
+
+  // DYNAMIC FLOOR PRICE: Always find the absolute cheapest item on the market!
+  if (!listings || listings.length === 0) {
+    if (floorValEl) floorValEl.textContent = "—";
+    if (floorSubEl) floorSubEl.textContent = "No Active Listings";
+  } else {
+    const egldItems = listings.filter((x) => x.currency === "EGLD");
+    const efooItems = listings.filter((x) => x.currency === "EFOO" || !x.currency);
+
+    let floorText = "—";
+    let subText = "Lowest Listed Price (Floor)";
+
+    if (egldItems.length > 0 && efooItems.length > 0) {
+      const minEgld = Math.min(...egldItems.map((x) => Number(x.price) || 999999));
+      const minEfoo = Math.min(...efooItems.map((x) => Number(x.price) || 999999));
+      floorText = `${minEgld.toFixed(3)} EGLD`;
+      subText = `or ${minEfoo.toLocaleString("en-US")} $EFOO (Cheapest)`;
+    } else if (egldItems.length > 0) {
+      const minEgld = Math.min(...egldItems.map((x) => Number(x.price) || 999999));
+      floorText = `${minEgld.toFixed(3)} EGLD`;
+      subText = "Lowest Listed Price (Floor)";
+    } else if (efooItems.length > 0) {
+      const minEfoo = Math.min(...efooItems.map((x) => Number(x.price) || 999999));
+      floorText = `${minEfoo.toLocaleString("en-US")} $EFOO`;
+      subText = "Lowest Listed Price (Floor)";
+    }
+
+    if (floorValEl) floorValEl.textContent = floorText;
+    if (floorSubEl) floorSubEl.textContent = subText;
+  }
 }
 
 // ============================================================================
