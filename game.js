@@ -5616,18 +5616,26 @@ async function resolveHerotagAsync(address) {
   } catch (e) {}
 }
 
-const DEFAULT_LEADERBOARD = [
-  { rank: 1, address: "erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq", herotag: "@hlnagy", level: 15, goals: 5, score: 1292220, date: "Today" },
-  { rank: 2, address: "erd1uaw4x3kretddfqx79qvvta9l29sdq7ad6lygavgynlq5mc52w0hqfzczm7", herotag: "@augustintr", level: 14, goals: 5, score: 857274, date: "Today" },
-  { rank: 3, address: "erd1qzm0h502r4x9uslqhfdjxrkmrwtq5qtle57queakzz6majydu3nswj6shc", herotag: "@digitalmoney", level: 13, goals: 4, score: 777240, date: "Today" },
-  { rank: 4, address: "erd1q4rrqj2fragmkz7x2jgpqy7svsunwd33hkl69v7h62nlwum9qunq3pllj3", herotag: "@janhunedoara", level: 12, goals: 4, score: 723588, date: "Yesterday" },
-  { rank: 5, address: "erd14zpeqacvvt8mlyrqudcv0c9r9d28s7q4350h7602xwt8r3j3wzjlx6pj", herotag: "@chuckszilard", level: 11, goals: 4, score: 672612, date: "Yesterday" },
-  { rank: 6, address: "erd136yy3cseqx6e0m8n8a54n8a385f096l863r3t700k7t9y3q36mtrv8", herotag: "@souleymaz", level: 10, goals: 4, score: 603896, date: "2 days ago" },
-  { rank: 7, address: "erd14a9dmrpqf2x33x5k68p6z3x7v0w987y6q5r423a2b1c0d9e8788zrk", herotag: "@quantumarun", level: 9, goals: 3, score: 522600, date: "2 days ago" },
-  { rank: 8, address: "erd1k8w7y5ftg2uax8v8ng8p5azjw96zzfgky9v3fydtpe2xwdz0007q3hl9z8", herotag: "", nickname: "Beer-Belly Striker #8", level: 8, goals: 3, score: 480200, date: "2 days ago" },
-  { rank: 9, address: "erd1zs55shr6trx5em9t60pnzwjdaak8atk0dpxzkuq7n4h4r4ejmthqjp6g44", herotag: "", nickname: "Panenka King #9", level: 7, goals: 3, score: 420500, date: "3 days ago" },
-  { rank: 10, address: "erd1370z0cuvpn6826ffqg86n438a29r54f8m6940a4g322u7eeyzru87vkj", herotag: "", nickname: "Turf Diver #10", level: 6, goals: 3, score: 382000, date: "3 days ago" }
-];
+// Known Mock Addresses to purge from local storage (no fake/dummy accounts!)
+const KNOWN_MOCK_ADDRESSES = new Set([
+  "erd1uaw4x3kretddfqx79qvvta9l29sdq7ad6lygavgynlq5mc52w0hqfzczm7", // augustintr
+  "erd1qzm0h502r4x9uslqhfdjxrkmrwtq5qtle57queakzz6majydu3nswj6shc", // digitalmoney
+  "erd1q4rrqj2fragmkz7x2jgpqy7svsunwd33hkl69v7h62nlwum9qunq3pllj3", // janhunedoara
+  "erd14zpeqacvvt8mlyrqudcv0c9r9d28s7q4350h7602xwt8r3j3wzjlx6pj", // chuckszilard
+  "erd136yy3cseqx6e0m8n8a54n8a385f096l863r3t700k7t9y3q36mtrv8", // souleymaz
+  "erd14a9dmrpqf2x33x5k68p6z3x7v0w987y6q5r423a2b1c0d9e8788zrk", // quantumarun
+  "erd1zs55shr6trx5em9t60pnzwjdaak8atk0dpxzkuq7n4h4r4ejmthqjp6g44",
+  "erd1370z0cuvpn6826ffqg86n438a29r54f8m6940a4g322u7eeyzru87vkj"
+]);
+
+const MOCK_HEROTAGS_TO_PURGE = new Set([
+  "@chuckszilard",
+  "@augustintr",
+  "@digitalmoney",
+  "@janhunedoara",
+  "@souleymaz",
+  "@quantumarun"
+]);
 
 function getLeaderboard() {
   let list = [];
@@ -5641,12 +5649,16 @@ function getLeaderboard() {
     }
   } catch (e) {}
 
-  if (list.length === 0) {
-    list = [...DEFAULT_LEADERBOARD];
-  }
+  // Filter out any mock dummy entries
+  list = list.filter((row) => {
+    if (!row || !row.address) return false;
+    const addr = row.address.toLowerCase();
+    if (KNOWN_MOCK_ADDRESSES.has(addr)) return false;
+    if (row.herotag && MOCK_HEROTAGS_TO_PURGE.has(row.herotag.toLowerCase())) return false;
+    return true;
+  });
 
-  // STRICT UNIQUE ADDRESS DEDUPLICATION (Egy cím csak egyszer szerepelhet a ranglistán!)
-  // If an address has multiple rows, keep strictly their single HIGHEST score!
+  // STRICT UNIQUE PLAYER DEDUPLICATION: keep strictly each player's highest score!
   const bestByAddress = new Map();
   list.forEach((row) => {
     if (!row || !row.address) return;
@@ -5670,15 +5682,7 @@ function getLeaderboard() {
     }
   });
 
-  // If fewer than 10 unique addresses, fill remaining spots with other unique addresses from DEFAULT_LEADERBOARD
-  DEFAULT_LEADERBOARD.forEach((defRow) => {
-    const key = defRow.address.toLowerCase();
-    if (!bestByAddress.has(key)) {
-      bestByAddress.set(key, defRow);
-    }
-  });
-
-  // Convert map to array, sort descending by score, assign clean ranks (1 to 10)
+  // Convert map to array, sort descending by score, assign clean ranks
   const sorted = Array.from(bestByAddress.values());
   sorted.sort((a, b) => b.score - a.score);
   sorted.forEach((item, idx) => {
@@ -5695,15 +5699,30 @@ function getLeaderboard() {
 function recordMatchToLeaderboard(score, goals, level) {
   if (score <= 0) return null;
   const list = getLeaderboard();
-  const playerAddr = connectedAddress || "erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq";
 
-  let hero = walletState.herotag || walletState.username || getHerotagForAddress(playerAddr);
-  if (hero) {
-    hero = hero.replace(/\.elrond$/, "").replace(/^@/, "");
-    hero = `@${hero}`;
+  // If player has a connected wallet, use their real address. Otherwise use an anonymous guest ID.
+  let playerAddr = connectedAddress;
+  let isGuest = false;
+  if (!playerAddr) {
+    let guestId = localStorage.getItem("efoo_guest_player_id");
+    if (!guestId) {
+      guestId = "guest_" + Math.random().toString(36).substring(2, 8);
+      localStorage.setItem("efoo_guest_player_id", guestId);
+    }
+    playerAddr = guestId;
+    isGuest = true;
   }
 
-  // Check if playerAddr already exists in the leaderboard (Only 1 entry per address!)
+  let hero = "";
+  if (!isGuest) {
+    hero = walletState.herotag || walletState.username || getHerotagForAddress(playerAddr);
+    if (hero) {
+      hero = hero.replace(/\.elrond$/, "").replace(/^@/, "");
+      hero = `@${hero}`;
+    }
+  }
+
+  // Check if playerAddr already exists in the leaderboard
   const existingIdx = list.findIndex(
     (x) => x.address && x.address.toLowerCase() === playerAddr.toLowerCase()
   );
@@ -5717,18 +5736,22 @@ function recordMatchToLeaderboard(score, goals, level) {
       list[existingIdx].date = "Just now";
       if (hero) list[existingIdx].herotag = hero;
     } else {
-      // Keep previous higher score, but update herotag if now available
       if (hero && !list[existingIdx].herotag) {
         list[existingIdx].herotag = hero;
       }
     }
   } else {
-    // New player address
+    // New player entry
+    const nickname = isGuest
+      ? `Guest Striker #${playerAddr.replace("guest_", "")}`
+      : (hero ? "" : getDeterministicFootballNickname(playerAddr));
+
     list.push({
       rank: 0,
       address: playerAddr,
       herotag: hero || "",
-      nickname: hero ? "" : getDeterministicFootballNickname(playerAddr),
+      nickname,
+      isGuest,
       level,
       goals,
       score,
@@ -5736,7 +5759,7 @@ function recordMatchToLeaderboard(score, goals, level) {
     });
   }
 
-  // Guarantee strict deduplication by address
+  // Deduplication by address
   const bestByAddress = new Map();
   list.forEach((row) => {
     if (!row || !row.address) return;
@@ -5781,26 +5804,41 @@ function renderLeaderboardModal() {
   if (share2nd) share2nd.textContent = `${Math.round(potVal * 0.25).toLocaleString("en-US")} $EFOO`;
   if (share3rd) share3rd.textContent = `${Math.round(potVal * 0.10).toLocaleString("en-US")} $EFOO`;
 
+  // Empty state if no real matches have been played yet
+  if (list.length === 0) {
+    const emptyTr = document.createElement("tr");
+    emptyTr.innerHTML = `
+      <td colspan="6" style="text-align:center; padding:38px 16px; color:#94a3b8;">
+        <div style="font-size:2.2rem; margin-bottom:8px;">🏟️ ⚽</div>
+        <strong style="color:#fff; font-size:1.05rem; letter-spacing:0.04em;">MÉG NINCS RÖGZÍTETT EREDMÉNY E HÉTEN</strong><br>
+        <span style="font-size:0.82rem; color:#64748b; margin-top:4px; display:inline-block;">Játssz le egy meccset, lőj gólokat, és légy te az #1 a vasárnapi Jackpotért!</span>
+      </td>
+    `;
+    tbody.appendChild(emptyTr);
+    return;
+  }
+
   list.forEach((row) => {
     const tr = document.createElement("tr");
 
-    // Resolve Herotag (Recognizes hlnagy for erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq)
     let herotag = row.herotag;
     if (!herotag || herotag.trim().length === 0) {
-      const known = getHerotagForAddress(row.address);
-      if (known) {
-        herotag = `@${known}`;
-        row.herotag = herotag;
-      } else {
-        resolveHerotagAsync(row.address);
+      if (!row.isGuest && row.address.startsWith("erd1")) {
+        const known = getHerotagForAddress(row.address);
+        if (known) {
+          herotag = `@${known}`;
+          row.herotag = herotag;
+        } else {
+          resolveHerotagAsync(row.address);
+        }
       }
     }
 
     const isHero = !!(herotag && herotag.trim().length > 0);
-    const shortAddr = shortErd(row.address);
+    const shortAddr = row.isGuest ? "Guest" : shortErd(row.address);
     const displayName = isHero
       ? `<strong class="herotag-name" style="color:#a8ff00; font-weight:800; font-size:0.95rem; text-shadow:0 0 10px rgba(168,255,0,0.5);">⚡ ${escapeHtml(herotag)}</strong>`
-      : `<span class="generated-nickname" style="color:#94a3b8; font-style:italic;">${escapeHtml(row.nickname || row.name || getDeterministicFootballNickname(row.address))}</span>`;
+      : `<span class="generated-nickname" style="color:#94a3b8; font-style:italic;">${escapeHtml(row.nickname || row.name || (row.isGuest ? "Guest Player" : getDeterministicFootballNickname(row.address)))}</span>`;
 
     tr.innerHTML = `
       <td><strong>${row.rank === 1 ? "🥇 1" : row.rank === 2 ? "🥈 2" : row.rank === 3 ? "🥉 3" : `#${row.rank}`}</strong></td>
