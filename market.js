@@ -1233,8 +1233,18 @@ function renderSkillsStore() {
   });
 }
 
-function buySkillCharge(skill, count) {
+async function buySkillCharge(skill, count) {
   const isHu = currentMarketLang === "hu";
+  if (!marketWallet.address) {
+    document.getElementById("m-wallet-modal")?.classList.remove("hidden");
+    showMarketToast(
+      isHu
+        ? "⚠️ Kérlek előbb csatlakoztasd a tárcádat a képességek megvásárlásához!"
+        : "⚠️ Please connect your MultiversX wallet first to purchase skills!"
+    );
+    return;
+  }
+
   const cost = count > 1 ? Math.round(skill.price * count * 0.8) : skill.price * count;
 
   if (marketWallet.efooBalance < cost) {
@@ -1246,27 +1256,59 @@ function buySkillCharge(skill, count) {
     return;
   }
 
-  marketWallet.efooBalance -= cost;
-  updateWalletUI();
+  const efooTokenHex = stringToHex(EFOO_TOKEN_ID);
+  const costAtomic = toAtomicUnits(cost, 18);
+  let costHex = costAtomic.toString(16);
+  if (costHex.length % 2 !== 0) costHex = "0" + costHex;
 
-  // 50% Burn, 50% to Stadium Vault
-  const half = Math.floor(cost / 2);
-  addVaultContributions(half, half);
-
-  // Save to game inventory
-  try {
-    let inv = {};
-    const raw = localStorage.getItem(STORAGE_SKILLS_INVENTORY);
-    if (raw) inv = JSON.parse(raw);
-    inv[skill.id] = (inv[skill.id] || 0) + count;
-    localStorage.setItem(STORAGE_SKILLS_INVENTORY, JSON.stringify(inv));
-  } catch (e) {}
+  // MultiversX ESDTTransfer to SC depositToVaultPot endpoint:
+  // ESDTTransfer@<token_id_hex>@<amount_hex>@<endpoint_hex>
+  const endpointHex = stringToHex("depositToVaultPot");
+  const dataField = `ESDTTransfer@${efooTokenHex}@${costHex}@${endpointHex}`;
 
   showMarketToast(
     isHu
-      ? `✅ +${count}x ${skill.name} megvéve és felszerelve! (50% elégetve, 50% a Vaultba küldve)`
-      : `✅ +${count}x ${skill.name} purchased! (50% burned, 50% deposited to Stadium Vault)`
+      ? `⏳ Tranzakció előkészítése: +${count}x ${skill.name} megvásárlása (${cost.toLocaleString()} $EFOO)...`
+      : `⏳ Preparing transaction: Purchasing +${count}x ${skill.name} (${cost.toLocaleString()} $EFOO)...`
   );
+
+  try {
+    await sendMultiversxTransaction({
+      receiver: STADIUM_VAULT_SC,
+      value: "0",
+      gasLimit: 12000000,
+      data: dataField
+    });
+
+    marketWallet.efooBalance = Math.max(0, marketWallet.efooBalance - cost);
+    updateWalletUI();
+
+    // 50% Burn, 50% to Stadium Vault
+    const half = Math.floor(cost / 2);
+    addVaultContributions(half, half);
+
+    // Save to game inventory
+    try {
+      let inv = {};
+      const raw = localStorage.getItem(STORAGE_SKILLS_INVENTORY);
+      if (raw) inv = JSON.parse(raw);
+      inv[skill.id] = (inv[skill.id] || 0) + count;
+      localStorage.setItem(STORAGE_SKILLS_INVENTORY, JSON.stringify(inv));
+    } catch (e) {}
+
+    showMarketToast(
+      isHu
+        ? `✅ Sikeres tranzakció! +${count}x ${skill.name} megvéve és beküldve a Smart Contractba! (50% elégetve 🔥, 50% a Vaultba küldve 🏆)`
+        : `✅ Transaction dispatched! +${count}x ${skill.name} purchased & sent to Smart Contract! (50% burned 🔥, 50% to Vault 🏆)`
+    );
+  } catch (err) {
+    console.error("Skill purchase error:", err);
+    showMarketToast(
+      isHu
+        ? `❌ Hiba a tranzakció során: ${err.message || "Megszakítva"}`
+        : `❌ Transaction error: ${err.message || "Cancelled"}`
+    );
+  }
 }
 
 // ============================================================================
