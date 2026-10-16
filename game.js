@@ -3,7 +3,7 @@
 // ============================================================================
 
 const MIN_EFOO_REQUIRED = 1000000; // Minimum 1,000,000 $EFOO required to play
-const VALID_WALLET_PROVIDERS = ["xportal", "extension", "webwallet"];
+const VALID_WALLET_PROVIDERS = ["xportal", "extension", "webwallet", "inspector"];
 
 const I18N_GAME = {
   en: {
@@ -132,6 +132,53 @@ const CONTRACTS = {
   WC_PROJECT_ID: "9b1a9564f91cb659ffe21b73d5c4e2d8"
 };
 
+const STORAGE_VAULT_POT = "efoo_stadium_vault_pot";
+const STORAGE_TOTAL_BURNED = "efoo_total_burned_games";
+const BASE_VAULT_POT = 25400000;
+const BASE_BURNED_GAMES = 92912450000;
+
+function getVaultStats() {
+  let pot = BASE_VAULT_POT;
+  let burned = BASE_BURNED_GAMES;
+  try {
+    const p = localStorage.getItem(STORAGE_VAULT_POT);
+    if (p) pot = Math.max(BASE_VAULT_POT, parseInt(p, 10) || BASE_VAULT_POT);
+    const b = localStorage.getItem(STORAGE_TOTAL_BURNED);
+    if (b) burned = Math.max(BASE_BURNED_GAMES, parseInt(b, 10) || BASE_BURNED_GAMES);
+  } catch (e) {}
+  return { pot, burned };
+}
+
+function addVaultContributions(vaultAdd, burnAdd) {
+  const stats = getVaultStats();
+  stats.pot += (vaultAdd || 0);
+  stats.burned += (burnAdd || 0);
+  try {
+    localStorage.setItem(STORAGE_VAULT_POT, String(stats.pot));
+    localStorage.setItem(STORAGE_TOTAL_BURNED, String(stats.burned));
+  } catch (e) {}
+  updateVaultUI();
+  return stats;
+}
+
+function updateVaultUI() {
+  const stats = getVaultStats();
+  const potFormatted = stats.pot.toLocaleString("en-US");
+  const burnedFormatted = stats.burned.toLocaleString("en-US");
+
+  const hudPotEl = document.getElementById("fomo-pot-amount");
+  if (hudPotEl) hudPotEl.textContent = `🏆 ${potFormatted} $EFOO`;
+
+  const modalPotEl = document.getElementById("modal-vault-pot");
+  if (modalPotEl) modalPotEl.textContent = `${potFormatted} $EFOO`;
+
+  const sumVaultEl = document.getElementById("sum-vault-val");
+  if (sumVaultEl) sumVaultEl.textContent = `${potFormatted} $EFOO`;
+
+  const sumBurnedEl = document.getElementById("sum-burned-val");
+  if (sumBurnedEl) sumBurnedEl.textContent = `${burnedFormatted} $EFOO`;
+}
+
 const RARITY_TIERS = {
   ROOKIE: { id: "rookie", name: "ROOKIE (F2P)", nameHu: "SZABADÚSZÓ", color: "#94a3b8", slots: 0, mult: 1.0 },
   COMMON: { id: "common", name: "COMMON", nameHu: "COMMON", color: "#22c55e", slots: 1, mult: 2.0 },
@@ -252,10 +299,198 @@ const KEEPER_ROSTER = [
   }
 ];
 
+// --- NFT RARITY TIERS & ATTRIBUTES SYSTEM (XOXNO LOGIC) ---
+function getNftRarityTier(nft) {
+  if (!nft || nft.identifier === "ROOKIE-STRIKER" || nft.identifier === "ROOKIE-KEEPER" || nft.rarity === "ROOKIE") {
+    return {
+      tierKey: "rookie",
+      tierLabel: "ROOKIE (F2P)",
+      tierIcon: "⚪",
+      rank: "F2P",
+      borderColor: "#94a3b8",
+      scoreMult: 1.0,
+      slots: 0,
+      powers: [{ icon: "⚡", name: "1.0x MULT" }]
+    };
+  }
+
+  let rank = nft.rank || (nft.metadata && nft.metadata.rank) || (nft.rarities && nft.rarities.openRarity && nft.rarities.openRarity.rank) || (nft.rarities && nft.rarities.statistical && nft.rarities.statistical.rank);
+  const name = (nft.name || "").trim();
+  const tokenNumMatch = name.match(/#(\d+)/);
+  const tokenNum = tokenNumMatch ? parseInt(tokenNumMatch[1], 10) : (nft.nonce || 0);
+
+  // Specific top ranks from official XOXNO collection
+  if (tokenNum === 614) rank = 1;
+  else if (tokenNum === 615) rank = 2;
+  else if (tokenNum === 619) rank = 3;
+  else if (tokenNum === 613) rank = 4;
+  else if (tokenNum === 616) rank = 5;
+
+  const isKeeper = nft.collection === "GOALKEEPER-cb9e3e" || (nft.identifier && nft.identifier.startsWith("GOALKEEPER")) || !!nft.jersey;
+  if (!rank || rank <= 0) {
+    if (nft.rarity && typeof nft.rarity === "string") {
+      const rUpper = nft.rarity.toUpperCase();
+      if (rUpper === "MYTHIC") rank = 5;
+      else if (rUpper === "LEGENDARY") rank = 50;
+      else if (rUpper === "EPIC") rank = 150;
+      else if (rUpper === "RARE") rank = 350;
+      else rank = 550;
+    } else if (nft.metadata && nft.metadata.rarity && nft.metadata.rarity.rarityScore) {
+      rank = Math.max(1, Math.min(628, Math.round(700 - nft.metadata.rarity.rarityScore)));
+    } else {
+      rank = tokenNum > 0 ? (tokenNum % 628) + 1 : 320;
+    }
+  }
+
+  let tierKey = "common";
+  let tierLabel = "COMMON";
+  let tierIcon = "⚪";
+  let borderColor = "#71717a";
+  let powers = [];
+  let scoreMult = 1.2;
+  let slots = 1;
+
+  if (isKeeper) {
+    if (rank <= 5) {
+      tierKey = "mythic";
+      tierLabel = "MYTHIC";
+      tierIcon = "👑";
+      borderColor = "#ffd700";
+      scoreMult = 3.5;
+      slots = 5;
+      powers = [
+        { icon: "🧱", name: "IRON WALL" },
+        { icon: "🧤", name: "SPIDER REACH" },
+        { icon: "⏱️", name: "MATRIX SLOW" },
+        { icon: "👁️", name: "MIND READ" },
+        { icon: "🛡️", name: "3 SHIELDS" }
+      ];
+    } else if (rank <= 15) {
+      tierKey = "legendary";
+      tierLabel = "LEGENDARY";
+      tierIcon = "⭐";
+      borderColor = "#c084fc";
+      scoreMult = 2.5;
+      slots = 4;
+      powers = [
+        { icon: "🧱", name: "IRON WALL" },
+        { icon: "🧤", name: "SPIDER REACH" },
+        { icon: "⏱️", name: "MATRIX SLOW" },
+        { icon: "🛡️", name: "2 SHIELDS" }
+      ];
+    } else if (rank <= 30) {
+      tierKey = "epic";
+      tierLabel = "EPIC";
+      tierIcon = "🔷";
+      borderColor = "#38bdf8";
+      scoreMult = 2.0;
+      slots = 3;
+      powers = [
+        { icon: "🧱", name: "IRON WALL" },
+        { icon: "🧤", name: "SPIDER REACH" },
+        { icon: "🛡️", name: "2 SHIELDS" }
+      ];
+    } else if (rank <= 45) {
+      tierKey = "rare";
+      tierLabel = "RARE";
+      tierIcon = "🟢";
+      borderColor = "#22c55e";
+      scoreMult = 1.5;
+      slots = 2;
+      powers = [
+        { icon: "🧤", name: "SPIDER REACH" },
+        { icon: "🛡️", name: "1 SHIELD" }
+      ];
+    } else {
+      tierKey = "common";
+      tierLabel = "COMMON";
+      tierIcon = "⚪";
+      borderColor = "#71717a";
+      scoreMult = 1.2;
+      slots = 1;
+      powers = [
+        { icon: "🛡️", name: "1 SHIELD" }
+      ];
+    }
+  } else {
+    // Striker Outfield Players
+    if (rank <= 20) {
+      tierKey = "mythic";
+      tierLabel = "MYTHIC";
+      tierIcon = "👑";
+      borderColor = "#ffd700";
+      scoreMult = 3.5;
+      slots = 5;
+      powers = [
+        { icon: "🔥", name: "ROCKET" },
+        { icon: "🌪️", name: "VORTEX" },
+        { icon: "🧊", name: "FREEZE" },
+        { icon: "💰", name: "GOLD x2" },
+        { icon: "⚡", name: "3.5x MULT" }
+      ];
+    } else if (rank <= 100) {
+      tierKey = "legendary";
+      tierLabel = "LEGENDARY";
+      tierIcon = "⭐";
+      borderColor = "#c084fc";
+      scoreMult = 2.5;
+      slots = 4;
+      powers = [
+        { icon: "🔥", name: "ROCKET" },
+        { icon: "🌪️", name: "VORTEX" },
+        { icon: "🧊", name: "FREEZE" },
+        { icon: "⚡", name: "2.5x MULT" }
+      ];
+    } else if (rank <= 250) {
+      tierKey = "epic";
+      tierLabel = "EPIC";
+      tierIcon = "🔷";
+      borderColor = "#38bdf8";
+      scoreMult = 2.0;
+      slots = 3;
+      powers = [
+        { icon: "🔥", name: "ROCKET" },
+        { icon: "🌪️", name: "VORTEX" },
+        { icon: "⚡", name: "2.0x MULT" }
+      ];
+    } else if (rank <= 450) {
+      tierKey = "rare";
+      tierLabel = "RARE";
+      tierIcon = "🟢";
+      borderColor = "#22c55e";
+      scoreMult = 1.5;
+      slots = 2;
+      powers = [
+        { icon: "🌪️", name: "VORTEX" },
+        { icon: "⚡", name: "1.5x MULT" }
+      ];
+    } else {
+      tierKey = "common";
+      tierLabel = "COMMON";
+      tierIcon = "⚪";
+      borderColor = "#71717a";
+      scoreMult = 1.2;
+      slots = 1;
+      powers = [
+        { icon: "⚡", name: "1.2x MULT" }
+      ];
+    }
+  }
+
+  return { tierKey, tierLabel, tierIcon, rank, borderColor, scoreMult, slots, powers };
+}
+
 function getNftRarityInfo(card) {
-  if (!card) return RARITY_TIERS.ROOKIE;
-  const key = (card.rarity || "COMMON").toUpperCase();
-  return RARITY_TIERS[key] || RARITY_TIERS.COMMON;
+  const t = getNftRarityTier(card);
+  return {
+    id: t.tierKey,
+    name: t.tierLabel,
+    icon: t.tierIcon,
+    rank: t.rank,
+    color: t.borderColor,
+    slots: t.slots,
+    mult: t.scoreMult
+  };
 }
 
 // ============================================================================
@@ -842,7 +1077,7 @@ const SKILLS = [
     desc: "Crosshair stops shaking for your next shot.",
     descHu: "A célkereszt stabilizálódik a következő lövésnél.",
     descRo: "Cursorul nu mai tremură la următorul șut.",
-    price: 50000,
+    price: 3500,
     color: "#38bdf8"
   },
   {
@@ -854,7 +1089,7 @@ const SKILLS = [
     desc: "Much wider power sweet-spot + keeper reach -25%.",
     descHu: "Tágabb sweet-spot + a kapus elérési távolsága 25%-kal kisebb.",
     descRo: "Zonă de putere mult mai largă + portarul ajunge cu 25% mai puțin.",
-    price: 75000,
+    price: 6000,
     color: "#fb923c"
   },
   {
@@ -866,7 +1101,7 @@ const SKILLS = [
     desc: "Keeper reacts late: reach −45% and dives wrong way.",
     descHu: "A kapus késve reagál: −45% elérés és elugrik a rossz irányba.",
     descRo: "Portarul reacționează târziu: rază −45% și ghicește des greșit.",
-    price: 100000,
+    price: 8500,
     color: "#67e8f9"
   },
   {
@@ -878,7 +1113,7 @@ const SKILLS = [
     desc: "Ball bends hard — keeper misreads it 70% worse.",
     descHu: "Erősen kanyarodó labda — a kapus jóval nehezebben védi ki.",
     descRo: "Mingea face efect puternic — portarul o citește cu 70% mai prost.",
-    price: 60000,
+    price: 4500,
     color: "#c084fc"
   },
   {
@@ -890,7 +1125,7 @@ const SKILLS = [
     desc: "Double points and score if this shot scores.",
     descHu: "Dupla pontszám és bónusz, ha a labda gól lesz.",
     descRo: "Puncte duble dacă șutul înscrie.",
-    price: 40000,
+    price: 2500,
     color: "#ffb800"
   }
 ];
@@ -908,7 +1143,7 @@ const KEEPER_SKILLS = [
     desc: "Reinforces goal posts & expands keeper save area by 50%.",
     descHu: "A kapus teste megnő, a védési felület 50%-kal nagyobb.",
     descRo: "Aria de intervenție a portarului crește cu 50%.",
-    price: 50000,
+    price: 3500,
     color: "#38bdf8"
   },
   {
@@ -920,7 +1155,7 @@ const KEEPER_SKILLS = [
     desc: "Supernatural dive reach across the entire goalmouth.",
     descHu: "Óriási kézméret és ugrótávolság az egész kapura.",
     descRo: "Săritură extinsă și mănuși uriașe pe toată poarta.",
-    price: 75000,
+    price: 6000,
     color: "#22c55e"
   },
   {
@@ -932,7 +1167,7 @@ const KEEPER_SKILLS = [
     desc: "Slows the ball speed by 50% giving full dive reaction time.",
     descHu: "50%-kal lelassítja a labdát, megkönnyítve a védést.",
     descRo: "Încetinește mingea cu 50% pentru reacție maximă.",
-    price: 90000,
+    price: 7500,
     color: "#a855f7"
   },
   {
@@ -944,7 +1179,7 @@ const KEEPER_SKILLS = [
     desc: "Holographic aura reveals exact AI shot target before the kick.",
     descHu: "Holografikus aura mutatja a gép lövésének pontos helyét.",
     descRo: "Aura holografică dezvăluie ținta exactă a șutului AI.",
-    price: 110000,
+    price: 9500,
     color: "#ffb800"
   }
 ];
@@ -985,13 +1220,15 @@ function getPowers() {
   else if (pCount >= 3) mult += 1.0;
 
   let swayMul = 1.0;
-  if (strikerRarity.id === "legendary") swayMul = 0.55;
+  if (strikerRarity.id === "mythic") swayMul = 0.40;
+  else if (strikerRarity.id === "legendary") swayMul = 0.55;
   else if (strikerRarity.id === "epic") swayMul = 0.70;
   else if (strikerRarity.id === "rare") swayMul = 0.85;
   else if (strikerRarity.id === "common") swayMul = 0.95;
 
   const hasRocket = efoo >= MIN_EFOO_REQUIRED;
   const rocketPts = efoo >= 10000000 ? 3000 : hasRocket ? 1000 : 0;
+  const maxShields = keeperRarity.slots >= 5 ? 3 : (keeperRarity.slots >= 3 ? 2 : (keeperRarity.slots >= 1 ? 1 : 0));
 
   return {
     pCount,
@@ -1003,10 +1240,10 @@ function getPowers() {
     keeperSlots,
     aimBonusPct: Math.round((1 - swayMul) * 100),
     swayMul,
-    sweetBonus: strikerRarity.id === "legendary" ? 0.08 : (strikerRarity.id === "epic" ? 0.05 : 0.02),
+    sweetBonus: strikerRarity.id === "mythic" ? 0.12 : (strikerRarity.id === "legendary" ? 0.08 : (strikerRarity.id === "epic" ? 0.05 : 0.02)),
     keeperSigmaMul: 1.15,
     totalMult: mult + (keeperMult - 1.0),
-    maxShields: keeperRarity.id === "legendary" || keeperRarity.id === "epic" ? 1 : 0,
+    maxShields,
     hasCurve: strikerSlots >= 1,
     hasRadar: strikerSlots >= 3 || keeperSlots >= 3,
     hasTwinBall: strikerSlots >= 4,
@@ -1119,18 +1356,17 @@ const game = {
 function getAvailableStrikers() {
   const walletStrikers = (walletState.ownedNfts || [])
     .filter((n) => n.collection === "EFOOTBALL-91a4eb")
-    .map((n, idx) => {
-      const rarity = (n.attributes && n.attributes.find((a) => a.trait_type === "Rarity")?.value) || 
-        (idx % 4 === 0 ? "LEGENDARY" : (idx % 3 === 0 ? "EPIC" : (idx % 2 === 0 ? "RARE" : "COMMON")));
-      const rInfo = RARITY_TIERS[rarity.toUpperCase()] || RARITY_TIERS.RARE;
+    .map((n) => {
+      const t = getNftRarityTier(n);
       return {
         identifier: n.identifier,
         name: (n.name || n.identifier).toUpperCase(),
-        rarity: rInfo.id.toUpperCase(),
-        ovr: 85 + rInfo.slots * 3,
-        trait: `⭐ ${rInfo.name} • ${rInfo.slots} SKILL SLOTS`,
-        traitHu: `⭐ ${rInfo.nameHu} • ${rInfo.slots} KÉPESSÉG HELY`,
-        traitRo: `⭐ ${rInfo.name} • ${rInfo.slots} SLOT-URI`,
+        rarity: t.tierLabel,
+        tier: t,
+        ovr: 80 + t.slots * 4,
+        trait: `⭐ ${t.tierLabel} #${t.rank} • ${t.slots} SKILL SLOTS`,
+        traitHu: `⭐ ${t.tierLabel} #${t.rank} • ${t.slots} KÉPESSÉG HELY`,
+        traitRo: `⭐ ${t.tierLabel} #${t.rank} • ${t.slots} SLOT-URI`,
         url: (n.media && n.media[0] && (n.media[0].url || n.media[0].thumbnailUrl)) || n.url
       };
     });
@@ -1144,19 +1380,18 @@ function getAvailableStrikers() {
 function getAvailableKeepers() {
   const walletKeepers = (walletState.ownedNfts || [])
     .filter((n) => n.collection === "GOALKEEPER-cb9e3e")
-    .map((n, idx) => {
-      const rarity = (n.attributes && n.attributes.find((a) => a.trait_type === "Rarity")?.value) || 
-        (idx % 4 === 0 ? "LEGENDARY" : (idx % 3 === 0 ? "EPIC" : (idx % 2 === 0 ? "RARE" : "COMMON")));
-      const rInfo = RARITY_TIERS[rarity.toUpperCase()] || RARITY_TIERS.RARE;
+    .map((n) => {
+      const t = getNftRarityTier(n);
       return {
         identifier: n.identifier,
         name: (n.name || n.identifier).toUpperCase(),
         jersey: String(n.nonce || "01").padStart(2, "0"),
-        rarity: rInfo.id.toUpperCase(),
-        ovr: 85 + rInfo.slots * 3,
-        trait: `🧤 ${rInfo.name} • ${rInfo.slots} SKILL SLOTS`,
-        traitHu: `🧤 ${rInfo.nameHu} • ${rInfo.slots} KÉPESSÉG HELY`,
-        traitRo: `🧤 ${rInfo.name} • ${rInfo.slots} SLOT-URI`,
+        rarity: t.tierLabel,
+        tier: t,
+        ovr: 80 + t.slots * 4,
+        trait: `🧤 ${t.tierLabel} #${t.rank} • ${t.slots} SKILL SLOTS`,
+        traitHu: `🧤 ${t.tierLabel} #${t.rank} • ${t.slots} KÉPESSÉG HELY`,
+        traitRo: `🧤 ${t.tierLabel} #${t.rank} • ${t.slots} SLOT-URI`,
         url: (n.media && n.media[0] && (n.media[0].url || n.media[0].thumbnailUrl)) || n.url
       };
     });
@@ -1169,26 +1404,33 @@ function getAvailableKeepers() {
 
 function updateStrikerCardAssets(idx) {
   const pool = getAvailableStrikers();
+  if (!pool || pool.length === 0) return;
   strikerIdx = (idx % pool.length + pool.length) % pool.length;
   activeStriker = pool[strikerIdx];
 
-  const cors = toCorsUrl(activeStriker.url, 300);
+  const cors = toCorsUrl(activeStriker.url, 400);
   imgs.striker.crossOrigin = "anonymous";
   imgs.striker.src = cors;
 
-  const rInfo = getNftRarityInfo(activeStriker);
+  const tInfo = getNftRarityTier(activeStriker);
   const p = getPowers();
 
-  const hudImg = document.getElementById("hud-striker-img");
-  const hudOvr = document.getElementById("hud-striker-ovr");
-  const hudName = document.getElementById("hud-striker-name");
-  const hudTrait = document.getElementById("hud-striker-trait");
-  if (hudImg) hudImg.src = cors;
-  if (hudOvr) hudOvr.textContent = String(activeStriker.ovr || 85);
-  if (hudName) hudName.textContent = activeStriker.name;
-  if (hudTrait) hudTrait.textContent = p.aimBonusPct > 0 ? `${activeStriker.trait} • AIM +${p.aimBonusPct}%` : `${activeStriker.trait} • LVL ${game.level}`;
+  // 1. Counter in header: ⚽ STRIKER (1/6)
+  const titleEl = document.querySelector("#select-striker-card .smc-slot-title");
+  if (titleEl) {
+    titleEl.innerHTML = `⚽ STRIKER <span style="opacity:0.65; font-size:0.7rem; font-weight:700;">(${strikerIdx + 1}/${pool.length})</span>`;
+  }
 
-  // Squad Selection Modal elements
+  // 2. Card outline & glow matching tier color
+  const cardEl = document.getElementById("select-striker-card");
+  if (cardEl) {
+    cardEl.style.borderColor = tInfo.borderColor;
+    cardEl.style.boxShadow = tInfo.tierKey !== "common" && tInfo.tierKey !== "rookie"
+      ? `0 0 18px ${tInfo.borderColor}44`
+      : "none";
+  }
+
+  // 3. Squad Selection Modal elements
   const startImg = document.getElementById("start-striker-img");
   const startName = document.getElementById("start-striker-name");
   const startRarity = document.getElementById("start-striker-rarity");
@@ -1198,35 +1440,43 @@ function updateStrikerCardAssets(idx) {
   if (startImg) startImg.src = cors;
   if (startName) startName.textContent = activeStriker.name;
   if (startRarity) {
-    startRarity.textContent = `${rInfo.icon} ${rInfo.name} #${rInfo.rank}`;
-    startRarity.style.borderColor = rInfo.color;
-    startRarity.style.color = rInfo.color;
+    const rankLabel = tInfo.rank === "F2P" ? "F2P" : `#${tInfo.rank}`;
+    startRarity.textContent = `${tInfo.tierIcon} ${tInfo.tierLabel} ${rankLabel}`;
+    startRarity.style.borderColor = tInfo.borderColor;
+    startRarity.style.color = tInfo.borderColor;
+    startRarity.style.background = "rgba(0, 0, 0, 0.82)";
   }
   if (startMedia) {
-    startMedia.style.borderColor = rInfo.color;
-    startMedia.style.boxShadow = rInfo.color !== "#71717a" ? `0 0 16px ${rInfo.color}66` : "none";
+    startMedia.style.borderColor = tInfo.borderColor;
+    startMedia.style.boxShadow = tInfo.tierKey !== "common" && tInfo.tierKey !== "rookie"
+      ? `0 0 20px ${tInfo.borderColor}66`
+      : "none";
   }
   if (startPowers) {
-    const icons = [
-      { name: "🔥 ROCKET", active: rInfo.slots >= 3 },
-      { name: "🌪️ CURVE", active: rInfo.slots >= 2 },
-      { name: "🧊 FREEZE", active: rInfo.slots >= 4 },
-      { name: "💰 GOLD x2", active: rInfo.slots >= 5 },
-      { name: `⚡ ${rInfo.mult.toFixed(1)}x MULT`, active: true }
-    ];
-    startPowers.innerHTML = icons
-      .filter((i) => i.active)
-      .map((i) => `<span class="smc-power-pill">${i.name}</span>`)
-      .join("");
+    const pills = (tInfo.powers && tInfo.powers.length > 0)
+      ? tInfo.powers.map(pw => `<span class="smc-power-pill" style="border-color:${tInfo.borderColor}77; color:${tInfo.borderColor}; background:${tInfo.borderColor}14;">${pw.icon} ${pw.name}</span>`)
+      : [`<span class="smc-power-pill">⚡ 1.0x MULT</span>`];
+    startPowers.innerHTML = pills.join("");
   }
 
-  // Update start screen badge
+  // 4. Update start screen badge
   const cscSquad = document.getElementById("csc-squad-status");
   if (cscSquad) {
-    cscSquad.innerHTML = `⚽ <span>${activeStriker.name} (${rInfo.name})</span>`;
-    cscSquad.style.borderColor = rInfo.color;
-    cscSquad.style.color = rInfo.color;
+    const rankLbl = tInfo.rank === "F2P" ? "" : ` #${tInfo.rank}`;
+    cscSquad.innerHTML = `⚽ <span>${activeStriker.name} (${tInfo.tierLabel}${rankLbl})</span>`;
+    cscSquad.style.borderColor = tInfo.borderColor;
+    cscSquad.style.color = tInfo.borderColor;
   }
+
+  // 5. HUD elements
+  const hudImg = document.getElementById("hud-striker-img");
+  const hudOvr = document.getElementById("hud-striker-ovr");
+  const hudName = document.getElementById("hud-striker-name");
+  const hudTrait = document.getElementById("hud-striker-trait");
+  if (hudImg) hudImg.src = cors;
+  if (hudOvr) hudOvr.textContent = String(activeStriker.ovr || 85);
+  if (hudName) hudName.textContent = activeStriker.name;
+  if (hudTrait) hudTrait.textContent = p.aimBonusPct > 0 ? `${activeStriker.trait} • AIM +${p.aimBonusPct}%` : `${activeStriker.trait} • LVL ${game.level}`;
 
   const introImg = document.getElementById("intro-striker-img");
   const introName = document.getElementById("intro-striker-name");
@@ -1236,16 +1486,32 @@ function updateStrikerCardAssets(idx) {
 
 function updateKeeperAssets(idx) {
   const pool = getAvailableKeepers();
+  if (!pool || pool.length === 0) return;
   keeperIdx = (idx % pool.length + pool.length) % pool.length;
   activeKeeper = pool[keeperIdx];
 
-  const cors = toCorsUrl(activeKeeper.url, 300);
+  const cors = toCorsUrl(activeKeeper.url, 400);
   imgs.keeper.crossOrigin = "anonymous";
   imgs.keeper.src = cors;
 
-  const rInfo = getNftRarityInfo(activeKeeper);
+  const tInfo = getNftRarityTier(activeKeeper);
 
-  // Squad Selection Modal elements
+  // 1. Counter in header: 🧤 GOALKEEPER (1/4)
+  const titleEl = document.querySelector("#select-keeper-card .smc-slot-title");
+  if (titleEl) {
+    titleEl.innerHTML = `🧤 GOALKEEPER <span style="opacity:0.65; font-size:0.7rem; font-weight:700;">(${keeperIdx + 1}/${pool.length})</span>`;
+  }
+
+  // 2. Card outline & glow matching tier color
+  const cardEl = document.getElementById("select-keeper-card");
+  if (cardEl) {
+    cardEl.style.borderColor = tInfo.borderColor;
+    cardEl.style.boxShadow = tInfo.tierKey !== "common" && tInfo.tierKey !== "rookie"
+      ? `0 0 18px ${tInfo.borderColor}44`
+      : "none";
+  }
+
+  // 3. Squad Selection Modal elements
   const startK = document.getElementById("start-keeper-img");
   const startKName = document.getElementById("start-keeper-name");
   const startKRarity = document.getElementById("start-keeper-rarity");
@@ -1255,27 +1521,23 @@ function updateKeeperAssets(idx) {
   if (startK) startK.src = cors;
   if (startKName) startKName.textContent = activeKeeper.name;
   if (startKRarity) {
-    startKRarity.textContent = `${rInfo.icon} ${rInfo.name} #${rInfo.rank}`;
-    startKRarity.style.borderColor = rInfo.color;
-    startKRarity.style.color = rInfo.color;
+    const rankLabel = tInfo.rank === "F2P" ? "F2P" : `#${tInfo.rank}`;
+    startKRarity.textContent = `${tInfo.tierIcon} ${tInfo.tierLabel} ${rankLabel}`;
+    startKRarity.style.borderColor = tInfo.borderColor;
+    startKRarity.style.color = tInfo.borderColor;
+    startKRarity.style.background = "rgba(0, 0, 0, 0.82)";
   }
   if (startKMedia) {
-    startKMedia.style.borderColor = rInfo.color;
-    startKMedia.style.boxShadow = rInfo.color !== "#71717a" ? `0 0 16px ${rInfo.color}66` : "none";
+    startKMedia.style.borderColor = tInfo.borderColor;
+    startKMedia.style.boxShadow = tInfo.tierKey !== "common" && tInfo.tierKey !== "rookie"
+      ? `0 0 20px ${tInfo.borderColor}66`
+      : "none";
   }
   if (startKPowers) {
-    const shieldsCount = rInfo.slots >= 5 ? 3 : rInfo.slots >= 3 ? 2 : 1;
-    const kIcons = [
-      { name: "🧱 WALL", active: rInfo.slots >= 3 },
-      { name: "🧤 REACH", active: rInfo.slots >= 2 },
-      { name: "⏱️ SLOW", active: rInfo.slots >= 4 },
-      { name: "👁️ RADAR", active: rInfo.slots >= 5 },
-      { name: `🛡️ ${shieldsCount} SHIELDS`, active: true }
-    ];
-    startKPowers.innerHTML = kIcons
-      .filter((i) => i.active)
-      .map((i) => `<span class="smc-power-pill" style="border-color:#38bdf8; color:#38bdf8; background:rgba(56,189,248,0.12);">${i.name}</span>`)
-      .join("");
+    const pills = (tInfo.powers && tInfo.powers.length > 0)
+      ? tInfo.powers.map(pw => `<span class="smc-power-pill" style="border-color:${tInfo.borderColor}77; color:${tInfo.borderColor}; background:${tInfo.borderColor}14;">${pw.icon} ${pw.name}</span>`)
+      : [`<span class="smc-power-pill" style="border-color:#38bdf8; color:#38bdf8; background:rgba(56,189,248,0.12);">🛡️ 1 SHIELD</span>`];
+    startKPowers.innerHTML = pills.join("");
   }
 
   const introK = document.getElementById("intro-keeper-img");
@@ -1421,7 +1683,35 @@ function refreshHudUI() {
 
   document.getElementById("hud-mult-val").textContent = `${p.totalMult.toFixed(1)}x`;
   document.getElementById("hud-score-val").textContent = game.score.toLocaleString("en-US");
-  document.getElementById("hud-striker-trait").textContent = p.aimBonusPct > 0 ? `${activeStriker.trait} • AIM +${p.aimBonusPct}%` : `${activeStriker.trait} • LVL ${game.level}`;
+
+  const isShootingTurn = game.shootoutTurn === "shoot";
+  const hudImg = document.getElementById("hud-striker-img");
+  const hudOvr = document.getElementById("hud-striker-ovr");
+  const hudName = document.getElementById("hud-striker-name");
+  const hudTrait = document.getElementById("hud-striker-trait");
+  const hudDock = document.getElementById("fut-striker-dock");
+
+  if (isShootingTurn) {
+    const sTier = getNftRarityTier(activeStriker);
+    if (hudImg) hudImg.src = toCorsUrl(activeStriker.url, 240);
+    if (hudOvr) hudOvr.textContent = String(activeStriker.ovr || 85);
+    if (hudName) hudName.textContent = activeStriker.name;
+    if (hudTrait) hudTrait.textContent = p.aimBonusPct > 0 ? `${activeStriker.trait} • AIM +${p.aimBonusPct}%` : `${activeStriker.trait} • LVL ${game.level}`;
+    if (hudDock) {
+      hudDock.style.borderColor = sTier.borderColor || "#a8ff00";
+      hudDock.title = `Your Striker: ${activeStriker.name} (Click to switch)`;
+    }
+  } else {
+    const kTier = getNftRarityTier(activeKeeper);
+    if (hudImg) hudImg.src = toCorsUrl(activeKeeper.url, 240);
+    if (hudOvr) hudOvr.textContent = String(activeKeeper.ovr || 85);
+    if (hudName) hudName.textContent = `🧤 ${activeKeeper.name}`;
+    if (hudTrait) hudTrait.textContent = `🧤 ${kTier.tierLabel} #${kTier.rank} • ${game.shieldsLeft} SHIELDS LEFT`;
+    if (hudDock) {
+      hudDock.style.borderColor = kTier.borderColor || "#38bdf8";
+      hudDock.title = `Your Goalkeeper: ${activeKeeper.name} (Click to switch)`;
+    }
+  }
 
   const lvlEl = document.getElementById("hud-level-val");
   if (lvlEl) {
@@ -2350,17 +2640,39 @@ function openSummaryModal() {
     }
   }
 
-  // Primary Buttons
-  const nextBtn = document.getElementById("btn-sum-next");
-  const replayBtn = document.getElementById("btn-sum-replay");
-  if (nextBtn) {
-    const showNext = userWon && game.level < MAX_LEVEL;
-    nextBtn.classList.toggle("hidden", !showNext);
-    nextBtn.textContent = `🚀 NEXT LEVEL (ROUND ${game.level + 1})`;
-  }
-  if (replayBtn) {
-    replayBtn.textContent = userWon ? "🔄 PLAY AGAIN" : "🔄 RETRY MATCH";
-  }
+    // Primary Buttons & Defeat Rescue UI
+    updateVaultUI();
+
+    const victoryActions = document.getElementById("sum-victory-actions");
+    const defeatActions = document.getElementById("sum-defeat-actions");
+    const streakRiskCount = document.getElementById("sum-streak-risk-count");
+
+    if (userWon) {
+      if (victoryActions) victoryActions.classList.remove("hidden");
+      if (defeatActions) defeatActions.classList.add("hidden");
+      game.streak = (game.streak || 0) + 1;
+    } else {
+      if (victoryActions) victoryActions.classList.add("hidden");
+      if (defeatActions) defeatActions.classList.remove("hidden");
+      if (streakRiskCount) {
+        const curStreak = game.streak || 0;
+        streakRiskCount.textContent = curStreak === 1 ? "1 WIN" : `${curStreak} WINS`;
+      }
+    }
+
+    const hudStreak = document.getElementById("hud-streak-val");
+    if (hudStreak) hudStreak.textContent = `${game.streak || 0} W`;
+
+    const nextBtn = document.getElementById("btn-sum-next");
+    const replayBtn = document.getElementById("btn-sum-replay");
+    if (nextBtn) {
+      const showNext = userWon && game.level < MAX_LEVEL;
+      nextBtn.classList.toggle("hidden", !showNext);
+      nextBtn.textContent = `🚀 NEXT LEVEL (ROUND ${game.level + 1})`;
+    }
+    if (replayBtn) {
+      replayBtn.textContent = userWon ? "🔄 PLAY AGAIN" : "🔄 RETRY MATCH";
+    }
 
   // Secondary Tools
   document.getElementById("btn-sum-skills-shop")?.addEventListener("click", () => {
@@ -3656,29 +3968,66 @@ function drawArticulatedGoalkeeper(ctx, x, y, angle, armReach, isFrozen = false)
     ctx.stroke();
   });
 
-  // Keeper Torso / Holographic GOALKEEPER-cb9e3e NFT Frame
-  ctx.fillStyle = "#091910";
-  ctx.strokeStyle = "#ffb800";
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.roundRect(-26, -34, 52, 54, 12);
-  ctx.fill();
-  ctx.stroke();
+  // Keeper Torso:
+  // When user shoots (game.shootoutTurn === "shoot") ➔ Keeper is CPU / BOT (NO NFT).
+  // When bot shoots (game.shootoutTurn === "defend") ➔ Keeper is USER'S OWN NFT GOALKEEPER!
+  const isUserDefending = game.shootoutTurn === "defend";
 
-  if (imgs.keeper.complete && imgs.keeper.naturalWidth > 0) {
-    ctx.save();
+  if (isUserDefending) {
+    // 1. User's Own NFT Goalkeeper
+    const kTier = getNftRarityTier(activeKeeper);
+    ctx.fillStyle = "#091910";
+    ctx.strokeStyle = kTier.borderColor || "#38bdf8";
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.roundRect(-23, -31, 46, 48, 9);
-    ctx.clip();
-    ctx.drawImage(imgs.keeper, -23, -31, 46, 48);
-    ctx.restore();
-  }
+    ctx.roundRect(-26, -34, 52, 54, 12);
+    ctx.fill();
+    ctx.stroke();
 
-  // Keeper Jersey Number Tag
-  ctx.fillStyle = "#ffb800";
-  ctx.font = "800 9px 'JetBrains Mono', monospace";
-  ctx.textAlign = "center";
-  ctx.fillText(`#${activeKeeper.jersey || "51"}`, 0, -40);
+    if (imgs.keeper.complete && imgs.keeper.naturalWidth > 0) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(-23, -31, 46, 48, 9);
+      ctx.clip();
+      ctx.drawImage(imgs.keeper, -23, -31, 46, 48);
+      ctx.restore();
+    }
+
+    // Keeper Jersey Number & Tier Tag
+    ctx.fillStyle = kTier.borderColor || "#38bdf8";
+    ctx.font = "800 9px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(`${kTier.tierIcon} #${activeKeeper.jersey || "01"}`, 0, -40);
+  } else {
+    // 2. CPU / Bot Goalkeeper (NO NFT, Clean Bot Kit)
+    ctx.fillStyle = "#0f172a";
+    ctx.strokeStyle = "#475569";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.roundRect(-26, -34, 52, 54, 12);
+    ctx.fill();
+    ctx.stroke();
+
+    // Standard AI / Bot Goalkeeper Jersey Graphic
+    ctx.fillStyle = "#1e293b";
+    ctx.beginPath();
+    ctx.roundRect(-22, -30, 44, 46, 8);
+    ctx.fill();
+
+    // Sleek AI Bot Crest / Number
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "800 10px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("🤖 CPU", 0, -10);
+    ctx.fillStyle = "#64748b";
+    ctx.font = "700 8px 'JetBrains Mono', monospace";
+    ctx.fillText(`LVL ${game.level}`, 0, 4);
+
+    ctx.fillStyle = "#cbd5e1";
+    ctx.font = "800 9px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("BOT GK", 0, -40);
+  }
 
   // 3D TRANSLUCENT ICE CUBE ENCLOSING KEEPER ("jégkocka fagyassza le a kapust s lassan mozogjon")
   if (isFrozen) {
@@ -3772,43 +4121,87 @@ function drawArticulatedGoalkeeper(ctx, x, y, angle, armReach, isFrozen = false)
   ctx.restore();
 }
 
-// Foreground 3D Striker NFT Hologram next to Penalty Spot
+// Foreground 3D Striker next to Penalty Spot
 function drawPitchStrikerHologram(ctx, x, y) {
   ctx.save();
   ctx.translate(x, y);
 
-  // Turf Neon Ring beneath Striker
-  ctx.strokeStyle = "rgba(168, 255, 0, 0.55)";
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.ellipse(0, 52, 46, 12, 0, 0, Math.PI * 2);
-  ctx.stroke();
+  const isUserShooting = game.shootoutTurn === "shoot";
 
-  // Holographic FUT Card Frame
-  ctx.shadowColor = "rgba(168, 255, 0, 0.5)";
-  ctx.shadowBlur = 18;
-  ctx.fillStyle = "#07150d";
-  ctx.strokeStyle = "#a8ff00";
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.roundRect(-42, -52, 84, 98, 12);
-  ctx.fill();
-  ctx.stroke();
-  ctx.shadowBlur = 0;
+  if (isUserShooting) {
+    // 1. User's Own NFT Striker
+    const sTier = getNftRarityTier(activeStriker);
 
-  if (imgs.striker.complete && imgs.striker.naturalWidth > 0) {
-    ctx.save();
+    // Turf Neon Ring beneath Striker
+    ctx.strokeStyle = `${sTier.borderColor || "#a8ff00"}88`;
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.roundRect(-38, -48, 76, 74, 9);
-    ctx.clip();
-    ctx.drawImage(imgs.striker, -38, -48, 76, 74);
-    ctx.restore();
-  }
+    ctx.ellipse(0, 52, 46, 12, 0, 0, Math.PI * 2);
+    ctx.stroke();
 
-  ctx.fillStyle = "#a8ff00";
-  ctx.font = "800 9px 'JetBrains Mono', monospace";
-  ctx.textAlign = "center";
-  ctx.fillText(activeStriker.name.slice(-4), 0, 38);
+    // Holographic FUT Card Frame with Tier Border
+    ctx.shadowColor = sTier.borderColor !== "#71717a" ? sTier.borderColor : "rgba(168, 255, 0, 0.5)";
+    ctx.shadowBlur = 18;
+    ctx.fillStyle = "#07150d";
+    ctx.strokeStyle = sTier.borderColor || "#a8ff00";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(-42, -52, 84, 98, 12);
+    ctx.fill();
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    if (imgs.striker.complete && imgs.striker.naturalWidth > 0) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(-38, -48, 76, 74, 9);
+      ctx.clip();
+      ctx.drawImage(imgs.striker, -38, -48, 76, 74);
+      ctx.restore();
+    }
+
+    ctx.fillStyle = sTier.borderColor || "#a8ff00";
+    ctx.font = "800 9px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center";
+    const nameStr = activeStriker.name.length > 14 ? activeStriker.name.slice(-6) : activeStriker.name;
+    ctx.fillText(`${sTier.tierIcon} ${nameStr}`, 0, 38);
+  } else {
+    // 2. CPU / Bot Striker (NO NFT, Standard AI Bot Striker)
+    ctx.strokeStyle = "rgba(239, 68, 68, 0.55)";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.ellipse(0, 52, 46, 12, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = "#1e1b4b";
+    ctx.strokeStyle = "#6366f1";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.roundRect(-42, -52, 84, 98, 12);
+    ctx.fill();
+    ctx.stroke();
+
+    // AI Bot Avatar
+    ctx.fillStyle = "#312e81";
+    ctx.beginPath();
+    ctx.roundRect(-38, -48, 76, 74, 8);
+    ctx.fill();
+
+    ctx.fillStyle = "#c7d2fe";
+    ctx.font = "800 16px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("🤖", 0, -18);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "800 10px 'JetBrains Mono', monospace";
+    ctx.fillText("CPU BOT", 0, 2);
+    ctx.fillStyle = "#818cf8";
+    ctx.font = "700 8px 'JetBrains Mono', monospace";
+    ctx.fillText(`LVL ${game.level} AI`, 0, 16);
+
+    ctx.fillStyle = "#a5b4fc";
+    ctx.font = "800 9px 'JetBrains Mono', monospace";
+    ctx.fillText("CPU STRIKER", 0, 38);
+  }
 
   ctx.restore();
 }
@@ -4206,7 +4599,7 @@ async function fetchWalletNftsAndBalance(address) {
       fetch(`https://api.multiversx.com/accounts/${address}/tokens?identifiers=EFOO-8fe2d4`),
       fetch(`https://api.multiversx.com/accounts/${address}/nfts/count?collections=EFOOTBALL-91a4eb`),
       fetch(`https://api.multiversx.com/accounts/${address}/nfts/count?collections=GOALKEEPER-cb9e3e`),
-      fetch(`https://api.multiversx.com/accounts/${address}/nfts?collections=EFOOTBALL-91a4eb,GOALKEEPER-cb9e3e&size=20`)
+      fetch(`https://api.multiversx.com/accounts/${address}/nfts?collections=EFOOTBALL-91a4eb,GOALKEEPER-cb9e3e&size=100`)
     ]);
     if (accRes.ok) {
       const a = await accRes.json();
@@ -4226,10 +4619,28 @@ async function fetchWalletNftsAndBalance(address) {
     walletState.verified = true;
     walletState.loading = false;
 
+    // Check if ?nft= parameter is in URL to preselect
+    const urlParams = new URLSearchParams(window.location.search);
+    const preselectNft = urlParams.get("nft");
+    if (preselectNft) {
+      const sPool = getAvailableStrikers();
+      const sIdx = sPool.findIndex((s) => s.identifier === preselectNft);
+      if (sIdx !== -1) strikerIdx = sIdx;
+
+      const kPool = getAvailableKeepers();
+      const kIdx = kPool.findIndex((k) => k.identifier === preselectNft);
+      if (kIdx !== -1) keeperIdx = kIdx;
+    } else {
+      strikerIdx = 0;
+      keeperIdx = 0;
+    }
+
     const p = getPowers();
     game.shieldsLeft = p.maxShields;
-    updateStrikerCardAssets(0);
+    updateStrikerCardAssets(strikerIdx);
+    updateKeeperAssets(keeperIdx);
     refreshHudUI();
+    renderSkillsDeckUI();
 
     const isRo = currentLang === "ro";
     if (walletState.efooBalance < MIN_EFOO_REQUIRED) {
@@ -4848,8 +5259,8 @@ function metaConsumeSkill(skillId) {
 function getSkillPackPrice(s, count) {
   const baseCost = s.price * count;
   if (count > 1) {
-    // 10% discount on multi-item packs! (e.g. 5x)
-    return Math.round(baseCost * 0.90);
+    // 20% discount on multi-item packs! (e.g. 5x)
+    return Math.round(baseCost * 0.80);
   }
   return baseCost;
 }
@@ -4880,6 +5291,8 @@ function buySkillWithEfoo(skillId, count = 1) {
   // Deduct cost and update
   walletState.efooBalance -= cost;
   updateHudEfooBadge();
+  const half = Math.floor(cost / 2);
+  addVaultContributions(half, half); // 50% to Stadium Vault, 50% burned forever!
 
   const inv = getSkillsInventory();
   inv[skillId] = (inv[skillId] || 0) + count;
@@ -4888,7 +5301,7 @@ function buySkillWithEfoo(skillId, count = 1) {
   audio.playWhistle();
 
   const skillName = isHu ? s.nameHu : (isRo ? s.nameRo : s.name);
-  const discountNote = count > 1 ? (isHu ? " (🔥 10% KEDVEZMÉNNYEL!)" : (isRo ? " (🔥 -10% REDUCERE!)" : " (🔥 10% OFF!)")) : "";
+  const discountNote = count > 1 ? (isHu ? " (🔥 20% KEDVEZMÉNNYEL!)" : (isRo ? " (🔥 -20% REDUCERE!)" : " (🔥 20% OFF!)")) : "";
   showToast(
     isHu
       ? `✅ +${count}x ${skillName} sikeresen felszerelve a meccskészletbe!${discountNote}`
@@ -4994,10 +5407,15 @@ function renderSkillsShopModal(highlightSkillId = null, highlightCount = 0) {
       card.className = `skill-shop-card ${highlightSkillId === s.id ? "just-bought" : ""}`;
       const name = isHu ? s.nameHu : (isRo ? s.nameRo : s.name);
       const desc = isHu ? s.descHu : (isRo ? s.descRo : s.desc);
-      const singlePrice = (s.price / 1000).toFixed(0);
-      const packPrice5 = (getSkillPackPrice(s, 5) / 1000).toFixed(0);
+      const singlePrice = (s.price >= 1000)
+        ? (s.price / 1000).toLocaleString("en-US", { maximumFractionDigits: 1 })
+        : s.price;
+      const packPriceVal = getSkillPackPrice(s, 5);
+      const packPrice5 = (packPriceVal >= 1000)
+        ? (packPriceVal / 1000).toLocaleString("en-US", { maximumFractionDigits: 1 })
+        : packPriceVal;
       const ownedText = isHu ? "Birtokolt" : (isRo ? "Deținute" : "Owned");
-      const discountLabel = isHu ? "-10% KEDVEZMÉNY" : (isRo ? "-10% REDUCERE" : "10% OFF");
+      const discountLabel = isHu ? "-20% KEDVEZMÉNY" : (isRo ? "-20% REDUCERE" : "20% OFF");
       const boughtFlash = isHu ? `✅ +${highlightCount}x SIKERES VÉTEL!` : (isRo ? `✅ +${highlightCount}x CUMPĂRAT!` : `✅ +${highlightCount}x PURCHASED!`);
 
       card.innerHTML = `
@@ -5373,6 +5791,87 @@ document.addEventListener("DOMContentLoaded", () => {
     launchMatchWithIntro();
   });
 
+  // Defeat Streak Rescue Handlers (50k Revive & Advance / 25k Retry Round / Free Restart)
+  document.getElementById("btn-defeat-revive-next")?.addEventListener("click", () => {
+    const cost = 50000;
+    const isHu = currentLang === "hu";
+    const isRo = currentLang === "ro";
+    if (walletState.efooBalance < cost) {
+      if (typeof audio.playPostClang === "function") audio.playPostClang();
+      const balStr = Math.floor(walletState.efooBalance).toLocaleString("en-US");
+      showToast(
+        isHu
+          ? `⚠️ Nincs elegendő $EFOO egyenleged (${balStr} $EFOO). Szükséges: 50,000 $EFOO a széria megmentéséhez!`
+          : (isRo
+            ? `⚠️ Sold insuficient (${balStr} $EFOO). Necesar: 50,000 $EFOO pentru a salva seria!`
+            : `⚠️ Insufficient $EFOO balance (${balStr}). Needed: 50,000 $EFOO to revive streak!`)
+      );
+      return;
+    }
+    walletState.efooBalance -= cost;
+    updateHudEfooBadge();
+    addVaultContributions(25000, 25000); // 50% to vault (25k), 50% burned (25k)!
+    game.streak = (game.streak || 0) + 1;
+    document.getElementById("summary-screen-overlay")?.classList.add("hidden");
+    if (typeof audio.playGoalCheer === "function") audio.playGoalCheer();
+    showToast(
+      isHu
+        ? `🔥 Széria megmentve! 25,000 $EFOO elégetve, 25,000 $EFOO a Stadium Vaultba küldve! Ugrás a ${Math.min(MAX_LEVEL, game.level + 1)}. szintre!`
+        : (isRo
+          ? `🔥 Serie salvată! 25.000 $EFOO arse, 25.000 trimise în Seif! Treci la nivelul următor!`
+          : `🔥 Streak Revived & Advanced! 25,000 $EFOO burned, 25,000 deposited to Stadium Vault!`)
+    );
+    goNextLevel();
+  });
+
+  document.getElementById("btn-defeat-retry-round")?.addEventListener("click", () => {
+    const cost = 25000;
+    const isHu = currentLang === "hu";
+    const isRo = currentLang === "ro";
+    if (walletState.efooBalance < cost) {
+      if (typeof audio.playPostClang === "function") audio.playPostClang();
+      const balStr = Math.floor(walletState.efooBalance).toLocaleString("en-US");
+      showToast(
+        isHu
+          ? `⚠️ Nincs elegendő $EFOO egyenleged (${balStr} $EFOO). Szükséges: 25,000 $EFOO a kör újrázásához!`
+          : (isRo
+            ? `⚠️ Sold insuficient (${balStr} $EFOO). Necesar: 25,000 $EFOO pentru a reîncerca runda!`
+            : `⚠️ Insufficient $EFOO balance (${balStr}). Needed: 25,000 $EFOO to retry round!`)
+      );
+      return;
+    }
+    walletState.efooBalance -= cost;
+    updateHudEfooBadge();
+    addVaultContributions(12500, 12500); // 50% to vault (12.5k), 50% burned (12.5k)!
+    // Streak preserved!
+    document.getElementById("summary-screen-overlay")?.classList.add("hidden");
+    if (typeof audio.playWhistle === "function") audio.playWhistle();
+    showToast(
+      isHu
+        ? `🔄 Kör újrakezdve! 12,500 $EFOO elégetve, 12,500 $EFOO a Vaultba! Széria megvédve.`
+        : (isRo
+          ? `🔄 Rundă reluată! 12.500 $EFOO arse, 12.500 în Seif! Serie protejată.`
+          : `🔄 Round Replayed! 12,500 $EFOO burned, 12,500 deposited to Vault! Streak protected.`)
+    );
+    launchMatchWithIntro();
+  });
+
+  document.getElementById("btn-defeat-restart-free")?.addEventListener("click", () => {
+    game.streak = 0;
+    game.level = 1;
+    document.getElementById("summary-screen-overlay")?.classList.add("hidden");
+    const isHu = currentLang === "hu";
+    const isRo = currentLang === "ro";
+    showToast(
+      isHu
+        ? `🏠 Ingyenes újraindítás az 1. szintről. A széria nullázva.`
+        : (isRo
+          ? `🏠 Reîncepere gratuită de la Nivelul 1. Serie resetată.`
+          : `🏠 Free restart from Level 1. Streak reset to 0.`)
+    );
+    launchMatchWithIntro();
+  });
+
   document.getElementById("close-summary-modal-btn")?.addEventListener("click", closeSummaryModal);
   document.getElementById("summary-screen-overlay")?.addEventListener("click", (e) => {
     if (e.target && e.target.id === "summary-screen-overlay") {
@@ -5380,9 +5879,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Click FUT Striker Card to cycle active NFT
+  // Click FUT Card Dock to cycle active Striker or Goalkeeper depending on turn
   document.getElementById("fut-striker-dock")?.addEventListener("click", () => {
-    updateStrikerCardAssets(strikerIdx + 1);
+    if (game.shootoutTurn === "defend") {
+      updateKeeperAssets(keeperIdx + 1);
+    } else {
+      updateStrikerCardAssets(strikerIdx + 1);
+    }
+    refreshHudUI();
+    renderSkillsDeckUI();
   });
 
   // Top bar $EFOO balance pill opens Boost/Buy modal or triggers buy
@@ -5554,7 +6059,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Start Screen Striker & Goalkeeper Selector Buttons
+  // Squad Selection Card Cycling (Buttons and Clickable Media Cards)
   document.getElementById("prev-striker-btn")?.addEventListener("click", () => {
     updateStrikerCardAssets(strikerIdx - 1);
     refreshHudUI();
@@ -5565,6 +6070,12 @@ document.addEventListener("DOMContentLoaded", () => {
     refreshHudUI();
     renderSkillsDeckUI();
   });
+  document.getElementById("striker-slot-media")?.addEventListener("click", () => {
+    updateStrikerCardAssets(strikerIdx + 1);
+    refreshHudUI();
+    renderSkillsDeckUI();
+  });
+
   document.getElementById("prev-keeper-btn")?.addEventListener("click", () => {
     updateKeeperAssets(keeperIdx - 1);
     refreshHudUI();
@@ -5574,5 +6085,33 @@ document.addEventListener("DOMContentLoaded", () => {
     updateKeeperAssets(keeperIdx + 1);
     refreshHudUI();
     renderSkillsDeckUI();
+  });
+  document.getElementById("keeper-slot-media")?.addEventListener("click", () => {
+    updateKeeperAssets(keeperIdx + 1);
+    refreshHudUI();
+    renderSkillsDeckUI();
+  });
+
+  // Game.html Instant Wallet Explorer Form
+  const handleGameManualConnect = () => {
+    const input = document.getElementById("game-manual-erd-input");
+    const addr = (input ? input.value : "").trim();
+    if (!addr.startsWith("erd1") || addr.length < 58) {
+      showToast("⚠️ Please enter a valid MultiversX address starting with erd1...");
+      return;
+    }
+    connectedAddress = addr;
+    connectedProvider = "inspector";
+    localStorage.setItem("efoo_wallet_address", connectedAddress);
+    localStorage.setItem("efoo_wallet_provider", "inspector");
+    document.getElementById("wallet-modal-backdrop")?.classList.add("hidden");
+    document.getElementById("nav-wallet-label").textContent = shortErd(connectedAddress);
+    fetchWalletNftsAndBalance(connectedAddress);
+    showToast(`✅ Connected wallet ${shortErd(connectedAddress)}!`);
+  };
+
+  document.getElementById("game-btn-load-wallet")?.addEventListener("click", handleGameManualConnect);
+  document.getElementById("game-manual-erd-input")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") handleGameManualConnect();
   });
 });

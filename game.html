@@ -29,7 +29,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="game.css?v=20261016_v8" />
+  <link rel="stylesheet" href="game.css?v=20261016_v10" />
 </head>
 <body class="arcade-body">
 
@@ -45,7 +45,10 @@
       <!-- Left: Back button + TV Scorebug -->
       <div class="hud-left-group">
         <a href="index.html" class="hud-icon-btn" id="hud-exit-btn" title="Back to Main Website">
-          ⬅ <span data-i18n="btn_exit">EXIT TO HOME</span>
+          ⬅ <span data-i18n="btn_exit">EXIT</span>
+        </a>
+        <a href="market.html" class="hud-icon-btn" id="hud-market-btn" style="color:#ffb800; border-color:rgba(255,184,0,0.4);" title="NFT &amp; Skills Market">
+          🛒 <span>MARKET</span>
         </a>
 
         <div class="tv-scorebug">
@@ -449,8 +452,8 @@
           ⭐ Level 1 Cleared • Clean Sheet Bonus +2,500
         </div>
 
-        <!-- Primary Action Buttons (Max 2 large buttons) -->
-        <div class="sum-clean-actions">
+        <!-- Victory Action Buttons (Shown on Win) -->
+        <div class="sum-clean-actions" id="sum-victory-actions">
           <button type="button" id="btn-sum-next" class="sum-btn-primary next hidden">
             🚀 NEXT LEVEL
           </button>
@@ -460,6 +463,63 @@
           <a href="index.html" class="sum-btn-secondary" id="btn-sum-exit">
             🏠 MAIN MENU
           </a>
+        </div>
+
+        <!-- Defeat Streak Rescue Options (Shown on Loss) -->
+        <div class="sum-defeat-actions hidden" id="sum-defeat-actions">
+          <div class="sum-defeat-streak-warning">
+            🔥 STREAK AT RISK: <strong id="sum-streak-risk-count">1 WIN</strong>
+          </div>
+
+          <button type="button" id="btn-defeat-revive-next" class="sum-rescue-card gold">
+            <div class="src-head">
+              <span class="src-title">🔥 REVIVE STREAK &amp; ADVANCE</span>
+              <span class="src-price">50,000 $EFOO</span>
+            </div>
+            <div class="src-desc">
+              50% Burned (25k) • 50% to Vault (25k) • Save streak &amp; advance to next round!
+            </div>
+          </button>
+
+          <button type="button" id="btn-defeat-retry-round" class="sum-rescue-card neon">
+            <div class="src-head">
+              <span class="src-title">🔄 RETRY THIS ROUND (TRY AGAIN)</span>
+              <span class="src-price">25,000 $EFOO</span>
+            </div>
+            <div class="src-desc">
+              50% Burned (12.5k) • 50% to Vault (12.5k) • Keep win streak &amp; replay round!
+            </div>
+          </button>
+
+          <button type="button" id="btn-defeat-restart-free" class="sum-rescue-card muted">
+            <div class="src-head">
+              <span class="src-title">🏠 RESTART FROM LEVEL 1</span>
+              <span class="src-price">FREE (0 $EFOO)</span>
+            </div>
+            <div class="src-desc">
+              Free restart • Win streak resets to 0
+            </div>
+          </button>
+        </div>
+
+        <!-- Stadium Vault & Deflationary Burn Live Counter Strip -->
+        <div class="sum-vault-strip" id="sum-vault-strip">
+          <div class="svs-box">
+            <div class="svs-head">
+              <span class="svs-icon">🏆</span>
+              <span class="svs-lbl">STADIUM VAULT</span>
+            </div>
+            <strong class="svs-val gold" id="sum-vault-val">25,400,000 $EFOO</strong>
+            <small class="svs-note">Weekend: 65% (1st) • 25% (2nd) • 10% (3rd)</small>
+          </div>
+          <div class="svs-box">
+            <div class="svs-head">
+              <span class="svs-icon">🔥</span>
+              <span class="svs-lbl">GAME BURNED</span>
+            </div>
+            <strong class="svs-val red" id="sum-burned-val">92,912,450,000 $EFOO</strong>
+            <small class="svs-note">50% burned forever on revives &amp; retries</small>
+          </div>
         </div>
 
         <!-- Secondary Icon Toolbar -->
@@ -559,11 +619,11 @@
           <div class="boost-pack-left">
             <div style="font-size:1.8rem; width:44px; text-align:center;">🏆</div>
             <div>
-              <strong>90+5' Injury Time Pot: 25,400,000 $EFOO</strong>
-              <small style="color:#ffb800;">Reset clock to 05:00 — Last Striker wins 50% of Pot!</small>
+              <strong>Stadium Vault Jackpot: <span id="modal-vault-pot">25,400,000 $EFOO</span></strong>
+              <small style="color:#ffb800;">Weekend Jackpot Payout: 65% (1st) • 25% (2nd) • 10% (3rd) to Top Ultras!</small>
             </div>
           </div>
-          <button type="button" id="modal-kick-pot-btn" class="arcade-btn gold">Kick 100k $EFOO 🔥</button>
+          <a href="market.html" class="arcade-btn gold" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">Market 🛒</a>
         </div>
       </div>
     </div>
@@ -618,6 +678,16 @@
             </div>
             <span class="prov-arrow">Login ↗</span>
           </button>
+        </div>
+
+        <div class="modal-divider" style="display:flex; align-items:center; gap:8px; margin:14px 0; color:#64748b; font-size:0.75rem;">
+          <hr style="flex:1; border:none; border-top:1px solid rgba(255,255,255,0.12);"/>
+          <span>OR INSTANT WALLET EXPLORER</span>
+          <hr style="flex:1; border:none; border-top:1px solid rgba(255,255,255,0.12);"/>
+        </div>
+        <div class="manual-erd-form" style="display:flex; gap:6px;">
+          <input type="text" id="game-manual-erd-input" placeholder="erd1... (Paste MultiversX address)" style="flex:1; background:rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; padding:8px 12px; font-family:'JetBrains Mono',monospace; font-size:0.78rem;" />
+          <button type="button" id="game-btn-load-wallet" style="background:#a8ff00; color:#000; border:none; font-weight:800; border-radius:8px; padding:0 14px; cursor:pointer; font-size:0.78rem;">Connect</button>
         </div>
 
         <div class="manual-wallet-box" style="margin-top:14px; text-align:center;">
@@ -881,6 +951,6 @@
 
   </div>
 
-  <script src="game.js?v=20261016_v8"></script>
+  <script src="game.js?v=20261016_v10"></script>
 </body>
 </html>

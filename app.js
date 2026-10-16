@@ -1,7 +1,7 @@
 const I18N = {
   en: {
     nav_sub: "SUNDAY LEAGUE DEGEN FC",
-    nav_wallethub: "🧤 Wallet & Swap/Mint",
+    nav_wallethub: "🛒 NFT & Skill Market",
     nav_game: "⚽ EFOO FOMO Game",
     nav_locker: "🎨 Meme Studio",
     nav_tokenomics: "🔥 92.9% Burn",
@@ -182,7 +182,7 @@ const I18N = {
   },
   ro: {
     nav_sub: "LIGA DE DUMINICĂ DEGEN FC",
-    nav_wallethub: "🧤 Portofel & Swap/Mint",
+    nav_wallethub: "🛒 Piață NFT & Abilități",
     nav_game: "⚽ Jocul EFOO FOMO",
     nav_locker: "🎨 Studio Meme",
     nav_tokenomics: "🔥 92.9% Arse",
@@ -363,7 +363,7 @@ const I18N = {
   },
   hu: {
     nav_sub: "SUNDAY LEAGUE DEGEN FC",
-    nav_wallethub: "🧤 Tárca & Swap/Mint",
+    nav_wallethub: "🛒 NFT & Képesség Piac",
     nav_game: "⚽ EFOO FOMO Játék",
     nav_locker: "🎨 Meme Stúdió",
     nav_tokenomics: "🔥 92.9% Égetés",
@@ -2446,7 +2446,7 @@ async function openNftDetailsModal(nft) {
   if (collEl) collEl.textContent = `${nft.collection || "EFOOTBALL-91a4eb"} • ${nft.identifier}`;
 
   if (playBtn) {
-    playBtn.href = `game.html?v=20261016_v7&nft=${encodeURIComponent(nft.identifier)}`;
+    playBtn.href = `game.html?v=20261016_v9&nft=${encodeURIComponent(nft.identifier)}`;
   }
   if (xoxnoBtn) {
     xoxnoBtn.href = `https://xoxno.com/nft/${encodeURIComponent(nft.identifier)}`;
@@ -2651,7 +2651,7 @@ function renderOwnedNftsGallery() {
 
     card.querySelector(".use-game-btn").addEventListener("click", (e) => {
       e.stopPropagation();
-      window.location.href = `game.html?v=20261016_v7&nft=${encodeURIComponent(nft.identifier)}`;
+      window.location.href = `game.html?v=20261016_v9&nft=${encodeURIComponent(nft.identifier)}`;
     });
 
     grid.appendChild(card);

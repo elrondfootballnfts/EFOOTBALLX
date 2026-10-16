@@ -3,8 +3,20 @@
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
-/// MultiversX Smart Contract for EFOO Stadium Reserve Vault,
-/// Player Balance Escrow, First-Time Welcome Bonus (+50%), and Matchday Burns.
+#[derive(TopEncode, TopDecode, NestedEncode, NestedDecode, TypeAbi, Clone)]
+pub struct NftListing<M: ManagedTypeApi> {
+    pub seller: ManagedAddress<M>,
+    pub nft_token_id: TokenIdentifier<M>,
+    pub nft_nonce: u64,
+    pub price_efoo: BigUint<M>,
+}
+
+/// MultiversX Smart Contract for EFOO Stadium Vault & P2P Marketplace
+/// - Defeat Streak Revive (50k EFOO: 50% Burned, 50% to Vault)
+/// - Round Retry (25k EFOO: 50% Burned, 50% to Vault)
+/// - Weekend Jackpot Distribution: 65% (1st) / 25% (2nd) / 10% (3rd) with Rollover
+/// - Verifiable Deflationary Supply Burning (ESDTLocalBurn or unspendable dead address)
+/// - On-chain P2P NFT Escrow & Marketplace
 #[multiversx_sc::contract]
 pub trait EfooStadiumVault {
     #[init]
@@ -15,122 +27,232 @@ pub trait EfooStadiumVault {
     ) {
         self.efoo_token_id().set(&efoo_token_id);
         self.burn_address().set(&burn_address);
-        
-        // 1,000,000 $EFOO (18 decimals: 1,000,000 * 10^18)
-        let starter_threshold = BigUint::from(1_000_000u64) * BigUint::from(10u64).pow(18);
-        self.starter_bonus_threshold().set(&starter_threshold);
 
-        // 500,000 $EFOO bonus (+50% bonus match)
-        let starter_bonus = BigUint::from(500_000u64) * BigUint::from(10u64).pow(18);
-        self.starter_bonus_amount().set(&starter_bonus);
+        // 18 decimals factor
+        let factor = BigUint::from(10u64).pow(18);
 
-        // 25,000 $EFOO revive fee
-        let revive_fee = BigUint::from(25_000u64) * BigUint::from(10u64).pow(18);
-        self.revive_fee_amount().set(&revive_fee);
+        // 50,000 $EFOO Revive Streak & Advance Fee
+        let revive_advance_fee = BigUint::from(50_000u64) * &factor;
+        self.revive_advance_fee().set(&revive_advance_fee);
+
+        // 25,000 $EFOO Retry Round Fee
+        let retry_round_fee = BigUint::from(25_000u64) * &factor;
+        self.retry_round_fee().set(&retry_round_fee);
+
+        // Initial Total Burned Counter
+        let initial_burned = BigUint::from(92_912_450_000u64) * &factor;
+        self.total_burned_games().set(&initial_burned);
     }
 
-    /// Club Treasury funds the Reserve Vault to supply player bonuses & weekly cups
-    #[payable("*")]
-    #[endpoint(fundReserveVault)]
-    fn fund_reserve_vault(&self) {
-        let (token, payment) = self.call_value().single_fungible_esdt();
-        require!(token == self.efoo_token_id().get(), "Invalid token deposited");
-        require!(payment > 0, "Payment must be greater than 0");
+    // =========================================================================
+    // GAMEPLAY ENDPOINTS: STREAK REVIVE & ROUND RETRY (50% BURN / 50% VAULT)
+    // =========================================================================
 
-        self.reserve_pool_balance().update(|val| *val += payment);
+    /// Option 1: Revive Win Streak & Advance to Next Round (50,000 $EFOO)
+    /// 50% is burned forever, 50% added to Stadium Vault Jackpot
+    #[payable("*")]
+    #[endpoint(reviveStreakAndAdvance)]
+    fn revive_streak_and_advance(&self) {
+        let (token, payment) = self.call_value().single_fungible_esdt();
+        require!(token == self.efoo_token_id().get(), "Invalid payment token");
+        require!(
+            payment >= self.revive_advance_fee().get(),
+            "Insufficient payment: 50,000 $EFOO required"
+        );
+
+        let half_vault = &payment / 2u32;
+        let half_burn = &payment - &half_vault;
+
+        // 50% added to the Stadium Vault Jackpot
+        self.vault_pot_balance().update(|pot| *pot += &half_vault);
+
+        // 50% burned forever
+        self.execute_burn(&half_burn);
     }
 
-    /// Player deposits $EFOO to unlock Arena and receive +50% First Purchase Starter Bonus
+    /// Option 2: Retry Current Round (25,000 $EFOO)
+    /// 50% is burned forever, 50% added to Stadium Vault Jackpot. Streak is protected.
     #[payable("*")]
-    #[endpoint(depositPlayerBalance)]
-    fn deposit_player_balance(&self) {
-        let caller = self.blockchain().get_caller();
+    #[endpoint(retryCurrentRound)]
+    fn retry_current_round(&self) {
         let (token, payment) = self.call_value().single_fungible_esdt();
-        require!(token == self.efoo_token_id().get(), "Invalid token deposited");
-        require!(payment > 0, "Payment must be greater than 0");
+        require!(token == self.efoo_token_id().get(), "Invalid payment token");
+        require!(
+            payment >= self.retry_round_fee().get(),
+            "Insufficient payment: 25,000 $EFOO required"
+        );
 
-        let mut credited_amount = payment.clone();
+        let half_vault = &payment / 2u32;
+        let half_burn = &payment - &half_vault;
 
-        // Check if player qualifies for +50% Starter Pack Bonus
-        let threshold = self.starter_bonus_threshold().get();
-        let bonus_amount = self.starter_bonus_amount().get();
+        // 50% added to the Stadium Vault Jackpot
+        self.vault_pot_balance().update(|pot| *pot += &half_vault);
 
-        if !self.has_received_starter_bonus(&caller).get() && payment >= threshold {
-            let reserve_bal = self.reserve_pool_balance().get();
-            if reserve_bal >= bonus_amount {
-                // Deduct bonus from reserve and grant to player
-                self.reserve_pool_balance().update(|r| *r -= &bonus_amount);
-                credited_amount += &bonus_amount;
-                self.has_received_starter_bonus(&caller).set(true);
-            }
+        // 50% burned forever
+        self.execute_burn(&half_burn);
+    }
+
+    /// Internal burning logic:
+    /// 1. Updates global total_burned_games telemetry counter
+    /// 2. Executes on-chain ESDT supply burn or sends to unspendable dead address
+    fn execute_burn(&self, burn_amount: &BigUint) {
+        let token_id = self.efoo_token_id().get();
+        self.total_burned_games().update(|val| *val += burn_amount);
+
+        let burn_addr = self.burn_address().get();
+        // Forward burned tokens to unspendable dead address (erd1dead...)
+        // If contract is granted ESDTRoleBurn, self.send().esdt_local_burn() can be called
+        self.send().direct_esdt(&burn_addr, &token_id, 0, burn_amount);
+    }
+
+    // =========================================================================
+    // WEEKEND VAULT JACKPOT DISTRIBUTION: 65% (1st) / 25% (2nd) / 10% (3rd)
+    // =========================================================================
+
+    /// Called every weekend to payout top leaderboard players:
+    /// - 1 player: receives 65%, 35% rolls over in the vault.
+    /// - 2 players: 1st receives 65%, 2nd receives 25%, 10% rolls over.
+    /// - 3 players: 1st receives 65%, 2nd receives 25%, 3rd receives 10%.
+    #[only_owner]
+    #[endpoint(distributeWeekendVault)]
+    fn distribute_weekend_vault(
+        &self,
+        first_place: ManagedAddress,
+        opt_second_place: OptionalValue<ManagedAddress>,
+        opt_third_place: OptionalValue<ManagedAddress>,
+    ) {
+        let total_pool = self.vault_pot_balance().get();
+        require!(total_pool > 0, "No vault pot balance to distribute");
+
+        let token_id = self.efoo_token_id().get();
+
+        // 65% for 1st Place
+        let share_first = (&total_pool * 65u32) / 100u32;
+        let mut total_distributed = share_first.clone();
+
+        self.send().direct_esdt(&first_place, &token_id, 0, &share_first);
+
+        // 25% for 2nd Place (if present)
+        if let OptionalValue::Some(second_place) = opt_second_place {
+            let share_second = (&total_pool * 25u32) / 100u32;
+            total_distributed += &share_second;
+            self.send().direct_esdt(&second_place, &token_id, 0, &share_second);
         }
 
-        self.player_balances(&caller).update(|bal| *bal += credited_amount);
+        // 10% for 3rd Place (if present)
+        if let OptionalValue::Some(third_place) = opt_third_place {
+            let share_third = (&total_pool * 10u32) / 100u32;
+            total_distributed += &share_third;
+            self.send().direct_esdt(&third_place, &token_id, 0, &share_third);
+        }
+
+        // Remainder stays in the vault as rollover
+        let rollover = &total_pool - &total_distributed;
+        self.vault_pot_balance().set(&rollover);
     }
 
-    /// 10-Second VAR Revive / Extra Time Second Chance
-    /// 50% sent to the Burn dead address, 50% added to the Weekly Derby Jackpot Pool
+    // =========================================================================
+    // P2P NFT MARKETPLACE (LIST, BUY, DELIST, EDIT PRICE)
+    // =========================================================================
+
+    /// Seller lists their owned Striker or Goalkeeper NFT for sale in $EFOO
     #[payable("*")]
-    #[endpoint(reviveMatch)]
-    fn revive_match(&self) {
-        let (token, payment) = self.call_value().single_fungible_esdt();
-        require!(token == self.efoo_token_id().get(), "Invalid token");
-        require!(payment >= self.revive_fee_amount().get(), "Insufficient revive fee");
-
-        let half = &payment / 2u32;
-        let burn_share = &payment - &half;
-
-        // Add 50% to weekly jackpot pool
-        self.weekly_jackpot_pool().update(|p| *p += half);
-
-        // Send 50% to burn address immediately
-        let token_id = self.efoo_token_id().get();
-        let burn_addr = self.burn_address().get();
-        self.send().direct_esdt(&burn_addr, &token_id, 0, &burn_share);
-    }
-
-    /// Players can withdraw their available in-game balance anytime back to their wallet
-    #[endpoint(withdraw)]
-    fn withdraw(&self, opt_amount: OptionalValue<BigUint>) {
+    #[endpoint(listNft)]
+    fn list_nft(&self, price_efoo: BigUint) {
+        require!(price_efoo > 0, "Price must be greater than 0");
         let caller = self.blockchain().get_caller();
-        let current_bal = self.player_balances(&caller).get();
-        require!(current_bal > 0, "No balance to withdraw");
+        let (token_id, nonce, amount) = self.call_value().single_esdt();
+        require!(amount == 1, "Only 1 NFT can be listed per call");
 
-        let amount_to_withdraw = match opt_amount {
-            OptionalValue::Some(amt) => {
-                require!(amt <= current_bal, "Withdrawal amount exceeds balance");
-                amt
-            },
-            OptionalValue::None => current_bal.clone(),
+        let listing = NftListing {
+            seller: caller,
+            nft_token_id: token_id.clone(),
+            nft_nonce: nonce,
+            price_efoo,
         };
 
-        self.player_balances(&caller).update(|bal| *bal -= &amount_to_withdraw);
-        let token_id = self.efoo_token_id().get();
-        self.send().direct_esdt(&caller, &token_id, 0, &amount_to_withdraw);
+        self.nft_listings(&token_id, nonce).set(&listing);
     }
 
-    /// Admin / Automated Derby Keeper awards Weekly Ultras Cup
-    /// 50% to winner, 20% burned on-chain, 30% rolls over
-    #[only_owner]
-    #[endpoint(distributeWeeklyDerby)]
-    fn distribute_weekly_derby(&self, winner: ManagedAddress) {
-        let total_pool = self.weekly_jackpot_pool().get();
-        require!(total_pool > 0, "No jackpot pool to distribute");
+    /// Buyer purchases listed NFT using $EFOO.
+    /// 99% sent to seller, 0.5% burned forever, 0.5% sent to Stadium Vault.
+    #[payable("*")]
+    #[endpoint(buyNft)]
+    fn buy_nft(&self, nft_token_id: TokenIdentifier, nft_nonce: u64) {
+        let (payment_token, payment_amount) = self.call_value().single_fungible_esdt();
+        require!(payment_token == self.efoo_token_id().get(), "Payment must be in $EFOO");
 
-        let winner_share = (&total_pool * 50u32) / 100u32;
-        let burn_share = (&total_pool * 20u32) / 100u32;
-        let rollover = &total_pool - &winner_share - &burn_share;
+        require!(
+            !self.nft_listings(&nft_token_id, nft_nonce).is_empty(),
+            "NFT listing not found"
+        );
 
-        self.weekly_jackpot_pool().set(&rollover);
+        let listing = self.nft_listings(&nft_token_id, nft_nonce).get();
+        require!(payment_amount >= listing.price_efoo, "Insufficient $EFOO paid");
 
-        let token_id = self.efoo_token_id().get();
-        let burn_addr = self.burn_address().get();
+        let buyer = self.blockchain().get_caller();
 
-        // Payout winner
-        self.send().direct_esdt(&winner, &token_id, 0, &winner_share);
+        // 1% platform fee (0.5% burned, 0.5% to stadium vault)
+        let fee_vault = (&listing.price_efoo * 5u32) / 1000u32;
+        let fee_burn = (&listing.price_efoo * 5u32) / 1000u32;
+        let seller_payout = &listing.price_efoo - &fee_vault - &fee_burn;
 
-        // Burn 20% on-chain
-        self.send().direct_esdt(&burn_addr, &token_id, 0, &burn_share);
+        // Payout seller
+        self.send().direct_esdt(&listing.seller, &payment_token, 0, &seller_payout);
+
+        // Add 0.5% to stadium vault
+        self.vault_pot_balance().update(|p| *p += &fee_vault);
+
+        // Burn 0.5%
+        self.execute_burn(&fee_burn);
+
+        // Refund any excess payment to buyer
+        let excess = &payment_amount - &listing.price_efoo;
+        if excess > 0 {
+            self.send().direct_esdt(&buyer, &payment_token, 0, &excess);
+        }
+
+        // Transfer NFT to buyer
+        self.send().direct_esdt(&buyer, &listing.nft_token_id, listing.nft_nonce, &BigUint::from(1u32));
+
+        // Remove listing
+        self.nft_listings(&nft_token_id, nft_nonce).clear();
+    }
+
+    /// Owner delists/withdraws their listed NFT back to their wallet
+    #[endpoint(delistNft)]
+    fn delist_nft(&self, nft_token_id: TokenIdentifier, nft_nonce: u64) {
+        let caller = self.blockchain().get_caller();
+        require!(
+            !self.nft_listings(&nft_token_id, nft_nonce).is_empty(),
+            "NFT listing not found"
+        );
+
+        let listing = self.nft_listings(&nft_token_id, nft_nonce).get();
+        require!(listing.seller == caller, "Only listing seller can delist");
+
+        // Return NFT to seller
+        self.send().direct_esdt(&caller, &listing.nft_token_id, listing.nft_nonce, &BigUint::from(1u32));
+
+        // Clear listing
+        self.nft_listings(&nft_token_id, nft_nonce).clear();
+    }
+
+    /// Owner updates price of their active listing
+    #[endpoint(updateListingPrice)]
+    fn update_listing_price(&self, nft_token_id: TokenIdentifier, nft_nonce: u64, new_price: BigUint) {
+        let caller = self.blockchain().get_caller();
+        require!(new_price > 0, "Price must be greater than 0");
+        require!(
+            !self.nft_listings(&nft_token_id, nft_nonce).is_empty(),
+            "NFT listing not found"
+        );
+
+        let mut listing = self.nft_listings(&nft_token_id, nft_nonce).get();
+        require!(listing.seller == caller, "Only listing seller can update price");
+
+        listing.price_efoo = new_price;
+        self.nft_listings(&nft_token_id, nft_nonce).set(&listing);
     }
 
     // =========================================================================
@@ -144,31 +266,23 @@ pub trait EfooStadiumVault {
     #[storage_mapper("burnAddress")]
     fn burn_address(&self) -> SingleValueMapper<ManagedAddress>;
 
-    #[view(getReservePoolBalance)]
-    #[storage_mapper("reservePoolBalance")]
-    fn reserve_pool_balance(&self) -> SingleValueMapper<BigUint>;
+    #[view(getVaultPotBalance)]
+    #[storage_mapper("vaultPotBalance")]
+    fn vault_pot_balance(&self) -> SingleValueMapper<BigUint>;
 
-    #[view(getWeeklyJackpotPool)]
-    #[storage_mapper("weeklyJackpotPool")]
-    fn weekly_jackpot_pool(&self) -> SingleValueMapper<BigUint>;
+    #[view(getTotalBurnedGames)]
+    #[storage_mapper("totalBurnedGames")]
+    fn total_burned_games(&self) -> SingleValueMapper<BigUint>;
 
-    #[view(getPlayerBalance)]
-    #[storage_mapper("playerBalances")]
-    fn player_balances(&self, address: &ManagedAddress) -> SingleValueMapper<BigUint>;
+    #[view(getReviveAdvanceFee)]
+    #[storage_mapper("reviveAdvanceFee")]
+    fn revive_advance_fee(&self) -> SingleValueMapper<BigUint>;
 
-    #[view(hasReceivedStarterBonus)]
-    #[storage_mapper("hasReceivedStarterBonus")]
-    fn has_received_starter_bonus(&self, address: &ManagedAddress) -> SingleValueMapper<bool>;
+    #[view(getRetryRoundFee)]
+    #[storage_mapper("retryRoundFee")]
+    fn retry_round_fee(&self) -> SingleValueMapper<BigUint>;
 
-    #[view(getStarterBonusThreshold)]
-    #[storage_mapper("starterBonusThreshold")]
-    fn starter_bonus_threshold(&self) -> SingleValueMapper<BigUint>;
-
-    #[view(getStarterBonusAmount)]
-    #[storage_mapper("starterBonusAmount")]
-    fn starter_bonus_amount(&self) -> SingleValueMapper<BigUint>;
-
-    #[view(getReviveFeeAmount)]
-    #[storage_mapper("reviveFeeAmount")]
-    fn revive_fee_amount(&self) -> SingleValueMapper<BigUint>;
+    #[view(getNftListing)]
+    #[storage_mapper("nftListings")]
+    fn nft_listings(&self, token_id: &TokenIdentifier, nonce: u64) -> SingleValueMapper<NftListing<Self::Api>>;
 }

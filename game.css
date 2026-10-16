@@ -943,21 +943,30 @@ body.start-screen-active .hud-top-bar,
 }
 
 .smc-nav-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   color: #ffffff;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  transition: all 0.18s ease;
+  z-index: 5;
+  user-select: none;
 }
 .smc-nav-btn:hover {
   background: var(--pitch-green, #a8ff00);
   color: #000;
+  border-color: #a8ff00;
+  transform: scale(1.08);
+}
+.smc-nav-btn:active {
+  transform: scale(0.95);
 }
 
 .smc-slot-media {
@@ -966,11 +975,18 @@ body.start-screen-active .hud-top-bar,
   border-radius: 12px;
   overflow: hidden;
   background: #040906;
+  border: 2px solid #71717a;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.smc-slot-media:hover {
+  transform: scale(1.02);
 }
 .smc-slot-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  pointer-events: none;
 }
 
 .smc-rank-badge {
@@ -1161,6 +1177,179 @@ body.start-screen-active .hud-top-bar,
 .sum-btn-secondary:hover {
   background: rgba(255, 255, 255, 0.12);
   color: #ffffff;
+}
+
+/* Defeat Streak Rescue UI */
+.sum-defeat-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sum-defeat-streak-warning {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: #fca5a5;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.sum-defeat-streak-warning strong {
+  color: #ff4d4d;
+  text-shadow: 0 0 10px rgba(255, 77, 77, 0.6);
+}
+
+.sum-rescue-card {
+  width: 100%;
+  border-radius: 12px;
+  padding: 9px 12px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  transition: all 0.18s ease;
+  position: relative;
+  background: rgba(15, 23, 42, 0.65);
+}
+
+.sum-rescue-card:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+}
+
+.sum-rescue-card:active {
+  transform: scale(0.98);
+}
+
+.sum-rescue-card.gold {
+  border: 2px solid #ffb800;
+  background: linear-gradient(135deg, rgba(255, 184, 0, 0.16), rgba(15, 23, 42, 0.85));
+  box-shadow: 0 4px 18px rgba(255, 184, 0, 0.25);
+}
+
+.sum-rescue-card.neon {
+  border: 2px solid #a8ff00;
+  background: linear-gradient(135deg, rgba(168, 255, 0, 0.14), rgba(15, 23, 42, 0.85));
+  box-shadow: 0 4px 18px rgba(168, 255, 0, 0.2);
+}
+
+.sum-rescue-card.muted {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.src-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.src-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+}
+
+.sum-rescue-card.gold .src-title {
+  color: #ffb800;
+}
+
+.sum-rescue-card.neon .src-title {
+  color: #a8ff00;
+}
+
+.sum-rescue-card.muted .src-title {
+  color: #cbd5e1;
+}
+
+.src-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+}
+
+.sum-rescue-card.gold .src-price {
+  color: #ffb800;
+  border: 1px solid rgba(255, 184, 0, 0.4);
+}
+
+.sum-rescue-card.neon .src-price {
+  color: #a8ff00;
+  border: 1px solid rgba(168, 255, 0, 0.4);
+}
+
+.src-desc {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  line-height: 1.25;
+}
+
+/* Live Vault & Burn Strip */
+.sum-vault-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 8px 10px;
+}
+
+.svs-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.svs-head {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.svs-icon {
+  font-size: 0.82rem;
+}
+
+.svs-lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.03em;
+}
+
+.svs-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.svs-val.gold {
+  color: #ffb800;
+  text-shadow: 0 0 10px rgba(255, 184, 0, 0.35);
+}
+
+.svs-val.red {
+  color: #f87171;
+  text-shadow: 0 0 10px rgba(248, 113, 113, 0.35);
+}
+
+.svs-note {
+  font-size: 0.62rem;
+  color: #64748b;
+  line-height: 1.15;
 }
 
 .sum-clean-subtools {
