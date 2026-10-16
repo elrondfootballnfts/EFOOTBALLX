@@ -4630,7 +4630,22 @@ function connectWithAddress(address, provider = "webwallet") {
   localStorage.setItem("efoo_wallet_provider", provider);
   document.getElementById("wallet-modal-backdrop")?.classList.add("hidden");
   document.getElementById("nav-wallet-label").textContent = shortErd(clean);
+  updateOwnerAdminVisibility(clean);
   fetchWalletNftsAndBalance(clean);
+}
+
+function updateOwnerAdminVisibility(addr) {
+  const adminBtn = document.getElementById("hud-owner-admin-btn");
+  if (!adminBtn) return;
+  const OWNER_ADDR = "erd1p5hfnx87q4pddwsyz23e5pqv8550rsfat902j6g4ckdh070055hshct4my";
+  if (addr === OWNER_ADDR) {
+    adminBtn.classList.remove("hidden");
+    sessionStorage.setItem("efoo_admin_session_auth_v1", "VALID_OWNER_AUTH");
+    localStorage.setItem("efoo_connected_address", OWNER_ADDR);
+  } else {
+    adminBtn.classList.add("hidden");
+    sessionStorage.removeItem("efoo_admin_session_auth_v1");
+  }
 }
 
 function disconnectWallet() {
@@ -4641,6 +4656,7 @@ function disconnectWallet() {
   localStorage.removeItem("efoo_wallet_address");
   localStorage.removeItem("efoo_wallet_provider");
   localStorage.removeItem("efoo_wc_topic");
+  updateOwnerAdminVisibility("");
 
   walletState = {
     loading: false,
@@ -5971,6 +5987,7 @@ document.addEventListener("DOMContentLoaded", () => {
   applyLang(currentLang);
   refreshHudUI();
   refreshOnChainVaultStats();
+  updateOwnerAdminVisibility(connectedAddress);
   setStartScreenState(true);
   initFullscreenStadiumCanvas();
 

@@ -589,6 +589,18 @@ function updateWalletUI() {
     if (shortAddr) shortAddr.textContent = `${a.slice(0, 6)}...${a.slice(-4)}`;
     if (balEl) balEl.textContent = `${Math.floor(marketWallet.efooBalance).toLocaleString("en-US")} $EFOO`;
   }
+
+  const adminBtn = document.getElementById("m-btn-admin-vault");
+  const isOwner = marketWallet.address === EFOOREWARDS_WALLET;
+  if (adminBtn) {
+    adminBtn.classList.toggle("hidden", !isOwner);
+    if (isOwner) {
+      sessionStorage.setItem("efoo_admin_session_auth_v1", "VALID_OWNER_AUTH");
+      localStorage.setItem("efoo_connected_address", EFOOREWARDS_WALLET);
+    } else {
+      sessionStorage.removeItem("efoo_admin_session_auth_v1");
+    }
+  }
 }
 
 function disconnectWallet() {
