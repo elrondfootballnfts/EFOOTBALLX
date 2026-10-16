@@ -22,14 +22,18 @@ jobs:
 
       - name: Build Smart Contract WASM
         run: |
+          rustup target add wasm32-unknown-unknown
           cd contracts/efoo-stadium-vault/meta
-          cargo run build
+          cargo run -- build 2>&1 | tee ../../../build.log
 
       - name: Upload Artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: efoo-stadium-vault-wasm
-          path: contracts/efoo-stadium-vault/output/*
+          name: efoo-stadium-vault-build
+          path: |
+            build.log
+            contracts/efoo-stadium-vault/output/*
 
       - name: Commit and Push WASM to repo
         run: |

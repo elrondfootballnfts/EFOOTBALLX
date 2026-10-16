@@ -42,6 +42,9 @@ pub trait EfooStadiumVault {
         // Initial Total Burned Counter
         let initial_burned = BigUint::from(92_912_450_000u64) * &factor;
         self.total_burned_games().set(&initial_burned);
+
+        // Circuit breaker starts unpaused
+        self.is_paused().set(false);
     }
 
     // =========================================================================
@@ -123,7 +126,9 @@ pub trait EfooStadiumVault {
     }
 
     fn require_not_paused(&self) {
-        require!(!self.is_paused().get(), "Smart contract is currently paused");
+        if !self.is_paused().is_empty() {
+            require!(!self.is_paused().get(), "Smart contract is currently paused");
+        }
     }
 
     // =========================================================================
