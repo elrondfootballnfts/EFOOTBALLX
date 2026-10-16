@@ -22,12 +22,15 @@ jobs:
           toolchain: 1.78.0
           targets: wasm32-unknown-unknown
 
-      - name: Build WASM
+      - name: Install binaryen (wasm-opt)
+        run: sudo apt-get update && sudo apt-get install -y binaryen
+
+      - name: Build and Optimize WASM
         run: |
           cd contracts/efoo-stadium-vault
           RUSTFLAGS="-C link-arg=--allow-undefined" cargo build --package efoo-stadium-vault-wasm --target wasm32-unknown-unknown --release
           mkdir -p output
-          cp target/wasm32-unknown-unknown/release/efoo_stadium_vault_wasm.wasm output/efoo-stadium-vault.wasm
+          wasm-opt -Oz target/wasm32-unknown-unknown/release/efoo_stadium_vault_wasm.wasm -o output/efoo-stadium-vault.wasm --strip-debug --strip-producers
           ls -lh output/
 
       - name: Verify and Publish WASM to site

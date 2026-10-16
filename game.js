@@ -134,17 +134,25 @@ const CONTRACTS = {
 
 const STORAGE_VAULT_POT = "efoo_stadium_vault_pot";
 const STORAGE_TOTAL_BURNED = "efoo_total_burned_games";
-const BASE_VAULT_POT = 25400000;
-const BASE_BURNED_GAMES = 92912450000;
+const BASE_VAULT_POT = 0;
+const BASE_BURNED_GAMES = 0;
 
 function getVaultStats() {
   let pot = BASE_VAULT_POT;
   let burned = BASE_BURNED_GAMES;
   try {
     const p = localStorage.getItem(STORAGE_VAULT_POT);
-    if (p) pot = Math.max(BASE_VAULT_POT, parseInt(p, 10) || BASE_VAULT_POT);
+    if (p) {
+      const val = parseInt(p, 10) || 0;
+      // Reset legacy hardcoded 25400000 cache
+      pot = (val === 25400000) ? 0 : Math.max(0, val);
+    }
     const b = localStorage.getItem(STORAGE_TOTAL_BURNED);
-    if (b) burned = Math.max(BASE_BURNED_GAMES, parseInt(b, 10) || BASE_BURNED_GAMES);
+    if (b) {
+      const val = parseInt(b, 10) || 0;
+      // Reset legacy hardcoded 92912450000 cache
+      burned = (val === 92912450000) ? 0 : Math.max(0, val);
+    }
   } catch (e) {}
   return { pot, burned };
 }
@@ -159,6 +167,50 @@ function addVaultContributions(vaultAdd, burnAdd) {
   } catch (e) {}
   updateVaultUI();
   return stats;
+}
+
+async function refreshOnChainVaultStats() {
+  const scAddress = EFOO_CONFIG.STADIUM_VAULT_SC;
+  if (!scAddress || scAddress.includes("REPLACE") || !scAddress.startsWith("erd1qqqq")) {
+    updateVaultUI();
+    return;
+  }
+  try {
+    // 1. Fetch on-chain EFOO token balance of the Stadium Vault SC
+    const res = await fetch(`https://api.multiversx.com/accounts/${scAddress}/tokens/EFOO-8fe2d4`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.balance) {
+        const balanceBig = BigInt(data.balance);
+        const potTokens = Number(balanceBig / 1000000000000000000n);
+        localStorage.setItem(STORAGE_VAULT_POT, String(potTokens));
+      }
+    }
+
+    // 2. Query totalBurnedGames view endpoint from SC
+    const queryRes = await fetch("https://api.multiversx.com/query", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        scAddress: scAddress,
+        funcName: "getTotalBurnedGames",
+        args: []
+      })
+    });
+    if (queryRes.ok) {
+      const qData = await queryRes.json();
+      if (qData && qData.data && qData.data.returnData && qData.data.returnData[0]) {
+        const hex = atob(qData.data.returnData[0]).split('').map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+        const burnedBig = BigInt('0x' + (hex || '0'));
+        const burnedTokens = Number(burnedBig / 1000000000000000000n);
+        localStorage.setItem(STORAGE_TOTAL_BURNED, String(burnedTokens));
+      }
+    }
+  } catch (e) {
+    console.warn("Could not refresh on-chain vault stats:", e);
+  } finally {
+    updateVaultUI();
+  }
 }
 
 function updateVaultUI() {
@@ -177,6 +229,15 @@ function updateVaultUI() {
 
   const sumBurnedEl = document.getElementById("sum-burned-val");
   if (sumBurnedEl) sumBurnedEl.textContent = `${burnedFormatted} $EFOO`;
+
+  const lbPotEl = document.getElementById("lb-pot-amount");
+  if (lbPotEl) lbPotEl.textContent = `${potFormatted} $EFOO`;
+
+  const lbShare1st = document.getElementById("lb-share-1st");
+  if (lbShare1st) {
+    const share1 = Math.floor(stats.pot * 0.65);
+    lbShare1st.textContent = `${share1.toLocaleString("en-US")} $EFOO`;
+  }
 }
 
 const RARITY_TIERS = {
@@ -5860,6 +5921,7 @@ document.addEventListener("DOMContentLoaded", () => {
   updateKeeperAssets(0);
   applyLang(currentLang);
   refreshHudUI();
+  refreshOnChainVaultStats();
   setStartScreenState(true);
   initFullscreenStadiumCanvas();
 
