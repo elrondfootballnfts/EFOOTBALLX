@@ -145,7 +145,8 @@ const ROOKIE_STRIKER = {
   name: "SUNDAY ROOKIE #10",
   rarity: "ROOKIE",
   ovr: 65,
-  trait: "⚡ FREE-TO-PLAY (Nincs szuperképesség)",
+  trait: "⚡ FREE-TO-PLAY (No Super Skills)",
+  traitHu: "⚡ FREE-TO-PLAY (Nincs szuperképesség)",
   traitRo: "⚡ FREE-TO-PLAY (Fără super-puteri)",
   url: "branding/original/EFOOTBALL-91a4eb/logo.png"
 };
@@ -156,7 +157,8 @@ const ROOKIE_KEEPER = {
   rarity: "ROOKIE",
   jersey: "01",
   ovr: 65,
-  trait: "🧤 FREE-TO-PLAY (Nincs szuperképesség)",
+  trait: "🧤 FREE-TO-PLAY (No Super Skills)",
+  traitHu: "🧤 FREE-TO-PLAY (Nincs szuperképesség)",
   traitRo: "🧤 FREE-TO-PLAY (Fără super-puteri)",
   url: "branding/original/GOALKEEPER-cb9e3e/logo.png"
 };
@@ -167,7 +169,8 @@ const STRIKER_ROSTER = [
     name: "ELRONDFOOTBALL #619",
     rarity: "LEGENDARY",
     ovr: 99,
-    trait: "👽 ALIEN STRIKER • 4 KÉPESSÉG + RADAR",
+    trait: "👽 ALIEN STRIKER • 4 SKILLS + RADAR",
+    traitHu: "👽 ALIEN STRIKER • 4 KÉPESSÉG + RADAR",
     traitRo: "👽 ALIEN STRIKER • 4 ABILITĂȚI + RADAR",
     url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/9734.png"
   },
@@ -176,7 +179,8 @@ const STRIKER_ROSTER = [
     name: "ELRONDFOOTBALL #609",
     rarity: "EPIC",
     ovr: 95,
-    trait: "⚡ LIGA 1 SNIPER • 3 KÉPESSÉG",
+    trait: "⚡ LIGA 1 SNIPER • 3 SKILLS",
+    traitHu: "⚡ LIGA 1 SNIPER • 3 KÉPESSÉG",
     traitRo: "⚡ LIGA 1 SNIPER • 3 ABILITĂȚI",
     url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/1477.png"
   },
@@ -185,7 +189,8 @@ const STRIKER_ROSTER = [
     name: "ELRONDFOOTBALL #610",
     rarity: "RARE",
     ovr: 90,
-    trait: "🔥 ROCKET FINISHER • 2 KÉPESSÉG",
+    trait: "🔥 ROCKET FINISHER • 2 SKILLS",
+    traitHu: "🔥 ROCKET FINISHER • 2 KÉPESSÉG",
     traitRo: "🔥 ROCKET FINISHER • 2 ABILITĂȚI",
     url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/2805.png"
   },
@@ -194,7 +199,8 @@ const STRIKER_ROSTER = [
     name: "ELRONDFOOTBALL #612",
     rarity: "RARE",
     ovr: 88,
-    trait: "🎯 VINCLU SPECIALIST • 2 KÉPESSÉG",
+    trait: "🎯 TOP BINS SPECIALIST • 2 SKILLS",
+    traitHu: "🎯 VINCLU SPECIALIST • 2 KÉPESSÉG",
     traitRo: "🎯 VINCLU SPECIALIST • 2 ABILITĂȚI",
     url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/6632.png"
   },
@@ -203,7 +209,8 @@ const STRIKER_ROSTER = [
     name: "ELRONDFOOTBALL #627",
     rarity: "COMMON",
     ovr: 78,
-    trait: "🍺 PANENKA KING • 1 KÉPESSÉG",
+    trait: "🍺 PANENKA KING • 1 SKILL",
+    traitHu: "🍺 PANENKA KING • 1 KÉPESSÉG",
     traitRo: "🍺 PANENKA KING • 1 ABILITATE",
     url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/1688.png"
   }
@@ -216,7 +223,8 @@ const KEEPER_ROSTER = [
     jersey: "02",
     rarity: "LEGENDARY",
     ovr: 99,
-    trait: "🧱 WALL OF DEGENS • TELEPÁTIA + 4 KÉPESSÉG",
+    trait: "🧱 WALL OF DEGENS • TELEPATHY + 4 SKILLS",
+    traitHu: "🧱 WALL OF DEGENS • TELEPÁTIA + 4 KÉPESSÉG",
     traitRo: "🧱 WALL OF DEGENS • TELEPATIE + 4 ABILITĂȚI",
     url: "https://media.multiversx.com/nfts/asset/bafybeicbszzifxxcpnq3zrndfdtf45wouhyjbklwk4ffio365icb2ylgg4/230.png"
   },
@@ -226,7 +234,8 @@ const KEEPER_ROSTER = [
     jersey: "07",
     rarity: "EPIC",
     ovr: 94,
-    trait: "🧤 OCTOPUS REACH • ÓRIÁSKÉZ + 3 KÉPESSÉG",
+    trait: "🧤 OCTOPUS REACH • SPIDER ARMS + 3 SKILLS",
+    traitHu: "🧤 OCTOPUS REACH • ÓRIÁSKÉZ + 3 KÉPESSÉG",
     traitRo: "🧤 OCTOPUS REACH • SPIDER REACH + 3 ABILITĂȚI",
     url: "https://media.multiversx.com/nfts/asset/bafybeicbszzifxxcpnq3zrndfdtf45wouhyjbklwk4ffio365icb2ylgg4/440.png"
   },
@@ -236,7 +245,8 @@ const KEEPER_ROSTER = [
     jersey: "51",
     rarity: "RARE",
     ovr: 86,
-    trait: "⚡ CAT REFLEX • ACÉLFAL + 2 KÉPESSÉG",
+    trait: "⚡ CAT REFLEX • IRON WALL + 2 SKILLS",
+    traitHu: "⚡ CAT REFLEX • ACÉLFAL + 2 KÉPESSÉG",
     traitRo: "⚡ CAT REFLEX • IRON WALL + 2 ABILITĂȚI",
     url: "branding/original/GOALKEEPER-cb9e3e/logo.png"
   }
@@ -405,6 +415,103 @@ class ModernStadiumAudio {
     subG.connect(this.ctx.destination);
     sub.start(now);
     sub.stop(now + 0.75);
+  }
+
+  // Sad descending "wah-wah" brass sting plus disappointed crowd groan (match lost)
+  playDefeat() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const notes = [392, 370, 349, 262];
+    notes.forEach((f, i) => {
+      const t = now + i * 0.42;
+      const dur = i === notes.length - 1 ? 1.1 : 0.4;
+      const osc = this.ctx.createOscillator();
+      const lp = this.ctx.createBiquadFilter();
+      const g = this.ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(f, t);
+      if (i === notes.length - 1) osc.frequency.exponentialRampToValueAtTime(f * 0.82, t + dur);
+      lp.type = "lowpass";
+      lp.frequency.setValueAtTime(900, t);
+      lp.frequency.linearRampToValueAtTime(380, t + dur);
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.linearRampToValueAtTime(0.2, t + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      osc.connect(lp);
+      lp.connect(g);
+      g.connect(this.ctx.destination);
+      osc.start(t);
+      osc.stop(t + dur + 0.05);
+    });
+    if (this.noiseBuffer) {
+      const src = this.ctx.createBufferSource();
+      src.buffer = this.noiseBuffer;
+      const bpf = this.ctx.createBiquadFilter();
+      bpf.type = "bandpass";
+      bpf.frequency.setValueAtTime(700, now);
+      bpf.frequency.linearRampToValueAtTime(320, now + 1.6);
+      bpf.Q.setValueAtTime(0.9, now);
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0.001, now);
+      g.gain.linearRampToValueAtTime(0.16, now + 0.25);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
+      src.connect(bpf);
+      bpf.connect(g);
+      g.connect(this.ctx.destination);
+      src.start(now);
+      src.stop(now + 1.9);
+    }
+  }
+
+  // Authentic crowd applause & clapping (for heroic goalkeeper saves & goals)
+  playApplause() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx || !this.noiseBuffer) return;
+    const now = this.ctx.currentTime;
+
+    // 1. Warm crowd cheering undertone
+    const bg = this.ctx.createBufferSource();
+    bg.buffer = this.noiseBuffer;
+    const bgFilter = this.ctx.createBiquadFilter();
+    bgFilter.type = "bandpass";
+    bgFilter.frequency.setValueAtTime(850, now);
+    bgFilter.frequency.linearRampToValueAtTime(1250, now + 0.35);
+    bgFilter.frequency.linearRampToValueAtTime(750, now + 1.8);
+    bgFilter.Q.setValueAtTime(1.5, now);
+    const bgGain = this.ctx.createGain();
+    bgGain.gain.setValueAtTime(0.001, now);
+    bgGain.gain.linearRampToValueAtTime(0.24, now + 0.12);
+    bgGain.gain.exponentialRampToValueAtTime(0.001, now + 2.1);
+    bg.connect(bgFilter);
+    bgFilter.connect(bgGain);
+    bgGain.connect(this.ctx.destination);
+    bg.start(now);
+    bg.stop(now + 2.2);
+
+    // 2. Dense acoustic handclap impulses spread across the stadium
+    const claps = 30;
+    for (let i = 0; i < claps; i++) {
+      const clapTime = now + 0.04 + (i / claps) * 1.5 + (Math.random() - 0.5) * 0.08;
+      const src = this.ctx.createBufferSource();
+      src.buffer = this.noiseBuffer;
+      const bpf = this.ctx.createBiquadFilter();
+      bpf.type = "bandpass";
+      bpf.frequency.setValueAtTime(1050 + Math.random() * 550, clapTime);
+      bpf.Q.setValueAtTime(3.4, clapTime);
+      const g = this.ctx.createGain();
+      const vol = 0.10 + Math.random() * 0.18;
+      g.gain.setValueAtTime(0.001, clapTime);
+      g.gain.linearRampToValueAtTime(vol, clapTime + 0.003);
+      g.gain.exponentialRampToValueAtTime(0.001, clapTime + 0.038);
+      src.connect(bpf);
+      bpf.connect(g);
+      g.connect(this.ctx.destination);
+      src.start(clapTime);
+      src.stop(clapTime + 0.045);
+    }
   }
 
   // Hollow aluminum goalpost clang with authentic inharmonic overtones
@@ -603,7 +710,7 @@ const audio = new ModernStadiumAudio();
 // ============================================================================
 // STATE & IMAGE ASSETS
 // ============================================================================
-let currentLang = localStorage.getItem("efoo_lang") || "en";
+let currentLang = localStorage.getItem("efoo_game_lang") || "en";
 let connectedAddress = localStorage.getItem("efoo_wallet_address") || "";
 let connectedProvider = localStorage.getItem("efoo_wallet_provider") || "";
 let wcSignClient = null;
@@ -1020,7 +1127,8 @@ function getAvailableStrikers() {
         name: (n.name || n.identifier).toUpperCase(),
         rarity: rInfo.id.toUpperCase(),
         ovr: 85 + rInfo.slots * 3,
-        trait: `⭐ ${rInfo.nameHu} • ${rInfo.slots} KÉPESSÉG HELY`,
+        trait: `⭐ ${rInfo.name} • ${rInfo.slots} SKILL SLOTS`,
+        traitHu: `⭐ ${rInfo.nameHu} • ${rInfo.slots} KÉPESSÉG HELY`,
         traitRo: `⭐ ${rInfo.name} • ${rInfo.slots} SLOT-URI`,
         url: (n.media && n.media[0] && (n.media[0].url || n.media[0].thumbnailUrl)) || n.url
       };
@@ -1045,7 +1153,8 @@ function getAvailableKeepers() {
         jersey: String(n.nonce || "01").padStart(2, "0"),
         rarity: rInfo.id.toUpperCase(),
         ovr: 85 + rInfo.slots * 3,
-        trait: `🧤 ${rInfo.nameHu} • ${rInfo.slots} KÉPESSÉG HELY`,
+        trait: `🧤 ${rInfo.name} • ${rInfo.slots} SKILL SLOTS`,
+        traitHu: `🧤 ${rInfo.nameHu} • ${rInfo.slots} KÉPESSÉG HELY`,
         traitRo: `🧤 ${rInfo.name} • ${rInfo.slots} SLOT-URI`,
         url: (n.media && n.media[0] && (n.media[0].url || n.media[0].thumbnailUrl)) || n.url
       };
@@ -1090,7 +1199,7 @@ function updateStrikerCardAssets(idx) {
   if (startOvr) startOvr.textContent = String(activeStriker.ovr || 85);
   if (startTrait) startTrait.textContent = activeStriker.trait;
   if (startRarity) {
-    startRarity.textContent = (currentLang === "hu" ? rInfo.nameHu : rInfo.name);
+    startRarity.textContent = rInfo.name;
     startRarity.className = `sh-rarity-badge rarity-${rInfo.id}`;
   }
   if (startPreview) {
@@ -1101,7 +1210,7 @@ function updateStrikerCardAssets(idx) {
       const unlocked = i < rInfo.slots;
       span.className = `sk-pill ${unlocked ? "active" : "locked"}`;
       span.textContent = unlocked ? icons[i] : "🔒";
-      span.title = unlocked ? `Feloldva (${rInfo.name})` : `Zárolva (Következő ritkaság szükséges)`;
+      span.title = unlocked ? `Unlocked (${rInfo.name})` : `Locked (Requires higher rarity)`;
       startPreview.appendChild(span);
     }
   }
@@ -1135,7 +1244,7 @@ function updateKeeperAssets(idx) {
   if (startKOvr) startKOvr.textContent = String(activeKeeper.ovr || 85);
   if (startKTrait) startKTrait.textContent = activeKeeper.trait;
   if (startKRarity) {
-    startKRarity.textContent = (currentLang === "hu" ? rInfo.nameHu : rInfo.name);
+    startKRarity.textContent = rInfo.name;
     startKRarity.className = `sh-rarity-badge rarity-${rInfo.id}`;
   }
   if (startKPreview) {
@@ -1146,7 +1255,7 @@ function updateKeeperAssets(idx) {
       const unlocked = i < rInfo.slots;
       span.className = `sk-pill ${unlocked ? "active" : "locked"}`;
       span.textContent = unlocked ? kIcons[i] : "🔒";
-      span.title = unlocked ? `Feloldva (${rInfo.name})` : `Zárolva (Következő ritkaság szükséges)`;
+      span.title = unlocked ? `Unlocked (${rInfo.name})` : `Locked (Requires higher rarity)`;
       startKPreview.appendChild(span);
     }
   }
@@ -1247,9 +1356,9 @@ function updateEntryGateUI() {
       ? "Joci gratuit cu jucători Rookie. Conectează portofelul MultiversX pentru super-puteri și multiplicator NFT!"
       : (currentLang === "hu"
         ? "Ingyenesen játszol Rookie játékosokkal. Csatlakoztass tárcát az NFT képességek és szorzók aktiválásához!"
-        : "Playing free with Rookie squad. Connect MultiversX wallet to unlock super skills and NFT multipliers!");
+        : "Play free with your Rookie squad! Connect your MultiversX wallet to unlock Club NFTs, super skills & score multipliers.");
     startBtn.classList.remove("locked");
-    startBtn.innerHTML = `⚽ <span>${currentLang === "hu" ? "120' BÜNTETŐPÁRBAJ INDÍTÁSA" : (isRo ? "START PENALTY SHOOTOUT" : "START SHOOTOUT")}</span>`;
+    startBtn.innerHTML = `⚽ <span>START 120' PENALTY SHOOTOUT</span>`;
     return;
   }
 
@@ -1264,7 +1373,7 @@ function updateEntryGateUI() {
       ? `Portofel: <strong>${shortErd(connectedAddress)}</strong> • Se verifică soldul $EFOO și NFT-urile...`
       : `Wallet: <strong>${shortErd(connectedAddress)}</strong> • Checking $EFOO balance &amp; NFTs...`;
     startBtn.classList.remove("locked");
-    startBtn.innerHTML = `⚽ <span>${currentLang === "hu" ? "120' BÜNTETŐPÁRBAJ INDÍTÁSA" : "START SHOOTOUT"}</span>`;
+    startBtn.innerHTML = `⚽ <span>START 120' PENALTY SHOOTOUT</span>`;
     return;
   }
 
@@ -1283,7 +1392,7 @@ function updateEntryGateUI() {
     : `Wallet: <strong>${shortErd(connectedAddress)}</strong> • Balance: <strong>${balFormatted} $EFOO</strong> • Squad: <strong>${walletState.playersCount}⚽ ${walletState.keepersCount}🧤 (${p.totalMult.toFixed(1)}x Boost)</strong>`;
 
   startBtn.classList.remove("locked");
-  startBtn.innerHTML = `⚽ <span>${currentLang === "hu" ? "120' BÜNTETŐPÁRBAJ INDÍTÁSA" : (isRo ? "START PENALTY SHOOTOUT" : "START SHOOTOUT")}</span>`;
+  startBtn.innerHTML = `⚽ <span>START 120' PENALTY SHOOTOUT</span>`;
 }
 
 function refreshHudUI() {
@@ -1329,7 +1438,7 @@ function refreshHudUI() {
       span.className = "shot-dot";
       if (i < game.userShotHistory.length) {
         span.classList.add(game.userShotHistory[i]);
-      } else if (i === game.userShotHistory.length && game.shootoutTurn === "shoot" && game.phase !== "summary") {
+      } else if (i === game.userShotHistory.length && game.shootoutTurn === "shoot" && game.phase !== "summary" && game.phase !== "match_result") {
         span.classList.add("current");
       }
       userDotsWrap.appendChild(span);
@@ -1345,7 +1454,7 @@ function refreshHudUI() {
       span.className = "shot-dot";
       if (i < game.aiShotHistory.length) {
         span.classList.add(game.aiShotHistory[i]);
-      } else if (i === game.aiShotHistory.length && game.shootoutTurn === "defend" && game.phase !== "summary") {
+      } else if (i === game.aiShotHistory.length && game.shootoutTurn === "defend" && game.phase !== "summary" && game.phase !== "match_result") {
         span.classList.add("current");
       }
       aiDotsWrap.appendChild(span);
@@ -1468,7 +1577,7 @@ function launchMatchWithIntro() {
 
 function startNextShotRound() {
   game.shootoutTurn = "shoot";
-  game.phase = "aim";
+  game.phase = "shoot_ready";
   game.isCharging = false;
   game.chargePower = 0;
   game.armed = {};
@@ -1489,8 +1598,27 @@ function startNextShotRound() {
   // Wind (from level 6) pushes the ball sideways
   game.wind = lv.windMax > 0 ? (Math.random() * 2 - 1) * lv.windMax : 0;
 
+  game.bigBanner = `⚽ ROUND ${game.round} • GET READY!`;
+  game.bigBannerColor = "#a8ff00";
+
   refreshHudUI();
   renderSkillsDeckUI();
+
+  // ~1s initial pause, then referee whistles, then ~0.8s dramatic pause before aim phase begins
+  setTimeout(() => {
+    if (game.phase !== "shoot_ready") return;
+    audio.playWhistle();
+    game.bigBanner = "🎺 REFEREE WHISTLES! READY TO SHOOT!";
+    game.bigBannerColor = "#ffffff";
+
+    setTimeout(() => {
+      if (game.phase !== "shoot_ready") return;
+      game.phase = "aim";
+      game.bigBanner = "";
+      game.lastInteractionTime = Date.now();
+      refreshHudUI();
+    }, 850);
+  }, 1000);
 }
 
 function consumeArmedSkills() {
@@ -1712,7 +1840,7 @@ function releaseAndFireShot(finalPower, swipeCurve = 0, customTarget = null) {
     postIn: outcome.postIn,
     keeperAnticipated: outcome.keeperAnticipated,
     keeperWrongFooted: outcome.keeperWrongFooted,
-    speed: isWeak ? 0.8 : isSweet ? 1.05 : 1.15,
+    speed: isWeak ? 0.026 : isSweet ? 0.035 : 0.040,
     fx
   };
 }
@@ -1722,8 +1850,6 @@ function onBallReachGoal(endScreenX, endScreenY) {
   const lv = getLevelParams(game.level);
   const b = game.ball;
   const fx = b.fx || {};
-  const isRo = currentLang === "ro";
-  const isHu = currentLang === "hu";
   let scored = b.result === "goal";
   let shieldTriggered = false;
 
@@ -1780,7 +1906,7 @@ function onBallReachGoal(endScreenX, endScreenY) {
     game.bigBanner = shieldTriggered
       ? `🧤 SHIELD RICOCHET GOAL! +${pts}`
       : b.keeperWrongFooted
-      ? (isHu ? `⚡ ÁTJÁRTAD A KAPUS ESZÉT! +${pts}` : isRo ? `⚡ PĂCĂLIT! PE PICIOARE GREȘITE! +${pts}` : `⚡ WRONG-FOOTED THE KEEPER! +${pts}`)
+      ? `⚡ WRONG-FOOTED THE KEEPER! +${pts}`
       : fx.power || p.hasRocket
       ? `🔥 ROCKET FIREBALL BURNS NET! +${pts}`
       : b.postIn
@@ -1791,10 +1917,11 @@ function onBallReachGoal(endScreenX, endScreenY) {
       ? `⚡ 2x TWIN ROCKET GOAL! +${pts}`
       : b.hitBullseye
       ? `⭐ 2x BULLSEYE TOP BINS! +${pts}`
-      : `⚽ GOOOOL! +${pts}`;
+      : `⚽ GOAL! +${pts}`;
     game.bigBannerColor = fx.power || p.hasRocket ? "#ff3b00" : (shieldTriggered || b.hitBullseye || fx.gold || b.keeperWrongFooted ? "#ffb800" : "#a8ff00");
 
     audio.playGoalCheer();
+    audio.playApplause();
     spawnSparks(endScreenX, endScreenY, "#a8ff00", 55);
   } else {
     game.streak = 0;
@@ -1802,15 +1929,15 @@ function onBallReachGoal(endScreenX, endScreenY) {
     game.shotHistory.push("miss");
     game.shake = 6;
     const missText = {
-      wide: isHu ? "↗ MELLÉ!" : (isRo ? "↗ PE LÂNGĂ POARTĂ!" : "↗ WIDE!"),
-      over: isHu ? "☁️ FÖLÉ!" : (isRo ? "☁️ PESTE BARĂ!" : "☁️ OVER THE BAR!"),
-      post: isHu ? "💥 KAPUFA!" : (isRo ? "💥 ÎN BARĂ!" : "💥 OFF THE POST!"),
-      bar: isHu ? "💥 FELSŐLÉC!" : (isRo ? "💥 ÎN TRAVERSĂ!" : "💥 CROSSBAR!"),
+      wide: "↗ WIDE OF THE POST!",
+      over: "☁️ OVER THE CROSSBAR!",
+      post: "💥 OFF THE POST!",
+      bar: "💥 OFF THE CROSSBAR!",
       save: b.keeperAnticipated
-        ? (isHu ? "🧤 A KAPUS KISZÁMÍTOTTA A SARKOT!" : isRo ? "🧤 A GHICIT COLȚUL!" : "🧤 KEEPER ANTICIPATED YOUR CORNER!")
+        ? "🧤 KEEPER ANTICIPATED YOUR CORNER!"
         : b.isWeak
-        ? (isHu ? "🐢 TÚL GYENGE LÖVÉS - KÖNNYŰ VÉDÉS!" : isRo ? "🐢 ȘUT PREA SLAB - PRINSĂ UȘOR!" : "🐢 TOO WEAK - EASY CATCH!")
-        : (isHu ? `🧤 ${activeKeeper.name} VÉDETT!` : isRo ? `🧤 APĂRAT DE ${activeKeeper.name}!` : `🧤 SAVED BY ${activeKeeper.name}!`)
+        ? "🐢 TOO WEAK - EASY CATCH!"
+        : `🧤 SAVED BY ${activeKeeper.name}!`
     };
     game.bigBanner = missText[b.result] || "❌ MISS!";
     game.bigBannerColor = "#ef4444";
@@ -1826,20 +1953,17 @@ function onBallReachGoal(endScreenX, endScreenY) {
     game.bigBanner = "";
     // After user's kick, transition to defense turn!
     startDefenseTurn();
-  }, 1250);
+  }, 1600);
 }
 
 function startDefenseTurn() {
   game.shootoutTurn = "defend";
-  game.phase = "defend_aim";
+  game.phase = "defend_ready";
   game.isCharging = false;
   game.chargePower = 0;
   game.armed = {};
   game.activeFx = {};
   game.ball = { active: false, t: 0 };
-
-  const isHu = currentLang === "hu";
-  const isRo = currentLang === "ro";
 
   // AI chooses a target across the goal corners/sides
   const corners = [
@@ -1862,19 +1986,26 @@ function startDefenseTurn() {
   game.keeper.targetAngle = 0;
   game.keeper.armReach = 0.35;
 
-  game.bigBanner = isHu
-    ? "🧤 TE VÉDESZ! KATTINTS A KAPURA A VÉDÉSHEZ!"
-    : (isRo ? "🧤 APĂRĂ! APASĂ PE POARTĂ PENTRU PARADĂ!" : "🧤 YOU DEFEND! CLICK/TAP TO DIVE & SAVE!");
+  game.bigBanner = `🧤 ROUND ${game.round} • YOU DEFEND!`;
   game.bigBannerColor = "#38bdf8";
 
   refreshHudUI();
   renderSkillsDeckUI();
 
-  // After brief warning, AI shoots
+  // ~1s initial pause, then referee whistles, then ~0.8s dramatic pause before AI shoots
   setTimeout(() => {
-    game.bigBanner = "";
-    executeAiShot();
-  }, 1200);
+    if (game.phase !== "defend_ready") return;
+    audio.playWhistle();
+    game.bigBanner = "🎺 REFEREE WHISTLES! OPPONENT RUNNING UP!";
+    game.bigBannerColor = "#ffffff";
+
+    setTimeout(() => {
+      if (game.phase !== "defend_ready") return;
+      game.bigBanner = "";
+      game.lastInteractionTime = Date.now();
+      executeAiShot();
+    }, 850);
+  }, 1000);
 }
 
 function executeAiShot() {
@@ -1910,15 +2041,13 @@ function executeAiShot() {
     curveIntensity: (Math.random() - 0.5) * 0.45,
     isSweet: Math.random() < 0.5,
     isTwin: false,
-    speed: fx.matrix_reflex ? 0.021 : 0.044,
+    speed: fx.matrix_reflex ? 0.016 : 0.030,
     fx
   };
 }
 
 function onAiBallReachGoal(endScreenX, endScreenY) {
   const fx = game.activeFx || {};
-  const isHu = currentLang === "hu";
-  const isRo = currentLang === "ro";
 
   const ballNx = game.ball.aimNx;
   const ballNy = game.ball.aimNy;
@@ -1934,9 +2063,10 @@ function onAiBallReachGoal(endScreenX, endScreenY) {
   if (isSaved) {
     game.aiShotHistory.push("miss");
     audio.playSaveBlock();
+    audio.playApplause();
     spawnSparks(endScreenX, endScreenY, "#38bdf8", 50);
     game.shake = 12;
-    game.bigBanner = isHu ? "🧤 HATALMAS VÉDÉS! KIVÉDTED A BÜNTETŐT!" : (isRo ? "🧤 PARADĂ DE SENZAȚIE!" : "🧤 MONSTER SAVE! PENALTY SAVED!");
+    game.bigBanner = "🧤 MONSTER SAVE! PENALTY SAVED!";
     game.bigBannerColor = "#38bdf8";
   } else {
     game.aiGoals += 1;
@@ -1946,7 +2076,7 @@ function onAiBallReachGoal(endScreenX, endScreenY) {
     game.netImpactY = endScreenY;
     game.netRipple = 0.9;
     game.shake = 8;
-    game.bigBanner = isHu ? "⚽ A GÉP GÓLT LŐTT!" : (isRo ? "⚽ GOL ADVERSAR!" : "⚽ AI SCORED!");
+    game.bigBanner = "⚽ CPU SCORED!";
     game.bigBannerColor = "#ef4444";
   }
 
@@ -1964,15 +2094,58 @@ function onAiBallReachGoal(endScreenX, endScreenY) {
   }, 1350);
 }
 
-// End of the shoot-out: directly open match summary without blocking delay
+// End of the shoot-out: show a WIN / LOSS / DRAW notification, then open the summary window
 function finishMatch() {
+  if (game.phase === "match_result" || game.phase === "summary") return;
+  game.phase = "match_result";
+  game.isCharging = false;
+  game.bigBanner = "";
+
+  const userWon = game.userGoals > game.aiGoals;
+  const isTie = game.userGoals === game.aiGoals;
+  game.matchResult = {
+    kind: userWon ? "win" : isTie ? "draw" : "loss",
+    title: userWon ? "VICTORY!" : isTie ? "DRAW!" : "DEFEAT!",
+    sub: userWon
+      ? "YOU WON THE SHOOTOUT"
+      : isTie
+      ? "THE SHOOTOUT ENDS LEVEL"
+      : "THE CPU WON THE SHOOTOUT",
+    score: `${game.userGoals} - ${game.aiGoals}`,
+    color: userWon ? "#a8ff00" : isTie ? "#ffb800" : "#ef4444",
+    startedAt: performance.now(),
+  };
+
   try {
-    openSummaryModal();
-  } catch (err) {
-    console.error("Error in openSummaryModal:", err);
-    document.getElementById("summary-screen-overlay")?.classList.remove("hidden");
+    audio.playWhistle();
+    if (userWon) {
+      audio.playGoalCheer();
+      audio.playApplause();
+      spawnSparks(W * 0.5, H * 0.4, "#a8ff00", 70);
+      spawnSparks(W * 0.5 - 120, H * 0.45, "#ffb800", 40);
+      spawnSparks(W * 0.5 + 120, H * 0.45, "#ffb800", 40);
+    } else if (isTie) {
+      audio.playApplause();
+    } else {
+      audio.playDefeat();
+    }
+  } catch (e) {
+    console.error("Result sound error:", e);
   }
+  refreshHudUI();
+
+  setTimeout(() => {
+    if (game.phase !== "match_result") return;
+    game.matchResult = null;
+    try {
+      openSummaryModal();
+    } catch (err) {
+      console.error("Error in openSummaryModal:", err);
+      document.getElementById("summary-screen-overlay")?.classList.remove("hidden");
+    }
+  }, 2600);
 }
+
 
 function openVarReviveOverlay() {
   game.phase = "var_review";
@@ -2320,6 +2493,7 @@ function initFullscreenStadiumCanvas() {
   function onPointerDown(e) {
     if (!canPlayMatch()) return;
     if (e.pointerType === "mouse" && e.button !== 0) return;
+    game.lastInteractionTime = Date.now();
 
     if (game.shootoutTurn === "defend") {
       const pos = getCanvasPos(e);
@@ -2353,6 +2527,7 @@ function initFullscreenStadiumCanvas() {
 
   function onPointerMove(e) {
     if (!canPlayMatch()) return;
+    game.lastInteractionTime = Date.now();
     const pos = getCanvasPos(e);
 
     if (game.shootoutTurn === "defend" && (game.phase === "defend_aim" || game.phase === "defend_flight")) {
@@ -2917,69 +3092,6 @@ function initFullscreenStadiumCanvas() {
     const ky = g.goalBottom - 44 - game.keeper.ny * (g.goalH * 0.62);
     drawArticulatedGoalkeeper(ctx, kx, ky, game.keeper.bodyAngle, game.keeper.armReach, isKeeperFrozen);
 
-    // 7. LIVE 3D CURVED LASER TRAJECTORY & CROSSHAIR (When Aiming or Charging)
-    const curAimNx = game.aimNx + game.swayX;
-    const curAimNy = game.aimNy + game.swayY;
-    const aimScreenX = g.cx + curAimNx * (g.goalW * 0.5);
-    const aimScreenY = g.goalBottom - curAimNy * g.goalH;
-
-    if (game.phase === "aim" || game.phase === "charging") {
-      const curveMul = fx.curve ? 1.6 : 1.0;
-      const curveBend = (p.hasCurve ? 110 : 45) * curveMul * (curAimNx >= 0 ? -1 : 1);
-      const ctrlX = (g.spotX + aimScreenX) * 0.5 + curveBend;
-      const ctrlY = (g.spotY + aimScreenY) * 0.5 - 65;
-
-      // Draw glowing trajectory arc dots
-      for (let i = 1; i <= 14; i++) {
-        const u = i / 15;
-        const iu = 1 - u;
-        const tx = iu * iu * g.spotX + 2 * iu * u * ctrlX + u * u * aimScreenX;
-        const ty = iu * iu * g.spotY + 2 * iu * u * ctrlY + u * u * aimScreenY;
-        let arcColor = "#a8ff00";
-        if (fx.power || p.hasRocket) arcColor = "#ff5500";
-        else if (fx.curve) arcColor = "#c084fc";
-        else if (fx.freeze) arcColor = "#67e8f9";
-        else if (fx.gold) arcColor = "#ffb800";
-        ctx.fillStyle = arcColor;
-        ctx.globalAlpha = 0.25 + u * 0.65;
-        ctx.beginPath();
-        ctx.arc(tx, ty, (1 - u * 0.5) * 5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-
-      // Draw Crosshair Reticle at Aim Point with Out-of-bounds Detection
-      ctx.save();
-      ctx.translate(aimScreenX, aimScreenY);
-      const isOutOfBounds = Math.abs(curAimNx) > 1.0 || curAimNy > 1.0 || curAimNy < 0;
-      ctx.strokeStyle = isOutOfBounds ? "#ef4444" : (fx.steady ? "#38bdf8" : "#a8ff00");
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.arc(0, 0, 18, 0, Math.PI * 2);
-      ctx.moveTo(-24, 0);
-      ctx.lineTo(-10, 0);
-      ctx.moveTo(10, 0);
-      ctx.lineTo(24, 0);
-      ctx.moveTo(0, -24);
-      ctx.lineTo(0, -10);
-      ctx.moveTo(0, 10);
-      ctx.lineTo(0, 24);
-      ctx.stroke();
-
-      if (isOutOfBounds) {
-        ctx.fillStyle = "#ef4444";
-        ctx.font = "800 10px 'JetBrains Mono', monospace";
-        ctx.textAlign = "center";
-        ctx.fillText(curAimNy > 1.0 ? "OVER BAR!" : "WIDE!", 0, -28);
-      } else if (fx.steady) {
-        ctx.fillStyle = "#38bdf8";
-        ctx.font = "800 10px 'JetBrains Mono', monospace";
-        ctx.textAlign = "center";
-        ctx.fillText("🎯 STEADY", 0, -28);
-      }
-      ctx.restore();
-    }
-
     // 7B. LIVE SWIPE-TO-SHOOT TRAIL RIBBON (Drawn by player's finger or mouse)
     if (game.phase === "aim" && game.swipe && game.swipe.active && game.swipe.points && game.swipe.points.length >= 2) {
       const pts = game.swipe.points;
@@ -3029,60 +3141,143 @@ function initFullscreenStadiumCanvas() {
       ctx.stroke();
       ctx.restore();
     } else if ((game.phase === "aim" || game.phase === "defend_aim") && (!game.swipe || !game.swipe.active)) {
-      // 7C. PULSING SWIPE TUTORIAL GUIDE ARROW & INSTRUCTION PILL
-      const isRo = currentLang === "ro";
-      const isHu = currentLang === "hu";
-      const guideTxt = game.shootoutTurn === "defend"
-        ? (isHu ? "🧤 KATTINTS A KAPURA A VÉDÉSHEZ!" : (isRo ? "🧤 APASĂ PE POARTĂ PENTRU PARADĂ!" : "🧤 CLICK / TAP THE GOAL TO DIVE & SAVE!"))
-        : (isHu ? "👆 LENDÍTSD MEG A LABDÁT A KAPU FELÉ!" : (isRo ? "👆 TRAGE SPRE POARTĂ PENTRU ȘUT!" : "👆 SWIPE FROM BALL TO GOAL TO SHOOT!"));
+      // 7C. IDLE TUTORIAL GESTURE (Finger on Phone vs Mouse on PC after 2.5s inactivity)
+      const now = Date.now();
+      const idleTime = now - (game.lastInteractionTime || 0);
 
-      const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.0055);
-      const arrowTopY = g.spotY - 72 - pulse * 28;
+      if (idleTime > 2500) {
+        const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 768);
+        const cycle = ((idleTime - 2500) % 2200) / 2200; // 2.2s repeat loop
 
-      ctx.save();
-      // Dashed guide beam
-      ctx.strokeStyle = `rgba(168, 255, 0, ${0.35 + pulse * 0.45})`;
-      ctx.lineWidth = 2.8;
-      ctx.setLineDash([7, 6]);
-      ctx.lineDashOffset = -Date.now() * 0.025;
-      ctx.beginPath();
-      ctx.moveTo(g.spotX, g.spotY - 22);
-      ctx.lineTo(g.spotX, arrowTopY);
-      ctx.stroke();
-      ctx.setLineDash([]);
+        ctx.save();
 
-      // Arrowhead
-      ctx.fillStyle = `rgba(168, 255, 0, ${0.65 + pulse * 0.35})`;
-      ctx.shadowColor = "#a8ff00";
-      ctx.shadowBlur = 10;
-      ctx.beginPath();
-      ctx.moveTo(g.spotX, arrowTopY - 10);
-      ctx.lineTo(g.spotX - 8, arrowTopY + 3);
-      ctx.lineTo(g.spotX + 8, arrowTopY + 3);
-      ctx.closePath();
-      ctx.fill();
-      ctx.shadowBlur = 0;
+        if (game.shootoutTurn === "shoot" && game.phase === "aim") {
+          const startX = g.spotX;
+          const startY = g.spotY;
+          const targetX = g.cx + g.goalW * 0.35;
+          const targetY = g.goalTop + g.goalH * 0.28;
+          const ctrlX = (startX + targetX) * 0.5 + 40;
+          const ctrlY = (startY + targetY) * 0.5 - 35;
 
-      // Instruction pill under the ball
-      ctx.font = "800 11px 'JetBrains Mono', monospace";
-      ctx.textAlign = "center";
-      const pillW = ctx.measureText(guideTxt).width + 30;
-      const pillY = Math.min(H - 42, g.spotY + 32);
+          let prog = 0;
+          let alpha = 1;
+          let isPressed = false;
 
-      ctx.fillStyle = "rgba(4, 12, 7, 0.88)";
-      ctx.strokeStyle = `rgba(168, 255, 0, ${0.45 + pulse * 0.5})`;
-      ctx.lineWidth = 1.3;
-      ctx.shadowColor = "rgba(168, 255, 0, 0.3)";
-      ctx.shadowBlur = 12;
-      ctx.beginPath();
-      ctx.roundRect(g.spotX - pillW / 2, pillY, pillW, 26, 13);
-      ctx.fill();
-      ctx.stroke();
-      ctx.shadowBlur = 0;
+          if (cycle < 0.18) {
+            prog = 0;
+            alpha = cycle / 0.18;
+            isPressed = cycle > 0.08;
+          } else if (cycle < 0.78) {
+            const u = (cycle - 0.18) / 0.60;
+            prog = 1 - Math.pow(1 - u, 2.5);
+            alpha = 1;
+            isPressed = true;
+          } else if (cycle < 0.92) {
+            prog = 1;
+            alpha = 1 - (cycle - 0.78) / 0.14;
+            isPressed = false;
+          } else {
+            alpha = 0;
+          }
 
-      ctx.fillStyle = "#a8ff00";
-      ctx.fillText(guideTxt, g.spotX, pillY + 17);
-      ctx.restore();
+          if (alpha > 0.02) {
+            ctx.globalAlpha = alpha;
+
+            // Draw faint glowing path of the demonstration swipe
+            if (prog > 0.02) {
+              ctx.strokeStyle = "rgba(168, 255, 0, 0.4)";
+              ctx.lineWidth = 3.5;
+              ctx.lineCap = "round";
+              ctx.shadowColor = "#a8ff00";
+              ctx.shadowBlur = 10;
+              ctx.beginPath();
+              ctx.moveTo(startX, startY);
+              const steps = Math.floor(prog * 18);
+              for (let s = 1; s <= steps; s++) {
+                const su = s / 18;
+                const isu = 1 - su;
+                const px = isu * isu * startX + 2 * isu * su * ctrlX + su * su * targetX;
+                const py = isu * isu * startY + 2 * isu * su * ctrlY + su * su * targetY;
+                ctx.lineTo(px, py);
+              }
+              ctx.stroke();
+              ctx.shadowBlur = 0;
+            }
+
+            // Current gesture tip position
+            const iu = 1 - prog;
+            const curX = iu * iu * startX + 2 * iu * prog * ctrlX + prog * prog * targetX;
+            const curY = iu * iu * startY + 2 * iu * prog * ctrlY + prog * prog * targetY;
+
+            // Ripple pulse at start
+            if (prog < 0.22) {
+              const ripR = 10 + prog * 45;
+              ctx.strokeStyle = `rgba(168, 255, 0, ${0.7 - prog * 2.8})`;
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.arc(startX, startY, ripR, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+
+            if (isTouch) {
+              drawTutorialFinger(ctx, curX, curY, isPressed);
+            } else {
+              drawTutorialMouse(ctx, curX, curY, isPressed);
+            }
+
+            // High-visibility instruction pill
+            const hintTxt = isTouch ? "👆 SWIPE FROM BALL TO GOAL TO SHOOT!" : "🖱️ HOLD CLICK & DRAG UP TO SHOOT!";
+            ctx.font = "800 12px 'JetBrains Mono', monospace";
+            ctx.textAlign = "center";
+            const pillW = ctx.measureText(hintTxt).width + 36;
+            const pillY = Math.min(H - 45, g.spotY + 36);
+
+            ctx.fillStyle = "rgba(4, 12, 7, 0.92)";
+            ctx.strokeStyle = "rgba(168, 255, 0, 0.65)";
+            ctx.lineWidth = 1.5;
+            ctx.shadowColor = "rgba(168, 255, 0, 0.4)";
+            ctx.shadowBlur = 14;
+            ctx.beginPath();
+            ctx.roundRect(g.spotX - pillW / 2, pillY, pillW, 28, 14);
+            ctx.fill();
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = "#a8ff00";
+            ctx.fillText(hintTxt, g.spotX, pillY + 18);
+          }
+        } else if (game.shootoutTurn === "defend" && game.phase === "defend_aim") {
+          const tgtX = g.cx + game.aiTargetNx * (g.goalW * 0.5);
+          const tgtY = g.goalBottom - game.aiTargetNy * g.goalH;
+          const pulse = 0.5 + 0.5 * Math.sin(now * 0.008);
+
+          ctx.globalAlpha = 0.9;
+          if (isTouch) {
+            drawTutorialFinger(ctx, tgtX, tgtY + 14, pulse > 0.5);
+          } else {
+            drawTutorialMouse(ctx, tgtX, tgtY + 18, pulse > 0.5);
+          }
+
+          const defTxt = isTouch ? "🧤 TAP GOAL TO DIVE & SAVE!" : "🖱️ CLICK GOAL TO DIVE & SAVE!";
+          ctx.font = "800 12px 'JetBrains Mono', monospace";
+          ctx.textAlign = "center";
+          const pillW = ctx.measureText(defTxt).width + 36;
+          const pillY = Math.min(H - 45, g.spotY + 36);
+
+          ctx.fillStyle = "rgba(4, 12, 7, 0.92)";
+          ctx.strokeStyle = "rgba(56, 189, 248, 0.65)";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.roundRect(g.spotX - pillW / 2, pillY, pillW, 28, 14);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = "#38bdf8";
+          ctx.fillText(defTxt, g.spotX, pillY + 18);
+        }
+
+        ctx.restore();
+      }
     }
 
     // 7D. MIND READ HOLOGRAPHIC TARGET RADAR (DURING DEFENSE TURN)
@@ -3262,6 +3457,54 @@ function initFullscreenStadiumCanvas() {
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(game.bigBanner, g.cx, H * 0.46 + 33);
+      ctx.restore();
+    }
+
+    // 12b. FULL-SCREEN MATCH RESULT NOTIFICATION (VICTORY / DEFEAT / DRAW)
+    if (game.matchResult) {
+      const mr = game.matchResult;
+      const el = Math.min(1, (performance.now() - mr.startedAt) / 450);
+      const ease = 1 - Math.pow(1 - el, 3);
+      const pop = mr.kind === "loss" ? 1 : 1 + Math.sin(el * Math.PI) * 0.12;
+      const fadeOut = Math.max(0, Math.min(1, (2600 - (performance.now() - mr.startedAt)) / 350));
+      const cy = H * 0.44;
+      const boxW = Math.min(W - 24, 560);
+      const boxH = 190;
+      ctx.save();
+      ctx.globalAlpha = fadeOut;
+      ctx.fillStyle = `rgba(0, 0, 0, ${0.62 * ease})`;
+      ctx.fillRect(0, 0, W, H);
+      if (mr.kind === "loss") {
+        const vg = ctx.createRadialGradient(W / 2, H / 2, H * 0.25, W / 2, H / 2, H * 0.8);
+        vg.addColorStop(0, "rgba(120,0,0,0)");
+        vg.addColorStop(1, `rgba(160,0,0,${0.45 * ease})`);
+        ctx.fillStyle = vg;
+        ctx.fillRect(0, 0, W, H);
+      }
+      ctx.translate(g.cx, cy);
+      ctx.scale(ease * pop, ease * pop);
+      ctx.fillStyle = "rgba(4, 10, 7, 0.94)";
+      ctx.strokeStyle = mr.color;
+      ctx.lineWidth = 4;
+      ctx.shadowColor = mr.color;
+      ctx.shadowBlur = 36;
+      ctx.beginPath();
+      ctx.roundRect(-boxW / 2, -boxH / 2, boxW, boxH, 24);
+      ctx.fill();
+      ctx.stroke();
+      ctx.shadowBlur = 18;
+      ctx.fillStyle = mr.color;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const icon = mr.kind === "win" ? "🏆" : mr.kind === "draw" ? "⚖️" : "💔";
+      ctx.font = "46px sans-serif";
+      ctx.fillText(icon, 0, -boxH / 2 + 34);
+      ctx.font = `800 ${Math.min(76, boxW / 6.4)}px 'Bebas Neue', Impact, sans-serif`;
+      ctx.fillText(mr.title, 0, -8);
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "700 24px 'Bebas Neue', Impact, sans-serif";
+      ctx.fillText(`${mr.sub}  •  ${mr.score}`, 0, 42);
       ctx.restore();
     }
 
@@ -3516,6 +3759,100 @@ function drawPitchStrikerHologram(ctx, x, y) {
   ctx.font = "800 9px 'JetBrains Mono', monospace";
   ctx.textAlign = "center";
   ctx.fillText(activeStriker.name.slice(-4), 0, 38);
+
+  ctx.restore();
+}
+
+// Idle Demonstration Gestures: Animated Hand/Finger for Mobile Touch, Computer Mouse for Desktop PC
+function drawTutorialFinger(ctx, x, y, isPressed) {
+  ctx.save();
+  ctx.translate(x, y);
+  if (isPressed) ctx.scale(0.92, 0.92);
+
+  ctx.shadowColor = "#a8ff00";
+  ctx.shadowBlur = 16;
+
+  // Touch hand/finger silhouette
+  ctx.fillStyle = "#ffffff";
+  ctx.strokeStyle = "#a8ff00";
+  ctx.lineWidth = 2.4;
+
+  ctx.beginPath();
+  // Pointing index finger tip
+  ctx.arc(0, -20, 9, Math.PI, 0, false);
+  ctx.lineTo(9, 4);
+  // Knuckles and hand palm
+  ctx.arc(15, 14, 8, -Math.PI / 2, Math.PI / 2, false);
+  ctx.lineTo(-8, 22);
+  ctx.arc(-14, 14, 8, Math.PI / 2, -Math.PI / 2, false);
+  ctx.lineTo(-9, -20);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // Finger detail
+  ctx.fillStyle = "rgba(168, 255, 0, 0.4)";
+  ctx.beginPath();
+  ctx.ellipse(0, -20, 5, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (isPressed) {
+    ctx.strokeStyle = "#a8ff00";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, -20, 16, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawTutorialMouse(ctx, x, y, isPressed) {
+  ctx.save();
+  ctx.translate(x, y);
+  if (isPressed) ctx.scale(0.94, 0.94);
+
+  ctx.shadowColor = "#a8ff00";
+  ctx.shadowBlur = 16;
+
+  // Mouse body (rounded rectangle)
+  ctx.fillStyle = "rgba(8, 24, 15, 0.96)";
+  ctx.strokeStyle = isPressed ? "#a8ff00" : "rgba(255, 255, 255, 0.75)";
+  ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  ctx.roundRect(-14, -22, 28, 44, 14);
+  ctx.fill();
+  ctx.stroke();
+
+  // Divider line
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(0, -22);
+  ctx.lineTo(0, -4);
+  ctx.moveTo(-14, -4);
+  ctx.lineTo(14, -4);
+  ctx.stroke();
+
+  // Left click button (pressed / active)
+  if (isPressed) {
+    ctx.fillStyle = "#a8ff00";
+    ctx.beginPath();
+    ctx.roundRect(-13, -21, 12, 16, [12, 0, 0, 0]);
+    ctx.fill();
+
+    // Click pulse ring
+    ctx.strokeStyle = "#a8ff00";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(-7, -13, 16, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  // Scroll wheel
+  ctx.fillStyle = isPressed ? "#ffffff" : "#ffb800";
+  ctx.beginPath();
+  ctx.roundRect(-2.5, -14, 5, 10, 2.5);
+  ctx.fill();
 
   ctx.restore();
 }

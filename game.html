@@ -48,13 +48,13 @@
         <div class="tv-scorebug">
           <div class="sb-club">
             <img src="branding/original/assests-2022/logo.png" alt="$EFOO" />
-            <span id="sb-turn-badge" class="sb-turn-badge">⚽ TE LŐSZ</span>
+            <span id="sb-turn-badge" class="sb-turn-badge">⚽ YOU SHOOT</span>
           </div>
 
-          <!-- Dual Team Shootout Dots: YOU vs AI -->
+          <!-- Dual Team Shootout Dots: YOU vs CPU -->
           <div class="sb-shootout-score">
             <div class="sb-team-score you">
-              <span class="sb-team-lbl">TE</span>
+              <span class="sb-team-lbl">YOU</span>
               <strong id="hud-user-goals">0</strong>
               <div class="sb-dots" id="sb-user-dots">
                 <span class="shot-dot current"></span>
@@ -67,7 +67,7 @@
             <span class="sb-score-divider">-</span>
             <div class="sb-team-score ai">
               <strong id="hud-ai-goals">0</strong>
-              <span class="sb-team-lbl">AI</span>
+              <span class="sb-team-lbl">CPU</span>
               <div class="sb-dots" id="sb-ai-dots">
                 <span class="shot-dot"></span>
                 <span class="shot-dot"></span>
@@ -98,7 +98,7 @@
       <!-- Center: Live 120' AET Shootout Match Status -->
       <div class="hud-center-group">
         <div class="hud-fomo-pill" id="open-pot-pill" title="Click to enter 120' Shootout Pot & Vault">
-          <span class="fomo-timer-badge">⚽ 120' DÖNTETLEN</span>
+          <span class="fomo-timer-badge">⚽ 120' TIE-BREAK</span>
           <span class="fomo-pot-val" id="fomo-pot-amount">🏆 25,400,000 $EFOO</span>
         </div>
       </div>
@@ -211,132 +211,141 @@
     </footer>
 
     <!-- ===================================================================
-         OVERLAY 1: GATED ARCADE START SCREEN (LOGIN + MIN 1,000,000 $EFOO)
+         OVERLAY 1: GATED ARCADE START SCREEN (PRE-MATCH LOCKER ROOM)
          =================================================================== -->
     <div class="arcade-overlay" id="start-screen-overlay">
-      <div class="start-top-bar">
-        <a href="index.html" class="start-exit-btn" id="start-exit-btn" title="Back to EFOO Homepage">
-          ⬅ EXIT TO HOME
-        </a>
-      </div>
-      <!-- INTERACTIVE PRE-MATCH LOCKER ROOM (STRIKER & KEEPER SELECTION) -->
-      <div class="start-hero-cards">
-        <!-- 1. Striker Selector Card -->
-        <div class="sh-nft-card" id="select-striker-card">
-          <div class="sh-card-nav">
-            <button type="button" class="sh-nav-btn" id="prev-striker-btn" title="Előző csatár">◀</button>
-            <span class="sh-card-role">⚽ CSATÁR (STRIKER)</span>
-            <button type="button" class="sh-nav-btn" id="next-striker-btn" title="Következő csatár">▶</button>
-          </div>
-          <div class="sh-card-media-wrap">
-            <img id="start-striker-img" src="branding/original/EFOOTBALL-91a4eb/logo.png" alt="Striker NFT" />
-            <span class="sh-rarity-badge rarity-legendary" id="start-striker-rarity">LEGENDARY</span>
-            <span class="sh-ovr-badge" id="start-striker-ovr">99</span>
-          </div>
-          <strong class="sh-card-name" id="start-striker-name">ELRONDFOOTBALL #619</strong>
-          <small class="sh-card-trait" id="start-striker-trait">👽 ALIEN STRIKER • 4 KÉPESSÉG</small>
-          <div class="sh-skills-preview" id="start-striker-skills-preview">
-            <span class="sk-pill active">🎯</span>
-            <span class="sk-pill active">🚀</span>
-            <span class="sk-pill active">❄️</span>
-            <span class="sk-pill active">🌀</span>
+      <div class="start-screen-container">
+
+        <!-- Top Header: Exit Home & Quick Pot Badge -->
+        <div class="start-top-bar-row">
+          <a href="index.html" class="start-exit-btn" id="start-exit-btn" title="Back to EFOO Homepage">
+            ⬅ EXIT TO HOME
+          </a>
+          <div class="start-pot-pill">
+            🏆 <span>25,400,000 $EFOO JACKPOT</span>
           </div>
         </div>
 
-        <!-- Center 120' Shootout Trophy Emblem -->
-        <div class="sh-center-divider">
-          <img src="branding/original/assests-2022/logo.png" alt="$EFOO Rocket Ball" class="sh-center-ball" />
-          <span class="sh-vs-badge">120' DÖNTETLEN</span>
-        </div>
-
-        <!-- 2. Goalkeeper Selector Card -->
-        <div class="sh-nft-card keeper" id="select-keeper-card">
-          <div class="sh-card-nav">
-            <button type="button" class="sh-nav-btn" id="prev-keeper-btn" title="Előző kapus">◀</button>
-            <span class="sh-card-role">🧤 KAPUS (GOALKEEPER)</span>
-            <button type="button" class="sh-nav-btn" id="next-keeper-btn" title="Következő kapus">▶</button>
-          </div>
-          <div class="sh-card-media-wrap">
-            <img id="start-keeper-img" src="branding/original/GOALKEEPER-cb9e3e/logo.png" alt="Goalkeeper NFT" />
-            <span class="sh-rarity-badge rarity-legendary" id="start-keeper-rarity">LEGENDARY</span>
-            <span class="sh-ovr-badge" id="start-keeper-ovr">99</span>
-          </div>
-          <strong class="sh-card-name" id="start-keeper-name">GOALKEEPER #2</strong>
-          <small class="sh-card-trait" id="start-keeper-trait">🧱 WALL OF DEGENS • TELEPÁTIA</small>
-          <div class="sh-skills-preview" id="start-keeper-skills-preview">
-            <span class="sk-pill active">🛡️</span>
-            <span class="sk-pill active">🧤</span>
-            <span class="sk-pill active">⏱️</span>
-            <span class="sk-pill active">👁️</span>
-          </div>
-        </div>
-      </div>
-
-      <h1 class="start-mega-title">
-        120' <span>DÖNTETLEN</span> BÜNTETŐK
-      </h1>
-
-      <div class="start-visual-steps">
-        <div class="svs-pill">⚽ <span data-i18n="step_shootout_turns">Egyszer rúgsz, egyszer védesz</span></div>
-        <div class="svs-pill">🃏 <span data-i18n="step_rarity_skills">Ritkább NFT = <strong>Több szuperképesség</strong></span></div>
-        <div class="svs-pill">🏆 <span data-i18n="step_f2p_ready">NFT nélkül is játszható: <strong>Rookie F2P</strong></span></div>
-      </div>
-
-      <!-- FREE-TO-PLAY & WALLET STATUS STRIP -->
-      <div class="entry-gate-card" id="entry-gate-card">
-        <div class="eg-status-header" id="eg-status-header">
-          <span class="eg-lock-badge" id="eg-lock-badge">⚽ 120' TIE-BREAK PENALTY SHOOTOUT • FREE-TO-PLAY ACTIVE</span>
-        </div>
-
-        <div class="eg-wallet-stats" id="eg-wallet-stats">
-          <span id="eg-wallet-line">NFT nélkül is játszhatsz Rookie szinten! Csatlakoztass tárcát saját NFT-id és szuperképességeid feloldásához.</span>
-        </div>
-
-        <!-- Optional Instant Purchase / Mint Box for Web3 players -->
-        <div class="eg-buy-offer" id="eg-buy-offer">
-          <div class="eg-buy-info">
-            <strong style="color:#a8ff00;">🎁 TÁRCA ÉS SZUPERKÉPESSÉGEK FELOLDÁSA</strong>
-            <small id="eg-buy-sub">Vásárolj $EFOO-t vagy mintej NFT játékost a szuperképességek és a 10x pontszorzó azonnali aktiválásához!</small>
-          </div>
-          <div class="eg-buy-actions">
-            <button type="button" id="gate-buy-starter-btn" class="arcade-btn neon">
-              🎁 <span>STARTER (0.035 EGLD ➔ 1.5M)</span>
-            </button>
-            <button type="button" id="gate-buy-efoo-btn" class="arcade-btn gold">
-              ⚡ <span>PRO PACK (0.1 EGLD ➔ ~3M)</span>
-            </button>
-            <button type="button" id="gate-mint-nft-btn" class="arcade-btn">
-              🃏 <span>MINT NFT (0.08 EGLD)</span>
-            </button>
-            <button type="button" id="gate-refresh-btn" class="arcade-btn hidden" title="Frissítés">
-              🔄
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- MARKETPLACE & CLUB SKILLS LOCKER (INDÍTÁS ELŐTT) -->
-      <div class="start-market-card" id="start-market-card">
-        <div class="smc-header">
-          <div class="smc-title">
-            <span class="smc-icon">🛒</span>
-            <div>
-              <strong id="start-market-title">SZUPERKÉPESSÉGEK BOLTJA (INDÍTÁS ELŐTT)</strong>
-              <small id="start-market-sub">Tölts fel szuperképességeket 10% kedvezménnyel az 5x csomagokra a büntetőpárbaj előtt!</small>
+        <!-- INTERACTIVE PRE-MATCH LOCKER ROOM (STRIKER & KEEPER SELECTION) -->
+        <div class="start-hero-cards">
+          <!-- 1. Striker Selector Card -->
+          <div class="sh-nft-card" id="select-striker-card">
+            <div class="sh-card-nav">
+              <button type="button" class="sh-nav-btn" id="prev-striker-btn" title="Previous Striker">◀</button>
+              <span class="sh-card-role">⚽ STRIKER</span>
+              <button type="button" class="sh-nav-btn" id="next-striker-btn" title="Next Striker">▶</button>
+            </div>
+            <div class="sh-card-media-wrap">
+              <img id="start-striker-img" src="branding/original/EFOOTBALL-91a4eb/logo.png" alt="Striker NFT" />
+              <span class="sh-rarity-badge rarity-legendary" id="start-striker-rarity">LEGENDARY</span>
+              <span class="sh-ovr-badge" id="start-striker-ovr">99</span>
+            </div>
+            <strong class="sh-card-name" id="start-striker-name">ELRONDFOOTBALL #619</strong>
+            <small class="sh-card-trait" id="start-striker-trait">👽 ALIEN STRIKER • 4 SKILLS</small>
+            <div class="sh-skills-preview" id="start-striker-skills-preview">
+              <span class="sk-pill active">🎯</span>
+              <span class="sk-pill active">🚀</span>
+              <span class="sk-pill active">❄️</span>
+              <span class="sk-pill active">🌀</span>
             </div>
           </div>
-          <button type="button" class="arcade-btn neon" id="start-open-store-btn">
-            <span>🛒 BOLT MEGNYITÁSA (-10%)</span>
-          </button>
-        </div>
-        <div class="smc-chips" id="start-skills-chips">
-          <!-- Dynamically populated with current owned skills -->
-        </div>
-      </div>
 
-      <button type="button" id="btn-start-match" class="btn-play-arcade">
-        ⚽ <span id="btn-start-match-label">120' BÜNTETŐPÁRBAJ INDÍTÁSA</span>
-      </button>
+          <!-- Center 120' Shootout Trophy Emblem -->
+          <div class="sh-center-divider">
+            <img src="branding/original/assests-2022/logo.png" alt="$EFOO Rocket Ball" class="sh-center-ball" />
+            <span class="sh-vs-badge">120' EXTRA TIME</span>
+          </div>
+
+          <!-- 2. Goalkeeper Selector Card -->
+          <div class="sh-nft-card keeper" id="select-keeper-card">
+            <div class="sh-card-nav">
+              <button type="button" class="sh-nav-btn" id="prev-keeper-btn" title="Previous Goalkeeper">◀</button>
+              <span class="sh-card-role">🧤 GOALKEEPER</span>
+              <button type="button" class="sh-nav-btn" id="next-keeper-btn" title="Next Goalkeeper">▶</button>
+            </div>
+            <div class="sh-card-media-wrap">
+              <img id="start-keeper-img" src="branding/original/GOALKEEPER-cb9e3e/logo.png" alt="Goalkeeper NFT" />
+              <span class="sh-rarity-badge rarity-legendary" id="start-keeper-rarity">LEGENDARY</span>
+              <span class="sh-ovr-badge" id="start-keeper-ovr">99</span>
+            </div>
+            <strong class="sh-card-name" id="start-keeper-name">GOALKEEPER #2</strong>
+            <small class="sh-card-trait" id="start-keeper-trait">🧱 WALL OF DEGENS • TELEPATHY</small>
+            <div class="sh-skills-preview" id="start-keeper-skills-preview">
+              <span class="sk-pill active">🛡️</span>
+              <span class="sk-pill active">🧤</span>
+              <span class="sk-pill active">⏱️</span>
+              <span class="sk-pill active">👁️</span>
+            </div>
+          </div>
+        </div>
+
+        <h1 class="start-mega-title">
+          120' <span>TIE-BREAK</span> PENALTY SHOOTOUT
+        </h1>
+
+        <div class="start-visual-steps">
+          <div class="svs-pill">⚽ <span data-i18n="step_shootout_turns">Alternate Kicking &amp; Goalkeeping</span></div>
+          <div class="svs-pill">🃏 <span data-i18n="step_rarity_skills">Rarer NFT = <strong>More Super Skills</strong></span></div>
+          <div class="svs-pill">🏆 <span data-i18n="step_f2p_ready">Free-to-Play: <strong>Rookie F2P Squad</strong></span></div>
+        </div>
+
+        <!-- FREE-TO-PLAY & WALLET STATUS STRIP -->
+        <div class="entry-gate-card" id="entry-gate-card">
+          <div class="eg-status-header" id="eg-status-header">
+            <span class="eg-lock-badge" id="eg-lock-badge">⚽ 120' TIE-BREAK PENALTY SHOOTOUT • FREE-TO-PLAY READY</span>
+          </div>
+
+          <div class="eg-wallet-stats" id="eg-wallet-stats">
+            <span id="eg-wallet-line">Play free with your Rookie squad! Connect your MultiversX wallet to unlock your Club NFTs &amp; super skills.</span>
+          </div>
+
+          <!-- Optional Instant Purchase / Mint Box for Web3 players -->
+          <div class="eg-buy-offer" id="eg-buy-offer">
+            <div class="eg-buy-info">
+              <strong style="color:#a8ff00;">🎁 UNLOCK WALLET &amp; SUPER SKILLS</strong>
+              <small id="eg-buy-sub">Buy $EFOO or mint Club NFTs to unlock super skills &amp; 10x score boosts!</small>
+            </div>
+            <div class="eg-buy-actions">
+              <button type="button" id="gate-buy-starter-btn" class="arcade-btn neon">
+                🎁 <span>STARTER (0.035 EGLD ➔ 1.5M)</span>
+              </button>
+              <button type="button" id="gate-buy-efoo-btn" class="arcade-btn gold">
+                ⚡ <span>PRO PACK (0.1 EGLD ➔ ~3M)</span>
+              </button>
+              <button type="button" id="gate-mint-nft-btn" class="arcade-btn">
+                🃏 <span>MINT NFT (0.08 EGLD)</span>
+              </button>
+              <button type="button" id="gate-refresh-btn" class="arcade-btn hidden" title="Refresh">
+                🔄
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MARKETPLACE & CLUB SKILLS LOCKER (PRE-MATCH) -->
+        <div class="start-market-card" id="start-market-card">
+          <div class="smc-header">
+            <div class="smc-title">
+              <span class="smc-icon">🛒</span>
+              <div>
+                <strong id="start-market-title">SUPER SKILLS STORE (PRE-MATCH)</strong>
+                <small id="start-market-sub">Stock up on super skills with 10% discount on 5x packs before the shootout!</small>
+              </div>
+            </div>
+            <button type="button" class="arcade-btn neon" id="start-open-store-btn">
+              <span>🛒 OPEN STORE (-10%)</span>
+            </button>
+          </div>
+          <div class="smc-chips" id="start-skills-chips">
+            <!-- Dynamically populated with current owned skills -->
+          </div>
+        </div>
+
+        <button type="button" id="btn-start-match" class="btn-play-arcade">
+          ⚽ <span id="btn-start-match-label">START 120' PENALTY SHOOTOUT</span>
+        </button>
+
+      </div>
     </div>
 
     <!-- ===================================================================
