@@ -1316,33 +1316,48 @@ body {
   position: absolute;
   top: 10px;
   right: 10px;
-  background: linear-gradient(135deg, rgba(79, 70, 229, 0.95), rgba(124, 58, 237, 0.95));
-  border: 1px solid #c084fc;
+  background: rgba(10, 15, 26, 0.92);
+  border: 1.5px solid #a855f7;
   color: #ffffff;
   font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.06em;
-  padding: 4px 10px;
+  padding: 4px 10px 4px 6px;
   border-radius: 999px;
   display: flex;
   align-items: center;
-  gap: 5px;
-  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.5);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  gap: 6px;
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.45), 0 0 10px rgba(168, 255, 0, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   z-index: 10;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.mnc-xoxno-dot {
-  color: var(--neon);
-  font-size: 0.8rem;
-  animation: pulseNeon 1.5s infinite;
+.mnc-xoxno-badge:hover {
+  transform: scale(1.06);
+  border-color: var(--neon);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.7), 0 0 14px rgba(168, 255, 0, 0.5);
 }
 
-@keyframes pulseNeon {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.15); }
+.mnc-xoxno-logo-img {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: block;
+  object-fit: contain;
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
+}
+
+.mnc-xoxno-text {
+  background: linear-gradient(135deg, #ffffff, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+}
 }
 
 .m-empty-state {

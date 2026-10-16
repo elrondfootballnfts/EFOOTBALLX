@@ -653,8 +653,8 @@ function renderMarketplaceGrid() {
         ${
           item.isXoxno
             ? `<div class="mnc-xoxno-badge" title="Verified listing on XOXNO Marketplace">
-                 <span class="mnc-xoxno-dot">⚡</span>
-                 <span>XOXNO</span>
+                 <img src="branding/rebranded/xoxno-logo.svg" alt="XOXNO" class="mnc-xoxno-logo-img" />
+                 <span class="mnc-xoxno-text">XOXNO</span>
                </div>`
             : `<div class="mnc-col-tag">${item.jersey ? "🧤 KEEPER" : "⚽ STRIKER"}</div>`
         }
