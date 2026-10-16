@@ -13,20 +13,23 @@ multiversx_sc_wasm_adapter::endpoints! {
     efoo_stadium_vault
     (
         init => init
-        fundReserveVault => fund_reserve_vault
-        depositPlayerBalance => deposit_player_balance
-        reviveMatch => revive_match
-        withdraw => withdraw
-        distributeWeeklyDerby => distribute_weekly_derby
+        reviveStreakAndAdvance => revive_streak_and_advance
+        retryCurrentRound => retry_current_round
+        pauseContract => pause_contract
+        unpauseContract => unpause_contract
+        distributeWeekendVault => distribute_weekend_vault
+        listNft => list_nft
+        buyNft => buy_nft
+        delistNft => delist_nft
+        updateListingPrice => update_listing_price
         getEfooTokenId => efoo_token_id
         getBurnAddress => burn_address
-        getReservePoolBalance => reserve_pool_balance
-        getWeeklyJackpotPool => weekly_jackpot_pool
-        getPlayerBalance => player_balances
-        hasReceivedStarterBonus => has_received_starter_bonus
-        getStarterBonusThreshold => starter_bonus_threshold
-        getStarterBonusAmount => starter_bonus_amount
-        getReviveFeeAmount => revive_fee_amount
+        getVaultPotBalance => vault_pot_balance
+        getTotalBurnedGames => total_burned_games
+        getReviveAdvanceFee => revive_advance_fee
+        getRetryRoundFee => retry_round_fee
+        getNftListing => nft_listings
+        isPaused => is_paused
     )
 }
 

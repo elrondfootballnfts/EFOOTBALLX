@@ -53,6 +53,7 @@ pub trait EfooStadiumVault {
     #[payable("*")]
     #[endpoint(reviveStreakAndAdvance)]
     fn revive_streak_and_advance(&self) {
+        self.require_not_paused();
         let (token, payment) = self.call_value().single_fungible_esdt();
         require!(token == self.efoo_token_id().get(), "Invalid payment token");
         require!(
@@ -75,6 +76,7 @@ pub trait EfooStadiumVault {
     #[payable("*")]
     #[endpoint(retryCurrentRound)]
     fn retry_current_round(&self) {
+        self.require_not_paused();
         let (token, payment) = self.call_value().single_fungible_esdt();
         require!(token == self.efoo_token_id().get(), "Invalid payment token");
         require!(
@@ -94,15 +96,34 @@ pub trait EfooStadiumVault {
 
     /// Internal burning logic:
     /// 1. Updates global total_burned_games telemetry counter
-    /// 2. Executes on-chain ESDT supply burn or sends to unspendable dead address
+    /// 2. Executes verifiable on-chain ESDT supply burn using ESDTRoleLocalBurn
     fn execute_burn(&self, burn_amount: &BigUint) {
         let token_id = self.efoo_token_id().get();
         self.total_burned_games().update(|val| *val += burn_amount);
 
-        let burn_addr = self.burn_address().get();
-        // Forward burned tokens to unspendable dead address (erd1dead...)
-        // If contract is granted ESDTRoleBurn, self.send().esdt_local_burn() can be called
-        self.send().direct_esdt(&burn_addr, &token_id, 0, burn_amount);
+        // Physically burns the $EFOO supply on MultiversX ledger
+        // Requires ESDTRoleLocalBurn granted to this Smart Contract address
+        self.send().esdt_local_burn(&token_id, 0, burn_amount);
+    }
+
+    // =========================================================================
+    // EMERGENCY CIRCUIT BREAKER (PAUSE / UNPAUSE)
+    // =========================================================================
+
+    #[only_owner]
+    #[endpoint(pauseContract)]
+    fn pause_contract(&self) {
+        self.is_paused().set(true);
+    }
+
+    #[only_owner]
+    #[endpoint(unpauseContract)]
+    fn unpause_contract(&self) {
+        self.is_paused().set(false);
+    }
+
+    fn require_not_paused(&self) {
+        require!(!self.is_paused().get(), "Smart contract is currently paused");
     }
 
     // =========================================================================
@@ -159,6 +180,7 @@ pub trait EfooStadiumVault {
     #[payable("*")]
     #[endpoint(listNft)]
     fn list_nft(&self, price_efoo: BigUint) {
+        self.require_not_paused();
         require!(price_efoo > 0, "Price must be greater than 0");
         let caller = self.blockchain().get_caller();
         let (token_id, nonce, amount) = self.call_value().single_esdt();
@@ -175,10 +197,12 @@ pub trait EfooStadiumVault {
     }
 
     /// Buyer purchases listed NFT using $EFOO.
+    /// Checks-Effects-Interactions (CEI) compliant: state is cleared prior to transfers.
     /// 99% sent to seller, 0.5% burned forever, 0.5% sent to Stadium Vault.
     #[payable("*")]
     #[endpoint(buyNft)]
     fn buy_nft(&self, nft_token_id: TokenIdentifier, nft_nonce: u64) {
+        self.require_not_paused();
         let (payment_token, payment_amount) = self.call_value().single_fungible_esdt();
         require!(payment_token == self.efoo_token_id().get(), "Payment must be in $EFOO");
 
@@ -197,6 +221,9 @@ pub trait EfooStadiumVault {
         let fee_burn = (&listing.price_efoo * 5u32) / 1000u32;
         let seller_payout = &listing.price_efoo - &fee_vault - &fee_burn;
 
+        // CEI Pattern: Clear listing state BEFORE transferring funds or NFTs
+        self.nft_listings(&nft_token_id, nft_nonce).clear();
+
         // Payout seller
         self.send().direct_esdt(&listing.seller, &payment_token, 0, &seller_payout);
 
@@ -214,9 +241,6 @@ pub trait EfooStadiumVault {
 
         // Transfer NFT to buyer
         self.send().direct_esdt(&buyer, &listing.nft_token_id, listing.nft_nonce, &BigUint::from(1u32));
-
-        // Remove listing
-        self.nft_listings(&nft_token_id, nft_nonce).clear();
     }
 
     /// Owner delists/withdraws their listed NFT back to their wallet
@@ -231,11 +255,11 @@ pub trait EfooStadiumVault {
         let listing = self.nft_listings(&nft_token_id, nft_nonce).get();
         require!(listing.seller == caller, "Only listing seller can delist");
 
+        // CEI Pattern: Clear state before transfer
+        self.nft_listings(&nft_token_id, nft_nonce).clear();
+
         // Return NFT to seller
         self.send().direct_esdt(&caller, &listing.nft_token_id, listing.nft_nonce, &BigUint::from(1u32));
-
-        // Clear listing
-        self.nft_listings(&nft_token_id, nft_nonce).clear();
     }
 
     /// Owner updates price of their active listing
@@ -285,4 +309,8 @@ pub trait EfooStadiumVault {
     #[view(getNftListing)]
     #[storage_mapper("nftListings")]
     fn nft_listings(&self, token_id: &TokenIdentifier, nonce: u64) -> SingleValueMapper<NftListing<Self::Api>>;
+
+    #[view(isPaused)]
+    #[storage_mapper("isPaused")]
+    fn is_paused(&self) -> SingleValueMapper<bool>;
 }
