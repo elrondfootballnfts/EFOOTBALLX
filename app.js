@@ -1767,29 +1767,51 @@ async function signAndBroadcastTransactions(rawTxList) {
     return;
   }
 
-  // Fetch latest account nonce & shard from MultiversX API
+  // Fetch latest account nonce & guardian status from MultiversX API
+  let isGuarded = false;
+  let guardianAddress = "";
   try {
     const accRes = await fetch(`https://api.multiversx.com/accounts/${connectedAddress}`);
     if (accRes.ok) {
       const accData = await accRes.json();
       walletState.nonce = Number(accData.nonce || 0);
       walletState.shard = Number(accData.shard || 0);
+      isGuarded = !!accData.isGuarded;
     }
   } catch (e) {
-    console.warn("Could not refresh nonce, using cached nonce:", e);
+    console.warn("Could not refresh account data, using cached nonce:", e);
   }
 
-  const preparedTxs = rawTxList.map((tx, idx) => ({
-    nonce: walletState.nonce + idx,
-    value: String(tx.value || "0"),
-    receiver: tx.receiver,
-    sender: connectedAddress,
-    gasPrice: 1000000000,
-    gasLimit: Number(tx.gasLimit || 50000000),
-    data: tx.data || "",
-    chainID: "1",
-    version: 1
-  }));
+  if (isGuarded) {
+    try {
+      const gRes = await fetch(`https://gateway.multiversx.com/address/${connectedAddress}/guardian-data`);
+      if (gRes.ok) {
+        const gData = await gRes.json();
+        guardianAddress = gData?.data?.guardianData?.activeGuardian?.address || "";
+      }
+    } catch (e) {
+      console.warn("Could not fetch guardian data:", e);
+    }
+  }
+
+  const preparedTxs = rawTxList.map((tx, idx) => {
+    const txObj = {
+      nonce: walletState.nonce + idx,
+      value: String(tx.value || "0"),
+      receiver: tx.receiver,
+      sender: connectedAddress,
+      gasPrice: 1000000000,
+      gasLimit: Number(tx.gasLimit || 50000000) + (isGuarded ? 50000 : 0),
+      data: tx.data || "",
+      chainID: "1",
+      version: isGuarded ? 2 : 1
+    };
+    if (isGuarded && guardianAddress) {
+      txObj.options = 2;
+      txObj.guardian = guardianAddress;
+    }
+    return txObj;
+  });
 
   // PATH A: Sign via xPortal (WalletConnect v2)
   if (connectedProvider === "xportal" && wcSignClient && wcSessionTopic) {

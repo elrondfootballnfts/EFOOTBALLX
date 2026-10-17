@@ -349,29 +349,51 @@ async function sendMultiversxTransaction({ receiver, value = "0", data = "", gas
     throw new Error(isHu ? "Kérjük csatlakoztasd a tárcádat a tranzakcióhoz!" : "Please connect your wallet first!");
   }
 
-  // Fetch current account nonce from MultiversX API
+  // Fetch current account nonce & guardian status from MultiversX API
   let nonce = 0;
+  let isGuarded = false;
+  let guardianAddress = "";
   try {
     const accRes = await fetch(`https://api.multiversx.com/accounts/${marketWallet.address}`);
     if (accRes.ok) {
       const a = await accRes.json();
       nonce = Number(a.nonce || 0);
+      isGuarded = !!a.isGuarded;
     }
   } catch (e) {
-    console.warn("Failed to fetch fresh nonce:", e);
+    console.warn("Failed to fetch fresh account data:", e);
   }
 
-  const preparedTxs = [{
+  if (isGuarded) {
+    try {
+      const gRes = await fetch(`https://gateway.multiversx.com/address/${marketWallet.address}/guardian-data`);
+      if (gRes.ok) {
+        const gData = await gRes.json();
+        guardianAddress = gData?.data?.guardianData?.activeGuardian?.address || "";
+      }
+    } catch (e) {
+      console.warn("Failed to fetch guardian data:", e);
+    }
+  }
+
+  const txObj = {
     nonce: nonce,
     value: String(value || "0"),
     receiver: receiver,
     sender: marketWallet.address,
     gasPrice: 1000000000,
-    gasLimit: Number(gasLimit || 15000000),
+    gasLimit: Number(gasLimit || 15000000) + (isGuarded ? 50000 : 0),
     data: data || "",
     chainID: "1",
-    version: 1
-  }];
+    version: isGuarded ? 2 : 1
+  };
+
+  if (isGuarded && guardianAddress) {
+    txObj.options = 2;
+    txObj.guardian = guardianAddress;
+  }
+
+  const preparedTxs = [txObj];
 
   // PATH A: xPortal Mobile App (WalletConnect v2)
   if (marketWallet.provider === "xportal") {
@@ -486,7 +508,10 @@ async function sendMultiversxTransaction({ receiver, value = "0", data = "", gas
 
   // PATH C: Official MultiversX Web Wallet hook/sign (Contract call hook, zero redirects to /send!)
   const callbackUrl = window.location.origin + window.location.pathname.replace(/\.html$/, "");
-  const walletUrl = `https://wallet.multiversx.com/hook/sign?receiver=${encodeURIComponent(receiver)}&value=${encodeURIComponent(String(value || "0"))}&gasLimit=${gasLimit}&data=${encodeURIComponent(data)}&callbackUrl=${encodeURIComponent(callbackUrl)}`;
+  let walletUrl = `https://wallet.multiversx.com/hook/sign?receiver=${encodeURIComponent(receiver)}&value=${encodeURIComponent(String(value || "0"))}&gasLimit=${txObj.gasLimit}&data=${encodeURIComponent(data)}&callbackUrl=${encodeURIComponent(callbackUrl)}`;
+  if (isGuarded && guardianAddress) {
+    walletUrl += `&version=2&options=2&guardian=${encodeURIComponent(guardianAddress)}`;
+  }
   window.open(walletUrl, "_blank");
   return { success: true, method: "webwallet" };
 }
