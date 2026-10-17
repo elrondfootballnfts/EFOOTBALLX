@@ -549,6 +549,109 @@
           </div>
         </div>
 
+        <!-- CARD 5: SFT KOLLEKCIÓ & NONCE MINTER (ULTRAS PASS + SKILLS) -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">🎟️ SFT Kollekció &amp; Minter (Ultras Pass + Skills)</h3>
+            <span style="font-family:'JetBrains Mono'; font-size:0.75rem; color:var(--admin-gold);">1 SFT • 0.05 EGLD</span>
+          </div>
+
+          <p style="font-size: 0.85rem; color: #98aba0; margin-bottom: 14px;">
+            Egyetlen SFT kollekcióban hozhatod létre az <strong>EFOO Ultras PASS</strong>-t (1. Nonce, 300 db limitált) és az összes játékkelléket (<strong>Super Skills</strong>, 2..N Nonce). Nem kell többször kifizetni a 0.05 EGLD-t!
+          </p>
+
+          <!-- 1. Lépés: Kiadás -->
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,184,0,0.2); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
+            <strong style="font-size: 0.85rem; color: var(--admin-gold); display: block; margin-bottom: 8px;">
+              1. LÉPÉS: SFT Kollekció Kiadása (0.05 EGLD)
+            </strong>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+              <div>
+                <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Kollekció Neve:</label>
+                <input type="text" id="sft-issue-name" class="admin-input" value="EFOO Ultras &amp; Skills" />
+              </div>
+              <div>
+                <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Ticker (3-10 betű):</label>
+                <input type="text" id="sft-issue-ticker" class="admin-input" value="EFOOPASS" maxlength="10" />
+              </div>
+            </div>
+            <button type="button" id="btn-issue-sft" class="admin-btn admin-btn-gold" style="margin-top: 4px; padding: 8px 12px; font-size: 0.85rem;">
+              ⚡ SFT Kollekció Kiadása (0.05 EGLD) xPortallal
+            </button>
+          </div>
+
+          <!-- 2. Lépés: Jogok beállítása -->
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(35,247,221,0.2); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
+            <strong style="font-size: 0.85rem; color: var(--admin-cyan); display: block; margin-bottom: 8px;">
+              2. LÉPÉS: Jogosultságok Beállítása (Set Roles)
+            </strong>
+            <div class="admin-input-group" style="margin-bottom: 8px;">
+              <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Kiadott SFT Kollekció ID (pl. EFOOPASS-123456):</label>
+              <input type="text" id="sft-collection-id" class="admin-input" placeholder="EFOOPASS-xxxxxx" />
+            </div>
+            <button type="button" id="btn-grant-sft-roles" class="admin-btn admin-btn-outline" style="margin-top: 4px; padding: 8px 12px; font-size: 0.85rem; border-color: var(--admin-cyan); color: var(--admin-cyan);">
+              🔑 Mintelési Jogok Beállítása (Create &amp; AddQuantity &amp; Burn)
+            </button>
+          </div>
+
+          <!-- 3. Lépés: Nonce Mintelés Preset választóval -->
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(168,255,0,0.2); border-radius: 10px; padding: 12px;">
+            <strong style="font-size: 0.85rem; color: var(--admin-neon); display: block; margin-bottom: 8px;">
+              3. LÉPÉS: Nonce Mintelés (Válassz sablont!)
+            </strong>
+            
+            <!-- Preset Buttons -->
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
+              <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 8px; font-size: 0.75rem; margin: 0; border-color: var(--admin-gold); color: var(--admin-gold);" onclick="loadSftPreset('ultras_pass')">
+                🎟️ Ultras PASS (300 db)
+              </button>
+              <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 8px; font-size: 0.75rem; margin: 0;" onclick="loadSftPreset('rocket_ball')">
+                🚀 Rocket Ball (10k)
+              </button>
+              <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 8px; font-size: 0.75rem; margin: 0;" onclick="loadSftPreset('freeze_keeper')">
+                ❄️ Freeze Keeper (10k)
+              </button>
+              <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 8px; font-size: 0.75rem; margin: 0;" onclick="loadSftPreset('laser_aim')">
+                🎯 Laser Aim (10k)
+              </button>
+              <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 8px; font-size: 0.75rem; margin: 0;" onclick="loadSftPreset('giant_gloves')">
+                🧤 Giant Gloves (10k)
+              </button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 8px;">
+              <div>
+                <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">SFT Elem Neve:</label>
+                <input type="text" id="sft-mint-name" class="admin-input" value="EFOO Ultras PASS" />
+              </div>
+              <div>
+                <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Darabszám (Quantity):</label>
+                <input type="number" id="sft-mint-qty" class="admin-input" value="300" />
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 8px; margin-bottom: 8px;">
+              <div>
+                <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Royalty (5% = 500):</label>
+                <input type="number" id="sft-mint-royalties" class="admin-input" value="500" />
+              </div>
+              <div>
+                <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Tagek / Attribútumok:</label>
+                <input type="text" id="sft-mint-attributes" class="admin-input" value="tags:VIP,Pass,ZeroFees,EFOO" />
+              </div>
+            </div>
+
+            <div class="admin-input-group" style="margin-bottom: 8px;">
+              <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Kép URL (Asset URI):</label>
+              <input type="text" id="sft-mint-uri" class="admin-input" value="https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/efoo-ultras-pass-badge.png" />
+            </div>
+
+            <button type="button" id="btn-mint-sft-nonce" class="admin-btn admin-btn-neon" style="margin-top: 4px; padding: 10px 14px; font-size: 0.9rem;">
+              ✨ SFT Mintelése a Saját Tárcádba xPortallal
+            </button>
+          </div>
+        </div>
+
         <!-- CARD 4: VALÓS RANGLISTA KEZELŐ (LEADERBOARD MANAGER) -->
         <div class="admin-card" style="grid-column: 1 / -1;">
           <div class="admin-card-header">
@@ -1139,6 +1242,139 @@
       const dataField = "unpauseContract";
       const walletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${STADIUM_VAULT_SC}&value=0&gasLimit=10000000&data=${encodeURIComponent(dataField)}&callbackUrl=${encodeURIComponent(window.location.href)}`;
       window.open(walletUrl, "_blank");
+    });
+
+    // =========================================================================
+    // CARD 5: SFT COLLECTION ISSUE, ROLES & NONCE MINTER
+    // =========================================================================
+    function stringToHex(str) {
+      if (!str) return "";
+      let hex = "";
+      for (let i = 0; i < str.length; i++) {
+        hex += str.charCodeAt(i).toString(16).padStart(2, "0");
+      }
+      return hex;
+    }
+
+    function numToHex(num) {
+      let h = BigInt(num).toString(16);
+      if (h.length % 2 !== 0) h = "0" + h;
+      return h;
+    }
+
+    const SFT_PRESETS = {
+      ultras_pass: {
+        name: "EFOO Ultras PASS",
+        qty: 300,
+        royalties: 500,
+        attributes: "tags:VIP,Pass,ZeroFees,EFOO;perk:LifetimeZeroTradingFees",
+        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/efoo-ultras-pass-badge.png"
+      },
+      rocket_ball: {
+        name: "Rocket Ball Skill",
+        qty: 10000,
+        royalties: 500,
+        attributes: "tags:Skill,Striker;velocity:+35%",
+        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/efoo-degen-crest-200x200.png"
+      },
+      freeze_keeper: {
+        name: "Freeze Keeper Skill",
+        qty: 10000,
+        royalties: 500,
+        attributes: "tags:Skill,Keeper;freeze:1.2s",
+        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/efoo-degen-crest-200x200.png"
+      },
+      laser_aim: {
+        name: "Laser Aim Skill",
+        qty: 10000,
+        royalties: 500,
+        attributes: "tags:Skill,Striker;laser:trajectory",
+        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/efoo-degen-crest-200x200.png"
+      },
+      giant_gloves: {
+        name: "Giant Gloves Skill",
+        qty: 10000,
+        royalties: 500,
+        attributes: "tags:Skill,Keeper;size:+40%",
+        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/efoo-degen-crest-200x200.png"
+      }
+    };
+
+    window.loadSftPreset = function(key) {
+      const p = SFT_PRESETS[key];
+      if (!p) return;
+      document.getElementById("sft-mint-name").value = p.name;
+      document.getElementById("sft-mint-qty").value = p.qty;
+      document.getElementById("sft-mint-royalties").value = p.royalties;
+      document.getElementById("sft-mint-attributes").value = p.attributes;
+      document.getElementById("sft-mint-uri").value = p.uri;
+      showToast(`⚡ Sablon betöltve: ${p.name} (${p.qty.toLocaleString("hu-HU")} db)!`);
+    };
+
+    document.getElementById("btn-issue-sft")?.addEventListener("click", () => {
+      const name = document.getElementById("sft-issue-name").value.trim();
+      const ticker = document.getElementById("sft-issue-ticker").value.trim().toUpperCase();
+      if (!name || !ticker) {
+        alert("Kérlek add meg a kollekció nevét és tickerjét!");
+        return;
+      }
+      const nameHex = stringToHex(name);
+      const tickerHex = stringToHex(ticker);
+
+      // Properties for SFT
+      const dataField = `issueSemiFungible@${nameHex}@${tickerHex}@63616e467265657a65@66616c7365@63616e57697065@66616c7365@63616e5061757365@66616c7365@63616e5472616e736665724e4654437265617465526f6c65@74727565@63616e4368616e67654f776e6572@74727565@63616e55706772616465@74727565@63616e4164645370656369616c526f6c6573@74727565`;
+      const walletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${SYSTEM_SC}&value=50000000000000000&gasLimit=60000000&data=${encodeURIComponent(dataField)}&callbackUrl=${encodeURIComponent(window.location.href)}`;
+      window.open(walletUrl, "_blank");
+      showToast("⚡ SFT Kollekció kiadási tranzakció megnyitva! Írd alá az xPortalban.");
+    });
+
+    document.getElementById("btn-grant-sft-roles")?.addEventListener("click", () => {
+      const colId = document.getElementById("sft-collection-id").value.trim();
+      if (!colId) {
+        alert("Kérlek írd be a kiadott SFT kollekció azonosítóját (pl. EFOOPASS-123456)!");
+        return;
+      }
+      const colHex = stringToHex(colId);
+      const ownerHex = bech32ToHex(OWNER_ADDRESS);
+      // ESDTRoleNFTCreate, ESDTRoleNFTAddQuantity, ESDTRoleNFTBurn
+      const roleCreate = "45534454526f6c654e4654437265617465";
+      const roleAddQty = "45534454526f6c654e46544164645175616e74697479";
+      const roleBurn = "45534454526f6c654e46544275726e";
+      const dataField = `setSpecialRole@${colHex}@${ownerHex}@${roleCreate}@${roleAddQty}@${roleBurn}`;
+      const walletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${SYSTEM_SC}&value=0&gasLimit=60000000&data=${encodeURIComponent(dataField)}&callbackUrl=${encodeURIComponent(window.location.href)}`;
+      window.open(walletUrl, "_blank");
+      showToast("🔑 Mintelési jogosultságok tranzakciója megnyitva! Írd alá az xPortalban.");
+    });
+
+    document.getElementById("btn-mint-sft-nonce")?.addEventListener("click", () => {
+      const colId = document.getElementById("sft-collection-id").value.trim();
+      if (!colId) {
+        alert("Kérlek add meg az SFT kollekció azonosítóját a 2. lépés mezőjében (pl. EFOOPASS-123456)!");
+        return;
+      }
+      const name = document.getElementById("sft-mint-name").value.trim();
+      const qty = parseInt(document.getElementById("sft-mint-qty").value, 10);
+      const royalties = parseInt(document.getElementById("sft-mint-royalties").value, 10) || 0;
+      const attributes = document.getElementById("sft-mint-attributes").value.trim();
+      const uri = document.getElementById("sft-mint-uri").value.trim();
+
+      if (!name || !qty || qty <= 0) {
+        alert("Kérlek add meg a nevet és érvényes darabszámot!");
+        return;
+      }
+
+      const colHex = stringToHex(colId);
+      const qtyHex = numToHex(qty);
+      const nameHex = stringToHex(name);
+      const royHex = numToHex(royalties);
+      const attrHex = stringToHex(attributes);
+      const uriHex = stringToHex(uri);
+
+      // ESDTNFTCreate@collection@quantity@name@royalties@hash@attributes@uri
+      const dataField = `ESDTNFTCreate@${colHex}@${qtyHex}@${nameHex}@${royHex}@@${attrHex}@${uriHex}`;
+      const walletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${OWNER_ADDRESS}&value=0&gasLimit=15000000&data=${encodeURIComponent(dataField)}&callbackUrl=${encodeURIComponent(window.location.href)}`;
+      window.open(walletUrl, "_blank");
+      showToast(`✨ Mintelési tranzakció megnyitva: ${name} (${qty} db)! Írd alá az xPortalban.`);
     });
 
     // =========================================================================
