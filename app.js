@@ -24,7 +24,7 @@ const I18N = {
     cta_connect_buy: "Connect Wallet • Buy $EFOO & Mint NFT",
     cta_play_fomo: "Play EFOO FOMO Shootout",
     cta_meme_studio: "Open NFT Meme Studio",
-    hero_card_quote: "\"Coach subbed me in at the 88th minute, I checked the 1m chart and kicked a beach ball into the parking lot.\"",
+    hero_card_quote: "\"Official Rank #1 Mythic Striker (Score 43.94). Craiova No72, Captain Armband & XRP Token. Maximum match score multiplier!\"",
     hero_skip_btn: "Skip to Swap & Mint ⤵",
     hfw_pot_label: "ACTIVE STADIUM POT",
     hfw_prompt: "🎯 Take an instant Penalty Shot right here in the Hero:",
@@ -205,7 +205,7 @@ const I18N = {
     cta_connect_buy: "Conectează Portofel • Cumpără $EFOO & Mint NFT",
     cta_play_fomo: "Joacă EFOO FOMO Penalty",
     cta_meme_studio: "Deschide Generatorul Meme NFT",
-    hero_card_quote: "\"M-a băgat antrenorul în minutul 88, am verificat graficul de 1 minut și am șutat mingea de plajă direct în parcare.\"",
+    hero_card_quote: "\"Atacantul Mitic Oficial Rang #1 (Scor 43.94). Craiova Nr72, Banderolă Căpitan & Token XRP. Multiplicator maxim de scor!\"",
     hero_skip_btn: "Sari la Swap & Mint ⤵",
     hfw_pot_label: "POTUL ACTIV AL STADIONULUI",
     hfw_prompt: "🎯 Execută un Penalty instant chiar aici în Hero:",
@@ -386,7 +386,7 @@ const I18N = {
     cta_connect_buy: "Tárca Csatlakoztatás • $EFOO & NFT Mint",
     cta_play_fomo: "EFOO FOMO Büntetőpárbaj",
     cta_meme_studio: "Meme Stúdió Megnyitása",
-    hero_card_quote: "\"Edzőbá becserélt a 88. percben, rápillantottam az 1 perces chartra és kilőttem a labdát a parkolóba.\"",
+    hero_card_quote: "\"Hivatalos #1 Helyezett Mitikus Csatár (43.94 pontszám). Craiova No72, Csapatkapitányi karszalag és XRP Token. Maximális meccs szorzó!\"",
     hero_skip_btn: "Ugrás a Swap & Minthez ⤵",
     hfw_pot_label: "AKTÍV STADION NYEREMÉNYALAP",
     hfw_prompt: "🎯 Rúgj azonnali büntetőt itt a Hero-ban:",
@@ -862,13 +862,14 @@ let dexState = {
 // Meme Studio State
 let currentNftImage = null;
 let currentNftMeta = {
-  name: "ElrondFootball #619",
-  identifier: "EFOOTBALL-91a4eb-026b",
-  url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/9734.png",
+  name: "ElrondFootball #356",
+  identifier: "EFOOTBALL-91a4eb-0164",
+  url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/1772.png",
   attributes: [
-    { trait_type: "JERSEYS", value: "ChindiaTargoviste" },
-    { trait_type: "BALLS", value: "Ballbeach" },
-    { trait_type: "TOKENS", value: "ISET" }
+    { trait_type: "JERSEYS", value: "Craiova1948" },
+    { trait_type: "BALLS", value: "Ball4" },
+    { trait_type: "TOKENS", value: "XRP" },
+    { trait_type: "CAPTAIN", value: "CaptainC" }
   ]
 };
 let currentMemeMood = "all";
@@ -2417,7 +2418,8 @@ function getNftRarityTier(nft) {
   const tokenNum = tokenNumMatch ? parseInt(tokenNumMatch[1], 10) : 0;
 
   // Specific top ranks from official XOXNO collection
-  if (tokenNum === 614) rank = 1;
+  if (tokenNum === 356) rank = 1;
+  else if (tokenNum === 614) rank = 1;
   else if (tokenNum === 615) rank = 2;
   else if (tokenNum === 619) rank = 3;
   else if (tokenNum === 613) rank = 4;
@@ -3482,7 +3484,7 @@ const recentMemeHistory = [];
 
 function getProceduralOrCatalogMeme(category, lang, nftMeta) {
   const chosenLang = ["hu", "ro", "en"].includes(lang) ? lang : "en";
-  const nftName = nftMeta?.name || (category === "keeper" ? "Goalkeeper Titan" : "Alien Striker #619");
+  const nftName = nftMeta?.name || (category === "keeper" ? "Goalkeeper Titan" : "Mythic Striker #356");
 
   // 35% chance to generate a procedural template meme using the loaded NFT name
   const templates = BANTER_TEMPLATES[chosenLang] || BANTER_TEMPLATES.en;
@@ -3549,7 +3551,7 @@ async function generateAiMeme() {
 
   // 1. Attempt ultra-fast live AI request (2200ms timeout)
   try {
-    const nftName = currentNftMeta?.name || (isKeeperNft ? "Goalkeeper Titan" : "Alien Striker #619");
+    const nftName = currentNftMeta?.name || (isKeeperNft ? "Goalkeeper Titan" : "Mythic Striker #356");
     const langLabel = currentLang === "hu" ? "Hungarian" : currentLang === "ro" ? "Romanian" : "English";
     const prompt = `Sunday League Degen FC ($EFOO on MultiversX) football meme.
 Theme: ${category}. Player: ${nftName}. Language: ${langLabel}.
@@ -4243,7 +4245,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const isKeeper = colSelect.value === "GOALKEEPER-cb9e3e";
     const maxVal = isKeeper ? mintedKeepersCount : mintedPlayersCount;
     nonceInput.max = maxVal;
-    nonceInput.value = isKeeper ? Math.min(51, maxVal) : Math.min(619, maxVal);
+    nonceInput.value = isKeeper ? Math.min(51, maxVal) : Math.min(356, maxVal);
     loadNftFromChain(colSelect.value, nonceInput.value);
   });
 
@@ -4320,7 +4322,7 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchLiveTokenStats();
   fetchLiveDexReserves();
   fetchShowcaseSquadNfts();
-  loadNftFromChain("EFOOTBALL-91a4eb", 619);
+  loadNftFromChain("EFOOTBALL-91a4eb", 356);
 
   if (connectedAddress) {
     fetchConnectedWalletData(connectedAddress);

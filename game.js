@@ -290,14 +290,14 @@ const ROOKIE_KEEPER = {
 
 const STRIKER_ROSTER = [
   {
-    identifier: "EFOOTBALL-91a4eb-026b",
-    name: "ELRONDFOOTBALL #619",
-    rarity: "LEGENDARY",
+    identifier: "EFOOTBALL-91a4eb-0164",
+    name: "ELRONDFOOTBALL #356",
+    rarity: "MYTHIC",
     ovr: 99,
-    trait: "👽 ALIEN STRIKER • 4 SKILLS + RADAR",
-    traitHu: "👽 ALIEN STRIKER • 4 KÉPESSÉG + RADAR",
-    traitRo: "👽 ALIEN STRIKER • 4 ABILITĂȚI + RADAR",
-    url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/9734.png"
+    trait: "👑 RANK #1 MYTHIC • 4 SKILLS + RADAR",
+    traitHu: "👑 #1 RANGÚ MITIKUS • 4 KÉPESSÉG + RADAR",
+    traitRo: "👑 RANG #1 MITIC • 4 ABILITĂȚI + RADAR",
+    url: "https://media.multiversx.com/nfts/asset/QmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb/1772.png"
   },
   {
     identifier: "EFOOTBALL-91a4eb-0261",
@@ -398,7 +398,8 @@ function getNftRarityTier(nft) {
   const tokenNum = tokenNumMatch ? parseInt(tokenNumMatch[1], 10) : (nft.nonce || 0);
 
   // Specific top ranks from official XOXNO collection
-  if (tokenNum === 614) rank = 1;
+  if (tokenNum === 356) rank = 1;
+  else if (tokenNum === 614) rank = 1;
   else if (tokenNum === 615) rank = 2;
   else if (tokenNum === 619) rank = 3;
   else if (tokenNum === 613) rank = 4;

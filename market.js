@@ -673,7 +673,8 @@ function getNftRarityTier(nft) {
   const tokenNum = tokenNumMatch ? parseInt(tokenNumMatch[1], 10) : (nft.nonce || 0);
 
   // Exact flagship ranks from official XOXNO collection
-  if (tokenNum === 614) rank = 1;
+  if (tokenNum === 356) rank = 1;
+  else if (tokenNum === 614) rank = 1;
   else if (tokenNum === 615) rank = 2;
   else if (tokenNum === 619) rank = 3;
   else if (tokenNum === 613) rank = 4;
