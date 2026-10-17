@@ -3050,7 +3050,6 @@ function openSummaryModal() {
 
   // Secondary Tools
   document.getElementById("btn-sum-skills-shop")?.addEventListener("click", () => {
-    closeSummaryModal();
     openSkillsShopModal();
   });
   document.getElementById("btn-sum-perks")?.addEventListener("click", () => {
@@ -6571,22 +6570,10 @@ document.addEventListener("DOMContentLoaded", () => {
   setStartScreenState(true);
   initFullscreenStadiumCanvas();
 
-  // Start, Replay & Close Summary buttons
+  // Safe summary exit helper (returns cleanly to hub)
   const closeSummaryModal = () => {
     document.getElementById("summary-screen-overlay")?.classList.add("hidden");
-    if (!canPlayMatch()) {
-      setStartScreenState(true);
-      return;
-    }
-    const p = getPowers();
-    game.round = 1;
-    game.shotHistory = [];
-    game.goals = 0;
-    game.streak = 0;
-    game.score = 0;
-    game.rawBaseScore = 0;
-    game.shieldsLeft = p.maxShields;
-    startNextShotRound();
+    setStartScreenState(true);
   };
 
   // Squad Selection Modal (Choose player & goalkeeper after start or via button)
@@ -6727,12 +6714,6 @@ document.addEventListener("DOMContentLoaded", () => {
     launchMatchWithIntro();
   });
 
-  document.getElementById("close-summary-modal-btn")?.addEventListener("click", closeSummaryModal);
-  document.getElementById("summary-screen-overlay")?.addEventListener("click", (e) => {
-    if (e.target && e.target.id === "summary-screen-overlay") {
-      closeSummaryModal();
-    }
-  });
 
   // Click FUT Card Dock to cycle active Striker or Goalkeeper depending on turn
   document.getElementById("fut-striker-dock")?.addEventListener("click", () => {
@@ -6777,9 +6758,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-      if (!document.getElementById("summary-screen-overlay")?.classList.contains("hidden")) {
-        closeSummaryModal();
-      }
       closeBoost();
       document.getElementById("wallet-modal-backdrop")?.classList.add("hidden");
     }
@@ -6912,9 +6890,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // ESC key closes all active modals
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-      if (!document.getElementById("summary-screen-overlay")?.classList.contains("hidden")) {
-        closeSummaryModal();
-      }
       closeBoost();
       closeLeaderboard();
       closeStreak();
