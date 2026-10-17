@@ -4017,38 +4017,189 @@ body.fx-gold-active #arcade-viewport {
   flex-wrap: wrap;
 }
 
-.hub-pot-badge, .hub-burn-badge {
+.hub-burn-badge {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 6px 14px;
   border-radius: 12px;
-  background: rgba(255, 184, 0, 0.08);
-  border: 1px solid rgba(255, 184, 0, 0.35);
-}
-
-.hub-burn-badge {
   background: rgba(255, 94, 26, 0.08);
-  border-color: rgba(255, 94, 26, 0.35);
+  border: 1px solid rgba(255, 94, 26, 0.35);
 }
 
-.hub-badge-icon {
-  font-size: 1.3rem;
+/* ============================================================================
+   SPECTACULAR ANIMATED VAULT JACKPOT CARD (SPARK SWEEP & GOLD PULSE)
+   ============================================================================ */
+.hub-pot-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255, 184, 0, 0.18) 0%, rgba(20, 14, 4, 0.94) 50%, rgba(255, 184, 0, 0.14) 100%);
+  border: 1.5px solid rgba(255, 215, 0, 0.6);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 0 16px rgba(255, 184, 0, 0.35), inset 0 0 12px rgba(255, 184, 0, 0.15);
+  animation: vaultPotPulse 3.6s infinite ease-in-out;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
 }
 
-.hub-badge-lbl {
+.hub-pot-badge:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 0 28px rgba(255, 215, 0, 0.7), inset 0 0 18px rgba(255, 215, 0, 0.25);
+  border-color: #ffd700;
+}
+
+/* 1. Diagonal Laser Spark Beam Gliding across the Jackpot */
+.hub-pot-badge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255, 215, 0, 0.05) 20%,
+    rgba(255, 255, 255, 0.25) 40%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(255, 215, 0, 0.75) 58%,
+    transparent 75%
+  );
+  transform: skewX(-25deg);
+  pointer-events: none;
+  animation: vaultSparkGlide 3.6s infinite cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* 2. Traveling Golden Spark Point (✦) gliding across the top edge */
+.hub-pot-badge::before {
+  content: '✦';
+  position: absolute;
+  top: 2px;
+  left: -20px;
+  font-size: 11px;
+  line-height: 1;
+  color: #ffffff;
+  text-shadow: 0 0 6px #ffffff, 0 0 12px #ffd700, 0 0 20px #ff9900;
+  pointer-events: none;
+  z-index: 2;
+  animation: sparkPointTravel 3.6s infinite cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+@keyframes vaultSparkGlide {
+  0% {
+    left: -150%;
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  38% {
+    left: 170%;
+    opacity: 1;
+  }
+  44%, 100% {
+    left: 170%;
+    opacity: 0;
+  }
+}
+
+@keyframes sparkPointTravel {
+  0% {
+    left: -20px;
+    opacity: 0;
+    transform: scale(0.6) rotate(0deg);
+  }
+  6% {
+    opacity: 1;
+    transform: scale(1.4) rotate(45deg);
+  }
+  38% {
+    left: 105%;
+    opacity: 1;
+    transform: scale(1.1) rotate(180deg);
+  }
+  44%, 100% {
+    left: 105%;
+    opacity: 0;
+  }
+}
+
+@keyframes vaultPotPulse {
+  0%, 100% {
+    box-shadow: 0 0 14px rgba(255, 184, 0, 0.3), inset 0 0 10px rgba(255, 184, 0, 0.12);
+    border-color: rgba(255, 215, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 32px rgba(255, 215, 0, 0.7), 0 0 50px rgba(255, 184, 0, 0.35), inset 0 0 16px rgba(255, 215, 0, 0.25);
+    border-color: #ffd700;
+  }
+}
+
+.hub-pot-badge .hub-badge-icon {
+  font-size: 1.35rem;
+  display: inline-block;
+  animation: trophyGleam 3.6s infinite ease-in-out;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.85));
+}
+
+@keyframes trophyGleam {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 6px rgba(255, 184, 0, 0.6));
+  }
+  14% {
+    transform: scale(1.25) rotate(-10deg);
+    filter: drop-shadow(0 0 18px rgba(255, 235, 59, 1)) drop-shadow(0 0 26px rgba(255, 191, 0, 0.85));
+  }
+  24% {
+    transform: scale(1.15) rotate(6deg);
+    filter: drop-shadow(0 0 14px rgba(255, 215, 0, 1));
+  }
+  34% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 8px rgba(255, 184, 0, 0.7));
+  }
+}
+
+.hub-pot-badge .hub-badge-lbl {
   display: block;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.62rem;
-  color: #94a3b8;
-  letter-spacing: 0.05em;
+  font-size: 0.64rem;
+  font-weight: 800;
+  color: #fef08a;
+  letter-spacing: 0.08em;
   line-height: 1;
+  text-shadow: 0 0 8px rgba(254, 240, 138, 0.5);
 }
 
 .hub-pot-badge strong {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.9rem;
-  color: #ffb800;
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #ffd700;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 0 22px rgba(255, 184, 0, 0.5);
+  animation: vaultValGlow 3.6s infinite ease-in-out;
+}
+
+@keyframes vaultValGlow {
+  0%, 100% {
+    color: #ffb800;
+    text-shadow: 0 0 8px rgba(255, 184, 0, 0.6);
+  }
+  16% {
+    color: #ffffff;
+    text-shadow: 0 0 14px #ffffff, 0 0 24px #ffd700, 0 0 38px #ffb800;
+  }
+  30% {
+    color: #ffd700;
+    text-shadow: 0 0 12px rgba(255, 215, 0, 0.9), 0 0 22px rgba(255, 184, 0, 0.6);
+  }
 }
 
 .hub-burn-badge strong {

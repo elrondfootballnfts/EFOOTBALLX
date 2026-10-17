@@ -7010,6 +7010,7 @@ document.addEventListener("DOMContentLoaded", () => {
     showToast(currentLang === "hu" ? "🔄 Ranglista frissítve!" : "🔄 Leaderboard refreshed!");
   });
   document.getElementById("open-full-ranks-modal")?.addEventListener("click", openLeaderboard);
+  document.querySelector(".hub-pot-badge")?.addEventListener("click", openLeaderboard);
 
   // First user interaction gesture to unlock Web Audio API background music
   const unlockBgmGesture = () => {
