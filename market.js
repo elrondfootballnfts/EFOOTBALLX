@@ -703,6 +703,24 @@ const MARKET_SKILLS = [
 // ============================================================================
 // XOXNO RARITY & ATTRIBUTES ENGINE
 // ============================================================================
+function isUltrasPassNft(nft) {
+  if (!nft) return false;
+  const col = (nft.collection || "").toLowerCase();
+  const id = (nft.identifier || "").toLowerCase();
+  const name = (nft.name || "").toLowerCase();
+  return col === ULTRAS_PASS_COLLECTION.toLowerCase() ||
+         id.includes("efoopass-5223a8") ||
+         id.includes("efoopass") ||
+         name.includes("ultras pass");
+}
+
+function isSkillSftNft(nft) {
+  if (!nft) return false;
+  const col = (nft.collection || "").toLowerCase();
+  const id = (nft.identifier || "").toLowerCase();
+  return col.includes("efooskill") || id.includes("efooskill");
+}
+
 function getNftRarityTier(nft) {
   if (!nft || nft.identifier === "ROOKIE-STRIKER" || nft.identifier === "ROOKIE-KEEPER") {
     return {
@@ -714,6 +732,25 @@ function getNftRarityTier(nft) {
       scoreMult: 1.0,
       slots: 0,
       powers: ["1.0x Score Multiplier", "0 Skill Slots"]
+    };
+  }
+
+  // EFOO ULTRAS PASS (Special VIP Pass SFT - NOT a footballer player card!)
+  if (isUltrasPassNft(nft)) {
+    return {
+      tierKey: "ultras-pass",
+      tierLabel: "ULTRAS VIP PASS",
+      tierIcon: "👑",
+      rank: "VIP",
+      borderColor: "#ffb800",
+      scoreMult: 1.5,
+      slots: 0,
+      powers: [
+        "0% Market Fees for Life",
+        "+1.5x Match Multiplier",
+        "+1 VIP Shield in Shootout",
+        "300 Max Supply SFT"
+      ]
     };
   }
 
@@ -915,11 +952,12 @@ function getMarketplaceListings() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        // Strict filter: purge any legacy phantom mock items
+        // Strict filter: purge any legacy phantom mock items or unsupported SC escrow listings
         const realListings = parsed.filter(
           (x) =>
             x &&
             x.seller &&
+            !x.trait?.includes("SC Escrow") &&
             !x.seller.startsWith("erd1ultra") &&
             !x.seller.startsWith("erd1degen") &&
             !x.seller.startsWith("erd1sniper") &&
@@ -1439,6 +1477,8 @@ function renderMarketplaceGrid() {
                  <img src="branding/rebranded/xoxno-logo.svg" alt="XOXNO" class="mnc-xoxno-logo-img" />
                  <span class="mnc-xoxno-text">XOXNO</span>
                </div>`
+            : isUltrasPassNft(item)
+            ? `<div class="mnc-col-tag" style="background:#ffb800; color:#050d08; font-weight:800;">👑 VIP PASS</div>`
             : `<div class="mnc-col-tag">${item.jersey ? "🧤 KEEPER" : "⚽ STRIKER"}</div>`
         }
       </div>
@@ -1446,10 +1486,14 @@ function renderMarketplaceGrid() {
       <div class="mnc-body">
         <div class="mnc-title-row">
           <strong class="mnc-title">${item.name}</strong>
-          <span class="mnc-ovr">${item.ovr || 85} OVR</span>
+          ${
+            isUltrasPassNft(item)
+              ? `<span class="mnc-vip-tag" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:6px;">VIP PASS</span>`
+              : `<span class="mnc-ovr">${item.ovr || 85} OVR</span>`
+          }
         </div>
 
-        <p class="mnc-trait-desc">${item.trait || (item.isXoxno ? "Listed on XOXNO Marketplace" : "Sunday League Degen Ultra")}</p>
+        <p class="mnc-trait-desc">${isUltrasPassNft(item) ? (isHu ? "Élethosszig tartó 0% kereskedési díj az Áruházban • Match Booster" : "Lifetime 0% marketplace trading fee • Match Booster") : (item.trait || (item.isXoxno ? "Listed on XOXNO Marketplace" : "Sunday League Degen Ultra"))}</p>
 
         <div class="mnc-powers-row">
           ${tier.powers.slice(0, 3).map((p) => `<span class="mnc-power-pill">${p}</span>`).join("")}
@@ -1531,11 +1575,63 @@ function renderMyLockerGrid() {
   }
 
   myNfts.forEach((nft) => {
+    const isPass = isUltrasPassNft(nft);
     const tier = getNftRarityTier(nft);
     const isListed = listings.find((x) => x.identifier === nft.identifier && x.seller && x.seller.toLowerCase() === curAddr);
 
     const card = document.createElement("div");
     card.className = `m-nft-card tier-${tier.tierKey}`;
+
+    if (isPass) {
+      card.innerHTML = `
+        <div class="mnc-media-wrap" data-locker-inspect="${nft.identifier}">
+          <img src="${nft.url || 'branding/rebranded/efoo-ultras-pass-badge.png'}" alt="${nft.name}" class="mnc-media-img" />
+          <div class="mnc-rank-badge" style="border-color:#ffb800; color:#ffb800; background:rgba(255,184,0,0.15);">
+            👑 VIP PASS • 0% FEES
+          </div>
+          <div class="mnc-col-tag" style="background:#ffb800; color:#050d08; font-weight:800;">👑 ULTRAS SFT</div>
+        </div>
+
+        <div class="mnc-body">
+          <div class="mnc-title-row">
+            <strong class="mnc-title" style="color:#ffb800;">${nft.name || "EFOO ULTRAS PASS"}</strong>
+            <span class="mnc-vip-tag" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:6px;">VIP PASS</span>
+          </div>
+
+          <p class="mnc-trait-desc" style="color:#f3f7f4;">
+            ${currentMarketLang === "hu" ? "Élethosszig tartó 0% piactéri díjkedvezmény • +1.5x szorzó és +1 VIP pajzs a meccseken!" : "Lifetime 0% marketplace trading fee • +1.5x score multiplier & +1 VIP shield!"}
+          </p>
+
+          <div class="mnc-powers-row">
+            <span class="mnc-power-pill" style="border-color:rgba(255,184,0,0.5); color:#ffb800;">⚡ 0% Trading Fee</span>
+            <span class="mnc-power-pill" style="border-color:rgba(255,184,0,0.5); color:#ffb800;">👑 VIP Leaderboard Crown</span>
+            <span class="mnc-power-pill" style="border-color:rgba(255,184,0,0.5); color:#ffb800;">🛡️ +1 Extra Shield in Match</span>
+          </div>
+
+          <div class="mnc-footer">
+            <div class="mnc-price-box">
+              <span class="mnc-price-lbl">MEMBERSHIP</span>
+              <strong class="mnc-price-val" style="color:var(--neon);">
+                👑 Active VIP Pass
+              </strong>
+            </div>
+
+            <div class="mnc-action-wrap">
+              <a href="https://xspotlight.com/nfts/${nft.identifier || 'EFOOPASS-5223a8-01'}" target="_blank" rel="noopener" class="m-btn-primary" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; text-decoration:none; padding:8px 12px; font-size:0.8rem; display:inline-flex; align-items:center; gap:6px;">
+                xSpotlight ↗
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+
+      card.querySelector(`[data-locker-inspect="${nft.identifier}"]`)?.addEventListener("click", () => {
+        openNftDetailsModal(nft);
+      });
+
+      grid.appendChild(card);
+      return;
+    }
 
     card.innerHTML = `
       <div class="mnc-media-wrap" data-locker-inspect="${nft.identifier}">
@@ -2080,6 +2176,11 @@ function openListNftModal(nft) {
   if (imgEl) imgEl.src = nft.url || "branding/original/EFOOTBALL-91a4eb/logo.png";
   if (rankEl) rankEl.textContent = `${tier.tierIcon} Rank #${tier.rank} (${tier.tierLabel})`;
 
+  const xoxnoBtn = document.getElementById("btn-xoxno-direct-list");
+  if (xoxnoBtn) {
+    xoxnoBtn.href = `https://xoxno.com/nft/${nft.identifier || ""}`;
+  }
+
   updateListingFeePreview();
   modal?.classList.remove("hidden");
 }
@@ -2377,36 +2478,54 @@ function openNftDetailsModal(nft) {
 
   const tier = getNftRarityTier(nft);
 
-  if (imgEl) imgEl.src = nft.url || "branding/original/EFOOTBALL-91a4eb/logo.png";
+  if (imgEl) imgEl.src = nft.url || (isUltrasPassNft(nft) ? "branding/rebranded/efoo-ultras-pass-badge.png" : "branding/original/EFOOTBALL-91a4eb/logo.png");
   if (rankPill) {
-    rankPill.textContent = `${tier.tierIcon} Rank #${tier.rank} • ${tier.tierLabel}`;
-    rankPill.style.borderColor = tier.borderColor;
-    rankPill.style.color = tier.borderColor;
+    if (isUltrasPassNft(nft)) {
+      rankPill.textContent = "👑 VIP PASS • 0% FEES";
+      rankPill.style.borderColor = "#ffb800";
+      rankPill.style.color = "#ffb800";
+    } else {
+      rankPill.textContent = `${tier.tierIcon} Rank #${tier.rank} • ${tier.tierLabel}`;
+      rankPill.style.borderColor = tier.borderColor;
+      rankPill.style.color = tier.borderColor;
+    }
   }
-  if (colIdEl) colIdEl.textContent = nft.collection || STRIKER_COLLECTION;
+  if (colIdEl) colIdEl.textContent = isUltrasPassNft(nft) ? ULTRAS_PASS_COLLECTION : (nft.collection || STRIKER_COLLECTION);
   if (nameEl) nameEl.textContent = nft.name || nft.identifier;
-  if (traitEl) traitEl.textContent = nft.trait || "Sunday League Degen Ultra";
+  if (traitEl) {
+    traitEl.textContent = isUltrasPassNft(nft)
+      ? "Exclusive MultiversX VIP Access SFT (0% Trading Fees for Life)"
+      : (nft.trait || "Sunday League Degen Ultra");
+  }
 
   // Powers
   if (powersList) {
     powersList.innerHTML = tier.powers
-      .map((p) => `<span class="m-power-badge">${p}</span>`)
+      .map((p) => `<span class="m-power-badge" style="${isUltrasPassNft(nft) ? 'border-color:#ffb800; color:#ffb800;' : ''}">${p}</span>`)
       .join("");
   }
 
   // Attributes table
   if (traitsTable) {
-    const rawAttrs = nft.attributes || [
-      { name: "OVR", value: String(nft.ovr || 90) },
-      { name: "Collection", value: nft.collection || STRIKER_COLLECTION },
-      { name: "Rarity Rank", value: `#${tier.rank}` },
-      { name: "Tier", value: tier.tierLabel }
-    ];
+    const rawAttrs = isUltrasPassNft(nft)
+      ? [
+          { name: "Type", value: "VIP Membership SFT" },
+          { name: "Trading Fee", value: "0% (Zero Fees for Life)" },
+          { name: "Match Booster", value: "+1.5x Multiplier & +1 Shield" },
+          { name: "Max Supply", value: "300 SFT" },
+          { name: "Collection", value: ULTRAS_PASS_COLLECTION }
+        ]
+      : (nft.attributes || [
+          { name: "OVR", value: String(nft.ovr || 90) },
+          { name: "Collection", value: nft.collection || STRIKER_COLLECTION },
+          { name: "Rarity Rank", value: `#${tier.rank}` },
+          { name: "Tier", value: tier.tierLabel }
+        ]);
     traitsTable.innerHTML = rawAttrs
       .map((a) => `
         <div class="m-trait-cell">
           <span class="mtc-lbl">${a.name || a.trait_type}</span>
-          <strong class="mtc-val">${a.value}</strong>
+          <strong class="mtc-val" style="${isUltrasPassNft(nft) ? 'color:#ffb800;' : ''}">${a.value}</strong>
         </div>
       `)
       .join("");
@@ -2898,6 +3017,11 @@ async function fetchLiveMinterCounts() {
 // EVENT LISTENERS & INITIALIZATION
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
+  // Cleanse any legacy phantom non-escrowed listings from local storage
+  try {
+    saveMarketplaceListings(getMarketplaceListings());
+  } catch (e) {}
+
   initMarketWallet();
   updateExtensionBadge();
   setTimeout(updateExtensionBadge, 500);
