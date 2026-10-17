@@ -247,6 +247,36 @@ body {
   font-weight: 800;
 }
 
+.m-wallet-vip-pill {
+  background: linear-gradient(135deg, rgba(255, 184, 0, 0.25), rgba(234, 179, 8, 0.1));
+  border: 1px solid rgba(255, 184, 0, 0.6);
+  color: #ffb800;
+  font-weight: 800;
+  font-size: 0.68rem;
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  box-shadow: 0 0 10px rgba(255, 184, 0, 0.3);
+  text-shadow: 0 0 8px rgba(255, 184, 0, 0.5);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.mnc-seller-vip-crown {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255, 184, 0, 0.18);
+  border: 1px solid rgba(255, 184, 0, 0.5);
+  color: #ffb800;
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 999px;
+  margin-left: 4px;
+}
+
 .m-btn-disc {
   background: none;
   border: none;

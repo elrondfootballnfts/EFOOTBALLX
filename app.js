@@ -803,6 +803,9 @@ const CONTRACTS = {
   WC_PROJECT_ID: "9b1a9564f91cb659ffe21b73d5c4e2d8"
 };
 
+const ULTRAS_PASS_IDENTIFIER = "EFOOPASS-5223a8-01";
+const ULTRAS_PASS_COLLECTION = "EFOOPASS-5223a8";
+
 let currentLang = "en";
 if (localStorage.getItem("efoo_wallet_provider") === "demo") {
   localStorage.removeItem("efoo_wallet_provider");
@@ -2369,25 +2372,33 @@ async function fetchConnectedWalletData(address) {
       }
     }
 
-    // 3. Player & Goalkeeper NFT counts
-    const [pCountRes, kCountRes, nftsRes] = await Promise.all([
+    // 3. Player, Goalkeeper & Ultras PASS NFT counts
+    const [pCountRes, kCountRes, ultrasCountRes, nftsRes] = await Promise.all([
       fetch(`https://api.multiversx.com/accounts/${address}/nfts/count?collections=EFOOTBALL-91a4eb`),
       fetch(`https://api.multiversx.com/accounts/${address}/nfts/count?collections=GOALKEEPER-cb9e3e`),
-      fetch(`https://api.multiversx.com/accounts/${address}/nfts?collections=EFOOTBALL-91a4eb,GOALKEEPER-cb9e3e&size=24`)
+      fetch(`https://api.multiversx.com/accounts/${address}/nfts/count?collections=${ULTRAS_PASS_COLLECTION}`),
+      fetch(`https://api.multiversx.com/accounts/${address}/nfts?collections=EFOOTBALL-91a4eb,GOALKEEPER-cb9e3e,${ULTRAS_PASS_COLLECTION}&size=36`)
     ]);
 
     walletState.playersCount = pCountRes.ok ? Number(await pCountRes.text()) || 0 : 0;
     walletState.keepersCount = kCountRes.ok ? Number(await kCountRes.text()) || 0 : 0;
+    walletState.ultrasPassCount = ultrasCountRes.ok ? Number(await ultrasCountRes.text()) || 0 : 0;
     walletState.ownedNfts = nftsRes.ok ? await nftsRes.json() : [];
 
-    const pCountEl = document.getElementById("wallet-players-count");
-    if (pCountEl) pCountEl.textContent = `${walletState.playersCount} NFTs`;
-    const kCountEl = document.getElementById("wallet-keepers-count");
-    if (kCountEl) kCountEl.textContent = `${walletState.keepersCount} NFTs`;
+    const hasPass = walletState.ultrasPassCount > 0 || (walletState.ownedNfts && walletState.ownedNfts.some(x => (x.collection || "").includes("EFOOPASS") || (x.identifier || "").includes("EFOOPASS")));
+    if (hasPass) {
+      try {
+        localStorage.setItem("efoo_ultras_pass_" + address.toLowerCase(), "true");
+        localStorage.setItem("efoo_has_ultras_pass", "true");
+      } catch (e) {}
+    }
 
     const rankEl = document.getElementById("wallet-ultras-rank");
     if (rankEl) {
-      if (walletState.keepersCount >= 1 || walletState.playersCount >= 3) {
+      if (hasPass) {
+        rankEl.textContent = "👑 ULTRAS VIP PASS HOLDER";
+        rankEl.style.color = "#ffd700";
+      } else if (walletState.keepersCount >= 1 || walletState.playersCount >= 3) {
         rankEl.textContent = "🏆 VIP BOARD MEMBER";
         rankEl.style.color = "#ffd700";
       } else if (walletState.playersCount >= 1 || walletState.efooBalance > 0) {

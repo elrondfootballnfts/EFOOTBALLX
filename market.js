@@ -15,6 +15,8 @@ const EFOOREWARDS_WALLET = "erd1p5hfnx87q4pddwsyz23e5pqv8550rsfat902j6g4ckdh0700
 const WC_PROJECT_ID = "9b1a9564f91cb659ffe21b73d5c4e2d8";
 
 // EFOO ULTRAS PASS (Zero-Fee VIP Pass) & CONTRACTS
+const ULTRAS_PASS_IDENTIFIER = "EFOOPASS-5223a8-01";
+const ULTRAS_PASS_COLLECTION = "EFOOPASS-5223a8";
 const ULTRAS_PASS_PRICE_EGLD = 0.5;
 const ULTRAS_PASS_PRICE_EFOO = 5000000;
 const STORAGE_ULTRAS_PASS_PREFIX = "efoo_ultras_pass_";
@@ -43,12 +45,18 @@ let marketDexState = {
 function hasUltrasPass(address) {
   if (!address) return false;
   const cleanAddr = address.toLowerCase();
+  if (cleanAddr === EFOOREWARDS_WALLET.toLowerCase()) return true;
   if (localStorage.getItem(STORAGE_ULTRAS_PASS_PREFIX + cleanAddr) === "true") return true;
+  if (localStorage.getItem("efoo_has_ultras_pass") === "true") return true;
   if (marketWallet && marketWallet.ownedNfts && Array.isArray(marketWallet.ownedNfts)) {
     if (marketWallet.ownedNfts.some(x => {
       const id = ((x.identifier || "") + " " + (x.name || "") + " " + (x.collection || "")).toLowerCase();
-      return id.includes("ultras") || id.includes("pass");
+      return id.includes("efoopass-5223a8") || id.includes("efoopass") || id.includes("ultras pass") || (x.collection && x.collection.toLowerCase() === ULTRAS_PASS_COLLECTION.toLowerCase());
     })) {
+      try {
+        localStorage.setItem(STORAGE_ULTRAS_PASS_PREFIX + cleanAddr, "true");
+        localStorage.setItem("efoo_has_ultras_pass", "true");
+      } catch (e) {}
       return true;
     }
   }
@@ -1129,13 +1137,21 @@ async function fetchWalletBalances(address) {
 
 async function fetchWalletNfts(address) {
   try {
-    // Fetch all official team collections (EFOOTBALL-91a4eb, GOALKEEPER-cb9e3e, FOOTBALL-64e58f)
-    const res = await fetch(`${MULTIVERSX_API}/accounts/${address}/nfts?collections=${STRIKER_COLLECTION},${KEEPER_COLLECTION},FOOTBALL-64e58f&size=100`);
+    // Fetch all official team collections (EFOOTBALL-91a4eb, GOALKEEPER-cb9e3e, EFOOPASS-5223a8, FOOTBALL-64e58f)
+    const res = await fetch(`${MULTIVERSX_API}/accounts/${address}/nfts?collections=${STRIKER_COLLECTION},${KEEPER_COLLECTION},${ULTRAS_PASS_COLLECTION},FOOTBALL-64e58f&size=100`);
     if (res.ok) {
       const nfts = await res.json();
       if (Array.isArray(nfts)) {
         marketWallet.ownedNfts = nfts;
+        if (hasUltrasPass(address)) {
+          try {
+            localStorage.setItem(STORAGE_ULTRAS_PASS_PREFIX + address.toLowerCase(), "true");
+            localStorage.setItem("efoo_has_ultras_pass", "true");
+          } catch (e) {}
+        }
         renderMyLockerGrid();
+        updateWalletUI();
+        updateUltrasPassUI();
         return;
       }
     }
@@ -1143,6 +1159,8 @@ async function fetchWalletNfts(address) {
 
   marketWallet.ownedNfts = [];
   renderMyLockerGrid();
+  updateWalletUI();
+  updateUltrasPassUI();
 }
 
 function updateWalletUI() {
@@ -1152,6 +1170,7 @@ function updateWalletUI() {
   const shortAddr = document.getElementById("m-wallet-short-addr");
   const balEl = document.getElementById("m-wallet-bal");
   const notConnBox = document.getElementById("locker-not-connected-banner");
+  const vipBadge = document.getElementById("m-wallet-vip-badge");
 
   if (pill) pill.classList.toggle("hidden", !isConn);
   if (connBtn) connBtn.classList.toggle("hidden", isConn);
@@ -1161,6 +1180,12 @@ function updateWalletUI() {
     const a = marketWallet.address;
     if (shortAddr) shortAddr.textContent = `${a.slice(0, 6)}...${a.slice(-4)}`;
     if (balEl) balEl.textContent = `${Math.floor(marketWallet.efooBalance).toLocaleString("en-US")} $EFOO`;
+    const isVip = hasUltrasPass(a);
+    if (vipBadge) {
+      vipBadge.classList.toggle("hidden", !isVip);
+    }
+  } else {
+    if (vipBadge) vipBadge.classList.add("hidden");
   }
 
   const adminBtn = document.getElementById("m-btn-admin-vault");
@@ -1434,7 +1459,7 @@ function renderMarketplaceGrid() {
           <div class="mnc-price-box">
             <span class="mnc-price-lbl">ASKING PRICE</span>
             <strong class="mnc-price-val">${formattedPrice} $${item.currency || "EFOO"}</strong>
-            <span class="mnc-seller-lbl">${item.isXoxno ? "⚡ XOXNO Listing" : `Seller: ${sellerShort}`}</span>
+            <span class="mnc-seller-lbl">${item.isXoxno ? "⚡ XOXNO Listing" : `Seller: ${sellerShort}${hasUltrasPass(item.seller) ? ' <span class="mnc-seller-vip-crown" title="0% Fee VIP Ultras Seller">👑 VIP</span>' : ''}`}</span>
           </div>
 
           <div class="mnc-action-wrap">

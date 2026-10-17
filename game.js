@@ -133,6 +133,32 @@ const CONTRACTS = {
   WC_PROJECT_ID: "9b1a9564f91cb659ffe21b73d5c4e2d8"
 };
 
+const ULTRAS_PASS_IDENTIFIER = "EFOOPASS-5223a8-01";
+const ULTRAS_PASS_COLLECTION = "EFOOPASS-5223a8";
+const STORAGE_ULTRAS_PASS_PREFIX = "efoo_ultras_pass_";
+const EFOOREWARDS_WALLET = "erd1p5hfnx87q4pddwsyz23e5pqv8550rsfat902j6g4ckdh070055hshct4my";
+
+function hasUltrasPass(address) {
+  if (!address) return false;
+  const cleanAddr = address.toLowerCase();
+  if (cleanAddr === EFOOREWARDS_WALLET.toLowerCase()) return true;
+  if (localStorage.getItem(STORAGE_ULTRAS_PASS_PREFIX + cleanAddr) === "true") return true;
+  if (localStorage.getItem("efoo_has_ultras_pass") === "true") return true;
+  if (walletState && walletState.ownedNfts && Array.isArray(walletState.ownedNfts)) {
+    if (walletState.ownedNfts.some(x => {
+      const id = ((x.identifier || "") + " " + (x.name || "") + " " + (x.collection || "")).toLowerCase();
+      return id.includes("efoopass-5223a8") || id.includes("efoopass") || id.includes("ultras pass") || (x.collection && x.collection.toLowerCase() === ULTRAS_PASS_COLLECTION.toLowerCase());
+    })) {
+      try {
+        localStorage.setItem(STORAGE_ULTRAS_PASS_PREFIX + cleanAddr, "true");
+        localStorage.setItem("efoo_has_ultras_pass", "true");
+      } catch (e) {}
+      return true;
+    }
+  }
+  return false;
+}
+
 const EFOO_CONFIG = {
   TOKEN_ID: "EFOO-8fe2d4",
   STADIUM_VAULT_SC: "erd1qqqqqqqqqqqqqpgqwdrgl4k7gfa26wp0xcje8qn9gucq87yx55hs39eend",
@@ -1539,7 +1565,11 @@ function getPowers() {
 
   const hasRocket = efoo >= MIN_EFOO_REQUIRED;
   const rocketPts = efoo >= 10000000 ? 3000 : hasRocket ? 1000 : 0;
-  const maxShields = keeperRarity.slots >= 5 ? 3 : (keeperRarity.slots >= 3 ? 2 : (keeperRarity.slots >= 1 ? 1 : 0));
+  const isUltras = hasUltrasPass(connectedAddress);
+  if (isUltras) mult += 1.5;
+
+  const baseShields = keeperRarity.slots >= 5 ? 3 : (keeperRarity.slots >= 3 ? 2 : (keeperRarity.slots >= 1 ? 1 : 0));
+  const maxShields = isUltras ? Math.max(1, baseShields + 1) : baseShields;
 
   return {
     pCount,
@@ -1560,7 +1590,8 @@ function getPowers() {
     hasTwinBall: strikerSlots >= 4,
     hasRocket,
     rocketPts,
-    isPro: pCount >= 1 || kCount >= 1 || hasRocket || strikerRarity.id !== "rookie"
+    isUltrasPass: isUltras,
+    isPro: pCount >= 1 || kCount >= 1 || hasRocket || isUltras || strikerRarity.id !== "rookie"
   };
 }
 
@@ -1665,6 +1696,11 @@ const game = {
 };
 
 function getAvailableStrikers() {
+  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
+  if (!isConnected) {
+    return [ROOKIE_STRIKER];
+  }
+
   const walletStrikers = (walletState.ownedNfts || [])
     .filter((n) => n.collection === "EFOOTBALL-91a4eb")
     .map((n) => {
@@ -1689,6 +1725,11 @@ function getAvailableStrikers() {
 }
 
 function getAvailableKeepers() {
+  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
+  if (!isConnected) {
+    return [ROOKIE_KEEPER];
+  }
+
   const walletKeepers = (walletState.ownedNfts || [])
     .filter((n) => n.collection === "GOALKEEPER-cb9e3e")
     .map((n) => {
@@ -1970,6 +2011,12 @@ function updateEntryGateUI() {
   const modalActiveCard = document.getElementById("wallet-modal-active-card");
   const modalActiveErd = document.getElementById("modal-active-erd");
 
+  const navVipBadge = document.getElementById("nav-ultras-vip-badge");
+  const isUltras = hasUltrasPass(connectedAddress);
+  if (navVipBadge) {
+    navVipBadge.classList.toggle("hidden", !isUltras);
+  }
+
   if (connectedAddress && VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
     document.getElementById("nav-wallet-label").textContent = shortErd(connectedAddress);
     disconnectBtn?.classList.remove("hidden");
@@ -2038,12 +2085,19 @@ function updateEntryGateUI() {
   card.classList.add("unlocked");
   const balFormatted = Math.floor(walletState.efooBalance).toLocaleString("en-US");
 
-  badge.textContent = isRo
-    ? "✅ PORTOFEL CONECTAT — ECHIPĂ ACTIVĂ!"
-    : (currentLang === "hu" ? "✅ TÁRCA CSATLAKOZTATVA — CSAPAT KÉSZEN ÁLL!" : "✅ WALLET CONNECTED — SQUAD READY!");
+  if (isUltras) {
+    badge.textContent = currentLang === "hu" ? "👑 EFOO ULTRAS PASS AKTÍV — 0% DÍJAK & 2X VAULT ESÉLY!" : "👑 EFOO ULTRAS PASS ACTIVE — 0% FEES & 2X VAULT ODDS!";
+    badge.style.color = "#ffb800";
+  } else {
+    badge.textContent = isRo
+      ? "✅ PORTOFEL CONECTAT — ECHIPĂ ACTIVĂ!"
+      : (currentLang === "hu" ? "✅ TÁRCA CSATLAKOZTATVA — CSAPAT KÉSZEN ÁLL!" : "✅ WALLET CONNECTED — SQUAD READY!");
+  }
+
+  const ultrasBadgeText = isUltras ? " • 👑 <strong>ULTRAS VIP (0% Fees + 2x Vault)</strong>" : "";
   walletLine.innerHTML = isRo
-    ? `Portofel: <strong>${shortErd(connectedAddress)}</strong> • Sold: <strong>${balFormatted} $EFOO</strong> • NFT: <strong>${walletState.playersCount}⚽ ${walletState.keepersCount}🧤 (${p.totalMult.toFixed(1)}x Boost)</strong>`
-    : `Wallet: <strong>${shortErd(connectedAddress)}</strong> • Balance: <strong>${balFormatted} $EFOO</strong> • Squad: <strong>${walletState.playersCount}⚽ ${walletState.keepersCount}🧤 (${p.totalMult.toFixed(1)}x Boost)</strong>`;
+    ? `Portofel: <strong>${shortErd(connectedAddress)}</strong> • Sold: <strong>${balFormatted} $EFOO</strong> • NFT: <strong>${walletState.playersCount}⚽ ${walletState.keepersCount}🧤 (${p.totalMult.toFixed(1)}x Boost)</strong>${ultrasBadgeText}`
+    : `Wallet: <strong>${shortErd(connectedAddress)}</strong> • Balance: <strong>${balFormatted} $EFOO</strong> • Squad: <strong>${walletState.playersCount}⚽ ${walletState.keepersCount}🧤 (${p.totalMult.toFixed(1)}x Boost)</strong>${ultrasBadgeText}`;
 
   startBtn.classList.remove("locked");
   startBtn.innerHTML = `⚽ <span>START 120' PENALTY SHOOTOUT</span>`;
@@ -2275,7 +2329,18 @@ function launchMatchWithIntro() {
     kickerEl.style.color = tier.color;
   }
   if (titleEl) titleEl.textContent = "120' DRAW — PENALTY SHOOTOUT";
-  if (perkEl) perkEl.textContent = `⚡ ${p.totalMult.toFixed(1)}x BOOST • ${p.strikerRarity.name} STRIKER & ${p.keeperRarity.name} GK`;
+  if (perkEl) {
+    if (!connectedAddress || !connectedAddress.startsWith("erd1")) {
+      perkEl.textContent = currentLang === "hu" ? "🔒 VENDÉG MÓD • ALAP FELSZERELÉS (0 KÉPESSÉG)" : "🔒 GUEST MODE • BASE KIT (0 SKILLS)";
+      perkEl.style.color = "#94a3b8";
+    } else if (p.isUltrasPass) {
+      perkEl.textContent = `👑 ${p.totalMult.toFixed(1)}x BOOST • ULTRAS VIP (+1.5x MULT & VIP SHIELD)`;
+      perkEl.style.color = "#ffb800";
+    } else {
+      perkEl.textContent = `⚡ ${p.totalMult.toFixed(1)}x BOOST • ${p.strikerRarity.name} STRIKER & ${p.keeperRarity.name} GK`;
+      perkEl.style.color = "#a8ff00";
+    }
+  }
   audio.playIntroImpact();
 
   let prog = 0;
@@ -5231,12 +5296,13 @@ async function fetchWalletNftsAndBalance(address) {
   updateEntryGateUI();
 
   try {
-    const [accRes, tokRes, pRes, kRes, nftsRes] = await Promise.all([
+    const [accRes, tokRes, pRes, kRes, ultrasRes, nftsRes] = await Promise.all([
       fetch(`https://api.multiversx.com/accounts/${address}`),
       fetch(`https://api.multiversx.com/accounts/${address}/tokens?identifiers=EFOO-8fe2d4`),
       fetch(`https://api.multiversx.com/accounts/${address}/nfts/count?collections=EFOOTBALL-91a4eb`),
       fetch(`https://api.multiversx.com/accounts/${address}/nfts/count?collections=GOALKEEPER-cb9e3e`),
-      fetch(`https://api.multiversx.com/accounts/${address}/nfts?collections=EFOOTBALL-91a4eb,GOALKEEPER-cb9e3e&size=100`)
+      fetch(`https://api.multiversx.com/accounts/${address}/nfts/count?collections=${ULTRAS_PASS_COLLECTION}`),
+      fetch(`https://api.multiversx.com/accounts/${address}/nfts?collections=EFOOTBALL-91a4eb,GOALKEEPER-cb9e3e,${ULTRAS_PASS_COLLECTION}&size=100`)
     ]);
     if (accRes.ok) {
       const a = await accRes.json();
@@ -5252,7 +5318,16 @@ async function fetchWalletNftsAndBalance(address) {
     }
     walletState.playersCount = pRes.ok ? Number(await pRes.text()) || 0 : 0;
     walletState.keepersCount = kRes.ok ? Number(await kRes.text()) || 0 : 0;
+    walletState.ultrasCount = ultrasRes.ok ? Number(await ultrasRes.text()) || 0 : 0;
     walletState.ownedNfts = nftsRes.ok ? await nftsRes.json() : [];
+
+    if (hasUltrasPass(address)) {
+      try {
+        localStorage.setItem(STORAGE_ULTRAS_PASS_PREFIX + address.toLowerCase(), "true");
+        localStorage.setItem("efoo_has_ultras_pass", "true");
+      } catch (e) {}
+    }
+
     walletState.verified = true;
     walletState.loading = false;
 
@@ -6333,6 +6408,8 @@ function recordMatchToLeaderboard(score, goals, level) {
     (x) => x.address && x.address.toLowerCase() === playerAddr.toLowerCase()
   );
 
+  const isUltras = hasUltrasPass(playerAddr);
+
   if (existingIdx !== -1) {
     // Only update if new score is higher than their previous personal best!
     if (score > list[existingIdx].score) {
@@ -6340,8 +6417,10 @@ function recordMatchToLeaderboard(score, goals, level) {
       list[existingIdx].goals = goals;
       list[existingIdx].level = level;
       list[existingIdx].date = "Just now";
+      list[existingIdx].isUltras = isUltras;
       if (hero) list[existingIdx].herotag = hero;
     } else {
+      if (isUltras) list[existingIdx].isUltras = true;
       if (hero && !list[existingIdx].herotag) {
         list[existingIdx].herotag = hero;
       }
@@ -6354,6 +6433,7 @@ function recordMatchToLeaderboard(score, goals, level) {
       herotag: hero || "",
       nickname: hero ? "" : getDeterministicFootballNickname(playerAddr),
       isGuest: false,
+      isUltras,
       level,
       goals,
       score,
@@ -6573,11 +6653,13 @@ function renderLeaderboardModal(options = {}) {
 
     const isHero = !!(herotag && herotag.trim().length > 0);
     const shortAddr = row.isGuest ? (row.isSimulated ? (currentLang === "hu" ? "Nem mentve" : "Unsaved") : "Guest") : shortErd(row.address);
+    const isRowUltras = !row.isGuest && (row.isUltras || hasUltrasPass(row.address));
+    const vipCrown = isRowUltras ? `<span class="ultras-vip-crown" title="👑 EFOO Ultras VIP Pass Active (0% Fees & 2x Jackpot Boost)">👑 VIP</span> ` : "";
     const displayName = row.isSimulated
       ? `<strong style="color:#ffffff; font-size:0.92rem;">👤 ${escapeHtml(row.nickname)}</strong>`
       : isHero
-      ? `<strong class="herotag-name" style="color:#a8ff00; font-weight:800; font-size:0.95rem; text-shadow:0 0 10px rgba(168,255,0,0.5);">⚡ ${escapeHtml(herotag)}</strong>`
-      : `<span class="generated-nickname" style="color:#94a3b8; font-style:italic;">${escapeHtml(row.nickname || row.name || getDeterministicFootballNickname(row.address))}</span>`;
+      ? `<strong class="herotag-name" style="color:#a8ff00; font-weight:800; font-size:0.95rem; text-shadow:0 0 10px rgba(168,255,0,0.5);">${vipCrown}⚡ ${escapeHtml(herotag)}</strong>`
+      : `<span class="generated-nickname" style="color:#94a3b8; font-style:italic;">${vipCrown}${escapeHtml(row.nickname || row.name || getDeterministicFootballNickname(row.address))}</span>`;
 
     const rankPill = row.displayRank === 1
       ? "🥇 1"
@@ -6649,9 +6731,11 @@ function renderStartScreenLeaderboard() {
 
     const isHero = !!(herotag && herotag.trim().length > 0);
     const shortAddr = row.isGuest ? "Guest" : shortErd(row.address);
+    const isRowUltras = !row.isGuest && (row.isUltras || hasUltrasPass(row.address));
+    const vipCrown = isRowUltras ? `<span class="ultras-vip-crown" title="👑 EFOO Ultras VIP Pass Active">👑 VIP</span> ` : "";
     const displayName = isHero
-      ? `<strong class="herotag-name" style="color:#a8ff00; font-weight:800; font-size:0.86rem; text-shadow:0 0 10px rgba(168,255,0,0.5);">⚡ ${escapeHtml(herotag)}</strong>`
-      : `<span class="generated-nickname" style="color:#e2e8f0; font-weight:600; font-size:0.82rem;">${escapeHtml(row.nickname || row.name || (row.isGuest ? "Guest Player" : getDeterministicFootballNickname(row.address)))}</span>`;
+      ? `<strong class="herotag-name" style="color:#a8ff00; font-weight:800; font-size:0.86rem; text-shadow:0 0 10px rgba(168,255,0,0.5);">${vipCrown}⚡ ${escapeHtml(herotag)}</strong>`
+      : `<span class="generated-nickname" style="color:#e2e8f0; font-weight:600; font-size:0.82rem;">${vipCrown}${escapeHtml(row.nickname || row.name || (row.isGuest ? "Guest Player" : getDeterministicFootballNickname(row.address)))}</span>`;
 
     const rankPill = row.rank === 1
       ? `<span style="color:#ffb800; font-weight:900; font-size:1.05rem;">🥇 1</span>`
