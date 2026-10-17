@@ -642,19 +642,34 @@
             <!-- Preset Buttons -->
             <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
               <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 8px; font-size: 0.75rem; margin: 0; border-color: var(--admin-gold); color: var(--admin-gold);" onclick="loadSftPreset('ultras_pass')">
-                🎟️ Ultras PASS (300 db)
+                🎟️ Ultras PASS (300)
               </button>
               <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 8px; font-size: 0.75rem; margin: 0;" onclick="loadSftPreset('rocket_ball')">
                 🚀 Rocket Ball (10k)
               </button>
-              <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 8px; font-size: 0.75rem; margin: 0;" onclick="loadSftPreset('freeze_keeper')">
-                ❄️ Freeze Keeper (10k)
-              </button>
               <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 8px; font-size: 0.75rem; margin: 0;" onclick="loadSftPreset('laser_aim')">
                 🎯 Laser Aim (10k)
               </button>
+              <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 8px; font-size: 0.75rem; margin: 0;" onclick="loadSftPreset('freeze_keeper')">
+                ❄️ Keeper Freeze (10k)
+              </button>
+              <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 8px; font-size: 0.75rem; margin: 0;" onclick="loadSftPreset('banana_curve')">
+                🌀 Banana Curve (10k)
+              </button>
+              <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 8px; font-size: 0.75rem; margin: 0;" onclick="loadSftPreset('gold_multiplier')">
+                💰 Gold x2 (10k)
+              </button>
+              <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 8px; font-size: 0.75rem; margin: 0;" onclick="loadSftPreset('iron_wall')">
+                🛡️ Iron Wall (10k)
+              </button>
               <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 8px; font-size: 0.75rem; margin: 0;" onclick="loadSftPreset('giant_gloves')">
                 🧤 Giant Gloves (10k)
+              </button>
+              <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 8px; font-size: 0.75rem; margin: 0;" onclick="loadSftPreset('matrix_warp')">
+                ⏱️ Matrix Warp (10k)
+              </button>
+              <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 8px; font-size: 0.75rem; margin: 0;" onclick="loadSftPreset('mind_radar')">
+                👁️ Mind Radar (10k)
               </button>
             </div>
 
@@ -1896,29 +1911,64 @@
         name: "Rocket Ball Skill",
         qty: 10000,
         royalties: 500,
-        attributes: "tags:Skill,Striker;velocity:+35%",
-        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/efoo-degen-crest-512x512.png"
-      },
-      freeze_keeper: {
-        name: "Freeze Keeper Skill",
-        qty: 10000,
-        royalties: 500,
-        attributes: "tags:Skill,Keeper;freeze:1.2s",
-        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/efoo-degen-crest-512x512.png"
+        attributes: "tags:Skill,Striker;velocity:+35%;sweetspot:wide",
+        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/skill-rocket-ball-badge.png"
       },
       laser_aim: {
         name: "Laser Aim Skill",
         qty: 10000,
         royalties: 500,
-        attributes: "tags:Skill,Striker;laser:trajectory",
-        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/efoo-degen-crest-512x512.png"
+        attributes: "tags:Skill,Striker;laser:trajectory;stabilizer:100%",
+        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/skill-laser-aim-badge.png"
+      },
+      freeze_keeper: {
+        name: "Keeper Freeze Skill",
+        qty: 10000,
+        royalties: 500,
+        attributes: "tags:Skill,Striker;freeze:1.2s;reach:-45%",
+        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/skill-freeze-keeper-badge.png"
+      },
+      banana_curve: {
+        name: "Banana Curve Skill",
+        qty: 10000,
+        royalties: 500,
+        attributes: "tags:Skill,Striker;curve:+70%;swerve:extreme",
+        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/skill-banana-curve-badge.png"
+      },
+      gold_multiplier: {
+        name: "Gold Multiplier Skill",
+        qty: 10000,
+        royalties: 500,
+        attributes: "tags:Skill,Striker;score:2x;jackpot:boost",
+        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/skill-gold-multiplier-badge.png"
+      },
+      iron_wall: {
+        name: "Iron Wall Skill",
+        qty: 10000,
+        royalties: 500,
+        attributes: "tags:Skill,Keeper;area:+50%;post:reinforced",
+        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/skill-iron-wall-badge.png"
       },
       giant_gloves: {
         name: "Giant Gloves Skill",
         qty: 10000,
         royalties: 500,
-        attributes: "tags:Skill,Keeper;size:+40%",
-        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/efoo-degen-crest-512x512.png"
+        attributes: "tags:Skill,Keeper;reach:+40%;dive:supernatural",
+        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/skill-giant-gloves-badge.png"
+      },
+      matrix_warp: {
+        name: "Matrix Time Warp Skill",
+        qty: 10000,
+        royalties: 500,
+        attributes: "tags:Skill,Keeper;slowmo:-50%;reaction:bullet_time",
+        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/skill-matrix-warp-badge.png"
+      },
+      mind_radar: {
+        name: "Mind Read Radar Skill",
+        qty: 10000,
+        royalties: 500,
+        attributes: "tags:Skill,Keeper;radar:holographic;target:revealed",
+        uri: "https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/skill-mind-radar-badge.png"
       }
     };
 
