@@ -6450,10 +6450,10 @@ function renderStartScreenLeaderboard() {
       <td>
         <div style="display:flex; flex-direction:column; gap:2px; line-height:1.2;">
           <div>${displayName}</div>
-          <small style="color:#64748b; font-size:0.68rem; font-family:'JetBrains Mono',monospace;">${shortAddr} • LVL ${row.level}</small>
+          <small style="color:#64748b; font-size:0.68rem; font-family:'JetBrains Mono',monospace;">${shortAddr}</small>
         </div>
       </td>
-      <td><span style="color:#e2e8f0; font-weight:700;">⚽ ${row.goals}/5</span></td>
+      <td style="text-align:center;"><span style="color:#38bdf8; font-weight:800; font-family:'JetBrains Mono',monospace; font-size:0.84rem; background:rgba(56,189,248,0.12); padding:3px 9px; border-radius:999px; border:1px solid rgba(56,189,248,0.3);">LVL ${row.level || 1}</span></td>
       <td style="text-align:right;"><strong style="color:#a8ff00; font-family:'JetBrains Mono',monospace; font-size:0.92rem;">${row.score.toLocaleString("en-US")}</strong></td>
     `;
     tbody.appendChild(tr);
