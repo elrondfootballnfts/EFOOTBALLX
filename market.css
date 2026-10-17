@@ -1382,7 +1382,6 @@ body {
   font-size: 0.76rem;
   letter-spacing: 0.05em;
 }
-}
 
 .m-empty-state {
   animation: fadeIn 0.3s ease;
@@ -1392,3 +1391,788 @@ body {
   border-color: rgba(168, 255, 0, 0.3) !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
+
+/* =====================================================================
+   ADDITIONAL TABS STYLING & ULTRAS VIP HIGHLIGHT
+   ===================================================================== */
+.m-tab-btn.gold-highlight {
+  border-color: rgba(255, 184, 0, 0.4);
+  color: #ffb800;
+  background: rgba(255, 184, 0, 0.06);
+}
+.m-tab-btn.gold-highlight:hover {
+  background: rgba(255, 184, 0, 0.12);
+  border-color: #ffb800;
+  box-shadow: 0 0 15px rgba(255, 184, 0, 0.25);
+}
+.m-tab-btn.gold-highlight.active {
+  background: linear-gradient(135deg, rgba(255, 184, 0, 0.22), rgba(255, 184, 0, 0.06));
+  border-color: #ffb800;
+  color: #ffb800;
+  box-shadow: 0 0 20px rgba(255, 184, 0, 0.35);
+}
+
+/* =====================================================================
+   EFOO ULTRAS PASS (KROGAN PRO SWAPPER INSPIRED DEGEN VIP SUITE)
+   ===================================================================== */
+.ultras-wrapper {
+  animation: fadeIn 0.35s ease;
+}
+.ultras-hero-head {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.ultras-hero-title {
+  font-family: var(--font-bebas);
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  margin: 6px 0;
+  line-height: 1.05;
+}
+.ultras-hero-sub {
+  color: var(--text-sub);
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.ultras-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 28px;
+  align-items: stretch;
+  margin-bottom: 35px;
+}
+@media (max-width: 900px) {
+  .ultras-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ultras-card-box {
+  background: radial-gradient(circle at 50% 15%, rgba(20, 50, 26, 0.85), rgba(7, 14, 10, 0.98));
+  border: 2px solid rgba(168, 255, 0, 0.4);
+  border-radius: 24px;
+  padding: 32px 26px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(168, 255, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.ultras-card-box::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 184, 0, 0.08), transparent 70%);
+  pointer-events: none;
+}
+
+.ultras-hologram-stage {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ultras-hologram-shield {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 184, 0, 0.25), rgba(168, 255, 0, 0.1) 60%, rgba(5, 10, 7, 0.9));
+  border: 3px solid #ffb800;
+  box-shadow: 0 0 35px rgba(255, 184, 0, 0.5), inset 0 0 25px rgba(168, 255, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  animation: pulseGoldGlow 3s infinite alternate ease-in-out;
+}
+@keyframes pulseGoldGlow {
+  0% { transform: scale(0.98); box-shadow: 0 0 25px rgba(255, 184, 0, 0.4); }
+  100% { transform: scale(1.02); box-shadow: 0 0 45px rgba(255, 184, 0, 0.7), 0 0 25px rgba(168, 255, 0, 0.4); }
+}
+.ultras-shield-emblem {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 14px rgba(255, 184, 0, 0.8));
+}
+.ultras-supply-pill {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 184, 0, 0.5);
+  color: #ffb800;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ultras-card-title {
+  font-family: var(--font-bebas);
+  font-size: 1.9rem;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  margin: 0 0 4px;
+}
+.ultras-card-tagline {
+  color: var(--neon);
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 800;
+  margin-bottom: 18px;
+}
+
+.ultras-stepper-box {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 18px;
+}
+.usb-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--text-sub);
+  margin-bottom: 8px;
+}
+.usb-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.usb-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #27272a;
+  border: 1px solid #3f3f46;
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.16s ease;
+}
+.usb-btn:hover {
+  background: var(--neon);
+  color: #050a07;
+  border-color: var(--neon);
+}
+.usb-input {
+  width: 60px;
+  text-align: center;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-family: var(--font-bebas);
+  font-size: 1.8rem;
+  font-weight: 800;
+  outline: none;
+}
+.usb-slider {
+  width: 100%;
+  margin-top: 10px;
+  accent-color: var(--neon);
+}
+
+.ultras-price-total {
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  color: #ffffff;
+  margin-bottom: 16px;
+}
+.ultras-price-total strong {
+  color: #ffb800;
+  font-size: 1.35rem;
+}
+
+.ultras-buy-btn {
+  width: 100%;
+  padding: 14px 20px;
+  font-family: var(--font-bebas);
+  font-size: 1.45rem;
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, #a8ff00, #ffb800);
+  border: none;
+  border-radius: 14px;
+  color: #050a07;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 25px rgba(168, 255, 0, 0.4);
+}
+.ultras-buy-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 35px rgba(255, 184, 0, 0.6);
+}
+
+.ultras-owned-badge {
+  background: rgba(168, 255, 0, 0.12);
+  border: 1px solid var(--neon);
+  color: var(--neon);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 8px 14px;
+  border-radius: 10px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* Right Column Benefits Card */
+.ultras-benefits-box {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.ubb-title {
+  font-family: var(--font-bebas);
+  font-size: 1.85rem;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  margin: 0 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ubb-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ubb-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.94rem;
+  color: #e2e8f0;
+  line-height: 1.4;
+}
+.ubb-icon {
+  color: var(--neon);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.ubb-item strong {
+  color: #ffffff;
+}
+
+.ultras-savings-card {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 184, 0, 0.3);
+  border-radius: 16px;
+  padding: 16px 20px;
+}
+.usc-title {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #ffb800;
+  font-weight: 800;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.usc-rows {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.usc-col {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+.usc-col span {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-sub);
+  margin-bottom: 2px;
+}
+.usc-col strong {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--neon);
+}
+
+/* =====================================================================
+   LIQUIDITY POOLS TAB (EGLD & USDC MULTIVERSX POOLS)
+   ===================================================================== */
+.pools-wrapper {
+  animation: fadeIn 0.35s ease;
+}
+.pools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 24px;
+  margin-bottom: 30px;
+}
+.pool-card-main {
+  background: rgba(18, 24, 38, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+}
+.pool-card-main:hover {
+  border-color: rgba(168, 255, 0, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+}
+.pool-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.pool-pair-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ppb-icons {
+  display: flex;
+  align-items: center;
+}
+.ppb-icons img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #18181b;
+}
+.ppb-icons img:nth-child(2) {
+  margin-left: -10px;
+}
+.ppb-title {
+  font-family: var(--font-bebas);
+  font-size: 1.5rem;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+}
+.pool-tag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+.pool-tag.primary {
+  background: rgba(168, 255, 0, 0.15);
+  color: var(--neon);
+  border: 1px solid rgba(168, 255, 0, 0.3);
+}
+.pool-tag.stable {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.pool-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.ps-item {
+  background: rgba(0, 0, 0, 0.35);
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.ps-lbl {
+  display: block;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  color: var(--text-sub);
+  margin-bottom: 2px;
+}
+.ps-val {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  color: #ffffff;
+  font-weight: 700;
+}
+.ps-val.neon {
+  color: var(--neon);
+}
+
+.pool-actions-row {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+}
+.pool-btn {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.pool-btn.primary {
+  background: var(--neon);
+  color: #050a07;
+  border: none;
+}
+.pool-btn.primary:hover {
+  background: #8ce600;
+}
+.pool-btn.sec {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+.pool-btn.sec:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* LP Interactive Calculator Card */
+.pool-calc-card {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(168, 255, 0, 0.25);
+  border-radius: 20px;
+  padding: 24px;
+}
+.pcc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.pcc-head h3 {
+  font-family: var(--font-bebas);
+  font-size: 1.6rem;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  margin: 0;
+}
+.pcc-calc-row {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 20px;
+  align-items: center;
+}
+@media (max-width: 768px) {
+  .pcc-calc-row {
+    grid-template-columns: 1fr;
+  }
+}
+.pcc-input-wrap input {
+  width: 100%;
+  background: #090d16;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  padding: 10px 14px;
+  border-radius: 12px;
+  outline: none;
+}
+.pcc-input-wrap label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  margin-bottom: 6px;
+}
+.pcc-returns-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.pr-box {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.pr-box small {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-sub);
+  margin-bottom: 3px;
+}
+.pr-box strong {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--neon);
+}
+
+/* =====================================================================
+   DEX SWAP & MINTER TABS IN MARKETPLACE
+   ===================================================================== */
+.market-swap-wrap,
+.market-mint-wrap {
+  animation: fadeIn 0.35s ease;
+  max-width: 820px;
+  margin: 0 auto;
+}
+.m-tab-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.m-tab-header h2 {
+  font-family: var(--font-bebas);
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  margin: 4px 0;
+}
+.m-tab-header p {
+  color: var(--text-sub);
+  font-size: 0.92rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.market-swap-card {
+  background: radial-gradient(circle at 50% 10%, rgba(20, 35, 45, 0.8), rgba(9, 13, 20, 0.95));
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.7);
+}
+.ms-token-box {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.ms-token-head {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  margin-bottom: 8px;
+}
+.ms-token-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ms-input-amt {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 1.6rem;
+  font-weight: 700;
+  outline: none;
+}
+.ms-token-select {
+  background: #18181b;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.ms-flip-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 10px 0;
+}
+.ms-flip-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #27272a;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--neon);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.ms-flip-btn:hover {
+  transform: rotate(180deg);
+  background: var(--neon);
+  color: #050a07;
+}
+
+.ms-bonus-pill {
+  background: rgba(168, 255, 0, 0.12);
+  border: 1px dashed var(--neon);
+  color: var(--neon);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ms-swap-action-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  font-family: var(--font-bebas);
+  font-size: 1.45rem;
+  letter-spacing: 0.05em;
+  background: var(--neon);
+  color: #050a07;
+  border: none;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 25px rgba(168, 255, 0, 0.35);
+}
+.ms-swap-action-btn:hover {
+  background: #8ce600;
+  transform: translateY(-2px);
+}
+
+/* Minter Cards on Marketplace */
+.market-mint-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 22px;
+}
+.mm-card {
+  background: rgba(18, 24, 38, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+.mm-card.gold-border {
+  border-color: rgba(255, 184, 0, 0.35);
+}
+.mm-head {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.mm-thumb {
+  width: 76px;
+  height: 76px;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 2px solid var(--neon);
+}
+.mm-thumb.gold {
+  border-color: #ffb800;
+}
+.mm-title-col h3 {
+  font-family: var(--font-bebas);
+  font-size: 1.5rem;
+  color: #ffffff;
+  margin: 0 0 4px;
+  letter-spacing: 0.04em;
+}
+.mm-coll-code {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--neon);
+}
+.mm-desc {
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+  margin-bottom: 16px;
+}
+.mm-meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text-sub);
+  margin-bottom: 12px;
+}
+.mm-meta-row strong {
+  color: #ffffff;
+}
+.mm-price-tag {
+  color: var(--neon);
+  font-weight: 800;
+}
+.mm-price-tag.gold {
+  color: #ffb800;
+}
+
+.mm-actions {
+  margin-top: auto;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.mm-mint-btn {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-family: var(--font-bebas);
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+  background: var(--neon);
+  color: #050a07;
+  border: none;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+.mm-mint-btn:hover {
+  background: #8ce600;
+}
+.mm-mint-btn.gold {
+  background: #ffb800;
+}
+.mm-mint-btn.gold:hover {
+  background: #e5a700;
+}
+

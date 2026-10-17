@@ -13,6 +13,48 @@ const STADIUM_VAULT_SC = "erd1qqqqqqqqqqqqqpgqwdrgl4k7gfa26wp0xcje8qn9gucq87yx55
 const SC_HEX = "0000000000000000050073468fd6de427aad382f3625938265473003f886a52f";
 const EFOOREWARDS_WALLET = "erd1p5hfnx87q4pddwsyz23e5pqv8550rsfat902j6g4ckdh070055hshct4my";
 const WC_PROJECT_ID = "9b1a9564f91cb659ffe21b73d5c4e2d8";
+
+// EFOO ULTRAS PASS (Zero-Fee VIP Pass) & CONTRACTS
+const ULTRAS_PASS_PRICE_EGLD = 0.5;
+const ULTRAS_PASS_PRICE_EFOO = 5000000;
+const STORAGE_ULTRAS_PASS_PREFIX = "efoo_ultras_pass_";
+
+const CONTRACTS = {
+  ONEDEX_PAIR: "erd1qqqqqqqqqqqqqpgqqz6vp9y50ep867vnr296mqf3dduh6guvmvlsu3sujc",
+  XEXCHANGE_PAIR: "erd1qqqqqqqqqqqqqpgqjz0jwz73e8u7s0hu2y5qqeu8phm5d4f92jpsdu5qhw",
+  WEGLD_WRAPPERS: {
+    0: "erd1qqqqqqqqqqqqqpgqvc7gdl0p4s97guh498wgz75k8sav6sjfjlwqh679jy",
+    1: "erd1qqqqqqqqqqqqqpgqhe8t5jewej70zupmh44jurgn29psua5l2jps3ntjj3",
+    2: "erd1qqqqqqqqqqqqqpgqmuk0q2saj0mgutxm4teywre6dl8wqf58xamqdrukln"
+  },
+  NFT_MINTER: "erd1qqqqqqqqqqqqqpgq78frnmw5sep0q4r2qd96y3d6f6p7ujwcys5s9evzym"
+};
+
+let marketDexState = {
+  mode: "buy", // "buy" | "sell"
+  efooPerWegld: 30004200,
+  efooPerUsdc: 8100300,
+  onedexEfooReserve: 62137838,
+  onedexWegldReserve: 2.071,
+  xexEfooReserve: 185570612,
+  xexUsdcReserve: 22.909
+};
+
+function hasUltrasPass(address) {
+  if (!address) return false;
+  const cleanAddr = address.toLowerCase();
+  if (localStorage.getItem(STORAGE_ULTRAS_PASS_PREFIX + cleanAddr) === "true") return true;
+  if (marketWallet && marketWallet.ownedNfts && Array.isArray(marketWallet.ownedNfts)) {
+    if (marketWallet.ownedNfts.some(x => {
+      const id = ((x.identifier || "") + " " + (x.name || "") + " " + (x.collection || "")).toLowerCase();
+      return id.includes("ultras") || id.includes("pass");
+    })) {
+      return true;
+    }
+  }
+  return false;
+}
+
 let marketWcSignClient = null;
 let marketWcSessionTopic = localStorage.getItem("efoo_wc_topic") || "";
 
@@ -1809,11 +1851,23 @@ async function executeBuyNft(item) {
       renderMyLockerGrid();
       renderTelemetry();
 
-      showMarketToast(
-        isHu
-          ? `🎉 Vásárlási tranzakció sikeresen kiküldve! 97.5% az eladónak, 2.5% díj az efoorewards tárcába ment. Az NFT a címedre érkezik!`
-          : `🎉 Purchase transaction sent! 97.5% to seller, 2.5% to efoorewards. NFT transfers directly to your wallet!`
-      );
+      const sellerHasPass = hasUltrasPass(item.seller);
+      const buyerHasPass = hasUltrasPass(marketWallet.address);
+      const isZeroFeeTrade = sellerHasPass || buyerHasPass;
+
+      if (isZeroFeeTrade) {
+        showMarketToast(
+          isHu
+            ? `🎉 Vásárlási tranzakció elküldve! 0% VIP Ultras díjkedvezmény: az eladó a vételár 100%-át megkapja! Az NFT a címedre érkezik!`
+            : `🎉 Buy transaction sent! 0% VIP Ultras fee applied: seller receives 100%! NFT incoming to your locker!`
+        );
+      } else {
+        showMarketToast(
+          isHu
+            ? `🎉 Vásárlási tranzakció sikeresen kiküldve! 98% az eladónak, 2% díj az efoorewards tárcába ment. Az NFT a címedre érkezik!`
+            : `🎉 Purchase transaction sent! 98% to seller, 2% fee to efoorewards. NFT transfers directly to your wallet!`
+        );
+      }
     } catch (err) {
       console.error("EGLD purchase failed:", err);
       showMarketToast(
@@ -1858,8 +1912,14 @@ async function executeBuyNft(item) {
       data: dataField
     });
 
-    const fee2_5 = Math.floor(Number(item.price) * 0.025);
-    addVaultContributions(fee2_5, fee2_5);
+    const sellerHasPass = hasUltrasPass(item.seller);
+    const buyerHasPass = hasUltrasPass(marketWallet.address);
+    const isZeroFeeTrade = sellerHasPass || buyerHasPass;
+
+    if (!isZeroFeeTrade) {
+      const fee2_5 = Math.floor(Number(item.price) * 0.025);
+      addVaultContributions(fee2_5, fee2_5);
+    }
 
     let listings = getMarketplaceListings().filter((x) => x.id !== item.id && x.identifier !== item.identifier);
     saveMarketplaceListings(listings);
@@ -1874,11 +1934,19 @@ async function executeBuyNft(item) {
     renderMyLockerGrid();
     renderTelemetry();
 
-    showMarketToast(
-      isHu
-        ? `🎉 Vásárlási tranzakció sikeresen kiküldve! 95% az eladónak küldve, 2.5% elégetve 🔥, 2.5% a hétvégi Vault Jackpotba került 🏆!`
-        : `🎉 Buy transaction sent! 95% to seller, 2.5% burned 🔥, 2.5% to Stadium Vault Jackpot 🏆!`
-    );
+    if (isZeroFeeTrade) {
+      showMarketToast(
+        isHu
+          ? `🎉 Vásárlási tranzakció sikeresen kiküldve! 0% VIP Ultras díjkedvezmény: 100% az eladónak ment. Az NFT a címedre érkezik!`
+          : `🎉 Buy transaction sent! 0% VIP Ultras fee benefit applied: 100% goes to seller. NFT is incoming!`
+      );
+    } else {
+      showMarketToast(
+        isHu
+          ? `🎉 Vásárlási tranzakció sikeresen kiküldve! 95% az eladónak küldve, 2.5% elégetve 🔥, 2.5% a hétvégi Vault Reward Poolba került 🏆!`
+          : `🎉 Buy transaction sent! 95% to seller, 2.5% burned 🔥, 2.5% to Stadium Vault Reward Pool 🏆!`
+      );
+    }
   } catch (err) {
     console.error("EFOO purchase failed:", err);
     showMarketToast(
@@ -1896,32 +1964,61 @@ function updateListingFeePreview() {
   const feePct = document.getElementById("list-fee-pct");
   const recvLabel = document.getElementById("list-receive-label");
   const recvVal = document.getElementById("list-calc-receive");
+  const ultrasHint = document.getElementById("list-ultras-hint");
   if (!currSelect || !priceInput) return;
 
   const currency = currSelect.value || "EFOO";
   const isHu = currentMarketLang === "hu";
   const val = parseFloat(priceInput.value) || 0;
+  const isUltrasHolder = hasUltrasPass(marketWallet.address);
 
-  if (currency === "EGLD") {
+  if (isUltrasHolder) {
+    if (feeLabel) feeLabel.textContent = isHu ? "VIP Ultras Kereskedési Díj:" : "VIP Ultras Trading Fee:";
+    if (feePct) feePct.textContent = "0.0% (LIFETIME FREE)";
+    if (recvLabel) recvLabel.textContent = isHu ? "Kézhez kapott összeg (100%):" : "You Receive (100%):";
+    if (recvVal) {
+      if (val > 0) {
+        recvVal.textContent = currency === "EGLD" ? `${val.toFixed(4)} EGLD` : `${Math.floor(val).toLocaleString("en-US")} $EFOO`;
+      } else {
+        recvVal.textContent = isHu ? "100% az eladási árból" : "100% of sale proceeds";
+      }
+    }
+    if (ultrasHint) {
+      ultrasHint.innerHTML = isHu
+        ? "👑 <strong>EFOO Ultras PASS Aktív:</strong> 0% díj eladáskor és vételkor, a bevétel 100%-át megtartod!"
+        : "👑 <strong>EFOO Ultras PASS Active:</strong> 0% trading fee forever on buy and sell, keep 100% of your earnings!";
+      ultrasHint.style.color = "#a8ff00";
+      ultrasHint.style.borderColor = "rgba(168,255,0,0.4)";
+      ultrasHint.style.background = "rgba(168,255,0,0.08)";
+    }
+  } else if (currency === "EGLD") {
     priceInput.placeholder = "e.g. 0.025";
     priceInput.min = "0.001";
     priceInput.step = "any";
-    if (feeLabel) feeLabel.textContent = isHu ? "Platformdíj (efoorewards tárca):" : "Platform Fee (efoorewards wallet):";
-    if (feePct) feePct.textContent = "2.5%";
-    if (recvLabel) recvLabel.textContent = isHu ? "Kézhez kapott összeg (97.5%):" : "You Receive (97.5%):";
+    if (feeLabel) feeLabel.textContent = isHu ? "Kereskedési díj (2% efoorewards tárca):" : "Trading Fee (2% efoorewards wallet):";
+    if (feePct) feePct.textContent = "2.0%";
+    if (recvLabel) recvLabel.textContent = isHu ? "Kézhez kapott összeg (98%):" : "You Receive (98%):";
     if (recvVal) {
       if (val > 0) {
-        const net = val * 0.975;
+        const net = val * 0.98;
         recvVal.textContent = `${net.toFixed(4)} EGLD`;
       } else {
-        recvVal.textContent = isHu ? "97.5% az eladási árból" : "97.5% of sale";
+        recvVal.textContent = isHu ? "98% az eladási árból" : "98% of sale";
       }
+    }
+    if (ultrasHint) {
+      ultrasHint.innerHTML = isHu
+        ? "🎟️ Birtokolj <strong>EFOO Ultras PASS</strong>-t a <strong>0%</strong>-os kereskedési díjhoz (100% a tiéd)!"
+        : "🎟️ Hold an <strong>EFOO Ultras PASS</strong> to reduce trading fee to <strong>0%</strong> (Keep 100%)!";
+      ultrasHint.style.color = "#ffb800";
+      ultrasHint.style.borderColor = "rgba(255,184,0,0.3)";
+      ultrasHint.style.background = "rgba(255,184,0,0.08)";
     }
   } else {
     priceInput.placeholder = "e.g. 2,500,000";
     priceInput.min = "1000";
     priceInput.step = "1000";
-    if (feeLabel) feeLabel.textContent = isHu ? "Platformdíj (2.5% Égetés 🔥 + 2.5% Hétvégi Vault 🏆):" : "Platform Fee (2.5% Burn 🔥 + 2.5% Stadium Vault 🏆):";
+    if (feeLabel) feeLabel.textContent = isHu ? "Kereskedési díj (2.5% Égetés 🔥 + 2.5% Reward Pool 🏆):" : "Trading Fee (2.5% Burn 🔥 + 2.5% Reward Pool 🏆):";
     if (feePct) feePct.textContent = "5.0%";
     if (recvLabel) recvLabel.textContent = isHu ? "Kézhez kapott összeg (95%):" : "You Receive (95%):";
     if (recvVal) {
@@ -1931,6 +2028,14 @@ function updateListingFeePreview() {
       } else {
         recvVal.textContent = isHu ? "95% az eladási árból" : "95% of sale";
       }
+    }
+    if (ultrasHint) {
+      ultrasHint.innerHTML = isHu
+        ? "🎟️ Birtokolj <strong>EFOO Ultras PASS</strong>-t a <strong>0%</strong>-os kereskedési díjhoz (100% a tiéd)!"
+        : "🎟️ Hold an <strong>EFOO Ultras PASS</strong> to reduce trading fee to <strong>0%</strong> (Keep 100%)!";
+      ultrasHint.style.color = "#ffb800";
+      ultrasHint.style.borderColor = "rgba(255,184,0,0.3)";
+      ultrasHint.style.background = "rgba(255,184,0,0.08)";
     }
   }
 }
@@ -2343,6 +2448,367 @@ function showMarketToast(msg) {
 }
 
 // ============================================================================
+// ULTRAS PASS, MINTER, DEX SWAP & LIQUIDITY POOLS LOGIC
+// ============================================================================
+
+function updateUltrasPassUI() {
+  const isHu = currentMarketLang === "hu";
+  const ownedIndicator = document.getElementById("ultras-owned-indicator");
+  const buyBtn = document.getElementById("btn-buy-ultras-pass");
+  const isOwned = hasUltrasPass(marketWallet.address);
+
+  if (ownedIndicator) {
+    if (isOwned) {
+      ownedIndicator.classList.remove("hidden");
+    } else {
+      ownedIndicator.classList.add("hidden");
+    }
+  }
+
+  if (buyBtn) {
+    if (isOwned) {
+      buyBtn.textContent = isHu ? "👑 PASS AKTÍV (0% KERESKEDÉSI DÍJ)" : "👑 PASS ACTIVE (0% TRADING FEES)";
+      buyBtn.style.background = "#22c55e";
+      buyBtn.style.color = "#09090b";
+      buyBtn.style.borderColor = "#22c55e";
+    } else {
+      buyBtn.textContent = isHu ? "⚡ ULTRAS PASS VÁSÁRLÁSA" : "⚡ BUY ULTRAS PASS";
+      buyBtn.style.background = "#ffb800";
+      buyBtn.style.color = "#09090b";
+      buyBtn.style.borderColor = "#ffb800";
+    }
+  }
+}
+
+function updateUltrasQtyUI(qty) {
+  const safeQty = Math.max(1, Math.min(10, Number(qty) || 1));
+  const qtyInput = document.getElementById("ultras-qty-input");
+  const qtyLabel = document.getElementById("ultras-qty-label");
+  const qtySlider = document.getElementById("ultras-qty-slider");
+  const priceDisplay = document.getElementById("ultras-price-display");
+  const priceSub = document.getElementById("ultras-price-sub");
+
+  if (qtyInput) qtyInput.value = safeQty;
+  if (qtySlider) qtySlider.value = safeQty;
+  if (qtyLabel) qtyLabel.textContent = safeQty === 1 ? "1 PASS" : `${safeQty} PASSES`;
+
+  const totalEgld = (safeQty * 0.5).toFixed(1);
+  const totalEfoo = (safeQty * 5000000).toLocaleString("en-US");
+
+  if (priceDisplay) priceDisplay.textContent = `${totalEgld} EGLD`;
+  if (priceSub) priceSub.textContent = `(or ${totalEfoo} $EFOO)`;
+}
+
+async function buyUltrasPassOnChain() {
+  const isHu = currentMarketLang === "hu";
+  if (!marketWallet.address) {
+    document.getElementById("m-wallet-modal")?.classList.remove("hidden");
+    showMarketToast(isHu ? "⚠️ Kérlek előbb csatlakoztasd a tárcádat a vásárláshoz!" : "⚠️ Please connect your wallet first!");
+    return;
+  }
+
+  const qty = Math.max(1, Math.min(10, Number(document.getElementById("ultras-qty-input")?.value || 1)));
+  const totalEgld = (qty * 0.5).toFixed(2);
+  const totalWei = (BigInt(Math.round(qty * 0.5 * 1e9)) * BigInt(1e9)).toString();
+  const qtyHex = qty.toString(16).padStart(2, "0");
+  const data = `buyUltrasPass@${qtyHex}`;
+
+  showMarketToast(
+    isHu
+      ? `⏳ Ultras PASS vásárlási tranzakció előkészítése (${qty}x = ${totalEgld} EGLD)...`
+      : `⏳ Preparing Ultras PASS transaction (${qty}x = ${totalEgld} EGLD)...`
+  );
+
+  try {
+    await sendMultiversxTransaction({
+      receiver: EFOOREWARDS_WALLET,
+      value: totalWei,
+      gasLimit: 12000000,
+      data: data
+    });
+
+    localStorage.setItem(STORAGE_ULTRAS_PASS_PREFIX + marketWallet.address.toLowerCase(), "true");
+    updateUltrasPassUI();
+    updateListingFeePreview();
+
+    showMarketToast(
+      isHu
+        ? `🎉 Gratulálunk! EFOO Ultras PASS sikeresen megvásárolva! Örökös 0% kereskedési díj eladáskor és vételkor azonnal aktív!`
+        : `🎉 Congratulations! EFOO Ultras PASS activated! Lifetime 0% trading fee on buy and sell enabled!`
+    );
+  } catch (err) {
+    console.error("Ultras Pass purchase failed:", err);
+    showMarketToast(
+      isHu
+        ? `❌ Hiba a vásárlás során: ${err.message || "Megszakítva"}`
+        : `❌ Ultras Pass error: ${err.message || "Cancelled"}`
+    );
+  }
+}
+
+async function executeMarketMintPlayer() {
+  const isHu = currentMarketLang === "hu";
+  if (!marketWallet.address) {
+    document.getElementById("m-wallet-modal")?.classList.remove("hidden");
+    showMarketToast(isHu ? "⚠️ Kérlek előbb csatlakoztasd a tárcádat!" : "⚠️ Please connect your wallet first!");
+    return;
+  }
+
+  const brandHex = stringToHex("1stGenPlayers");
+  const data = `buy@${brandHex}@${brandHex}@01`;
+
+  showMarketToast(
+    isHu
+      ? `⏳ Játékos veretési tranzakció előkészítése (0.08 EGLD)...`
+      : `⏳ Preparing Outfield Player mint transaction (0.08 EGLD)...`
+  );
+
+  try {
+    await sendMultiversxTransaction({
+      receiver: CONTRACTS.NFT_MINTER,
+      value: "80000000000000000", // 0.08 EGLD
+      gasLimit: 42000000,
+      data
+    });
+
+    showMarketToast(
+      isHu
+        ? `⚽ Játékos veretési tranzakció sikeresen elküldve! Az új NFT hamarosan a tárcádban lesz!`
+        : `⚽ Outfield Player mint transaction dispatched! NFT is on its way to your locker!`
+    );
+    setTimeout(() => { if (marketWallet.address) fetchMarketWalletNfts(marketWallet.address); }, 3000);
+  } catch (err) {
+    console.error("Mint player failed:", err);
+    showMarketToast(
+      isHu
+        ? `❌ Hiba a veretés során: ${err.message || "Megszakítva"}`
+        : `❌ Mint error: ${err.message || "Cancelled"}`
+    );
+  }
+}
+
+async function executeMarketMintKeeper() {
+  const isHu = currentMarketLang === "hu";
+  if (!marketWallet.address) {
+    document.getElementById("m-wallet-modal")?.classList.remove("hidden");
+    showMarketToast(isHu ? "⚠️ Kérlek előbb csatlakoztasd a tárcádat!" : "⚠️ Please connect your wallet first!");
+    return;
+  }
+
+  const brandHex = stringToHex("GoalKeepers");
+  const data = `buy@${brandHex}@${brandHex}@01`;
+
+  showMarketToast(
+    isHu
+      ? `⏳ Kapus veretési tranzakció előkészítése (0.35 EGLD)...`
+      : `⏳ Preparing Goalkeeper Titan mint transaction (0.35 EGLD)...`
+  );
+
+  try {
+    await sendMultiversxTransaction({
+      receiver: CONTRACTS.NFT_MINTER,
+      value: "350000000000000000", // 0.35 EGLD
+      gasLimit: 42000000,
+      data
+    });
+
+    showMarketToast(
+      isHu
+        ? `🧤 Kapus veretési tranzakció elküldve! A legendás hálóőr hamarosan a tárcádban!`
+        : `🧤 Goalkeeper Titan mint dispatched! Your legendary keeper is incoming!`
+    );
+    setTimeout(() => { if (marketWallet.address) fetchMarketWalletNfts(marketWallet.address); }, 3000);
+  } catch (err) {
+    console.error("Mint keeper failed:", err);
+    showMarketToast(
+      isHu
+        ? `❌ Hiba a kapus veretés során: ${err.message || "Megszakítva"}`
+        : `❌ Mint keeper error: ${err.message || "Cancelled"}`
+    );
+  }
+}
+
+function updateMarketSwapEstimate() {
+  const amtInput = document.getElementById("m-swap-input-amt");
+  const tokSelect = document.getElementById("m-swap-token-select");
+  const outField = document.getElementById("m-swap-output-amt");
+  const balHint = document.getElementById("m-swap-pay-bal");
+  const rateLbl = document.getElementById("m-swap-rate-lbl");
+  const routeTag = document.getElementById("m-swap-route-tag");
+  const recvBadge = document.getElementById("m-swap-recv-token-badge");
+  const actionBtn = document.getElementById("m-btn-exec-swap");
+  const isHu = currentMarketLang === "hu";
+
+  const amt = Math.max(0, parseFloat(amtInput?.value) || 0);
+  const tok = tokSelect?.value || "EGLD";
+
+  if (tok === "EFOO") {
+    // Selling EFOO for EGLD
+    const amtInWithFee = amt * 0.99;
+    const estEgld = amt > 0 ? (marketDexState.onedexWegldReserve * amtInWithFee) / (marketDexState.onedexEfooReserve + amtInWithFee) : 0;
+    if (outField) outField.value = `~${estEgld.toFixed(4)}`;
+    if (recvBadge) recvBadge.textContent = "EGLD";
+    if (rateLbl) rateLbl.textContent = `${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO ≈ 1 EGLD`;
+    if (routeTag) routeTag.textContent = "Route: OneDex AMM";
+    if (balHint) balHint.textContent = `Balance: ${Math.floor(marketWallet.efooBalance || 0).toLocaleString()} $EFOO`;
+    if (actionBtn) actionBtn.textContent = isHu ? `⚡ ${amt.toLocaleString()} $EFOO Eladása ➔ EGLD` : `⚡ Sell ${amt.toLocaleString()} $EFOO ➔ EGLD`;
+  } else {
+    // Buying EFOO
+    let estOut = 0;
+    if (tok === "USDC") {
+      const amtInWithFee = amt * 0.997;
+      estOut = amt > 0 ? Math.floor((marketDexState.xexEfooReserve * amtInWithFee) / (marketDexState.xexUsdcReserve + amtInWithFee)) : 0;
+      if (rateLbl) rateLbl.textContent = `1 USDC ≈ ${marketDexState.efooPerUsdc.toLocaleString("en-US")} $EFOO`;
+      if (routeTag) routeTag.textContent = "Route: xExchange (185.6M Pool)";
+      if (balHint) balHint.textContent = "Balance: Active";
+    } else {
+      const amtInWithFee = amt * 0.99;
+      estOut = amt > 0 ? Math.floor((marketDexState.onedexEfooReserve * amtInWithFee) / (marketDexState.onedexWegldReserve + amtInWithFee)) : 0;
+      if (rateLbl) rateLbl.textContent = `1 EGLD ≈ ${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO`;
+      if (routeTag) routeTag.textContent = "Route: OneDex (62.1M Pool)";
+      if (balHint) balHint.textContent = `Balance: ${(marketWallet.egldBalance || 0).toFixed(3)} EGLD`;
+    }
+    if (outField) outField.value = `~${estOut.toLocaleString("en-US")}`;
+    if (recvBadge) recvBadge.textContent = "$EFOO";
+    if (actionBtn) actionBtn.textContent = isHu ? `⚡ ${amt} ${tok} Átváltása ➔ $EFOO` : `⚡ Swap ${amt} ${tok} ➔ $EFOO On-Chain`;
+  }
+}
+
+async function executeMarketSwap() {
+  const isHu = currentMarketLang === "hu";
+  if (!marketWallet.address) {
+    document.getElementById("m-wallet-modal")?.classList.remove("hidden");
+    showMarketToast(isHu ? "⚠️ Kérlek előbb csatlakoztasd a tárcádat a swathoz!" : "⚠️ Please connect your wallet first!");
+    return;
+  }
+
+  const amt = Math.max(0.0001, parseFloat(document.getElementById("m-swap-input-amt")?.value) || 0.035);
+  const tok = document.getElementById("m-swap-token-select")?.value || "EGLD";
+
+  showMarketToast(isHu ? `⏳ DEX Swap előkészítése: ${amt} ${tok}...` : `⏳ Preparing DEX Swap: ${amt} ${tok}...`);
+
+  try {
+    if (tok === "EFOO") {
+      // Selling EFOO -> EGLD
+      const efooHex = stringToHex("EFOO-8fe2d4");
+      const wegldHex = stringToHex("WEGLD-bd4d79");
+      const amtHex = toAtomicUnits(amt, 18).toString(16).padStart(2, "0");
+      const funcHex = stringToHex("swapMultiTokensFixedInput");
+      const data = `ESDTTransfer@${efooHex}@${amtHex}@${funcHex}@01@01@${efooHex}@${wegldHex}`;
+
+      await sendMultiversxTransaction({
+        receiver: CONTRACTS.ONEDEX_PAIR,
+        value: "0",
+        gasLimit: 85000000,
+        data
+      });
+    } else if (tok === "EGLD") {
+      // Direct buy with native EGLD
+      const weiStr = (BigInt(Math.round(amt * 1e9)) * BigInt(1e9)).toString();
+      const shardWrapper = CONTRACTS.WEGLD_WRAPPERS[0];
+      const tokenHex = stringToHex("WEGLD-bd4d79");
+      const amtHex = toAtomicUnits(amt, 18).toString(16).padStart(2, "0");
+      const funcHex = stringToHex("swapMultiTokensFixedInput");
+      const efooHex = stringToHex("EFOO-8fe2d4");
+      const swapData = `ESDTTransfer@${tokenHex}@${amtHex}@${funcHex}@01@@${tokenHex}@${efooHex}`;
+
+      await sendMultiversxTransaction({
+        receiver: shardWrapper,
+        value: weiStr,
+        gasLimit: 8000000,
+        data: "wrapEgld"
+      });
+      await sendMultiversxTransaction({
+        receiver: CONTRACTS.ONEDEX_PAIR,
+        value: "0",
+        gasLimit: 85000000,
+        data: swapData
+      });
+    } else if (tok === "WEGLD") {
+      const tokenHex = stringToHex("WEGLD-bd4d79");
+      const amtHex = toAtomicUnits(amt, 18).toString(16).padStart(2, "0");
+      const funcHex = stringToHex("swapMultiTokensFixedInput");
+      const efooHex = stringToHex("EFOO-8fe2d4");
+      const data = `ESDTTransfer@${tokenHex}@${amtHex}@${funcHex}@01@@${tokenHex}@${efooHex}`;
+
+      await sendMultiversxTransaction({
+        receiver: CONTRACTS.ONEDEX_PAIR,
+        value: "0",
+        gasLimit: 85000000,
+        data
+      });
+    } else {
+      // USDC
+      const usdcHex = stringToHex("USDC-c76f1f");
+      const amtHex = toAtomicUnits(amt, 6).toString(16).padStart(2, "0");
+      const funcHex = stringToHex("swapTokensFixedInput");
+      const efooHex = stringToHex("EFOO-8fe2d4");
+      const data = `ESDTTransfer@${usdcHex}@${amtHex}@${funcHex}@${efooHex}@01`;
+
+      await sendMultiversxTransaction({
+        receiver: CONTRACTS.XEXCHANGE_PAIR,
+        value: "0",
+        gasLimit: 60000000,
+        data
+      });
+    }
+
+    showMarketToast(
+      isHu
+        ? `🎉 Swap tranzakció sikeresen elküldve a blokkláncra!`
+        : `🎉 Swap transaction dispatched on-chain!`
+    );
+  } catch (err) {
+    console.error("Swap execution failed:", err);
+    showMarketToast(
+      isHu
+        ? `❌ Hiba a swap során: ${err.message || "Megszakítva"}`
+        : `❌ Swap error: ${err.message || "Cancelled"}`
+    );
+  }
+}
+
+function updateLpCalculator() {
+  const depositInput = document.getElementById("lp-calc-deposit");
+  const dailyEl = document.getElementById("lp-daily-est");
+  const monthlyEl = document.getElementById("lp-monthly-est");
+  const annualEl = document.getElementById("lp-annual-est");
+
+  const deposit = Math.max(0, parseFloat(depositInput?.value) || 0);
+  const apy = 0.485; // ~48.5% APY
+  const annual = deposit * apy;
+  const monthly = annual / 12;
+  const daily = annual / 365;
+
+  if (dailyEl) dailyEl.textContent = `$${daily.toFixed(2)}`;
+  if (monthlyEl) monthlyEl.textContent = `$${monthly.toFixed(2)}`;
+  if (annualEl) annualEl.textContent = `$${annual.toFixed(2)}`;
+}
+
+async function fetchLiveMinterCounts() {
+  try {
+    const [pRes, kRes] = await Promise.all([
+      fetch("https://api.multiversx.com/collections/EFOOTBALL-91a4eb"),
+      fetch("https://api.multiversx.com/collections/GOALKEEPER-cb9e3e")
+    ]);
+    if (pRes.ok) {
+      const pData = await pRes.json();
+      const count = pData.nftCount || 628;
+      const el = document.getElementById("m-minted-players-stat");
+      if (el) el.textContent = `${count} Minted (Supply Ongoing)`;
+    }
+    if (kRes.ok) {
+      const kData = await kRes.json();
+      const count = kData.nftCount || 51;
+      const el = document.getElementById("m-minted-keepers-stat");
+      if (el) el.textContent = `${count} Minted (Supply Ongoing)`;
+    }
+  } catch (e) {
+    console.warn("Failed fetching minter counts:", e);
+  }
+}
+
+// ============================================================================
 // EVENT LISTENERS & INITIALIZATION
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
@@ -2353,52 +2819,118 @@ document.addEventListener("DOMContentLoaded", () => {
   renderMarketplaceGrid();
   renderSkillsStore();
   fetchLiveXoxnoListings();
+  fetchLiveMinterCounts();
 
-  // Tabs
+  // 7 Tabs: Browse, My Locker & Sell, Recruit & Mint, DEX Swap, Pools, Skills, Ultras PASS
   const tabBrowse = document.getElementById("tab-btn-browse");
   const tabMyNfts = document.getElementById("tab-btn-my-nfts");
+  const tabMint = document.getElementById("tab-btn-mint");
+  const tabSwap = document.getElementById("tab-btn-swap");
+  const tabPools = document.getElementById("tab-btn-pools");
   const tabSkills = document.getElementById("tab-btn-skills-store");
+  const tabUltras = document.getElementById("tab-btn-ultras");
 
   const panelBrowse = document.getElementById("panel-browse");
   const panelMyNfts = document.getElementById("panel-my-nfts");
+  const panelMint = document.getElementById("panel-mint");
+  const panelSwap = document.getElementById("panel-swap");
+  const panelPools = document.getElementById("panel-pools");
   const panelSkills = document.getElementById("panel-skills-store");
+  const panelUltras = document.getElementById("panel-ultras");
 
   const switchTab = (tab) => {
     currentTab = tab;
     tabBrowse?.classList.toggle("active", tab === "browse");
     tabMyNfts?.classList.toggle("active", tab === "my_nfts");
+    tabMint?.classList.toggle("active", tab === "mint");
+    tabSwap?.classList.toggle("active", tab === "swap");
+    tabPools?.classList.toggle("active", tab === "pools");
     tabSkills?.classList.toggle("active", tab === "skills");
+    tabUltras?.classList.toggle("active", tab === "ultras");
 
     panelBrowse?.classList.toggle("hidden", tab !== "browse");
     panelMyNfts?.classList.toggle("hidden", tab !== "my_nfts");
+    panelMint?.classList.toggle("hidden", tab !== "mint");
+    panelSwap?.classList.toggle("hidden", tab !== "swap");
+    panelPools?.classList.toggle("hidden", tab !== "pools");
     panelSkills?.classList.toggle("hidden", tab !== "skills");
+    panelUltras?.classList.toggle("hidden", tab !== "ultras");
 
+    try {
+      const url = new URL(window.location);
+      url.searchParams.set("tab", tab);
+      history.replaceState(null, "", url.toString());
+    } catch (e) {}
+
+    if (tab === "browse") renderMarketplaceGrid();
     if (tab === "my_nfts") renderMyLockerGrid();
     if (tab === "skills") renderSkillsStore();
+    if (tab === "ultras") updateUltrasPassUI();
+    if (tab === "swap") updateMarketSwapEstimate();
+    if (tab === "pools") updateLpCalculator();
   };
   window.switchMarketTab = switchTab;
 
   tabBrowse?.addEventListener("click", () => switchTab("browse"));
   tabMyNfts?.addEventListener("click", () => switchTab("my_nfts"));
+  tabMint?.addEventListener("click", () => switchTab("mint"));
+  tabSwap?.addEventListener("click", () => switchTab("swap"));
+  tabPools?.addEventListener("click", () => switchTab("pools"));
   tabSkills?.addEventListener("click", () => switchTab("skills"));
+  tabUltras?.addEventListener("click", () => switchTab("ultras"));
 
-  // Check URL query parameters and hash (e.g. market.html?tab=skills or market.html#skills)
+  // Check URL query parameters and hash (e.g. market.html?tab=swap or market.html#ultras)
   try {
     const urlParams = new URLSearchParams(window.location.search);
     const tabParam = urlParams.get("tab") || (window.location.hash ? window.location.hash.replace("#", "") : "");
-    if (tabParam === "skills" || tabParam === "skills-store" || tabParam === "skill") {
+    if (["browse", "my_nfts", "mint", "swap", "pools", "skills", "ultras"].includes(tabParam)) {
+      switchTab(tabParam);
+    } else if (tabParam === "skills-store" || tabParam === "skill") {
       switchTab("skills");
-    } else if (tabParam === "my_nfts" || tabParam === "locker") {
+    } else if (tabParam === "locker") {
       switchTab("my_nfts");
     }
   } catch (e) {}
 
   window.addEventListener("hashchange", () => {
     const h = window.location.hash.replace("#", "");
-    if (h === "skills" || h === "skills-store" || h === "skill") switchTab("skills");
-    else if (h === "my_nfts" || h === "locker") switchTab("my_nfts");
-    else if (h === "browse") switchTab("browse");
+    if (["browse", "my_nfts", "mint", "swap", "pools", "skills", "ultras"].includes(h)) switchTab(h);
+    else if (h === "skills-store" || h === "skill") switchTab("skills");
+    else if (h === "locker") switchTab("my_nfts");
   });
+
+  // Ultras PASS Stepper & Slider
+  document.getElementById("ultras-minus-btn")?.addEventListener("click", () => {
+    const cur = Number(document.getElementById("ultras-qty-input")?.value || 1);
+    updateUltrasQtyUI(cur - 1);
+  });
+  document.getElementById("ultras-plus-btn")?.addEventListener("click", () => {
+    const cur = Number(document.getElementById("ultras-qty-input")?.value || 1);
+    updateUltrasQtyUI(cur + 1);
+  });
+  document.getElementById("ultras-qty-slider")?.addEventListener("input", (e) => {
+    updateUltrasQtyUI(e.target.value);
+  });
+  document.getElementById("btn-buy-ultras-pass")?.addEventListener("click", buyUltrasPassOnChain);
+
+  // Mint Handlers
+  document.getElementById("m-btn-mint-player")?.addEventListener("click", executeMarketMintPlayer);
+  document.getElementById("m-btn-mint-keeper")?.addEventListener("click", executeMarketMintKeeper);
+
+  // DEX Swap Handlers
+  document.getElementById("m-swap-input-amt")?.addEventListener("input", updateMarketSwapEstimate);
+  document.getElementById("m-swap-token-select")?.addEventListener("change", updateMarketSwapEstimate);
+  document.getElementById("m-swap-flip-btn")?.addEventListener("click", () => {
+    const sel = document.getElementById("m-swap-token-select");
+    if (sel) {
+      sel.value = sel.value === "EFOO" ? "EGLD" : "EFOO";
+      updateMarketSwapEstimate();
+    }
+  });
+  document.getElementById("m-btn-exec-swap")?.addEventListener("click", executeMarketSwap);
+
+  // Liquidity Pool Calculator
+  document.getElementById("lp-calc-deposit")?.addEventListener("input", updateLpCalculator);
 
   // Filters
   document.querySelectorAll("[data-filter-col]").forEach((btn) => {
@@ -2437,6 +2969,8 @@ document.addEventListener("DOMContentLoaded", () => {
       renderMarketplaceGrid();
       renderMyLockerGrid();
       renderSkillsStore();
+      updateUltrasPassUI();
+      updateMarketSwapEstimate();
     });
   });
 

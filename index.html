@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261016_v9" />
+  <link rel="stylesheet" href="styles.css?v=20261017_v4" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -486,10 +486,10 @@
   <section id="wallet-hub" class="section section-alt">
     <div class="container">
       <div class="section-header">
-        <span class="section-kicker" data-i18n="wh_kicker">⚡ MULTIVERSX WEB3 STADIUM &amp; DEX TERMINAL</span>
-        <h2 class="section-title" data-i18n="wh_title">MY LOCKER ROOM, DIRECT $EFOO SWAP &amp; NFT MINTER</h2>
+        <span class="section-kicker" data-i18n="wh_kicker">⚡ MULTIVERSX MARKETPLACE &amp; DEFI HUB</span>
+        <h2 class="section-title" data-i18n="wh_title">DISCOVER THE $EFOO WEB3 ECOSYSTEM</h2>
         <p class="section-desc" data-i18n="wh_desc">
-          Connect with <strong>xPortal (WalletConnect v2)</strong>, <strong>MultiversX DeFi Extension</strong>, or <strong>MultiversX Web Wallet</strong> to view your live <code>$EFOO</code> balance, inspect your <code>EFOOTBALL</code> &amp; <code>GOALKEEPER</code> NFTs, swap <code>EGLD / WEGLD / USDC ⇄ $EFOO</code> on-site, or mint Squad NFTs directly from the smart contract!
+          Everything you need in one place on our dedicated <strong>Marketplace &amp; DeFi dApp</strong>: Buy &amp; Sell official Squad NFTs with <strong>0% listing fees</strong>, recruit generative Strikers &amp; Goalkeepers, swap tokens instantly, and earn high yields by investing in <strong>EGLD/$EFOO &amp; USDC/$EFOO Liquidity Pools</strong>!
         </p>
       </div>
 
@@ -572,219 +572,127 @@
         </div>
       </div>
 
-      <!-- Direct On-Site DEX Swap & Official NFT Minter -->
-      <div class="trade-mint-grid">
-        <!-- LEFT: High-Craft MultiversX DEX Swap Terminal -->
-        <div class="terminal-card dex-card">
-          <div class="terminal-head">
-            <div class="terminal-top-bar">
-              <span class="terminal-badge">⚡ ON-CHAIN DEX ROUTER</span>
-              <div class="dex-mode-tabs" role="tablist">
-                <button type="button" class="dex-tab active" data-dex-mode="buy" data-i18n="tab_buy_efoo">🟢 Buy $EFOO</button>
-                <button type="button" class="dex-tab" data-dex-mode="sell" data-i18n="tab_sell_efoo">🔴 Sell $EFOO</button>
+      <!-- Marketplace & DeFi Showcase Grid -->
+      <div class="market-showcase-grid">
+        <!-- Card 1: P2P Marketplace & Locker Room -->
+        <div class="m-showcase-card">
+          <div class="msc-top">
+            <div class="msc-icon">🛒</div>
+            <div class="msc-title-col">
+              <h3>P2P NFT Marketplace</h3>
+              <div class="msc-badge-row">
+                <span class="msc-badge">0% Listing Fee</span>
+                <span class="msc-badge">SC Escrow</span>
               </div>
             </div>
-            <h3 data-i18n="swap_title">INSTANT $EFOO SWAP TERMINAL</h3>
-            <p data-i18n="swap_subtitle">Swap native <code>EGLD</code> (automatic 2-tx Wrap + Swap), <code>WEGLD</code>, or <code>USDC</code> directly through the verified OneDex &amp; xExchange smart contracts.</p>
           </div>
-
-          <div class="swap-widget-box">
-            <!-- STARTER PACK +500,000 $EFOO BONUS BANNER -->
-            <div class="starter-bonus-banner" id="starter-bonus-banner">
-              <div class="sbb-badge" id="sbb-badge" data-i18n="sbb_badge">🎁 +500,000 $EFOO BONUS</div>
-              <div class="sbb-text">
-                <strong id="sbb-title" data-i18n="sbb_title">Starter Bonus: Buy min. 1,000,000 $EFOO ➔ GET +500,000 $EFOO BONUS!</strong>
-                <span id="sbb-sub" data-i18n="sbb_sub">+500,000 $EFOO bonus granted from Stadium Vault (erd1lqh3...zp) — strictly 1x per address on min. 1M purchase!</span>
-              </div>
-            </div>
-
-            <!-- YOU PAY BOX -->
-            <div class="swap-token-box">
-              <div class="swap-box-header">
-                <span data-i18n="swap_pay_label" id="swap-pay-title">YOU PAY</span>
-                <span class="swap-bal-hint" id="swap-pay-balance">Balance: —</span>
-              </div>
-              <div class="swap-box-main">
-                <input type="number" id="swap-input-amount" class="swap-big-input" value="0.035" min="0.001" step="any" placeholder="0.0" />
-                <div id="swap-pay-selector-wrap">
-                  <select id="swap-input-token" class="swap-token-select">
-                    <option value="EGLD">⚡ EGLD (Native)</option>
-                    <option value="WEGLD">🟡 WEGLD (OneDex)</option>
-                    <option value="USDC">💵 USDC (xExchange)</option>
-                  </select>
-                </div>
-                <div id="swap-sell-pill-wrap" class="token-pill-fixed hidden">
-                  <img src="branding/original/assests-2022/logo.png" alt="EFOO" width="20" height="20" />
-                  <span>$EFOO</span>
-                </div>
-              </div>
-              <div class="swap-quick-amounts" id="swap-quick-amounts">
-                <button type="button" class="quick-amt-btn active" data-amt="0.035">0.035 (1M + 500k)</button>
-                <button type="button" class="quick-amt-btn" data-amt="0.1">0.1</button>
-                <button type="button" class="quick-amt-btn" data-amt="0.25">0.25</button>
-                <button type="button" class="quick-amt-btn" data-amt="0.5">0.5</button>
-                <button type="button" class="quick-amt-btn" data-amt="1">1.0</button>
-                <button type="button" class="quick-amt-btn" data-amt="max">MAX</button>
-              </div>
-            </div>
-
-            <!-- SWAP DIRECTION FLIPPER -->
-            <div class="swap-divider-row">
-              <button type="button" id="swap-flip-btn" class="swap-flip-circle" title="Flip Buy / Sell Direction">⇅</button>
-              <span class="swap-rate-pill" id="swap-rate-label">1 EGLD ≈ 29,950,000 $EFOO</span>
-            </div>
-
-            <!-- YOU RECEIVE BOX -->
-            <div class="swap-token-box receive-box">
-              <div class="swap-box-header">
-                <span data-i18n="swap_receive_label">YOU RECEIVE (ESTIMATED)</span>
-                <span class="swap-route-tag" id="swap-route-tag">Route: OneDex SC</span>
-              </div>
-              <div class="swap-box-main">
-                <input type="text" id="swap-output-efoo" class="swap-big-input output-green" value="~2,995,000" readonly />
-                <div id="swap-receive-pill" class="token-pill-fixed">
-                  <img src="branding/original/assests-2022/logo.png" alt="EFOO" width="22" height="22" />
-                  <span id="swap-receive-token-label">$EFOO</span>
-                </div>
-              </div>
-              <div class="swap-slippage-row">
-                <span>Slippage Tolerance:</span>
-                <div class="slippage-pills">
-                  <button type="button" class="slip-btn active" data-slip="1">1%</button>
-                  <button type="button" class="slip-btn" data-slip="3">3%</button>
-                  <button type="button" class="slip-btn" data-slip="5">5%</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- CONTRACT TELEMETRY -->
-            <div class="swap-Pool-info">
-              <span id="swap-sc-label">Smart Contract: <code>erd1qqqq...su3sujc</code></span>
-              <span id="swap-tx-mode-note">⚡ Auto-Wrap + Swap (2 Tx)</span>
-            </div>
-
-            <!-- SWAP ACTIONS -->
-            <div class="terminal-actions">
-              <button type="button" id="direct-swap-btn" class="btn btn-primary full-width btn-lg-action">
-                ⚡ <span id="direct-swap-btn-text" data-i18n="btn_exec_swap">Swap EGLD for $EFOO On-Chain</span>
-              </button>
-              <div class="sub-action-row">
-                <button type="button" id="wrap-egld-btn" class="btn btn-outline btn-sm" title="Wrap Native EGLD to WEGLD 1:1 on your Shard Wrapper SC">
-                  🔄 <span data-i18n="btn_wrap_egld">Wrap EGLD ➔ WEGLD Only</span>
-                </button>
-                <a href="https://swap.onedex.app/swap?firstToken=EGLD&secondToken=EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
-                  <img src="branding/icons/onedex-logo.png" alt="OneDex" class="btn-brand-icon" /> OneDex App ↗
-                </a>
-                <a href="https://xexchange.com/trade?firstToken=USDC-c76f1f&secondToken=EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
-                  <img src="branding/icons/xexchange-logo.svg" alt="xExchange" class="btn-brand-icon" /> xExchange ↗
-                </a>
-              </div>
-            </div>
+          <p class="msc-desc">
+            Trade verified <strong>EFOOTBALL-91a4eb</strong> Strikers and <strong>GOALKEEPER-cb9e3e</strong> Titans with other players. List with <strong>0% listing fees</strong>, set prices in EGLD or $EFOO, or enjoy <strong>0% fees forever</strong> with an Ultras PASS!
+          </p>
+          <div class="msc-actions">
+            <a href="market?tab=browse" class="msc-btn-main">🛒 Browse Market ➔</a>
+            <a href="market?tab=my_nfts" class="msc-btn-sub">🎒 My Locker</a>
           </div>
         </div>
 
-        <!-- RIGHT: Official On-Chain NFT Minter & Box Office -->
-        <div class="terminal-card minter-card">
-          <div class="terminal-head">
-            <div class="terminal-top-bar">
-              <span class="terminal-badge gold">🃏 VERIFIED NFT MINTER SC</span>
-              <a href="https://explorer.multiversx.com/accounts/erd1qqqqqqqqqqqqqpgq78frnmw5sep0q4r2qd96y3d6f6p7ujwcys5s9evzym" target="_blank" rel="noopener noreferrer" class="sc-mini-link">SC: erd1qqqq...9evzym ↗</a>
+        <!-- Card 2: Recruit & Mint Squad NFTs -->
+        <div class="m-showcase-card">
+          <div class="msc-top">
+            <div class="msc-icon">🃏</div>
+            <div class="msc-title-col">
+              <h3>Squad NFT Recruitment</h3>
+              <div class="msc-badge-row">
+                <span class="msc-badge">0.08 EGLD Player</span>
+                <span class="msc-badge gold">0.35 EGLD Keeper</span>
+              </div>
             </div>
-            <h3 data-i18n="mint_title">RECRUIT &amp; MINT SQUAD NFTs</h3>
-            <p data-i18n="mint_subtitle">Mint new generative NFTs directly from the official EFootball-X Minter contract or snipe verified floor players on XOXNO Marketplace!</p>
           </div>
-
-          <div class="mint-packs-list">
-            <!-- Outfield Player Mint Card -->
-            <div class="mint-showcase-card">
-              <div class="mint-card-visual">
-                <img src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2FQmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb%2F1772.png&w=240&h=240&fit=cover" alt="EFOOTBALL Player NFT #356 Rank #1" class="mint-pack-icon" />
-                <span class="mint-rarity-badge">2x SCORE BOOST</span>
-              </div>
-              <div class="mint-pack-info">
-                <div class="mint-title-row">
-                  <h4>⚽ Outfield Player NFT</h4>
-                  <code class="coll-code">EFOOTBALL-91a4eb</code>
-                </div>
-                <p data-i18n="mint_player_desc">Generative Liga 1 &amp; Champions League Striker/Midfielder. Unlocks <strong>+15% Shot Accuracy &amp; 2x Multiplier</strong> in EFOO FOMO!</p>
-                
-                <div class="mint-progress-row">
-                  <div class="mint-progress-labels">
-                    <span>Minted Squad: <strong id="minted-players-stat">628 Minted So Far (Supply Ongoing)</strong></span>
-                    <span class="price-tag" id="player-mint-total-price">0.08 EGLD</span>
-                  </div>
-                  <div class="mint-mini-bar"><div class="mint-mini-fill" style="width: 63%;"></div></div>
-                </div>
-
-                <div class="mint-controls-row">
-                  <div class="qty-stepper" aria-label="Mint Quantity">
-                    <button type="button" class="step-btn" id="qty-minus-btn">−</button>
-                    <input type="number" id="mint-player-qty" value="1" min="1" max="10" readonly />
-                    <button type="button" class="step-btn" id="qty-plus-btn">+</button>
-                  </div>
-                  <button type="button" id="mint-player-btn" class="btn btn-primary btn-sm mint-main-btn">
-                    ⚡ <span data-i18n="btn_mint_player">Mint Player (0.08 EGLD)</span>
-                  </button>
-                  <a href="https://xoxno.com/collection/EFOOTBALL-91a4eb" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" title="Buy on XOXNO Secondary Market">
-                    <img src="branding/icons/xoxno-logo.png" alt="XOXNO" class="btn-brand-icon" /> XOXNO ↗
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <!-- Goalkeeper Mint Card -->
-            <div class="mint-showcase-card keeper-card">
-              <div class="mint-card-visual">
-                <img src="branding/original/GOALKEEPER-cb9e3e/logo.png" alt="GOALKEEPER NFT" class="mint-pack-icon gold-border" />
-                <span class="mint-rarity-badge gold">ULTRA RARE • 3x</span>
-              </div>
-              <div class="mint-pack-info">
-                <div class="mint-title-row">
-                  <h4>🧤 Goalkeeper Titan NFT</h4>
-                  <code class="coll-code gold">GOALKEEPER-cb9e3e</code>
-                </div>
-                <p data-i18n="mint_keeper_desc">Legendary Goalkeepers with active minting! Grants <strong>Reflex Save Shield (1 Free Miss Protection) &amp; 3x Score Multiplier</strong> in EFOO FOMO!</p>
-
-                <div class="mint-progress-row">
-                  <div class="mint-progress-labels">
-                    <span>Minted Keepers: <strong id="minted-keepers-stat">51 Minted So Far (Supply Ongoing)</strong></span>
-                    <span class="price-tag gold-text">0.35 EGLD</span>
-                  </div>
-                  <div class="mint-mini-bar"><div class="mint-mini-fill gold" style="width: 51%;"></div></div>
-                </div>
-
-                <div class="mint-controls-row">
-                  <button type="button" id="mint-keeper-btn" class="btn btn-secondary btn-sm mint-main-btn">
-                    🧤 <span data-i18n="btn_mint_keeper">Mint Keeper (0.35 EGLD)</span>
-                  </button>
-                  <a href="https://xoxno.com/collection/GOALKEEPER-cb9e3e" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
-                    <img src="branding/icons/xoxno-logo.png" alt="XOXNO" class="btn-brand-icon" /> <span data-i18n="btn_xoxno_keepers">Buy on XOXNO ↗</span>
-                  </a>
-                </div>
-              </div>
-            </div>
+          <p class="msc-desc">
+            Recruit brand new generative Outfield Players (<strong>+15% Shot Accuracy &amp; 2x Multiplier</strong>) and Goalkeepers (<strong>Reflex Save Shield &amp; 3x Multiplier</strong>) directly from the official smart contract with instant on-chain delivery!
+          </p>
+          <div class="msc-actions">
+            <a href="market?tab=mint" class="msc-btn-main">⚡ Mint Squad NFTs ➔</a>
           </div>
         </div>
-      </div>
 
-      <!-- Owned NFT Squad Gallery (Always looks sleek — shows user's NFTs or Club Showcase) -->
-      <div class="my-squad-panel">
-        <div class="my-squad-header">
-          <div>
-            <h3 data-i18n="squad_gallery_title">🏟️ MY LOCKER ROOM — ON-CHAIN NFT SQUAD</h3>
-            <p id="squad-gallery-sub" data-i18n="squad_gallery_sub">Connect your wallet to manage your personal EFOOTBALL-91a4eb &amp; GOALKEEPER-cb9e3e NFTs, or click any card to load in the Meme Studio &amp; Penalty Game.</p>
-          </div>
-          <div class="squad-header-right">
-            <div class="squad-filter-pills">
-              <button type="button" class="sq-filter active" data-sq-filter="all">All</button>
-              <button type="button" class="sq-filter" data-sq-filter="player">⚽ Players</button>
-              <button type="button" class="sq-filter" data-sq-filter="keeper">🧤 Keepers</button>
+        <!-- Card 3: Direct DEX Token Swap -->
+        <div class="m-showcase-card">
+          <div class="msc-top">
+            <div class="msc-icon">🔄</div>
+            <div class="msc-title-col">
+              <h3>Direct DEX Token Swap</h3>
+              <div class="msc-badge-row">
+                <span class="msc-badge blue">OneDex &amp; xExchange</span>
+                <span class="msc-badge">+500k $EFOO Bonus</span>
+              </div>
             </div>
-            <span class="vip-Multiplier-pill" id="squad-bonus-badge">🎮 Game Bonus: 1.0x Standard</span>
+          </div>
+          <p class="msc-desc">
+            Swap native <code>EGLD</code>, <code>WEGLD</code>, or <code>USDC</code> directly for <code>$EFOO</code> through verified AMM pools. First-time buyers get an exclusive <strong>+500,000 $EFOO Starter Bonus</strong> on minimum 1,000,000 $EFOO purchase!
+          </p>
+          <div class="msc-actions">
+            <a href="market?tab=swap" class="msc-btn-main">🔄 Swap $EFOO ➔</a>
           </div>
         </div>
-        <div class="my-squad-grid" id="my-squad-grid">
-          <!-- Populated dynamically with user's owned NFTs or featured preview -->
+
+        <!-- Card 4: Liquidity Pools -->
+        <div class="m-showcase-card">
+          <div class="msc-top">
+            <div class="msc-icon">💧</div>
+            <div class="msc-title-col">
+              <h3>EGLD &amp; USDC Liquidity Pools</h3>
+              <div class="msc-badge-row">
+                <span class="msc-badge blue">~48.5% APY</span>
+                <span class="msc-badge">Fee Sharing</span>
+              </div>
+            </div>
+          </div>
+          <p class="msc-desc">
+            Deposit $EFOO paired with EGLD or USDC into MultiversX liquidity pools. Earn automated swap fee dividends, support deep on-chain liquidity, and calculate your projected earnings with our interactive LP Calculator!
+          </p>
+          <div class="msc-actions">
+            <a href="market?tab=pools" class="msc-btn-main">💧 Invest in Pools ➔</a>
+          </div>
+        </div>
+
+        <!-- Card 5: EFOO Ultras PASS -->
+        <div class="m-showcase-card gold-card">
+          <div class="msc-top">
+            <div class="msc-icon" style="font-size:2.2rem;">🎟️</div>
+            <div class="msc-title-col">
+              <h3>EFOO Ultras PASS</h3>
+              <div class="msc-badge-row">
+                <span class="msc-badge gold">0% Trade Fees</span>
+                <span class="msc-badge gold">500 Cap</span>
+              </div>
+            </div>
+          </div>
+          <p class="msc-desc">
+            Inspired by Krogan: owning an official <strong>EFOO Ultras PASS</strong> completely waives all marketplace trading fees on both buy and sell transactions forever! Keep 100% of your earnings for life.
+          </p>
+          <div class="msc-actions">
+            <a href="market?tab=ultras" class="msc-btn-main msc-btn-gold">🎟️ Get Ultras PASS ➔</a>
+          </div>
+        </div>
+
+        <!-- Card 6: Super Skills Store -->
+        <div class="m-showcase-card">
+          <div class="msc-top">
+            <div class="msc-icon">⚡</div>
+            <div class="msc-title-col">
+              <h3>Super Skills Store</h3>
+              <div class="msc-badge-row">
+                <span class="msc-badge">-20% Bundles</span>
+                <span class="msc-badge">50% Burn • 50% Vault</span>
+              </div>
+            </div>
+          </div>
+          <p class="msc-desc">
+            Equip decisive perks like Rocket Boots, Concrete Wall, and Golden Whistle to dominate the 120' Shootout game. Every purchase burns 50% of tokens forever and adds 50% to the weekend Stadium Vault Jackpot!
+          </p>
+          <div class="msc-actions">
+            <a href="market?tab=skills" class="msc-btn-main">⚡ Skills Store ➔</a>
+          </div>
         </div>
       </div>
     </div>
@@ -1356,6 +1264,6 @@
     </a>
   </div>
 
-  <script src="app.js?v=20261017_v3"></script>
+  <script src="app.js?v=20261017_v4"></script>
 </body>
 </html>

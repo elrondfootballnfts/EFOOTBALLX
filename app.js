@@ -2289,11 +2289,16 @@ function updateWalletStatusUI() {
     if (wsRefreshBtn) wsRefreshBtn.classList.add("hidden");
     if (wsDisconnectBtn) wsDisconnectBtn.classList.add("hidden");
 
-    document.getElementById("wallet-efoo-bal").textContent = "0 EFOO";
-    document.getElementById("wallet-egld-bal").textContent = "0.000 EGLD";
-    document.getElementById("wallet-wegld-bal").textContent = "WEGLD: 0.000 • USDC: 0.00";
-    document.getElementById("wallet-players-count").textContent = "0 NFTs";
-    document.getElementById("wallet-keepers-count").textContent = "0 NFTs";
+    const efooBalEl = document.getElementById("wallet-efoo-bal");
+    if (efooBalEl) efooBalEl.textContent = "0 EFOO";
+    const egldBalEl = document.getElementById("wallet-egld-bal");
+    if (egldBalEl) egldBalEl.textContent = "0.000 EGLD";
+    const wegldBalEl = document.getElementById("wallet-wegld-bal");
+    if (wegldBalEl) wegldBalEl.textContent = "WEGLD: 0.000 • USDC: 0.00";
+    const pCountEl = document.getElementById("wallet-players-count");
+    if (pCountEl) pCountEl.textContent = "0 NFTs";
+    const kCountEl = document.getElementById("wallet-keepers-count");
+    if (kCountEl) kCountEl.textContent = "0 NFTs";
     const tierEl = document.getElementById("wallet-efoo-tier");
     if (tierEl) tierEl.textContent = "Spectator";
   }
@@ -2309,7 +2314,8 @@ async function fetchConnectedWalletData(address) {
       walletState.egldBalance = Number(accData.balance || 0) / 1e18;
       walletState.nonce = Number(accData.nonce || 0);
       walletState.shard = Number(accData.shard || 0);
-      document.getElementById("wallet-egld-bal").textContent = `${walletState.egldBalance.toFixed(3)} EGLD`;
+      const egldBalEl = document.getElementById("wallet-egld-bal");
+      if (egldBalEl) egldBalEl.textContent = `${walletState.egldBalance.toFixed(3)} EGLD`;
       const wsShardPill = document.getElementById("ws-shard-pill");
       if (wsShardPill) wsShardPill.textContent = `Shard ${walletState.shard}`;
     }
@@ -2335,10 +2341,16 @@ async function fetchConnectedWalletData(address) {
       });
     }
 
-    document.getElementById("wallet-efoo-bal").textContent =
-      walletState.efooBalance.toLocaleString("en-US", { maximumFractionDigits: 0 }) + " EFOO";
-    document.getElementById("wallet-wegld-bal").textContent =
-      `WEGLD: ${walletState.wegldBalance.toFixed(3)} • USDC: ${walletState.usdcBalance.toFixed(2)}`;
+    const efooBalEl = document.getElementById("wallet-efoo-bal");
+    if (efooBalEl) {
+      efooBalEl.textContent =
+        walletState.efooBalance.toLocaleString("en-US", { maximumFractionDigits: 0 }) + " EFOO";
+    }
+    const wegldBalEl = document.getElementById("wallet-wegld-bal");
+    if (wegldBalEl) {
+      wegldBalEl.textContent =
+        `WEGLD: ${walletState.wegldBalance.toFixed(3)} • USDC: ${walletState.usdcBalance.toFixed(2)}`;
+    }
 
     const tierEl = document.getElementById("wallet-efoo-tier");
     if (tierEl) {
@@ -2368,8 +2380,10 @@ async function fetchConnectedWalletData(address) {
     walletState.keepersCount = kCountRes.ok ? Number(await kCountRes.text()) || 0 : 0;
     walletState.ownedNfts = nftsRes.ok ? await nftsRes.json() : [];
 
-    document.getElementById("wallet-players-count").textContent = `${walletState.playersCount} NFTs`;
-    document.getElementById("wallet-keepers-count").textContent = `${walletState.keepersCount} NFTs`;
+    const pCountEl = document.getElementById("wallet-players-count");
+    if (pCountEl) pCountEl.textContent = `${walletState.playersCount} NFTs`;
+    const kCountEl = document.getElementById("wallet-keepers-count");
+    if (kCountEl) kCountEl.textContent = `${walletState.keepersCount} NFTs`;
 
     const rankEl = document.getElementById("wallet-ultras-rank");
     if (rankEl) {

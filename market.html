@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
 
   <link rel="canonical" href="https://efoo.optibase.ro/market" />
-  <link rel="stylesheet" href="market.css?v=20261016_v5" />
+  <link rel="stylesheet" href="market.css?v=20261017_v4" />
 
   <!-- Clean URL: Strip amateur .html extension from browser address bar -->
   <script>
@@ -137,14 +137,26 @@
   <section class="m-main-section">
     <div class="m-container">
       <div class="m-tabs-row">
-        <button type="button" class="m-tab-btn active" id="tab-btn-browse">
+        <button type="button" class="m-tab-btn active" id="tab-btn-browse" data-tab="browse">
           🛒 <span data-i18n="tab_browse">Browse Market</span>
         </button>
-        <button type="button" class="m-tab-btn" id="tab-btn-my-nfts">
+        <button type="button" class="m-tab-btn" id="tab-btn-my-nfts" data-tab="my_nfts">
           🎒 <span data-i18n="tab_my_nfts">My Locker &amp; Sell</span>
         </button>
-        <button type="button" class="m-tab-btn" id="tab-btn-skills-store">
-          ⚡ <span data-i18n="tab_skills">Super Skills Store (-20%)</span>
+        <button type="button" class="m-tab-btn" id="tab-btn-mint" data-tab="mint">
+          🃏 <span data-i18n="tab_mint">Recruit &amp; Mint</span>
+        </button>
+        <button type="button" class="m-tab-btn" id="tab-btn-swap" data-tab="swap">
+          🔄 <span data-i18n="tab_swap">DEX Swap</span>
+        </button>
+        <button type="button" class="m-tab-btn" id="tab-btn-pools" data-tab="pools">
+          💧 <span data-i18n="tab_pools">Liquidity Pools</span>
+        </button>
+        <button type="button" class="m-tab-btn" id="tab-btn-skills-store" data-tab="skills">
+          ⚡ <span data-i18n="tab_skills">Super Skills (-20%)</span>
+        </button>
+        <button type="button" class="m-tab-btn gold-highlight" id="tab-btn-ultras" data-tab="ultras">
+          🎟️ <span>Ultras PASS (0% Fees)</span>
         </button>
       </div>
 
@@ -197,7 +209,7 @@
         <div class="m-locker-head">
           <h2 data-i18n="locker_title">🎒 MY WALLET LOCKER ROOM</h2>
           <p class="m-locker-sub" data-i18n="locker_sub">
-            Your connected MultiversX squad NFTs. List them for sale, edit asking prices, or withdraw active listings anytime!
+            Your connected MultiversX squad NFTs. List them for sale with <strong>0% listing fees</strong>, edit asking prices, or withdraw active listings anytime!
           </p>
         </div>
 
@@ -216,7 +228,272 @@
       </div>
 
       <!-- =================================================================
-           TAB 3: SUPER SKILLS STORE
+           TAB 3: RECRUIT & MINT SQUAD NFTs
+           ================================================================= -->
+      <div id="panel-mint" class="m-tab-panel hidden">
+        <div class="m-tab-header">
+          <span class="m-kicker">🃏 ON-CHAIN RECRUITMENT</span>
+          <h2>MINT OFFICIAL SQUAD NFTs</h2>
+          <p>Recruit verified Liga 1 &amp; Champions League Outfield Strikers or Goalkeeper Titans directly from the official smart contract. Instant on-chain delivery to your connected wallet!</p>
+        </div>
+
+        <div class="market-mint-grid">
+          <!-- Striker Card -->
+          <div class="mm-card">
+            <div class="mm-head">
+              <img src="https://wsrv.nl/?url=https%3A%2F%2Fmedia.multiversx.com%2Fnfts%2Fasset%2FQmVFcs7LL7BASXocWdiU6dTw5FrLNhYupwZR5yyU8e1Bmb%2F1772.png&w=240&h=240&fit=cover" alt="Outfield Player NFT" class="mm-thumb" />
+              <div class="mm-title-col">
+                <h3>⚽ Outfield Player NFT</h3>
+                <span class="mm-coll-code">EFOOTBALL-91a4eb</span>
+              </div>
+            </div>
+            <p class="mm-desc">
+              Generative Liga 1 &amp; Champions League Striker/Midfielder. Unlocks <strong>+15% Shot Accuracy &amp; 2x Score Multiplier</strong> in the EFOO FOMO Penalty Arena!
+            </p>
+            <div class="mm-meta-row">
+              <span>Price:</span>
+              <strong class="mm-price-tag" id="m-mint-player-price">0.08 EGLD</strong>
+            </div>
+            <div class="mm-meta-row">
+              <span>Status:</span>
+              <strong id="m-minted-players-stat">628 Minted (Supply Ongoing)</strong>
+            </div>
+            <div class="mm-actions">
+              <button type="button" id="m-btn-mint-player" class="mm-mint-btn">
+                ⚡ Mint Player (0.08 EGLD)
+              </button>
+              <a href="https://xoxno.com/collection/EFOOTBALL-91a4eb" target="_blank" rel="noopener noreferrer" class="pool-btn sec">
+                XOXNO ↗
+              </a>
+            </div>
+          </div>
+
+          <!-- Goalkeeper Card -->
+          <div class="mm-card gold-border">
+            <div class="mm-head">
+              <img src="branding/original/GOALKEEPER-cb9e3e/logo.png" alt="Goalkeeper Titan NFT" class="mm-thumb gold" />
+              <div class="mm-title-col">
+                <h3>🧤 Goalkeeper Titan NFT</h3>
+                <span class="mm-coll-code" style="color:#ffb800;">GOALKEEPER-cb9e3e</span>
+              </div>
+            </div>
+            <p class="mm-desc">
+              Legendary defensive titans. Grants <strong>Reflex Save Shield (1 Free Miss Protection) &amp; 3x Score Multiplier</strong> in the EFOO FOMO Arena!
+            </p>
+            <div class="mm-meta-row">
+              <span>Price:</span>
+              <strong class="mm-price-tag gold">0.35 EGLD</strong>
+            </div>
+            <div class="mm-meta-row">
+              <span>Status:</span>
+              <strong id="m-minted-keepers-stat">51 Minted (Supply Ongoing)</strong>
+            </div>
+            <div class="mm-actions">
+              <button type="button" id="m-btn-mint-keeper" class="mm-mint-btn gold">
+                🧤 Mint Keeper (0.35 EGLD)
+              </button>
+              <a href="https://xoxno.com/collection/GOALKEEPER-cb9e3e" target="_blank" rel="noopener noreferrer" class="pool-btn sec">
+                XOXNO ↗
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================================
+           TAB 4: DIRECT DEX TOKEN SWAP
+           ================================================================= -->
+      <div id="panel-swap" class="m-tab-panel hidden">
+        <div class="m-tab-header">
+          <span class="m-kicker">🔄 MULTIVERSX ON-CHAIN DEX ROUTER</span>
+          <h2>DIRECT $EFOO TOKEN SWAP</h2>
+          <p>Swap native <code>EGLD</code>, <code>WEGLD</code>, or <code>USDC</code> directly for <code>$EFOO</code> with instant execution through verified OneDex &amp; xExchange smart contracts.</p>
+        </div>
+
+        <div class="market-swap-wrap">
+          <div class="market-swap-card">
+            <!-- STARTER PACK +500,000 $EFOO BONUS BANNER -->
+            <div class="ms-bonus-pill" id="m-starter-bonus-banner">
+              <span>🎁</span>
+              <span><strong>Starter Bonus:</strong> Buy min. 1,000,000 $EFOO ➔ Get <strong>+500,000 $EFOO BONUS</strong> from Stadium Vault!</span>
+            </div>
+
+            <!-- YOU PAY -->
+            <div class="ms-token-box">
+              <div class="ms-token-head">
+                <span id="m-swap-pay-label">YOU PAY</span>
+                <span id="m-swap-pay-bal">Balance: —</span>
+              </div>
+              <div class="ms-token-row">
+                <input type="number" id="m-swap-input-amt" class="ms-input-amt" value="0.035" min="0.001" step="any" placeholder="0.0" />
+                <select id="m-swap-token-select" class="ms-token-select">
+                  <option value="EGLD">⚡ EGLD (Native)</option>
+                  <option value="WEGLD">🟡 WEGLD (OneDex)</option>
+                  <option value="USDC">💵 USDC (xExchange)</option>
+                  <option value="EFOO">⚽ $EFOO</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- FLIP -->
+            <div class="ms-flip-divider">
+              <button type="button" id="m-swap-flip-btn" class="ms-flip-btn" title="Flip Swap Direction">⇅</button>
+            </div>
+
+            <!-- YOU RECEIVE -->
+            <div class="ms-token-box">
+              <div class="ms-token-head">
+                <span id="m-swap-recv-label">YOU RECEIVE (ESTIMATED)</span>
+                <span id="m-swap-route-tag" style="color:var(--neon);">Route: OneDex / xExchange</span>
+              </div>
+              <div class="ms-token-row">
+                <input type="text" id="m-swap-output-amt" class="ms-input-amt" style="color:var(--neon);" value="~2,995,000" readonly />
+                <span id="m-swap-recv-token-badge" style="font-family:var(--font-mono); font-weight:800; font-size:1.1rem; color:#ffffff; background:#18181b; padding:8px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1);">$EFOO</span>
+              </div>
+            </div>
+
+            <!-- RATE & TELEMETRY -->
+            <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-sub); margin-bottom:18px;">
+              <span id="m-swap-rate-lbl">1 EGLD ≈ 29,950,000 $EFOO</span>
+              <span>Slippage: <strong>1.0%</strong></span>
+            </div>
+
+            <button type="button" id="m-btn-exec-swap" class="ms-swap-action-btn">
+              ⚡ Execute Swap On-Chain
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================================
+           TAB 5: LIQUIDITY POOLS (EGLD & USDC)
+           ================================================================= -->
+      <div id="panel-pools" class="m-tab-panel hidden">
+        <div class="m-tab-header">
+          <span class="m-kicker">💧 MULTIVERSX DEFI LIQUIDITY</span>
+          <h2>EGLD &amp; USDC LIQUIDITY POOLS</h2>
+          <p>Deposit $EFOO alongside EGLD or USDC into MultiversX liquidity pools to earn trading fees, farm LP rewards, and provide deep decentralized on-chain liquidity!</p>
+        </div>
+
+        <div class="pools-wrapper">
+          <div class="pools-grid">
+            <!-- Pool 1: EFOO / WEGLD -->
+            <div class="pool-card-main">
+              <div class="pool-head">
+                <div class="pool-pair-badge">
+                  <div class="ppb-icons">
+                    <img src="branding/original/assests-2022/logo.png" alt="EFOO" />
+                    <img src="https://tools.multiversx.com/assets-cdn/tokens/WEGLD-bd4d79/icon.png" alt="WEGLD" />
+                  </div>
+                  <span class="ppb-title">$EFOO / WEGLD</span>
+                </div>
+                <span class="pool-tag primary">Primary Pool</span>
+              </div>
+
+              <div class="pool-stats-grid">
+                <div class="ps-item">
+                  <span class="ps-lbl">Estimated APY:</span>
+                  <strong class="ps-val neon">~48.5%</strong>
+                </div>
+                <div class="ps-item">
+                  <span class="ps-lbl">Current Rate:</span>
+                  <strong class="ps-val">1 EGLD = 29.95M</strong>
+                </div>
+                <div class="ps-item">
+                  <span class="ps-lbl">DEX Protocol:</span>
+                  <strong class="ps-val">xExchange &amp; OneDex</strong>
+                </div>
+                <div class="ps-item">
+                  <span class="ps-lbl">Pool Fee Share:</span>
+                  <strong class="ps-val">0.3% / Trade</strong>
+                </div>
+              </div>
+
+              <div class="pool-actions-row">
+                <a href="https://xexchange.com/liquidity/add" target="_blank" rel="noopener noreferrer" class="pool-btn primary">
+                  💧 Add EGLD Liquidity ↗
+                </a>
+                <a href="https://swap.onedex.app/pool" target="_blank" rel="noopener noreferrer" class="pool-btn sec">
+                  OneDex ↗
+                </a>
+              </div>
+            </div>
+
+            <!-- Pool 2: EFOO / USDC -->
+            <div class="pool-card-main">
+              <div class="pool-head">
+                <div class="pool-pair-badge">
+                  <div class="ppb-icons">
+                    <img src="branding/original/assests-2022/logo.png" alt="EFOO" />
+                    <img src="https://tools.multiversx.com/assets-cdn/tokens/USDC-c76f1f/icon.png" alt="USDC" />
+                  </div>
+                  <span class="ppb-title">$EFOO / USDC</span>
+                </div>
+                <span class="pool-tag stable">Stablecoin Pair</span>
+              </div>
+
+              <div class="pool-stats-grid">
+                <div class="ps-item">
+                  <span class="ps-lbl">Estimated APY:</span>
+                  <strong class="ps-val neon">~36.2%</strong>
+                </div>
+                <div class="ps-item">
+                  <span class="ps-lbl">Current Rate:</span>
+                  <strong class="ps-val">1 USDC = 1.18M</strong>
+                </div>
+                <div class="ps-item">
+                  <span class="ps-lbl">DEX Protocol:</span>
+                  <strong class="ps-val">xExchange</strong>
+                </div>
+                <div class="ps-item">
+                  <span class="ps-lbl">Pool Fee Share:</span>
+                  <strong class="ps-val">0.3% / Trade</strong>
+                </div>
+              </div>
+
+              <div class="pool-actions-row">
+                <a href="https://xexchange.com/liquidity/add" target="_blank" rel="noopener noreferrer" class="pool-btn primary">
+                  💧 Add USDC Liquidity ↗
+                </a>
+                <button type="button" class="pool-btn sec" onclick="switchMarketTab('swap')">
+                  Swap $EFOO ➔
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- LP Earnings Calculator Card -->
+          <div class="pool-calc-card">
+            <div class="pcc-head">
+              <h3>📈 INTERACTIVE LIQUIDITY YIELD CALCULATOR</h3>
+              <span style="font-family:var(--font-mono); font-size:0.75rem; color:#ffb800;">Real-time APY Simulation</span>
+            </div>
+            <div class="pcc-calc-row">
+              <div class="pcc-input-wrap">
+                <label for="lp-calc-deposit">Enter Planned LP Deposit ($ USD):</label>
+                <input type="number" id="lp-calc-deposit" value="500" min="10" step="10" />
+              </div>
+              <div class="pcc-returns-grid">
+                <div class="pr-box">
+                  <small>Daily Projected Fees</small>
+                  <strong id="lp-daily-est">$0.66</strong>
+                </div>
+                <div class="pr-box">
+                  <small>Monthly Projected Fees</small>
+                  <strong id="lp-monthly-est">$20.20</strong>
+                </div>
+                <div class="pr-box">
+                  <small>Annual Yield (~48.5% APY)</small>
+                  <strong id="lp-annual-est">$242.50</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================================
+           TAB 6: SUPER SKILLS STORE
            ================================================================= -->
       <div id="panel-skills-store" class="m-tab-panel hidden">
         <div class="m-locker-head">
@@ -228,6 +505,116 @@
 
         <div class="m-skills-grid" id="m-skills-store-grid">
           <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- =================================================================
+           TAB 7: EFOO ULTRAS PASS (KROGAN-INSPIRED ZERO FEE VIP PASS)
+           ================================================================= -->
+      <div id="panel-ultras" class="m-tab-panel hidden">
+        <div class="ultras-wrapper">
+          <div class="ultras-hero-head">
+            <span class="m-kicker">🎟️ OFFICIAL VIP SFT PASS</span>
+            <h2 class="ultras-hero-title">SAVE WITH EFOO ULTRAS PASS</h2>
+            <p class="ultras-hero-sub">
+              Own an official <strong>EFOO Ultras PASS</strong> to enjoy <strong>lifetime 0% marketplace fees</strong> on every single Striker and Goalkeeper NFT trade. No listing fee, no selling fee, no buying fee — keep 100% of your earnings forever!
+            </p>
+          </div>
+
+          <div class="ultras-grid">
+            <!-- Left Card: Interactive Buy/Mint Card -->
+            <div class="ultras-card-box">
+              <div class="ultras-hologram-stage">
+                <div class="ultras-hologram-shield">
+                  <img src="branding/rebranded/efoo-degen-crest-200x200.png" alt="Ultras Crest" class="ultras-shield-emblem" />
+                </div>
+              </div>
+
+              <div class="ultras-supply-pill">
+                <span>🔥</span>
+                <span id="ultras-supply-stat">319 / 500 MINTED • VERY LIMITED SUPPLY</span>
+              </div>
+
+              <h3 class="ultras-card-title">EFOO ULTRAS PASS</h3>
+              <div class="ultras-card-tagline">⚡ FREE TRADES FOR LIFE!</div>
+
+              <div class="ultras-stepper-box">
+                <div class="usb-label">
+                  <span>SELECT QUANTITY:</span>
+                  <span id="ultras-qty-label">1 PASS</span>
+                </div>
+                <div class="usb-row">
+                  <button type="button" class="usb-btn" id="ultras-minus-btn">−</button>
+                  <input type="number" class="usb-input" id="ultras-qty-input" value="1" min="1" max="10" readonly />
+                  <button type="button" class="usb-btn" id="ultras-plus-btn">+</button>
+                </div>
+                <input type="range" class="usb-slider" id="ultras-qty-slider" min="1" max="10" value="1" />
+              </div>
+
+              <div class="ultras-price-total">
+                Total Price: <strong id="ultras-price-display">0.5 EGLD</strong>
+                <span style="font-size:0.8rem; color:var(--text-sub); display:block; margin-top:2px;" id="ultras-price-sub">(or 5,000,000 $EFOO)</span>
+              </div>
+
+              <button type="button" id="btn-buy-ultras-pass" class="ultras-buy-btn">
+                ⚡ BUY ULTRAS PASS
+              </button>
+
+              <div id="ultras-owned-indicator" class="ultras-owned-badge hidden">
+                👑 YOU OWN AN ULTRAS PASS • 0% TRADING FEES FOR LIFE ACTIVE!
+              </div>
+            </div>
+
+            <!-- Right Card: Benefits & Savings Breakdown -->
+            <div class="ultras-benefits-box">
+              <div>
+                <h3 class="ubb-title">
+                  <span>💎 LIFETIME ULTRAS BENEFITS</span>
+                </h3>
+                <ul class="ubb-list">
+                  <li class="ubb-item">
+                    <span class="ubb-icon">✔</span>
+                    <div><strong>0% Marketplace Fees</strong> — Zero fee at listing, zero fee when sold!</div>
+                  </li>
+                  <li class="ubb-item">
+                    <span class="ubb-icon">✔</span>
+                    <div><strong>No Hidden Cuts</strong> — Keep 100% of your EGLD and $EFOO sale proceeds.</div>
+                  </li>
+                  <li class="ubb-item">
+                    <span class="ubb-icon">✔</span>
+                    <div><strong>Unlimited Lifetime Trades</strong> — No renewals, no subscriptions, forever valid.</div>
+                  </li>
+                  <li class="ubb-item">
+                    <span class="ubb-icon">✔</span>
+                    <div><strong>Golden VIP Locker Placement</strong> — Your listed NFTs get priority golden borders.</div>
+                  </li>
+                  <li class="ubb-item">
+                    <span class="ubb-icon">✔</span>
+                    <div><strong>Stadium Vault Jackpot Booster</strong> — Double entry multiplier in weekend drawings.</div>
+                  </li>
+                  <li class="ubb-item">
+                    <span class="ubb-icon">✔</span>
+                    <div><strong>Strictly Capped Supply</strong> — Only 500 Ultras Passes will ever exist!</div>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Savings Breakdown -->
+              <div class="ultras-savings-card">
+                <div class="usc-title">📊 Average Estimated Savings:</div>
+                <div class="usc-rows">
+                  <div class="usc-col">
+                    <span>Average per EGLD trade:</span>
+                    <strong>+0.03 to 0.1 EGLD</strong>
+                  </div>
+                  <div class="usc-col">
+                    <span>Average per 10M $EFOO trade:</span>
+                    <strong>+500,000 $EFOO</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -329,12 +716,19 @@
 
         <div class="m-fee-summary">
           <div class="mfs-row">
-            <span id="list-fee-label">Platform Fee (2.5% Burn + 2.5% Stadium Vault):</span>
+            <span id="list-listing-fee-label">Listing Fee:</span>
+            <strong class="neon" id="list-listing-fee-val">0% (FREE)</strong>
+          </div>
+          <div class="mfs-row">
+            <span id="list-fee-label">Trading Fee (when sold):</span>
             <strong class="neon" id="list-fee-pct">5.0%</strong>
           </div>
           <div class="mfs-row">
             <span id="list-receive-label">You Receive:</span>
             <strong id="list-calc-receive">95% of sale</strong>
+          </div>
+          <div id="list-ultras-hint" style="margin-top:8px; font-size:0.75rem; color:#ffb800; font-family:var(--font-mono); text-align:left; background:rgba(255,184,0,0.08); padding:6px 10px; border-radius:6px; border:1px dashed rgba(255,184,0,0.3);">
+            🎟️ Hold an <strong>EFOO Ultras PASS</strong> to reduce trading fee to <strong>0%</strong> (Keep 100%)!
           </div>
         </div>
 
@@ -448,6 +842,6 @@
   <div id="m-toast" class="m-toast hidden"></div>
 
   <!-- Scripts -->
-  <script src="market.js?v=20261017_v3"></script>
+  <script src="market.js?v=20261017_v4"></script>
 </body>
 </html>
