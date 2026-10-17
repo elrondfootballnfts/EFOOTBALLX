@@ -331,12 +331,9 @@
     <h2 class="cloak-title">Page Not Found</h2>
     <p class="cloak-desc">The requested resource could not be found or you do not have permission to view it.</p>
     <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
-      <a href="/" class="admin-btn admin-btn-outline" style="width: auto; text-decoration: none;">⬅ Return to Home</a>
-      <button id="btn-owner-extension-connect" class="admin-btn admin-btn-neon" style="width: auto;">
+      <a href="/" class="admin-btn admin-btn-outline" style="width: auto; text-decoration: none;">⬅ Vissza a Főoldalra</a>
+      <button id="btn-owner-extension-connect" class="admin-btn admin-btn-neon" style="width: auto; padding: 12px 24px; font-size: 1rem;">
         🧩 Belépés MultiversX DeFi Wallet Bővítménnyel
-      </button>
-      <button id="btn-owner-auth-check" class="admin-btn admin-btn-outline" style="width: auto;">
-        🔑 Kézi Cím Megadása
       </button>
     </div>
   </div>
@@ -806,16 +803,26 @@
     // =========================================================================
     // AUTHENTICATION & ACCESS VERIFICATION
     // =========================================================================
-    function checkOwnerAuth() {
-      // Check active connected wallet from localStorage / sessionStorage
+    async function checkOwnerAuth() {
+      // 1. Check active session
       const savedWallet = localStorage.getItem("efoo_connected_address") || sessionStorage.getItem("efoo_connected_address");
       const isOwnerSession = sessionStorage.getItem(STORAGE_ADMIN_SESSION) === "VALID_OWNER_AUTH";
 
       if (savedWallet === OWNER_ADDRESS || isOwnerSession) {
         unlockAdminView();
-      } else {
-        lockAdminView();
+        return;
       }
+
+      // 2. Auto-detect if DeFi Wallet extension is already active with owner wallet
+      const ext = window.elrondWallet || window.multiversx || window.elrond;
+      const extAddr = ext?.account?.address || ext?.address || "";
+      if (extAddr && extAddr.toLowerCase() === OWNER_ADDRESS.toLowerCase()) {
+        localStorage.setItem("efoo_connected_address", OWNER_ADDRESS);
+        unlockAdminView();
+        return;
+      }
+
+      lockAdminView();
     }
 
     function unlockAdminView() {
@@ -887,8 +894,8 @@
       const ext = window.elrondWallet || window.multiversx || window.elrond;
       try {
         showToast("🧩 Csatlakozás a MultiversX DeFi Wallet bővítményhez...");
-        let addr = "";
-        if (ext && typeof ext.login === "function") {
+        let addr = ext?.account?.address || ext?.address || "";
+        if (!addr && ext && typeof ext.login === "function") {
           try {
             const res = await ext.login();
             addr = typeof res === "string" ? res : (res && res.address ? res.address : "");
@@ -1375,19 +1382,9 @@
     }
 
     // Extension & Manual Connect triggers
+    // Extension Connect triggers (Strict cryptographic authentication only)
     document.getElementById("btn-owner-extension-connect")?.addEventListener("click", connectExtensionOwner);
     document.getElementById("btn-ext-status-pill")?.addEventListener("click", connectExtensionOwner);
-
-    document.getElementById("btn-owner-auth-check")?.addEventListener("click", () => {
-      const inputAddr = prompt("Kérlek add meg a csatlakoztatott MultiversX tárcacímedet:");
-      if (inputAddr && inputAddr.trim().toLowerCase() === OWNER_ADDRESS.toLowerCase()) {
-        localStorage.setItem("efoo_connected_address", OWNER_ADDRESS);
-        unlockAdminView();
-        showToast("👑 Üdvözöllek, EFOO Vezérigazgató! A Master felület feloldva.");
-      } else {
-        alert("❌ Hozzáférés megtagadva: Kizárólag a szerződés tulajdonosa (efoorewards) jogosult belépni!");
-      }
-    });
 
     document.getElementById("btn-admin-logout")?.addEventListener("click", () => {
       lockAdminView();
