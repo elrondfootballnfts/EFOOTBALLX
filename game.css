@@ -3125,6 +3125,112 @@ body.start-screen-active .hud-top-bar,
   font-weight: 800;
 }
 
+/* Post-Match Guest Simulation & Verified Player Banners */
+.guest-jackpot-simulation-banner {
+  background: linear-gradient(135deg, rgba(255, 184, 0, 0.16) 0%, rgba(18, 13, 4, 0.96) 50%, rgba(56, 189, 248, 0.14) 100%);
+  border: 1.5px solid #ffb800;
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 0 24px rgba(255, 184, 0, 0.25);
+  animation: guestBannerPulse 3s infinite ease-in-out;
+}
+
+@keyframes guestBannerPulse {
+  0%, 100% { border-color: rgba(255, 184, 0, 0.6); box-shadow: 0 0 16px rgba(255, 184, 0, 0.2); }
+  50% { border-color: #ffd700; box-shadow: 0 0 30px rgba(255, 215, 0, 0.45); }
+}
+
+.gjs-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.gjs-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #fef08a;
+  background: rgba(255, 184, 0, 0.22);
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 184, 0, 0.5);
+}
+
+.gjs-jackpot-share {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.92rem;
+  font-weight: 900;
+  color: #a8ff00;
+  text-shadow: 0 0 10px rgba(168, 255, 0, 0.5);
+}
+
+.gjs-desc {
+  font-size: 0.82rem;
+  color: #e2e8f0;
+  line-height: 1.45;
+  margin: 0 0 10px 0;
+}
+
+.gjs-cta-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.gjs-connect-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 8px 18px;
+  background: linear-gradient(135deg, #ffb800, #f59e0b);
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 16px rgba(255, 184, 0, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gjs-connect-btn:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 0 24px rgba(255, 215, 0, 0.65);
+}
+
+.verified-winner-banner {
+  background: linear-gradient(135deg, rgba(168, 255, 0, 0.16) 0%, rgba(8, 24, 12, 0.96) 50%, rgba(16, 185, 129, 0.14) 100%);
+  border: 1.5px solid #a8ff00;
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 0 24px rgba(168, 255, 0, 0.3);
+}
+
+/* Simulated Guest Highlight Row in Leaderboard */
+.simulated-guest-row {
+  background: linear-gradient(90deg, rgba(255, 184, 0, 0.22), rgba(56, 189, 248, 0.15)) !important;
+  border-left: 3px solid #ffb800 !important;
+  border-right: 3px solid #ffb800 !important;
+  animation: simRowPulse 2.5s infinite ease-in-out;
+}
+
+@keyframes simRowPulse {
+  0%, 100% { box-shadow: inset 0 0 10px rgba(255, 184, 0, 0.2); }
+  50% { box-shadow: inset 0 0 20px rgba(255, 184, 0, 0.45), 0 0 15px rgba(255, 184, 0, 0.3); }
+}
+
+/* Logged-In User Highlight Row in Leaderboard */
+.user-highlight-row {
+  background: linear-gradient(90deg, rgba(168, 255, 0, 0.22), rgba(16, 185, 129, 0.15)) !important;
+  border-left: 3px solid #a8ff00 !important;
+  border-right: 3px solid #a8ff00 !important;
+  box-shadow: 0 0 18px rgba(168, 255, 0, 0.35);
+}
+
 /* Daily Streak Modal */
 .streak-modal-card {
   width: 100%;

@@ -1487,6 +1487,31 @@ function clampNum(v, lo, hi) {
 // NFT RARITY & SKILLS SCALING (ROOKIE F2P, COMMON, RARE, EPIC, LEGENDARY)
 // ============================================================================
 function getPowers() {
+  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
+  if (!isConnected) {
+    return {
+      pCount: 0,
+      kCount: 0,
+      efoo: 0,
+      strikerRarity: { id: "rookie", name: "Rookie", mult: 1.0, slots: 0 },
+      keeperRarity: { id: "rookie", name: "Rookie", mult: 1.0, slots: 0 },
+      strikerSlots: 0,
+      keeperSlots: 0,
+      aimBonusPct: 0,
+      swayMul: 1.0,
+      sweetBonus: 0,
+      keeperSigmaMul: 1.15,
+      totalMult: 1.0,
+      maxShields: 0,
+      hasCurve: false,
+      hasRadar: false,
+      hasTwinBall: false,
+      hasRocket: false,
+      rocketPts: 0,
+      isPro: false
+    };
+  }
+
   const strikerRarity = getNftRarityInfo(activeStriker);
   const keeperRarity = getNftRarityInfo(activeKeeper);
   const pCount = walletState.playersCount;
@@ -2040,6 +2065,15 @@ function refreshHudUI() {
   const hudTrait = document.getElementById("hud-striker-trait");
   const hudDock = document.getElementById("fut-striker-dock");
 
+  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
+  if (hudDock) {
+    if (!isConnected) {
+      hudDock.style.display = "none";
+    } else {
+      hudDock.style.display = "flex";
+    }
+  }
+
   if (isShootingTurn) {
     const sTier = getNftRarityTier(activeStriker);
     if (hudImg) hudImg.src = toCorsUrl(activeStriker.url, 240);
@@ -2186,11 +2220,14 @@ function setStartScreenState(isActive) {
 // ============================================================================
 function launchMatchWithIntro() {
   game.matchEndWhistlePlayed = false;
+  game.postMatchBonusAdded = false;
+  isPostMatchLeaderboardActive = false;
   if (audio && audio.bgmEnabled && !audio.bgmPlaying) {
     audio.startBgm();
   }
   setStartScreenState(false);
   document.getElementById("summary-screen-overlay")?.classList.add("hidden");
+  document.getElementById("leaderboard-modal-overlay")?.classList.add("hidden");
   document.getElementById("var-revive-overlay")?.classList.add("hidden");
   if (game.varTimerInterval) {
     clearInterval(game.varTimerInterval);
@@ -2829,14 +2866,46 @@ function finishMatch() {
     if (game.phase !== "match_result") return;
     game.matchResult = null;
     try {
-      openSummaryModal();
+      showPostMatchLeaderboard();
     } catch (err) {
-      console.error("Error in openSummaryModal:", err);
-      document.getElementById("summary-screen-overlay")?.classList.remove("hidden");
+      console.error("Error in showPostMatchLeaderboard:", err);
+      openSummaryModal();
     }
   }, 2600);
 }
 
+let isPostMatchLeaderboardActive = false;
+
+function showPostMatchLeaderboard() {
+  isPostMatchLeaderboardActive = true;
+  game.phase = "leaderboard_postmatch";
+
+  // Calculate win bonuses so score displayed on leaderboard includes match bonus!
+  const userWon = game.userGoals > game.aiGoals;
+  const perfect = userWon && game.userGoals === game.maxRounds && game.aiGoals === 0;
+  let bonus = 0;
+  if (userWon) bonus += 2500 * game.level;
+  if (perfect) bonus += 5000 * game.level;
+  if (bonus > 0 && !game.postMatchBonusAdded) {
+    game.score += bonus;
+    game.postMatchBonusAdded = true;
+    refreshHudUI();
+  }
+
+  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
+  if (isConnected) {
+    recordMatchToLeaderboard(game.score, game.userGoals, game.level);
+  }
+
+  renderLeaderboardModal({
+    isPostMatch: true,
+    score: game.score,
+    goals: game.userGoals,
+    level: game.level
+  });
+
+  document.getElementById("leaderboard-modal-overlay")?.classList.remove("hidden");
+}
 
 function openVarReviveOverlay() {
   game.phase = "var_review";
@@ -2852,7 +2921,7 @@ function openVarReviveOverlay() {
   const needMore = Math.max(1, lv.goalsNeeded - game.goals);
 
   if (!varOverlay) {
-    openSummaryModal();
+    showPostMatchLeaderboard();
     return;
   }
 
@@ -2883,7 +2952,7 @@ function openVarReviveOverlay() {
       clearInterval(game.varTimerInterval);
       game.varTimerInterval = null;
       varOverlay.classList.add("hidden");
-      openSummaryModal();
+      showPostMatchLeaderboard();
     }
   }, 1000);
 }
@@ -2894,7 +2963,7 @@ function closeVarReviveAndFinish() {
     game.varTimerInterval = null;
   }
   document.getElementById("var-revive-overlay")?.classList.add("hidden");
-  openSummaryModal();
+  showPostMatchLeaderboard();
 }
 
 function executeReviveBonusShot() {
@@ -2964,7 +3033,10 @@ function openSummaryModal() {
   let bonus = 0;
   if (cleared) bonus += 2500 * game.level;
   if (perfect) bonus += 5000 * game.level;
-  game.score += bonus;
+  if (!game.postMatchBonusAdded) {
+    game.score += bonus;
+    game.postMatchBonusAdded = true;
+  }
   refreshHudUI();
 
   // Core Scorecard
@@ -4345,8 +4417,9 @@ function drawArticulatedGoalkeeper(ctx, x, y, angle, armReach, isFrozen = false)
   // When user shoots (game.shootoutTurn === "shoot") ➔ Keeper is CPU / BOT (NO NFT).
   // When bot shoots (game.shootoutTurn === "defend") ➔ Keeper is USER'S OWN NFT GOALKEEPER!
   const isUserDefending = game.shootoutTurn === "defend";
+  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
 
-  if (isUserDefending) {
+  if (isUserDefending && isConnected) {
     // 1. User's Own NFT Goalkeeper
     const kTier = getNftRarityTier(activeKeeper);
     ctx.fillStyle = "#091910";
@@ -4500,8 +4573,9 @@ function drawPitchStrikerHologram(ctx, x, y) {
   ctx.translate(x, y);
 
   const isUserShooting = game.shootoutTurn === "shoot";
+  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
 
-  if (isUserShooting) {
+  if (isUserShooting && isConnected) {
     // 1. User's Own NFT Striker
     const sTier = getNftRarityTier(activeStriker);
 
@@ -5902,6 +5976,10 @@ function buySkillWithEfoo(skillId, count = 1) {
 }
 
 function armSkill(skillId) {
+  if (!connectedAddress || !connectedAddress.startsWith("erd1")) {
+    showToast(currentLang === "hu" ? "🔒 A szuperképességek használatához jelentkezz be tárcáddal!" : "🔒 Connect your wallet with an NFT to use skills!");
+    return;
+  }
   if (game.phase !== "aim" && game.phase !== "charging" && game.phase !== "defend_aim") return;
   const inv = getSkillsInventory();
   const currentCount = inv[skillId] || 0;
@@ -5919,6 +5997,15 @@ function armSkill(skillId) {
 function renderSkillsDeckUI() {
   const row = document.getElementById("skills-slots-row");
   if (!row) return;
+  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
+  if (!isConnected) {
+    row.innerHTML = `
+      <div style="color:#94a3b8; font-size:0.72rem; font-family:'JetBrains Mono',monospace; padding:6px 14px; background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.12); border-radius:8px; display:flex; align-items:center; gap:6px;">
+        🔒 <span>${currentLang === "hu" ? "Vendég mód: Képességek zárolva (Jelentkezz be tárcával!)" : "Guest Mode: Skills locked (Connect wallet to unlock!)"}</span>
+      </div>
+    `;
+    return;
+  }
   const inv = getSkillsInventory();
   row.innerHTML = "";
   const isHu = currentLang === "hu";
@@ -6175,12 +6262,13 @@ function getLeaderboard() {
     }
   } catch (e) {}
 
-  // Filter out any mock dummy entries & invalid/truncated addresses
+  // Filter out any mock dummy entries, guests, & invalid/truncated addresses
   list = list.filter((row) => {
     if (!row || !row.address) return false;
+    if (row.isGuest || row.isSimulated || row.address.startsWith("guest_")) return false;
     const addr = row.address.trim().toLowerCase();
-    if (addr.includes("...")) return false; // Purge old truncated "erd1gy...j8gq" entries
-    if (addr.startsWith("erd1") && addr.length !== 62) return false; // Must be strictly 62 chars
+    if (addr.includes("...")) return false; // Purge old truncated entries
+    if (!addr.startsWith("erd1") || addr.length !== 62) return false; // Must be strictly 62 chars
     if (KNOWN_MOCK_ADDRESSES.has(addr)) return false;
     if (row.herotag && MOCK_HEROTAGS_TO_PURGE.has(row.herotag.toLowerCase())) return false;
     return true;
@@ -6226,28 +6314,18 @@ function getLeaderboard() {
 
 function recordMatchToLeaderboard(score, goals, level) {
   if (score <= 0) return null;
-  const list = getLeaderboard();
-
-  // If player has a connected wallet, use their real address. Otherwise use an anonymous guest ID.
-  let playerAddr = connectedAddress;
-  let isGuest = false;
-  if (!playerAddr) {
-    let guestId = localStorage.getItem("efoo_guest_player_id");
-    if (!guestId) {
-      guestId = "guest_" + Math.random().toString(36).substring(2, 8);
-      localStorage.setItem("efoo_guest_player_id", guestId);
-    }
-    playerAddr = guestId;
-    isGuest = true;
+  // STRICT RULE: Guests are NEVER recorded to the real leaderboard!
+  if (!connectedAddress || !connectedAddress.startsWith("erd1") || connectedAddress.length !== 62) {
+    return null;
   }
 
-  let hero = "";
-  if (!isGuest) {
-    hero = walletState.herotag || walletState.username || getHerotagForAddress(playerAddr);
-    if (hero) {
-      hero = hero.replace(/\.elrond$/, "").replace(/^@/, "");
-      hero = `@${hero}`;
-    }
+  const list = getLeaderboard();
+  let playerAddr = connectedAddress;
+
+  let hero = walletState.herotag || walletState.username || getHerotagForAddress(playerAddr);
+  if (hero) {
+    hero = hero.replace(/\.elrond$/, "").replace(/^@/, "");
+    hero = `@${hero}`;
   }
 
   // Check if playerAddr already exists in the leaderboard
@@ -6269,17 +6347,13 @@ function recordMatchToLeaderboard(score, goals, level) {
       }
     }
   } else {
-    // New player entry
-    const nickname = isGuest
-      ? `Guest Striker #${playerAddr.replace("guest_", "")}`
-      : (hero ? "" : getDeterministicFootballNickname(playerAddr));
-
+    // New verified player entry
     list.push({
       rank: 0,
       address: playerAddr,
       herotag: hero || "",
-      nickname,
-      isGuest,
+      nickname: hero ? "" : getDeterministicFootballNickname(playerAddr),
+      isGuest: false,
       level,
       goals,
       score,
@@ -6315,11 +6389,29 @@ function recordMatchToLeaderboard(score, goals, level) {
   return myEntry ? myEntry.rank : null;
 }
 
-function renderLeaderboardModal() {
+function renderLeaderboardModal(options = {}) {
+  const isPostMatch = !!options.isPostMatch;
+  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
+  const isGuest = !isConnected;
+  const currentScore = typeof options.score === "number" ? options.score : (game.score || 0);
+  const currentGoals = typeof options.goals === "number" ? options.goals : (game.userGoals || 0);
+  const currentLevel = options.level || game.level || 1;
+
   const tbody = document.getElementById("lb-table-body");
-  if (!tbody) return;
-  const list = getLeaderboard();
-  tbody.innerHTML = "";
+  const postMatchBanner = document.getElementById("lb-postmatch-banner");
+  const playBtn = document.getElementById("lb-play-btn");
+  const nextBtn = document.getElementById("lb-next-summary-btn");
+
+  if (playBtn && nextBtn) {
+    if (isPostMatch) {
+      playBtn.classList.add("hidden");
+      nextBtn.classList.remove("hidden");
+      nextBtn.textContent = currentLang === "hu" ? "🚀 KÖVETKEZŐ: MECCS ÖSSZEFOGLALÓ ➔" : "🚀 NEXT: MATCH SUMMARY ➔";
+    } else {
+      playBtn.classList.remove("hidden");
+      nextBtn.classList.add("hidden");
+    }
+  }
 
   // Dynamic calculation for weekly pot (65% / 25% / 10%)
   const stats = getVaultStats();
@@ -6334,8 +6426,118 @@ function renderLeaderboardModal() {
   if (share2nd) share2nd.textContent = `${Math.round(potVal * 0.25).toLocaleString("en-US")} $EFOO`;
   if (share3rd) share3rd.textContent = `${Math.round(potVal * 0.10).toLocaleString("en-US")} $EFOO`;
 
-  // Empty state if no real matches have been played yet
-  if (list.length === 0) {
+  let list = getLeaderboard();
+  if (tbody) tbody.innerHTML = "";
+
+  // Render Post-Match Banner & Simulated Rows
+  if (isPostMatch && postMatchBanner) {
+    postMatchBanner.classList.remove("hidden");
+    if (!isGuest) {
+      // Verified connected player
+      const userRank = list.findIndex(x => x.address && x.address.toLowerCase() === connectedAddress.toLowerCase()) + 1;
+      const rankPill = userRank === 1 ? "🥇 1. HELY (65% JACKPOT DÍJ)" : userRank === 2 ? "🥈 2. HELY (25% JACKPOT DÍJ)" : userRank === 3 ? "🥉 3. HELY (10% JACKPOT DÍJ)" : `#${userRank}. HELY`;
+      postMatchBanner.innerHTML = `
+        <div class="verified-winner-banner">
+          <div class="gjs-head">
+            <span class="gjs-badge" style="background:rgba(168,255,0,0.2); border-color:#a8ff00; color:#a8ff00;">✅ HIVATALOS RANGLISTA RÖGZÍTVE</span>
+            <span class="gjs-jackpot-share">${rankPill}</span>
+          </div>
+          <p class="gjs-desc" style="margin:0;">
+            ${currentLang === "hu"
+              ? `Gratulálunk! Az elért <strong>${currentScore.toLocaleString("en-US")} PTS</strong> pontszámod hivatalosan felkerült a heti Stadium Vault ranglistára a(z) <strong>#${userRank || 1}</strong> helyre!`
+              : `Congratulations! Your score of <strong>${currentScore.toLocaleString("en-US")} PTS</strong> is verified on the weekly Stadium Vault Leaderboard at <strong>#${userRank || 1}</strong>!`}
+          </p>
+        </div>
+      `;
+    } else {
+      // Guest player simulation: compute what rank currentScore would achieve!
+      const higherCount = list.filter(x => x.score > currentScore).length;
+      const simulatedRank = higherCount + 1;
+
+      let headline = "";
+      let desc = "";
+
+      if (simulatedRank === 1) {
+        const shareEst = Math.round(potVal * 0.65);
+        headline = currentLang === "hu" ? `🥇 65% ESÉLY A JACKPOTRA (~${shareEst.toLocaleString("en-US")} $EFOO)` : `🥇 65% JACKPOT ODDS (~${shareEst.toLocaleString("en-US")} $EFOO)`;
+        desc = currentLang === "hu"
+          ? `Ha bejelentkezve vagy NFT birtokosként játszanál, most <strong>ÁTVENNÉD AZ 1. HELYET</strong> és <strong>65% esélyed lenne megnyerni a heti Jackpotot</strong>! Mivel vendégként játszottál, ez az eredmény nem került mentésre a hivatalos ranglistára.`
+          : `If you were connected with an NFT, you would be <strong>#1 RANKED</strong> with <strong>65% chance to win the weekly Jackpot</strong>! As a guest, this score is simulated and not saved to the official leaderboard.`;
+      } else if (simulatedRank === 2) {
+        const shareEst = Math.round(potVal * 0.25);
+        headline = currentLang === "hu" ? `🥈 25% ESÉLY A JACKPOTRA (~${shareEst.toLocaleString("en-US")} $EFOO)` : `🥈 25% JACKPOT ODDS (~${shareEst.toLocaleString("en-US")} $EFOO)`;
+        desc = currentLang === "hu"
+          ? `Ha bejelentkezve vagy NFT birtokosként játszanál, most a <strong>2. HELYEN ÁLLNÁL</strong> és <strong>25% esélyed lenne a heti Jackpotra</strong>! Vendégként az eredményed csak szimuláció.`
+          : `If you were connected with an NFT, you would hold <strong>2ND PLACE</strong> with <strong>25% Jackpot odds</strong>! As a guest, your score is simulated.`;
+      } else if (simulatedRank === 3) {
+        const shareEst = Math.round(potVal * 0.10);
+        headline = currentLang === "hu" ? `🥉 10% ESÉLY A JACKPOTRA (~${shareEst.toLocaleString("en-US")} $EFOO)` : `🥉 10% JACKPOT ODDS (~${shareEst.toLocaleString("en-US")} $EFOO)`;
+        desc = currentLang === "hu"
+          ? `Ha bejelentkezve vagy NFT birtokosként játszanál, most a <strong>3. HELYEN ÁLLNÁL</strong> és <strong>10% esélyed lenne a heti Jackpotra</strong>! Vendégként az eredményed csak szimuláció.`
+          : `If you were connected with an NFT, you would hold <strong>3RD PLACE</strong> with <strong>10% Jackpot odds</strong>! As a guest, your score is simulated.`;
+      } else {
+        const top3Score = list.length >= 3 ? list[2].score : (list.length > 0 ? list[list.length - 1].score : 10000);
+        const ptsNeeded = Math.max(0, top3Score - currentScore);
+        const pctOfTop3 = Math.min(99, Math.round((currentScore / top3Score) * 100));
+        headline = currentLang === "hu" ? `⚡ #${simulatedRank}. HELY (TOP 3 KÖZELÉBEN: ${pctOfTop3}%)` : `⚡ #${simulatedRank} RANK (NEAR TOP 3: ${pctOfTop3}%)`;
+        desc = currentLang === "hu"
+          ? `A pontszámoddal a <strong>#${simulatedRank}</strong> helyen végeztél volna! Csupán <strong>${ptsNeeded.toLocaleString("en-US")} pont</strong> választott el a heti 10%-os Jackpot díjtól (~${Math.round(potVal * 0.10).toLocaleString("en-US")} $EFOO).`
+          : `With this score you would rank <strong>#${simulatedRank}</strong>! Only <strong>${ptsNeeded.toLocaleString("en-US")} PTS</strong> away from the 10% Jackpot prize tier (~${Math.round(potVal * 0.10).toLocaleString("en-US")} $EFOO).`;
+      }
+
+      postMatchBanner.innerHTML = `
+        <div class="guest-jackpot-simulation-banner">
+          <div class="gjs-head">
+            <span class="gjs-badge">${currentLang === "hu" ? `⚠️ VENDÉG SZIMULÁCIÓ • #${simulatedRank}. HELY` : `⚠️ GUEST SIMULATION • #${simulatedRank} RANK`}</span>
+            <span class="gjs-jackpot-share">${headline}</span>
+          </div>
+          <p class="gjs-desc">${desc}</p>
+          <div class="gjs-cta-row">
+            <button type="button" class="gjs-connect-btn" id="btn-gjs-connect-wallet">
+              ⚡ ${currentLang === "hu" ? "CSATLAKOZTASD A TÁRCÁD (MENTÉSHEZ & NYEREMÉNYHEZ)" : "CONNECT WALLET (TO SAVE & WIN JACKPOT)"}
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("btn-gjs-connect-wallet")?.addEventListener("click", () => {
+        closeLeaderboard();
+        document.getElementById("wallet-modal-backdrop")?.classList.remove("hidden");
+      });
+    }
+  } else if (postMatchBanner) {
+    postMatchBanner.classList.add("hidden");
+    postMatchBanner.innerHTML = "";
+  }
+
+  // Construct table rows: if guest postmatch, insert guest simulated row
+  let displayRows = list.map(item => ({ ...item, isSimulated: false }));
+  if (isPostMatch && isGuest) {
+    const higherCount = list.filter(x => x.score > currentScore).length;
+    const simulatedRank = higherCount + 1;
+    const simEntry = {
+      rank: simulatedRank,
+      address: "Guest",
+      herotag: "",
+      nickname: currentLang === "hu" ? "TE (Vendég Játékos)" : "YOU (Guest Striker)",
+      level: currentLevel,
+      goals: currentGoals,
+      score: currentScore,
+      date: currentLang === "hu" ? "Most (Szimuláció)" : "Just now (Simulated)",
+      isGuest: true,
+      isSimulated: true
+    };
+    displayRows.splice(simulatedRank - 1, 0, simEntry);
+    displayRows.forEach((r, idx) => {
+      r.displayRank = idx + 1;
+    });
+  } else {
+    displayRows.forEach((r, idx) => {
+      r.displayRank = r.rank || (idx + 1);
+    });
+  }
+
+  if (displayRows.length === 0) {
     const emptyTr = document.createElement("tr");
     emptyTr.innerHTML = `
       <td colspan="6" style="text-align:center; padding:38px 16px; color:#94a3b8;">
@@ -6348,12 +6550,17 @@ function renderLeaderboardModal() {
     return;
   }
 
-  list.forEach((row) => {
+  displayRows.forEach((row) => {
     const tr = document.createElement("tr");
+    if (row.isSimulated) {
+      tr.className = "simulated-guest-row";
+    } else if (isConnected && row.address && row.address.toLowerCase() === connectedAddress.toLowerCase()) {
+      tr.className = "user-highlight-row";
+    }
 
     let herotag = row.herotag;
     if (!herotag || herotag.trim().length === 0) {
-      if (!row.isGuest && row.address.startsWith("erd1")) {
+      if (!row.isGuest && row.address && row.address.startsWith("erd1")) {
         const known = getHerotagForAddress(row.address);
         if (known) {
           herotag = `@${known}`;
@@ -6365,21 +6572,31 @@ function renderLeaderboardModal() {
     }
 
     const isHero = !!(herotag && herotag.trim().length > 0);
-    const shortAddr = row.isGuest ? "Guest" : shortErd(row.address);
-    const displayName = isHero
+    const shortAddr = row.isGuest ? (row.isSimulated ? (currentLang === "hu" ? "Nem mentve" : "Unsaved") : "Guest") : shortErd(row.address);
+    const displayName = row.isSimulated
+      ? `<strong style="color:#ffffff; font-size:0.92rem;">👤 ${escapeHtml(row.nickname)}</strong>`
+      : isHero
       ? `<strong class="herotag-name" style="color:#a8ff00; font-weight:800; font-size:0.95rem; text-shadow:0 0 10px rgba(168,255,0,0.5);">⚡ ${escapeHtml(herotag)}</strong>`
-      : `<span class="generated-nickname" style="color:#94a3b8; font-style:italic;">${escapeHtml(row.nickname || row.name || (row.isGuest ? "Guest Player" : getDeterministicFootballNickname(row.address)))}</span>`;
+      : `<span class="generated-nickname" style="color:#94a3b8; font-style:italic;">${escapeHtml(row.nickname || row.name || getDeterministicFootballNickname(row.address))}</span>`;
+
+    const rankPill = row.displayRank === 1
+      ? "🥇 1"
+      : row.displayRank === 2
+      ? "🥈 2"
+      : row.displayRank === 3
+      ? "🥉 3"
+      : `#${row.displayRank}`;
 
     tr.innerHTML = `
-      <td><strong>${row.rank === 1 ? "🥇 1" : row.rank === 2 ? "🥈 2" : row.rank === 3 ? "🥉 3" : `#${row.rank}`}</strong></td>
+      <td><strong>${row.isSimulated ? `<span style="color:#ffb800;">⚡ ${rankPill}</span>` : rankPill}</strong></td>
       <td>
         ${displayName}
-        <small style="color:#64748b; font-size:0.68rem; margin-left:6px; font-family:'JetBrains Mono',monospace;">(${shortAddr})</small>
+        <small style="color:${row.isSimulated ? '#fef08a' : '#64748b'}; font-size:0.68rem; margin-left:6px; font-family:'JetBrains Mono',monospace;">(${shortAddr})</small>
       </td>
-      <td><span style="color:#38bdf8; font-weight:800;">LVL ${row.level}</span></td>
+      <td><span style="color:#38bdf8; font-weight:800;">LVL ${row.level || 1}</span></td>
       <td>⚽ ${row.goals}/5</td>
       <td><strong style="color:#a8ff00; font-family:'JetBrains Mono',monospace;">${row.score.toLocaleString("en-US")}</strong></td>
-      <td style="color:#94a3b8; font-size:0.7rem;">${row.date || "Just now"}</td>
+      <td style="color:${row.isSimulated ? '#fef08a' : '#94a3b8'}; font-size:0.7rem; font-weight:${row.isSimulated ? '800' : '400'};">${row.date || "Just now"}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -6818,15 +7035,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Leaderboard Modal
   const openLeaderboard = () => {
-    renderLeaderboardModal();
+    isPostMatchLeaderboardActive = false;
+    renderLeaderboardModal({ isPostMatch: false });
     document.getElementById("leaderboard-modal-overlay")?.classList.remove("hidden");
   };
-  const closeLeaderboard = () => document.getElementById("leaderboard-modal-overlay")?.classList.add("hidden");
+  const closeLeaderboard = () => {
+    document.getElementById("leaderboard-modal-overlay")?.classList.add("hidden");
+    if (isPostMatchLeaderboardActive) {
+      isPostMatchLeaderboardActive = false;
+      openSummaryModal();
+    }
+  };
   document.getElementById("open-ranks-btn")?.addEventListener("click", openLeaderboard);
   document.getElementById("close-ranks-modal-btn")?.addEventListener("click", closeLeaderboard);
   document.getElementById("lb-play-btn")?.addEventListener("click", () => {
     closeLeaderboard();
     launchMatchWithIntro();
+  });
+  document.getElementById("lb-next-summary-btn")?.addEventListener("click", () => {
+    isPostMatchLeaderboardActive = false;
+    document.getElementById("leaderboard-modal-overlay")?.classList.add("hidden");
+    openSummaryModal();
   });
   document.getElementById("leaderboard-modal-overlay")?.addEventListener("click", (e) => {
     if (e.target && e.target.id === "leaderboard-modal-overlay") closeLeaderboard();
