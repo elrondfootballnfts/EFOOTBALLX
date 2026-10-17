@@ -330,9 +330,14 @@
     <h1 class="cloak-code">404</h1>
     <h2 class="cloak-title">Page Not Found</h2>
     <p class="cloak-desc">The requested resource could not be found or you do not have permission to view it.</p>
-    <div style="display: flex; gap: 12px;">
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
       <a href="/" class="admin-btn admin-btn-outline" style="width: auto; text-decoration: none;">⬅ Return to Home</a>
-      <button id="btn-owner-auth-check" class="admin-btn admin-btn-gold" style="width: auto;">Connect Owner Wallet</button>
+      <button id="btn-owner-extension-connect" class="admin-btn admin-btn-neon" style="width: auto;">
+        🧩 Belépés MultiversX DeFi Wallet Bővítménnyel
+      </button>
+      <button id="btn-owner-auth-check" class="admin-btn admin-btn-outline" style="width: auto;">
+        🔑 Kézi Cím Megadása
+      </button>
     </div>
   </div>
 
@@ -351,9 +356,12 @@
             <small>SMART CONTRACT &amp; STADIUM VAULT GOVERNANCE</small>
           </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 16px;">
-          <div class="admin-badge-owner">👑 OWNER: efoorewards.elrond</div>
-          <button id="btn-admin-logout" class="admin-btn admin-btn-outline" style="width: auto; margin: 0; padding: 6px 14px; font-size: 0.8rem;">🔒 Lock / Disconnect</button>
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <div class="admin-badge-owner" id="admin-wallet-badge">👑 OWNER: efoorewards.elrond</div>
+          <button id="btn-ext-status-pill" class="admin-btn admin-btn-outline" style="width: auto; margin: 0; padding: 4px 10px; font-size: 0.75rem; border-color: var(--admin-neon); color: var(--admin-neon);">
+            🧩 DeFi Extension Csatlakoztatva
+          </button>
+          <button id="btn-admin-logout" class="admin-btn admin-btn-outline" style="width: auto; margin: 0; padding: 6px 14px; font-size: 0.8rem;">🔒 Zárolás</button>
         </div>
       </header>
 
@@ -423,7 +431,7 @@
               ⚡ Top 3 Automatikus Betöltése a Ranglistáról
             </button>
             <button id="btn-execute-jackpot" class="admin-btn admin-btn-gold">
-              🏆 Jackpot Kiosztása xPortallal
+              🏆 Jackpot Kiosztása [DeFi Extension]
             </button>
           </div>
         </div>
@@ -472,7 +480,7 @@
           </div>
 
           <button id="btn-deposit-pot" class="admin-btn admin-btn-neon" style="font-size:0.95rem;">
-            ⚡ 300,000,000 $EFOO (~$37.24 USD) Befizetése xPortallal
+            ⚡ 300,000,000 $EFOO (~$37.24 USD) Befizetése [DeFi Extension]
           </button>
 
           <div style="margin-top: 14px; font-size: 0.75rem; color: #98aba0;">
@@ -509,7 +517,7 @@
               <input type="number" id="adm-input-retry" class="admin-input" value="25000" step="1000" />
             </div>
             <button id="btn-update-fees" class="admin-btn admin-btn-gold">
-              💾 Új Díjak Beállítása a Láncon
+              💾 Új Díjak Beállítása [DeFi Extension]
             </button>
           </div>
         </div>
@@ -529,10 +537,10 @@
 
           <div id="circuit-breaker-actions">
             <button id="btn-pause-sc" class="admin-btn admin-btn-danger">
-              ⏸️ Smart Contract Szüneteltetése (PAUSE)
+              ⏸️ Smart Contract Szüneteltetése (PAUSE) [DeFi Extension]
             </button>
             <button id="btn-unpause-sc" class="admin-btn admin-btn-gold" style="display:none;">
-              ▶️ Smart Contract Újraindítása (UNPAUSE)
+              ▶️ Smart Contract Újraindítása (UNPAUSE) [DeFi Extension]
             </button>
           </div>
 
@@ -544,7 +552,7 @@
               Ellenőrzés folyamatban...
             </div>
             <button id="btn-grant-burn-role" class="admin-btn admin-btn-outline" style="font-size:0.82rem;">
-              🔥 Égetési Jog Beállítása a Rendszerben (1-Click)
+              🔥 Égetési Jog Beállítása [DeFi Extension]
             </button>
           </div>
         </div>
@@ -557,48 +565,75 @@
           </div>
 
           <p style="font-size: 0.85rem; color: #98aba0; margin-bottom: 14px;">
-            Egyetlen SFT kollekcióban hozhatod létre az <strong>EFOO Ultras PASS</strong>-t (1. Nonce, 300 db limitált) és az összes játékkelléket (<strong>Super Skills</strong>, 2..N Nonce). Nem kell többször kifizetni a 0.05 EGLD-t!
+            Egyetlen SFT kollekcióban hozhatod létre az <strong>EFOO Ultras PASS</strong>-t (1. Nonce, 300 db limitált) és az összes játékkelléket (<strong>Super Skills</strong>, 2..N Nonce). A tranzakciókat közvetlenül a böngésződből, a <strong>MultiversX DeFi Wallet Bővítménnyel</strong> tudod aláírni!
           </p>
 
           <!-- 1. Lépés: Kiadás -->
           <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,184,0,0.2); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-            <strong style="font-size: 0.85rem; color: var(--admin-gold); display: block; margin-bottom: 8px;">
-              1. LÉPÉS: SFT Kollekció Kiadása (0.05 EGLD)
-            </strong>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <strong style="font-size: 0.85rem; color: var(--admin-gold); margin:0;">
+                1. LÉPÉS: SFT Kollekció Kiadása (0.05 EGLD)
+              </strong>
+              <span style="font-family:'JetBrains Mono'; font-size:0.7rem; color:#98aba0;">issueSemiFungible</span>
+            </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
               <div>
-                <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Kollekció Neve:</label>
+                <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Kollekció Neve (3-50 betű):</label>
                 <input type="text" id="sft-issue-name" class="admin-input" value="EFOO Ultras &amp; Skills" />
               </div>
               <div>
-                <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Ticker (3-10 betű):</label>
+                <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Ticker (3-10 nagybetű):</label>
                 <input type="text" id="sft-issue-ticker" class="admin-input" value="EFOOPASS" maxlength="10" />
               </div>
             </div>
-            <button type="button" id="btn-issue-sft" class="admin-btn admin-btn-gold" style="margin-top: 4px; padding: 8px 12px; font-size: 0.85rem;">
-              ⚡ SFT Kollekció Kiadása (0.05 EGLD) xPortallal
+            <button type="button" id="btn-issue-sft" class="admin-btn admin-btn-gold" style="margin-top: 4px; padding: 10px 14px; font-size: 0.88rem;">
+              ⚡ 1. Lépés: SFT Kollekció Kiadása (0.05 EGLD) [DeFi Extension]
             </button>
+            <small style="display:block; color:#98aba0; font-size:0.75rem; margin-top:6px;">
+              💡 <em>Amint a tranzakció lefut (~6 mp), a blokklánc kiosztja az azonosítót (pl. EFOOPASS-xxxxxx). Az alábbi gombbal azonnal be tudod olvastatni!</em>
+            </small>
           </div>
 
           <!-- 2. Lépés: Jogok beállítása -->
           <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(35,247,221,0.2); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
-            <strong style="font-size: 0.85rem; color: var(--admin-cyan); display: block; margin-bottom: 8px;">
-              2. LÉPÉS: Jogosultságok Beállítása (Set Roles)
-            </strong>
-            <div class="admin-input-group" style="margin-bottom: 8px;">
-              <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Kiadott SFT Kollekció ID (pl. EFOOPASS-123456):</label>
-              <input type="text" id="sft-collection-id" class="admin-input" placeholder="EFOOPASS-xxxxxx" />
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <strong style="font-size: 0.85rem; color: var(--admin-cyan); margin:0;">
+                2. LÉPÉS: Jogosultságok Beállítása (Set Roles)
+              </strong>
+              <span style="font-family:'JetBrains Mono'; font-size:0.7rem; color:#98aba0;">setSpecialRole</span>
             </div>
-            <button type="button" id="btn-grant-sft-roles" class="admin-btn admin-btn-outline" style="margin-top: 4px; padding: 8px 12px; font-size: 0.85rem; border-color: var(--admin-cyan); color: var(--admin-cyan);">
-              🔑 Mintelési Jogok Beállítása (Create &amp; AddQuantity &amp; Burn)
-            </button>
+            
+            <div style="display:flex; gap:8px; margin-bottom:8px;">
+              <div style="flex:1;">
+                <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Kiadott SFT Kollekció ID:</label>
+                <input type="text" id="sft-collection-id" class="admin-input" placeholder="pl. EFOOPASS-123456" />
+              </div>
+              <div style="display:flex; align-items:flex-end;">
+                <button type="button" id="btn-auto-detect-sft" class="admin-btn admin-btn-outline" style="width:auto; margin:0; padding:10px 12px; font-size:0.78rem; border-color:var(--admin-cyan); color:var(--admin-cyan);" title="Kiadott kollekció automatikus betöltése az API-ból">
+                  ⚡ Auto-Betöltés
+                </button>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button type="button" id="btn-grant-sft-roles" class="admin-btn admin-btn-outline" style="flex:2; margin:0; padding: 10px 14px; font-size: 0.85rem; border-color: var(--admin-cyan); color: var(--admin-cyan);">
+                🔑 2. Lépés: Mintelési Jogok Beállítása [DeFi Extension]
+              </button>
+              <button type="button" id="btn-check-sft-roles" class="admin-btn admin-btn-outline" style="flex:1; margin:0; padding: 10px 12px; font-size: 0.8rem;">
+                🔍 Jogok Ellenőrzése
+              </button>
+            </div>
+            <div id="sft-roles-status-badge" style="font-family:'JetBrains Mono'; font-size:0.78rem; margin-top:8px;"></div>
           </div>
 
           <!-- 3. Lépés: Nonce Mintelés Preset választóval -->
           <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(168,255,0,0.2); border-radius: 10px; padding: 12px;">
-            <strong style="font-size: 0.85rem; color: var(--admin-neon); display: block; margin-bottom: 8px;">
-              3. LÉPÉS: Nonce Mintelés (Válassz sablont!)
-            </strong>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <strong style="font-size: 0.85rem; color: var(--admin-neon); margin:0;">
+                3. LÉPÉS: Nonce Mintelés (Válassz sablont!)
+              </strong>
+              <span style="font-family:'JetBrains Mono'; font-size:0.7rem; color:#98aba0;">ESDTNFTCreate</span>
+            </div>
             
             <!-- Preset Buttons -->
             <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
@@ -646,9 +681,15 @@
               <input type="text" id="sft-mint-uri" class="admin-input" value="https://raw.githubusercontent.com/elrondfootballnfts/EFOOTBALLX/main/branding/rebranded/efoo-ultras-pass-badge.png" />
             </div>
 
-            <button type="button" id="btn-mint-sft-nonce" class="admin-btn admin-btn-neon" style="margin-top: 4px; padding: 10px 14px; font-size: 0.9rem;">
-              ✨ SFT Mintelése a Saját Tárcádba xPortallal
-            </button>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button type="button" id="btn-mint-sft-nonce" class="admin-btn admin-btn-neon" style="flex:2; margin:0; padding: 10px 14px; font-size: 0.9rem;">
+                ✨ 3. Lépés: SFT Mintelése a Tárcádba [DeFi Extension]
+              </button>
+              <button type="button" id="btn-verify-minted-sft" class="admin-btn admin-btn-outline" style="flex:1; margin:0; padding: 10px 12px; font-size: 0.8rem;">
+                🔍 Tárca SFT-k Ellenőrzése
+              </button>
+            </div>
+            <div id="sft-minted-preview-box" style="margin-top:10px; font-size:0.8rem; color:#98aba0; display:none; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px;"></div>
           </div>
         </div>
 
@@ -785,11 +826,272 @@
       sessionStorage.removeItem(STORAGE_ADMIN_SESSION);
     }
 
-    // Manual connect trigger
-    document.getElementById("btn-owner-auth-check").addEventListener("click", () => {
-      // Hook to xPortal or manual input for owner
+    // =========================================================================
+    // MULTIVERSX DEFI WALLET EXTENSION INFRASTRUCTURE
+    // =========================================================================
+    function toBase64Data(str) {
+      if (!str) return "";
+      try {
+        return btoa(str);
+      } catch (e) {
+        return btoa(unescape(encodeURIComponent(str)));
+      }
+    }
+
+    function sendAdminExtensionMessage(type, data = "") {
+      return new Promise((resolve, reject) => {
+        const responseTypeMap = {
+          connect: ["connectResponse", "loginResponse"],
+          signTransactions: ["signTransactionsResponse", "signTransactionResponse"],
+          logout: ["logoutResponse"]
+        };
+        const expectedTypes = responseTypeMap[type] || [type + "Response"];
+
+        const timer = setTimeout(() => {
+          window.removeEventListener("message", handleMessage);
+          reject(new Error("A bővítmény nem válaszolt időben (timeout)"));
+        }, 60000);
+
+        function handleMessage(event) {
+          if (event.source !== window || !event.data) return;
+          const msg = event.data;
+          if (!msg || msg.target !== "erdw-contentScript") return;
+          if (expectedTypes.includes(msg.type)) {
+            clearTimeout(timer);
+            window.removeEventListener("message", handleMessage);
+            if (msg.error || (msg.data && msg.data.error)) {
+              reject(new Error(msg.error || msg.data.error));
+            } else {
+              resolve(msg.data);
+            }
+          } else if (msg.type === "cancelResponse" || msg.type === "errorResponse") {
+            clearTimeout(timer);
+            window.removeEventListener("message", handleMessage);
+            reject(new Error(msg.error || "Művelet megszakítva a felhasználó által"));
+          }
+        }
+
+        window.addEventListener("message", handleMessage);
+        window.postMessage({ target: "erdw-inpage", type, data }, "*");
+      });
+    }
+
+    async function connectExtensionOwner() {
+      const ext = window.elrondWallet || window.multiversx || window.elrond;
+      try {
+        showToast("🧩 Csatlakozás a MultiversX DeFi Wallet bővítményhez...");
+        let addr = "";
+        if (ext && typeof ext.login === "function") {
+          try {
+            const res = await ext.login();
+            addr = typeof res === "string" ? res : (res && res.address ? res.address : "");
+          } catch (e) {
+            console.warn("Direct ext.login failed, trying postMessage bridge:", e);
+          }
+        }
+        if (!addr) {
+          const res = await sendAdminExtensionMessage("connect", "");
+          addr = typeof res === "string" ? res : (res && res.address ? res.address : "");
+        }
+
+        if (addr && addr.toLowerCase() === OWNER_ADDRESS.toLowerCase()) {
+          localStorage.setItem("efoo_connected_address", OWNER_ADDRESS);
+          unlockAdminView();
+          showToast("👑 Sikeres belépés (efoorewards)! Az Admin felület aktív.");
+        } else if (addr) {
+          alert(`⚠️ Figyelem: A böngészőbővítményedben aktív tárca (${addr.slice(0, 10)}...) nem a tulajdonos (efoorewards) tárca!\n\nKérlek nyisd meg a MultiversX DeFi Wallet bővítményt, válts át az efoorewards tárcára, majd próbáld újra!`);
+        } else {
+          alert("⚠️ Nem sikerült lekérni a tárcacímet a bővítményből.");
+        }
+      } catch (err) {
+        console.error("Extension connect error:", err);
+        const msg = (err?.message || "").toLowerCase();
+        if (msg.includes("cancel") || msg.includes("reject") || msg.includes("denied")) {
+          showToast("❌ Csatlakozás elutasítva a bővítményben.");
+        } else {
+          alert("⚠️ Nem sikerült kapcsolódni a bővítményhez. Győződj meg róla, hogy a MultiversX DeFi Wallet telepítve és feloldva van a böngésződben!");
+        }
+      }
+    }
+
+    async function signAdminWithExtension(preparedTxs) {
+      const extInputTxs = preparedTxs.map((t) => ({
+        ...t,
+        data: toBase64Data(t.data)
+      }));
+
+      const ext = window.elrondWallet || window.multiversx || window.elrond;
+      if (ext && typeof ext.signTransactions === "function") {
+        try {
+          const res = await ext.signTransactions(extInputTxs);
+          if (Array.isArray(res) && res.length > 0) return res;
+        } catch (e) {
+          const msg = (e?.message || "").toLowerCase();
+          if (msg.includes("cancel") || msg.includes("reject") || msg.includes("denied")) {
+            throw e;
+          }
+          console.warn("Direct ext.signTransactions failed, trying postMessage bridge:", e);
+        }
+      }
+
+      return await sendAdminExtensionMessage("signTransactions", {
+        from: OWNER_ADDRESS,
+        transactions: extInputTxs
+      });
+    }
+
+    async function broadcastAdminSignedTransactions(signedTxs) {
+      const hashes = [];
+      for (const tx of signedTxs) {
+        const payload = {
+          nonce: Number(tx.nonce),
+          value: String(tx.value || "0"),
+          receiver: String(tx.receiver),
+          sender: String(tx.sender),
+          gasPrice: Number(tx.gasPrice || 1000000000),
+          gasLimit: Number(tx.gasLimit),
+          data: tx.dataIsBase64 ? tx.data : toBase64Data(tx.data || ""),
+          chainID: String(tx.chainID || "1"),
+          version: Number(tx.version || 1),
+          signature: String(tx.signature)
+        };
+        if (tx.options !== undefined && tx.options !== null && Number(tx.options) !== 0) {
+          payload.options = Number(tx.options);
+        }
+        if (tx.guardian) payload.guardian = tx.guardian;
+        if (tx.guardianSignature) payload.guardianSignature = tx.guardianSignature;
+
+        const res = await fetch("https://api.multiversx.com/transactions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+          const errBody = await res.text();
+          throw new Error(`MultiversX API Hiba: ${errBody}`);
+        }
+        const resData = await res.json();
+        if (resData.txHash) hashes.push(resData.txHash);
+      }
+      return hashes;
+    }
+
+    async function executeAdminTransaction({ receiver, value = "0", data = "", gasLimit = 15000000, title = "Művelet", onSuccess = null }) {
+      showToast(`⏳ ${title} tranzakció előkészítése...`);
+
+      // 1. Fresh Nonce & Guardian status
+      let nonce = 0;
+      let isGuarded = false;
+      let guardianAddress = "";
+      try {
+        const accRes = await fetch(`https://api.multiversx.com/accounts/${OWNER_ADDRESS}`);
+        if (accRes.ok) {
+          const a = await accRes.json();
+          nonce = Number(a.nonce || 0);
+          isGuarded = !!a.isGuarded;
+        }
+      } catch (e) {
+        console.warn("Nonce query failed:", e);
+      }
+
+      if (isGuarded) {
+        try {
+          const gRes = await fetch(`https://gateway.multiversx.com/address/${OWNER_ADDRESS}/guardian-data`);
+          if (gRes.ok) {
+            const gData = await gRes.json();
+            guardianAddress = gData?.data?.guardianData?.activeGuardian?.address || "";
+          }
+        } catch (e) {}
+      }
+
+      const txObj = {
+        nonce: nonce,
+        value: String(value || "0"),
+        receiver: receiver,
+        sender: OWNER_ADDRESS,
+        gasPrice: 1000000000,
+        gasLimit: Number(gasLimit || 15000000) + (isGuarded ? 50000 : 0),
+        data: data || "",
+        chainID: "1",
+        version: isGuarded ? 2 : 1
+      };
+
+      if (isGuarded && guardianAddress) {
+        txObj.options = 2;
+        txObj.guardian = guardianAddress;
+      }
+
+      // 2. Primary Path: MultiversX DeFi Wallet Extension
+      const ext = window.elrondWallet || window.multiversx || window.elrond;
+      if (ext || typeof window.postMessage === "function") {
+        try {
+          showToast("🧩 Kérlek hagyd jóvá a felugró MultiversX DeFi Wallet ablakban...");
+          const signedRes = await signAdminWithExtension([txObj]);
+          if (signedRes) {
+            const signedList = Array.isArray(signedRes) ? signedRes : [signedRes];
+            const formattedSigned = signedList.map((st) => ({
+              ...txObj,
+              ...st,
+              data: data,
+              dataIsBase64: false
+            }));
+
+            const hashes = await broadcastAdminSignedTransactions(formattedSigned);
+            if (hashes && hashes.length > 0) {
+              const hash = hashes[0];
+              showToast("🎉 Tranzakció sikeresen elküldve a blokkláncra!");
+              showTransactionModal(hash, title);
+              if (typeof onSuccess === "function") onSuccess(hash);
+              return { success: true, hash };
+            }
+          }
+        } catch (err) {
+          console.error("Extension execution error:", err);
+          const msg = (err?.message || "").toLowerCase();
+          if (msg.includes("cancel") || msg.includes("reject") || msg.includes("denied") || msg.includes("user cancel")) {
+            showToast("❌ Tranzakció elutasítva a bővítményben.");
+            return;
+          }
+          if (!confirm(`⚠️ A bővítmény hibaüzenetet adott: ${err.message || "Ismeretlen hiba"}.\n\nSzeretnéd megnyitni a MultiversX Web Walletot alternatívaként a jóváhagyáshoz?`)) {
+            return;
+          }
+        }
+      }
+
+      // 3. Fallback: Web Wallet Sign hook
+      const callbackUrl = window.location.href;
+      let walletUrl = `https://wallet.multiversx.com/hook/sign?receiver=${encodeURIComponent(receiver)}&value=${encodeURIComponent(String(value || "0"))}&gasLimit=${txObj.gasLimit}&data=${encodeURIComponent(data)}&callbackUrl=${encodeURIComponent(callbackUrl)}`;
+      if (isGuarded && guardianAddress) {
+        walletUrl += `&version=2&options=2&guardian=${encodeURIComponent(guardianAddress)}`;
+      }
+      window.open(walletUrl, "_blank");
+      showToast("🌐 Tranzakció megnyitva a MultiversX Web Walletban!");
+    }
+
+    function showTransactionModal(txHash, title = "TRANZAKCIÓ ELKÜLDVE A BLOKKLÁNCRA!") {
+      const modal = document.getElementById("admin-tx-modal");
+      const titleEl = document.getElementById("admin-tx-title");
+      const hashEl = document.getElementById("admin-tx-hash-display");
+      const linkEl = document.getElementById("admin-tx-explorer-link");
+
+      if (titleEl) titleEl.textContent = title.toUpperCase();
+      if (hashEl) hashEl.textContent = txHash;
+      if (linkEl) linkEl.href = `https://explorer.multiversx.com/transactions/${txHash}`;
+      if (modal) modal.style.display = "flex";
+    }
+
+    window.closeAdminTxModal = function() {
+      const modal = document.getElementById("admin-tx-modal");
+      if (modal) modal.style.display = "none";
+    };
+
+    // Extension & Manual Connect triggers
+    document.getElementById("btn-owner-extension-connect")?.addEventListener("click", connectExtensionOwner);
+    document.getElementById("btn-ext-status-pill")?.addEventListener("click", connectExtensionOwner);
+
+    document.getElementById("btn-owner-auth-check")?.addEventListener("click", () => {
       const inputAddr = prompt("Kérlek add meg a csatlakoztatott MultiversX tárcacímedet:");
-      if (inputAddr && inputAddr.trim() === OWNER_ADDRESS) {
+      if (inputAddr && inputAddr.trim().toLowerCase() === OWNER_ADDRESS.toLowerCase()) {
         localStorage.setItem("efoo_connected_address", OWNER_ADDRESS);
         unlockAdminView();
         showToast("👑 Üdvözöllek, EFOO Vezérigazgató! A Master felület feloldva.");
@@ -798,7 +1100,7 @@
       }
     });
 
-    document.getElementById("btn-admin-logout").addEventListener("click", () => {
+    document.getElementById("btn-admin-logout")?.addEventListener("click", () => {
       lockAdminView();
       showToast("🔒 Admin felület sikeresen zárolva.");
     });
@@ -1053,7 +1355,7 @@
       }
     });
 
-    document.getElementById("btn-execute-jackpot").addEventListener("click", () => {
+    document.getElementById("btn-execute-jackpot")?.addEventListener("click", async () => {
       const p1 = document.getElementById("jackpot-addr-1").value.trim();
       const p2 = document.getElementById("jackpot-addr-2").value.trim();
       const p3 = document.getElementById("jackpot-addr-3").value.trim();
@@ -1074,9 +1376,16 @@
         if (hex3) dataField += `@${hex3}`;
       }
 
-      const walletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${STADIUM_VAULT_SC}&value=0&gasLimit=25000000&data=${encodeURIComponent(dataField)}&callbackUrl=${encodeURIComponent(window.location.href)}`;
-      window.open(walletUrl, "_blank");
-      showToast("🏆 Jackpot kiosztási tranzakció előkészítve! Írd alá az xPortalban.");
+      await executeAdminTransaction({
+        receiver: STADIUM_VAULT_SC,
+        value: "0",
+        data: dataField,
+        gasLimit: 25000000,
+        title: "🏆 Jackpot Kiosztása",
+        onSuccess: () => {
+          setTimeout(refreshSmartContractTelemetry, 6000);
+        }
+      });
     });
 
     // =========================================================================
@@ -1147,7 +1456,7 @@
 
       if (fmtQtyEl) fmtQtyEl.textContent = `${formattedQty} $EFOO`;
       if (usdValEl) usdValEl.textContent = `≈ $${formattedUsd} USD`;
-      if (btnEl) btnEl.textContent = `⚡ ${formattedQty} $EFOO (~$${formattedUsd} USD) Befizetése xPortallal`;
+      if (btnEl) btnEl.textContent = `⚡ ${formattedQty} $EFOO (~$${formattedUsd} USD) Befizetése [DeFi Extension]`;
       if (prevEl && tokens > 0) {
         prevEl.textContent = getDepositDataField(tokens);
       }
@@ -1184,25 +1493,31 @@
       updateDepositPreview();
     });
 
-    document.getElementById("btn-deposit-pot")?.addEventListener("click", () => {
+    document.getElementById("btn-deposit-pot")?.addEventListener("click", async () => {
       const tokensVal = parseTokensInput(document.getElementById("adm-input-deposit-pot")?.value);
       if (!tokensVal || tokensVal <= 0) {
         alert("Kérlek érvényes $EFOO összeget adj meg!");
         return;
       }
 
-      const usdVal = (tokensVal * efooUsdPrice).toFixed(2);
       const formattedQty = formatNumberWithCommas(Math.floor(tokensVal));
       const dataField = getDepositDataField(tokensVal);
-      const walletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${STADIUM_VAULT_SC}&value=0&gasLimit=15000000&data=${encodeURIComponent(dataField)}&callbackUrl=${encodeURIComponent(window.location.href)}`;
-      window.open(walletUrl, "_blank");
-      showToast(`⚡ ${formattedQty} $EFOO (~$${usdVal} USD) befizetési tranzakció előkészítve! Írd alá az xPortalban.`);
+      await executeAdminTransaction({
+        receiver: STADIUM_VAULT_SC,
+        value: "0",
+        data: dataField,
+        gasLimit: 15000000,
+        title: `💰 ${formattedQty} $EFOO Befizetése a Potba`,
+        onSuccess: () => {
+          setTimeout(refreshSmartContractTelemetry, 6000);
+        }
+      });
     });
 
     // =========================================================================
     // CARD 2: UPDATE FEES TX GENERATOR
     // =========================================================================
-    document.getElementById("btn-update-fees").addEventListener("click", () => {
+    document.getElementById("btn-update-fees")?.addEventListener("click", async () => {
       const reviveVal = parseInt(document.getElementById("adm-input-revive").value, 10);
       const retryVal = parseInt(document.getElementById("adm-input-retry").value, 10);
 
@@ -1222,26 +1537,47 @@
       if (hexRetry.length % 2 !== 0) hexRetry = '0' + hexRetry;
 
       const dataField = `setGameFees@${hexRevive}@${hexRetry}`;
-      const walletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${STADIUM_VAULT_SC}&value=0&gasLimit=15000000&data=${encodeURIComponent(dataField)}&callbackUrl=${encodeURIComponent(window.location.href)}`;
-      window.open(walletUrl, "_blank");
-      showToast("💾 Díjfrissítési tranzakció előkészítve! Írd alá az xPortalban.");
+      await executeAdminTransaction({
+        receiver: STADIUM_VAULT_SC,
+        value: "0",
+        data: dataField,
+        gasLimit: 15000000,
+        title: "💾 Játék Díjak Módosítása",
+        onSuccess: () => {
+          setTimeout(refreshSmartContractTelemetry, 6000);
+        }
+      });
     });
 
     // =========================================================================
     // CARD 3: CIRCUIT BREAKER PAUSE / UNPAUSE
     // =========================================================================
-    document.getElementById("btn-pause-sc").addEventListener("click", () => {
+    document.getElementById("btn-pause-sc")?.addEventListener("click", async () => {
       if (!confirm("⚠️ Biztosan SZÜNETELTETNI (PAUSE) akarod a Smart Contractot?")) return;
-      const dataField = "pauseContract";
-      const walletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${STADIUM_VAULT_SC}&value=0&gasLimit=10000000&data=${encodeURIComponent(dataField)}&callbackUrl=${encodeURIComponent(window.location.href)}`;
-      window.open(walletUrl, "_blank");
+      await executeAdminTransaction({
+        receiver: STADIUM_VAULT_SC,
+        value: "0",
+        data: "pauseContract",
+        gasLimit: 10000000,
+        title: "⏸️ Smart Contract Szüneteltetése (PAUSE)",
+        onSuccess: () => {
+          setTimeout(refreshSmartContractTelemetry, 6000);
+        }
+      });
     });
 
-    document.getElementById("btn-unpause-sc").addEventListener("click", () => {
+    document.getElementById("btn-unpause-sc")?.addEventListener("click", async () => {
       if (!confirm("✅ Biztosan ÚJRAINDÍTANI (UNPAUSE) akarod a Smart Contractot?")) return;
-      const dataField = "unpauseContract";
-      const walletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${STADIUM_VAULT_SC}&value=0&gasLimit=10000000&data=${encodeURIComponent(dataField)}&callbackUrl=${encodeURIComponent(window.location.href)}`;
-      window.open(walletUrl, "_blank");
+      await executeAdminTransaction({
+        receiver: STADIUM_VAULT_SC,
+        value: "0",
+        data: "unpauseContract",
+        gasLimit: 10000000,
+        title: "▶️ Smart Contract Újraindítása (UNPAUSE)",
+        onSuccess: () => {
+          setTimeout(refreshSmartContractTelemetry, 6000);
+        }
+      });
     });
 
     // =========================================================================
@@ -1311,7 +1647,8 @@
       showToast(`⚡ Sablon betöltve: ${p.name} (${p.qty.toLocaleString("hu-HU")} db)!`);
     };
 
-    document.getElementById("btn-issue-sft")?.addEventListener("click", () => {
+    // Step 1: Issue SFT
+    document.getElementById("btn-issue-sft")?.addEventListener("click", async () => {
       const name = document.getElementById("sft-issue-name").value.trim();
       const ticker = document.getElementById("sft-issue-ticker").value.trim().toUpperCase();
       if (!name || !ticker) {
@@ -1323,12 +1660,56 @@
 
       // Properties for SFT
       const dataField = `issueSemiFungible@${nameHex}@${tickerHex}@63616e467265657a65@66616c7365@63616e57697065@66616c7365@63616e5061757365@66616c7365@63616e5472616e736665724e4654437265617465526f6c65@74727565@63616e4368616e67654f776e6572@74727565@63616e55706772616465@74727565@63616e4164645370656369616c526f6c6573@74727565`;
-      const walletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${SYSTEM_SC}&value=50000000000000000&gasLimit=60000000&data=${encodeURIComponent(dataField)}&callbackUrl=${encodeURIComponent(window.location.href)}`;
-      window.open(walletUrl, "_blank");
-      showToast("⚡ SFT Kollekció kiadási tranzakció megnyitva! Írd alá az xPortalban.");
+      await executeAdminTransaction({
+        receiver: SYSTEM_SC,
+        value: "50000000000000000", // 0.05 EGLD
+        data: dataField,
+        gasLimit: 60000000,
+        title: "⚡ 1. Lépés: SFT Kollekció Kiadása",
+        onSuccess: () => {
+          showToast("🎉 SFT Kiadva! Várj 10-15 másodpercet a láncon, majd kattints az '⚡ Auto-Betöltés' gombra a 2. lépésnél!");
+        }
+      });
     });
 
-    document.getElementById("btn-grant-sft-roles")?.addEventListener("click", () => {
+    // Auto-detect issued collection
+    document.getElementById("btn-auto-detect-sft")?.addEventListener("click", async () => {
+      try {
+        showToast("🔍 Legutóbb kiadott SFT kollekció keresése a blokkláncon...");
+        const res = await fetch(`https://api.multiversx.com/collections?creator=${OWNER_ADDRESS}&size=10`);
+        if (res.ok) {
+          const list = await res.json();
+          const sft = list.find(c => c.type === "SemiFungibleESDT") || list[0];
+          if (sft && sft.collection) {
+            document.getElementById("sft-collection-id").value = sft.collection;
+            showToast(`✅ Megtalált SFT kollekció: ${sft.collection} (${sft.name || ""})!`);
+            checkSftRolesOnChain();
+            return;
+          }
+        }
+        // Fallback: check roles collections
+        const rRes = await fetch(`https://api.multiversx.com/accounts/${OWNER_ADDRESS}/roles/collections`);
+        if (rRes.ok) {
+          const rList = await rRes.json();
+          if (Array.isArray(rList) && rList.length > 0) {
+            const found = rList[0].collection || rList[0];
+            if (found) {
+              const cid = typeof found === "string" ? found : found.collection;
+              document.getElementById("sft-collection-id").value = cid;
+              showToast(`✅ Kollekció betöltve a szerepkörökből: ${cid}!`);
+              checkSftRolesOnChain();
+              return;
+            }
+          }
+        }
+        showToast("ℹ️ Még nem található kiadott SFT kollekció. Ha most küldted el az 1. lépést, várj pár másodpercet és próbáld újra!");
+      } catch (e) {
+        console.error("Auto detect failed:", e);
+      }
+    });
+
+    // Step 2: Grant roles
+    document.getElementById("btn-grant-sft-roles")?.addEventListener("click", async () => {
       const colId = document.getElementById("sft-collection-id").value.trim();
       if (!colId) {
         alert("Kérlek írd be a kiadott SFT kollekció azonosítóját (pl. EFOOPASS-123456)!");
@@ -1341,12 +1722,50 @@
       const roleAddQty = "45534454526f6c654e46544164645175616e74697479";
       const roleBurn = "45534454526f6c654e46544275726e";
       const dataField = `setSpecialRole@${colHex}@${ownerHex}@${roleCreate}@${roleAddQty}@${roleBurn}`;
-      const walletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${SYSTEM_SC}&value=0&gasLimit=60000000&data=${encodeURIComponent(dataField)}&callbackUrl=${encodeURIComponent(window.location.href)}`;
-      window.open(walletUrl, "_blank");
-      showToast("🔑 Mintelési jogosultságok tranzakciója megnyitva! Írd alá az xPortalban.");
+      await executeAdminTransaction({
+        receiver: SYSTEM_SC,
+        value: "0",
+        data: dataField,
+        gasLimit: 60000000,
+        title: "🔑 2. Lépés: Mintelési Jogok Beállítása",
+        onSuccess: () => {
+          setTimeout(checkSftRolesOnChain, 6000);
+        }
+      });
     });
 
-    document.getElementById("btn-mint-sft-nonce")?.addEventListener("click", () => {
+    // Check SFT Roles
+    async function checkSftRolesOnChain() {
+      const colId = document.getElementById("sft-collection-id").value.trim();
+      const badge = document.getElementById("sft-roles-status-badge");
+      if (!colId) {
+        if (badge) badge.innerHTML = "<span style='color:var(--admin-gold);'>⚠️ Kérlek add meg a kollekció ID-t a vizsgálathoz!</span>";
+        return;
+      }
+      try {
+        badge.innerHTML = "⏳ Jogok ellenőrzése a blokkláncon...";
+        const res = await fetch(`https://api.multiversx.com/tokens/${colId}/roles`);
+        if (res.ok) {
+          const roles = await res.json();
+          const ownerEntry = roles.find(r => r.address === OWNER_ADDRESS);
+          if (ownerEntry && ownerEntry.roles) {
+            const hasCreate = ownerEntry.roles.includes("ESDTRoleNFTCreate");
+            const hasAddQty = ownerEntry.roles.includes("ESDTRoleNFTAddQuantity");
+            if (hasCreate && hasAddQty) {
+              badge.innerHTML = `<span style="color:var(--admin-neon); font-weight:700;">✅ JOGOK AKTÍVAK (${ownerEntry.roles.join(", ")})! Léphetsz a 3. Mintelés lépésre.</span>`;
+              return;
+            }
+          }
+        }
+        badge.innerHTML = `<span style="color:var(--admin-gold);">⚠️ A jogok még nincsenek jóváhagyva a láncon ehhez a kollekcióhoz. Futtasd le a 2. lépést!</span>`;
+      } catch (e) {
+        badge.innerHTML = "Nem sikerült lekérdezni a jogokat.";
+      }
+    }
+    document.getElementById("btn-check-sft-roles")?.addEventListener("click", checkSftRolesOnChain);
+
+    // Step 3: Mint SFT Nonce
+    document.getElementById("btn-mint-sft-nonce")?.addEventListener("click", async () => {
       const colId = document.getElementById("sft-collection-id").value.trim();
       if (!colId) {
         alert("Kérlek add meg az SFT kollekció azonosítóját a 2. lépés mezőjében (pl. EFOOPASS-123456)!");
@@ -1370,12 +1789,56 @@
       const attrHex = stringToHex(attributes);
       const uriHex = stringToHex(uri);
 
+      // Official MultiversX ESDTNFTCreate syntax:
       // ESDTNFTCreate@collection@quantity@name@royalties@hash@attributes@uri
       const dataField = `ESDTNFTCreate@${colHex}@${qtyHex}@${nameHex}@${royHex}@@${attrHex}@${uriHex}`;
-      const walletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${OWNER_ADDRESS}&value=0&gasLimit=15000000&data=${encodeURIComponent(dataField)}&callbackUrl=${encodeURIComponent(window.location.href)}`;
-      window.open(walletUrl, "_blank");
-      showToast(`✨ Mintelési tranzakció megnyitva: ${name} (${qty} db)! Írd alá az xPortalban.`);
+      await executeAdminTransaction({
+        receiver: OWNER_ADDRESS, // Receiver is caller themselves
+        value: "0",
+        data: dataField,
+        gasLimit: 15000000,
+        title: `✨ 3. Lépés: ${name} (${qty.toLocaleString("hu-HU")} db) Mintelése`,
+        onSuccess: () => {
+          setTimeout(verifyMintedSftsInWallet, 6000);
+        }
+      });
     });
+
+    // Verify Minted SFTs in Wallet
+    async function verifyMintedSftsInWallet() {
+      const colId = document.getElementById("sft-collection-id").value.trim();
+      const box = document.getElementById("sft-minted-preview-box");
+      if (!box) return;
+      box.style.display = "block";
+      box.innerHTML = "⏳ Tárcában lévő SFT-k lekérdezése...";
+      try {
+        const url = colId 
+          ? `https://api.multiversx.com/accounts/${OWNER_ADDRESS}/nfts?collection=${colId}`
+          : `https://api.multiversx.com/accounts/${OWNER_ADDRESS}/nfts?type=SemiFungibleESDT`;
+        const res = await fetch(url);
+        if (res.ok) {
+          const list = await res.json();
+          if (Array.isArray(list) && list.length > 0) {
+            box.innerHTML = `
+              <strong style="color:var(--admin-neon); display:block; margin-bottom:6px;">🎉 Mintelt SFT-k a Tárcádban (${list.length} db elem):</strong>
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                ${list.map(item => `
+                  <div style="background:rgba(0,0,0,0.5); padding:6px 10px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+                    <span><strong>${item.name}</strong> <small style="color:#98aba0;">(${item.identifier})</small></span>
+                    <span style="font-family:'JetBrains Mono'; color:var(--admin-gold); font-weight:700;">${Number(item.balance || 0).toLocaleString("hu-HU")} db</span>
+                  </div>
+                `).join("")}
+              </div>
+            `;
+            return;
+          }
+        }
+        box.innerHTML = `<span style="color:#98aba0;">Még nem található mintelt SFT a tárcádban ehhez a kollekcióhoz. Ha most küldted el a tranzakciót, várj ~6 másodpercet és kattints újra!</span>`;
+      } catch (e) {
+        box.innerHTML = "Nem sikerült lekérdezni a tárca SFT-ket.";
+      }
+    }
+    document.getElementById("btn-verify-minted-sft")?.addEventListener("click", verifyMintedSftsInWallet);
 
     // =========================================================================
     // CARD 4: LEADERBOARD MANAGEMENT
@@ -1498,5 +1961,27 @@
       if (in3 && in3.value.includes("...")) in3.value = "";
     });
   </script>
+
+  <!-- Transaction Success / Explorer Modal -->
+  <div id="admin-tx-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#0e1712; border:1px solid var(--admin-gold); border-radius:18px; max-width:540px; width:100%; padding:28px; box-shadow:0 20px 60px rgba(0,0,0,0.8); text-align:center; position:relative;">
+      <div style="font-size:3rem; margin-bottom:10px;">🎉</div>
+      <h3 style="font-family:'Bebas Neue', sans-serif; font-size:1.8rem; color:#fff; margin:0 0 8px; letter-spacing:1px;" id="admin-tx-title">TRANZAKCIÓ ELKÜLDVE A BLOKKLÁNCRA!</h3>
+      <p style="color:#98aba0; font-size:0.9rem; margin-bottom:18px;" id="admin-tx-desc">A tranzakciót sikeresen aláírtad a DeFi Wallet bővítménnyel, és a MultiversX hálózat feldolgozza.</p>
+      
+      <div style="background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; margin-bottom:20px; font-family:'JetBrains Mono', monospace; font-size:0.8rem; word-break:break-all; color:var(--admin-cyan);" id="admin-tx-hash-display">
+        0x...
+      </div>
+
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <a id="admin-tx-explorer-link" href="#" target="_blank" rel="noopener noreferrer" class="admin-btn admin-btn-gold" style="width:auto; margin:0; padding:10px 18px; text-decoration:none;">
+          🔍 Megtekintés a MultiversX Explorerben ↗
+        </a>
+        <button type="button" class="admin-btn admin-btn-outline" style="width:auto; margin:0; padding:10px 18px;" onclick="closeAdminTxModal()">
+          Rendben, Bezárás
+        </button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
