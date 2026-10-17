@@ -578,8 +578,43 @@
             </table>
           </div>
 
-          <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px;">
-            <button id="btn-reset-weekly-lb" class="admin-btn admin-btn-danger" style="width: auto;">
+          <!-- Add Player Form Collapsible -->
+          <div id="adm-add-player-form" style="display:none; background:rgba(0,0,0,0.3); border:1px solid rgba(255,184,0,0.3); border-radius:12px; padding:16px; margin-top:16px;">
+            <h4 style="margin:0 0 12px; color:var(--admin-gold); font-size:0.95rem; display:flex; align-items:center; gap:6px;">
+              <span>➕ Új Játékos Rögzítése a Ranglistához</span>
+            </h4>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+              <div>
+                <label style="font-size:0.75rem; color:#98aba0; display:block; margin-bottom:4px;">Játékos / Herotag (pl. @hlnagy):</label>
+                <input type="text" id="manual-player-name" class="admin-input" placeholder="@herotag vagy Név" />
+              </div>
+              <div>
+                <label style="font-size:0.75rem; color:#98aba0; display:block; margin-bottom:4px;">MultiversX Tárcacím (erd1...):</label>
+                <input type="text" id="manual-player-addr" class="admin-input" placeholder="erd1..." />
+              </div>
+              <div>
+                <label style="font-size:0.75rem; color:#98aba0; display:block; margin-bottom:4px;">Pontszám:</label>
+                <input type="number" id="manual-player-score" class="admin-input" value="100000" step="5000" />
+              </div>
+              <div>
+                <label style="font-size:0.75rem; color:#98aba0; display:block; margin-bottom:4px;">Gólok &amp; Szint:</label>
+                <div style="display:flex; gap:8px;">
+                  <input type="number" id="manual-player-goals" class="admin-input" value="8" placeholder="Gólok" style="width:50%;" />
+                  <input type="number" id="manual-player-level" class="admin-input" value="5" placeholder="Szint" style="width:50%;" />
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
+              <button type="button" class="admin-btn admin-btn-outline" style="width:auto; margin:0; padding:6px 14px;" onclick="toggleAddPlayerForm()">Mégse</button>
+              <button type="button" class="admin-btn admin-btn-gold" style="width:auto; margin:0; padding:6px 16px;" id="btn-save-manual-player">💾 Mentés a Ranglistára</button>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items:center; flex-wrap:wrap; gap: 12px; margin-top: 16px;">
+            <button id="btn-toggle-add-player" class="admin-btn admin-btn-outline" style="width: auto; margin:0; border-color:var(--admin-gold); color:var(--admin-gold);" onclick="toggleAddPlayerForm()">
+              ➕ Játékos Manuális Rögzítése
+            </button>
+            <button id="btn-reset-weekly-lb" class="admin-btn admin-btn-danger" style="width: auto; margin:0;">
               🗑️ Heti Ranglista Törlése &amp; Új Forduló Indítása
             </button>
           </div>
@@ -815,22 +850,50 @@
       }
     }
 
+    function getAdminLeaderboardList() {
+      try {
+        const raw1 = localStorage.getItem("efoo_leaderboard_v2");
+        if (raw1) {
+          const list1 = JSON.parse(raw1);
+          if (Array.isArray(list1) && list1.length > 0) return list1;
+        }
+        const raw2 = localStorage.getItem("efoo_real_leaderboard_v2");
+        if (raw2) {
+          const list2 = JSON.parse(raw2);
+          if (Array.isArray(list2) && list2.length > 0) return list2;
+        }
+      } catch (e) {}
+      return [];
+    }
+
+    function saveAdminLeaderboardList(list) {
+      try {
+        const json = JSON.stringify(list);
+        localStorage.setItem("efoo_leaderboard_v2", json);
+        localStorage.setItem("efoo_real_leaderboard_v2", json);
+      } catch (e) {}
+    }
+
     document.getElementById("btn-autofill-leaderboard").addEventListener("click", () => {
       try {
-        const raw = localStorage.getItem(STORAGE_LEADERBOARD);
-        const list = raw ? JSON.parse(raw) : [];
+        const list = getAdminLeaderboardList();
         if (list.length === 0) {
-          showToast("ℹ️ Még nincs valós játékos a ranglistán!");
+          showToast("ℹ️ Még nincs rögzített meccs ezen a gépen! Közvetlenül beírhatod a nyertes erd1 tárcacímet a fenti mezőkbe.");
           return;
         }
-        if (list[0]?.address && list[0].address.startsWith("erd1")) {
-          document.getElementById("jackpot-addr-1").value = list[0].address;
+        const validWallets = list.filter(item => item.address && item.address.startsWith("erd1"));
+        if (validWallets.length === 0) {
+          showToast("ℹ️ Csak vendég játékosok vannak (tárcacím nélkül). Kérlek add meg a nyertes erd1 tárcacímet!");
+          return;
         }
-        if (list[1]?.address && list[1].address.startsWith("erd1")) {
-          document.getElementById("jackpot-addr-2").value = list[1].address;
+        if (validWallets[0]?.address) {
+          document.getElementById("jackpot-addr-1").value = validWallets[0].address;
         }
-        if (list[2]?.address && list[2].address.startsWith("erd1")) {
-          document.getElementById("jackpot-addr-3").value = list[2].address;
+        if (validWallets[1]?.address) {
+          document.getElementById("jackpot-addr-2").value = validWallets[1].address;
+        }
+        if (validWallets[2]?.address) {
+          document.getElementById("jackpot-addr-3").value = validWallets[2].address;
         }
         showToast("⚡ Top játékosok automatikusan beillesztve a beviteli mezőkbe!");
       } catch (e) {
@@ -1032,30 +1095,75 @@
     // =========================================================================
     // CARD 4: LEADERBOARD MANAGEMENT
     // =========================================================================
+    window.toggleAddPlayerForm = function() {
+      const f = document.getElementById("adm-add-player-form");
+      if (f) {
+        f.style.display = f.style.display === "none" ? "block" : "none";
+      }
+    };
+
+    document.getElementById("btn-save-manual-player")?.addEventListener("click", () => {
+      const name = document.getElementById("manual-player-name")?.value.trim() || "Striker";
+      const addr = document.getElementById("manual-player-addr")?.value.trim() || "";
+      const score = parseInt(document.getElementById("manual-player-score")?.value, 10) || 0;
+      const goals = parseInt(document.getElementById("manual-player-goals")?.value, 10) || 0;
+      const level = parseInt(document.getElementById("manual-player-level")?.value, 10) || 1;
+
+      if (!addr || !addr.startsWith("erd1")) {
+        alert("⚠️ Kérlek adj meg egy érvényes MultiversX tárcacímet (erd1...)!");
+        return;
+      }
+      if (score <= 0) {
+        alert("⚠️ Kérlek adj meg egy 0-nál nagyobb pontszámot!");
+        return;
+      }
+
+      const list = getAdminLeaderboardList();
+      list.push({
+        rank: 0,
+        address: addr,
+        herotag: name.startsWith("@") ? name : `@${name}`,
+        name: name,
+        nickname: name,
+        score: score,
+        goals: goals,
+        level: level,
+        date: new Date().toISOString()
+      });
+
+      // Sort descending by score
+      list.sort((a, b) => b.score - a.score);
+      list.forEach((item, idx) => { item.rank = idx + 1; });
+
+      saveAdminLeaderboardList(list);
+      renderLeaderboardTable();
+      toggleAddPlayerForm();
+      showToast(`🎉 ${name} sikeresen hozzáadva a ranglistához (${score.toLocaleString("hu-HU")} pont)!`);
+    });
+
     function renderLeaderboardTable() {
       const tbody = document.getElementById("adm-lb-tbody");
       const countEl = document.getElementById("adm-lb-count");
       try {
-        const raw = localStorage.getItem(STORAGE_LEADERBOARD);
-        const list = raw ? JSON.parse(raw) : [];
+        const list = getAdminLeaderboardList();
         countEl.textContent = `${list.length} valós játékos`;
 
         if (list.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8" style="padding: 20px; text-align: center; color: #98aba0;">Nincs még valós meccs rögzítve.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8" style="padding: 24px; text-align: center; color: #98aba0;">Nincs még rögzített játékos ebben a böngészőben.<br><span style="font-size:0.78rem; color:#6b7280; display:block; margin-top:6px;">A játékosok meccsei az eszközeiken tárolódnak. A <strong>"➕ Játékos Manuális Rögzítése"</strong> gombbal vagy a fenti Jackpot mezőkbe közvetlenül beírva tudsz nyerteseket beállítani!</span></td></tr>';
           return;
         }
 
         tbody.innerHTML = list.map((item, idx) => {
-          const shortAddr = item.address ? `${item.address.slice(0, 8)}...${item.address.slice(-6)}` : "Guest";
+          const shortAddr = item.address ? (item.address.startsWith("erd1") ? `${item.address.slice(0, 8)}...${item.address.slice(-6)}` : item.address) : "Guest";
           return `
             <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
               <td style="padding: 10px 12px; font-weight: 700; color: var(--admin-gold);">#${idx + 1}</td>
-              <td style="padding: 10px 12px; font-weight: 600;">${item.name || "Guest Striker"}</td>
+              <td style="padding: 10px 12px; font-weight: 600;">${item.herotag || item.name || item.nickname || "Striker"}</td>
               <td style="padding: 10px 12px; font-family: 'JetBrains Mono'; color: var(--admin-cyan);">${shortAddr}</td>
               <td style="padding: 10px 12px; font-family: 'JetBrains Mono'; font-weight: 700; color: var(--admin-neon);">${Number(item.score).toLocaleString("hu-HU")}</td>
               <td style="padding: 10px 12px;">${item.goals || 0}</td>
               <td style="padding: 10px 12px;">Lvl ${item.level || 1}</td>
-              <td style="padding: 10px 12px; font-size: 0.75rem; color: #98aba0;">${item.date ? new Date(item.date).toLocaleDateString("hu-HU") : "—"}</td>
+              <td style="padding: 10px 12px; font-size: 0.75rem; color: #98aba0;">${item.date ? (isNaN(new Date(item.date).getTime()) ? item.date : new Date(item.date).toLocaleDateString("hu-HU")) : "—"}</td>
               <td style="padding: 10px 12px; text-align: right;">
                 <button onclick="deleteLeaderboardEntry(${idx})" style="background: rgba(255, 59, 48, 0.15); border: 1px solid var(--admin-danger); color: var(--admin-danger); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem;">
                   Törlés ✕
@@ -1072,10 +1180,9 @@
     window.deleteLeaderboardEntry = function(index) {
       if (!confirm("Biztosan törölni akarod ezt a bejegyzést?")) return;
       try {
-        const raw = localStorage.getItem(STORAGE_LEADERBOARD);
-        let list = raw ? JSON.parse(raw) : [];
+        const list = getAdminLeaderboardList();
         list.splice(index, 1);
-        localStorage.setItem(STORAGE_LEADERBOARD, JSON.stringify(list));
+        saveAdminLeaderboardList(list);
         renderLeaderboardTable();
         showToast("🗑️ Bejegyzés törölve a ranglistáról!");
       } catch (e) {
@@ -1085,7 +1192,8 @@
 
     document.getElementById("btn-reset-weekly-lb").addEventListener("click", () => {
       if (!confirm("⚠️ BIZTOSAN TÖRÖLNI AKAROD A TELJES HETI RANGLISTÁT? Ezzel új heti forduló indul!")) return;
-      localStorage.removeItem(STORAGE_LEADERBOARD);
+      localStorage.removeItem("efoo_leaderboard_v2");
+      localStorage.removeItem("efoo_real_leaderboard_v2");
       renderLeaderboardTable();
       showToast("✨ A heti ranglista sikeresen nullázva!");
     });
