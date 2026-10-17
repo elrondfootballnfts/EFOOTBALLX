@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1024px;
+    height: 1024px;
+    background: #030806;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    font-family: 'Segoe UI', -apple-system, Roboto, sans-serif;
+  }
+  svg { width: 1024px; height: 1024px; }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Background Vignette & Amber/Cyan Stadium Glow -->
+    <radialGradient id="bgGlow" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#092922" stop-opacity="0.8"/>
+      <stop offset="45%" stop-color="#041410" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#010604" stop-opacity="1"/>
+    </radialGradient>
+    <radialGradient id="radarCore" cx="50%" cy="48%" r="42%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.35"/>
+      <stop offset="60%" stop-color="#ffb800" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Carbon Fiber Weave -->
+    <pattern id="carbonWeave" width="16" height="16" patternUnits="userSpaceOnUse">
+      <rect width="16" height="16" fill="#06120e"/>
+      <path d="M0 0 L8 8 L16 0 L8 -8 Z M0 16 L8 24 L16 16 L8 8 Z" fill="#0c1f19" opacity="0.6"/>
+      <rect x="0" y="0" width="8" height="8" fill="#133026" opacity="0.3"/>
+      <rect x="8" y="8" width="8" height="8" fill="#133026" opacity="0.3"/>
+    </pattern>
+
+    <!-- Radar Polar Coordinate Grid -->
+    <pattern id="radarGrid" width="64" height="64" patternUnits="userSpaceOnUse">
+      <circle cx="32" cy="32" r="30" fill="none" stroke="#10b981" stroke-width="0.8" stroke-opacity="0.25"/>
+      <line x1="32" y1="0" x2="32" y2="64" stroke="#10b981" stroke-width="0.6" stroke-opacity="0.2"/>
+      <line x1="0" y1="32" x2="64" y2="32" stroke="#10b981" stroke-width="0.6" stroke-opacity="0.2"/>
+    </pattern>
+
+    <!-- Metallic Gold/Emerald Gradients -->
+    <linearGradient id="amberBevel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffbeb"/>
+      <stop offset="20%" stop-color="#fde68a"/>
+      <stop offset="45%" stop-color="#d97706"/>
+      <stop offset="55%" stop-color="#78350f"/>
+      <stop offset="75%" stop-color="#f59e0b"/>
+      <stop offset="90%" stop-color="#fef3c7"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+
+    <linearGradient id="bannerMetal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="30%" stop-color="#0f172a"/>
+      <stop offset="75%" stop-color="#020617"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="heavyShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#000000" flood-opacity="0.9"/>
+    </filter>
+    <filter id="neonEmeraldGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur1"/>
+      <feGaussianBlur stdDeviation="22" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 1. Background -->
+  <rect width="1024" height="1024" fill="url(#bgGlow)"/>
+  <circle cx="140" cy="120" r="320" fill="#10b981" opacity="0.08"/>
+  <circle cx="884" cy="120" r="320" fill="#f59e0b" opacity="0.08"/>
+  <circle cx="512" cy="480" r="420" fill="url(#radarCore)"/>
+
+  <!-- 2. SHIELD EMBLEM -->
+  <g filter="url(#heavyShadow)">
+    <!-- Outer Gold Bevel -->
+    <path d="M 512 85 
+             C 690 85, 840 120, 850 170
+             C 850 380, 820 620, 512 890
+             C 204 620, 174 380, 174 170
+             C 184 120, 334 85, 512 85 Z" 
+          fill="url(#amberBevel)"/>
+
+    <!-- Emerald Cyber Rim Glow Line -->
+    <path d="M 512 95 
+             C 680 95, 828 128, 838 175
+             C 838 375, 808 610, 512 875
+             C 216 610, 186 375, 186 175
+             C 196 128, 344 95, 512 95 Z" 
+          fill="none" stroke="#10b981" stroke-width="4" filter="url(#neonEmeraldGlow)" opacity="0.9"/>
+
+    <!-- Middle Inset -->
+    <path d="M 512 105 
+             C 670 105, 816 136, 826 180
+             C 826 370, 796 600, 512 860
+             C 228 600, 198 370, 198 180
+             C 208 136, 354 105, 512 105 Z" 
+          fill="#05120c" stroke="#b45309" stroke-width="3"/>
+
+    <!-- Inner Shield Carbon Weave -->
+    <path d="M 512 120 
+             C 656 120, 800 150, 808 190
+             C 808 365, 780 585, 512 840
+             C 244 585, 216 365, 216 190
+             C 224 150, 368 120, 512 120 Z" 
+          fill="url(#carbonWeave)"/>
+
+    <!-- Radar Pattern Layer -->
+    <path d="M 512 120 
+             C 656 120, 800 150, 808 190
+             C 808 365, 780 585, 512 840
+             C 244 585, 216 365, 216 190
+             C 224 150, 368 120, 512 120 Z" 
+          fill="url(#radarGrid)" opacity="0.6"/>
+  </g>
+
+  <!-- 3. CENTERPIECE: HOLOGRAPHIC ALL-SEEING CYBER EYE & RADAR RETICLE -->
+  <g transform="translate(512, 440)">
+    <!-- Concentric Radar Sweeper Rings -->
+    <circle cx="0" cy="-20" r="210" fill="none" stroke="#10b981" stroke-width="2" opacity="0.4"/>
+    <circle cx="0" cy="-20" r="170" fill="none" stroke="#10b981" stroke-width="2.5" stroke-dasharray="12 10" opacity="0.7"/>
+    <circle cx="0" cy="-20" r="120" fill="none" stroke="#f59e0b" stroke-width="2.5" opacity="0.8"/>
+    <circle cx="0" cy="-20" r="60" fill="none" stroke="#10b981" stroke-width="2"/>
+
+    <!-- Radar Sweep Beam (Rotating Sector Arc) -->
+    <path d="M 0 -20 L 148 -168 A 210 210 0 0 0 0 -230 Z" fill="#10b981" fill-opacity="0.22" filter="url(#neonEmeraldGlow)"/>
+
+    <!-- Targeting Crosshairs (Horizontal & Vertical Axes) -->
+    <line x1="-220" y1="-20" x2="-35" y2="-20" stroke="#10b981" stroke-width="3" filter="url(#neonEmeraldGlow)"/>
+    <line x1="35" y1="-20" x2="220" y2="-20" stroke="#10b981" stroke-width="3" filter="url(#neonEmeraldGlow)"/>
+    <line x1="0" y1="-240" x2="0" y2="-55" stroke="#10b981" stroke-width="3" filter="url(#neonEmeraldGlow)"/>
+    <line x1="0" y1="15" x2="0" y2="200" stroke="#10b981" stroke-width="3" filter="url(#neonEmeraldGlow)"/>
+
+    <!-- Outer Corner Targeting Brackets -->
+    <path d="M -160 -120 L -180 -120 L -180 -100" fill="none" stroke="#f59e0b" stroke-width="4"/>
+    <path d="M 160 -120 L 180 -120 L 180 -100" fill="none" stroke="#f59e0b" stroke-width="4"/>
+    <path d="M -160 80 L -180 80 L -180 60" fill="none" stroke="#f59e0b" stroke-width="4"/>
+    <path d="M 160 80 L 180 80 L 180 60" fill="none" stroke="#f59e0b" stroke-width="4"/>
+
+    <!-- Centerpiece: High-Tech Cybernetic Eye -->
+    <g filter="url(#heavyShadow)">
+      <!-- Outer Eye Contour (Metallic Eyelids) -->
+      <path d="M -130 -20 
+               C -75 -100, 75 -100, 130 -20 
+               C 75 60, -75 60, -130 -20 Z" 
+            fill="#061f14" stroke="url(#amberBevel)" stroke-width="6"/>
+
+      <!-- Inner Sclera with Glowing Emerald Energy -->
+      <path d="M -115 -20 
+               C -65 -85, 65 -85, 115 -20 
+               C 65 48, -65 48, -115 -20 Z" 
+            fill="#022c1b" stroke="#10b981" stroke-width="3"/>
+
+      <!-- Golden Radiant Iris -->
+      <circle cx="0" cy="-20" r="46" fill="url(#amberBevel)" stroke="#f59e0b" stroke-width="3"/>
+
+      <!-- High-Tech Cyber Pupil (Aperture / Camera Iris) -->
+      <circle cx="0" cy="-20" r="26" fill="#02140b" stroke="#10b981" stroke-width="3"/>
+      
+      <!-- Central Predicted Target Lock Reticle (The Football Target Locked!) -->
+      <circle cx="0" cy="-20" r="10" fill="#10b981" filter="url(#neonEmeraldGlow)"/>
+      <circle cx="0" cy="-20" r="4" fill="#ffffff"/>
+
+      <!-- Specular Eye Highlights -->
+      <circle cx="-16" cy="-34" r="7" fill="#ffffff" opacity="0.9"/>
+      <circle cx="-25" cy="-22" r="4" fill="#ffffff" opacity="0.6"/>
+    </g>
+
+    <!-- Predicted Vector Guide Trajectory Arrow (Locking onto Goal Corner) -->
+    <g transform="translate(110, -110)">
+      <circle cx="0" cy="0" r="24" fill="#ef4444" fill-opacity="0.3" stroke="#ef4444" stroke-width="3" filter="url(#neonEmeraldGlow)"/>
+      <line x1="-30" y1="0" x2="30" y2="0" stroke="#ef4444" stroke-width="2"/>
+      <line x1="0" y1="-30" x2="0" y2="30" stroke="#ef4444" stroke-width="2"/>
+      <!-- Small Football Locked in Target -->
+      <circle cx="0" cy="0" r="12" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+      <text x="0" y="38" text-anchor="middle" fill="#ef4444" font-family="'Courier New', monospace" font-size="12" font-weight="900" letter-spacing="1">TARGET LOCK</text>
+    </g>
+  </g>
+
+  <!-- 4. BOTTOM 3D BANNER RIBBON -->
+  <g filter="url(#heavyShadow)">
+    <!-- Shadow folds -->
+    <path d="M 190 770 L 260 735 L 260 815 L 190 850 Z" fill="#071710"/>
+    <path d="M 834 770 L 764 735 L 764 815 L 834 850 Z" fill="#071710"/>
+
+    <!-- Main Ribbon -->
+    <path d="M 230 740 
+             Q 512 705 794 740 
+             L 814 825 
+             Q 512 795 210 825 Z" 
+          fill="url(#bannerMetal)" stroke="url(#amberBevel)" stroke-width="4"/>
+
+    <!-- Emerald Neon Line Inset -->
+    <path d="M 240 750 
+             Q 512 717 784 750 
+             L 800 815 
+             Q 512 785 224 815 Z" 
+          fill="none" stroke="#10b981" stroke-width="2" opacity="0.9"/>
+
+    <circle cx="236" cy="782" r="6" fill="url(#amberBevel)"/>
+    <circle cx="788" cy="782" r="6" fill="url(#amberBevel)"/>
+
+    <!-- Typography: MIND RADAR • TARGET PREDICTION -->
+    <text x="512" y="787" 
+          text-anchor="middle" 
+          fill="#000000" 
+          font-family="'Impact', 'Bebas Neue', Arial Black, sans-serif" 
+          font-size="33" 
+          font-weight="900" 
+          letter-spacing="3">
+      MIND RADAR • TARGET PREDICTION
+    </text>
+    <text x="512" y="784" 
+          text-anchor="middle" 
+          fill="#fef3c7" 
+          stroke="#071e14" 
+          stroke-width="1.5"
+          font-family="'Impact', 'Bebas Neue', Arial Black, sans-serif" 
+          font-size="33" 
+          font-weight="900" 
+          letter-spacing="3">
+      MIND RADAR • <tspan fill="#10b981">TARGET PREDICTION</tspan>
+    </text>
+  </g>
+</svg>
+</body>
+</html>

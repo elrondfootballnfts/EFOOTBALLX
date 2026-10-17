@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1024px;
+    height: 1024px;
+    background: #03070a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    font-family: 'Segoe UI', -apple-system, Roboto, sans-serif;
+  }
+  svg { width: 1024px; height: 1024px; }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Background Vignette & Stadium Lights -->
+    <radialGradient id="bgGlow" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#0e2a38" stop-opacity="0.8"/>
+      <stop offset="45%" stop-color="#07151e" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#020609" stop-opacity="1"/>
+    </radialGradient>
+    <radialGradient id="cyanCore" cx="50%" cy="48%" r="40%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.35"/>
+      <stop offset="60%" stop-color="#0284c7" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Carbon Fiber Texture Pattern -->
+    <pattern id="carbonWeave" width="16" height="16" patternUnits="userSpaceOnUse">
+      <rect width="16" height="16" fill="#0b1118"/>
+      <path d="M0 0 L8 8 L16 0 L8 -8 Z M0 16 L8 24 L16 16 L8 8 Z" fill="#111924" opacity="0.6"/>
+      <rect x="0" y="0" width="8" height="8" fill="#162230" opacity="0.3"/>
+      <rect x="8" y="8" width="8" height="8" fill="#162230" opacity="0.3"/>
+    </pattern>
+
+    <!-- Hex Grid for Forcefield -->
+    <pattern id="hexGrid" width="32" height="55.4" patternUnits="userSpaceOnUse" patternTransform="scale(0.8)">
+      <path d="M16 0 L32 9.2 L32 27.7 L16 36.9 L0 27.7 L0 9.2 Z M16 55.4 L32 46.2 L32 27.7 L16 36.9 L0 27.7 L0 46.2 Z" 
+            fill="none" stroke="#38bdf8" stroke-width="1.2" stroke-opacity="0.25"/>
+    </pattern>
+
+    <!-- Metallic Gradients -->
+    <linearGradient id="metalBevelLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0f9ff"/>
+      <stop offset="20%" stop-color="#94a3b8"/>
+      <stop offset="45%" stop-color="#334155"/>
+      <stop offset="55%" stop-color="#1e293b"/>
+      <stop offset="75%" stop-color="#64748b"/>
+      <stop offset="90%" stop-color="#cbd5e1"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+
+    <linearGradient id="steelPlate" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="50%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <linearGradient id="cyanGlowLine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+
+    <linearGradient id="bannerMetal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="25%" stop-color="#1e293b"/>
+      <stop offset="75%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+
+    <!-- Drop Shadows and Glow Filters -->
+    <filter id="heavyShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#000000" flood-opacity="0.9"/>
+    </filter>
+    <filter id="neonCyanGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur1"/>
+      <feGaussianBlur stdDeviation="20" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="intenseSparks" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 1. Background Environment -->
+  <rect width="1024" height="1024" fill="url(#bgGlow)"/>
+  
+  <!-- Subtle stadium floodlights from corners -->
+  <circle cx="120" cy="100" r="350" fill="#38bdf8" opacity="0.06"/>
+  <circle cx="904" cy="100" r="350" fill="#38bdf8" opacity="0.06"/>
+  <circle cx="512" cy="480" r="420" fill="url(#cyanCore)"/>
+
+  <!-- 2. SHIELD EMBLEM (Outer Metallic Bevel with drop shadow) -->
+  <g filter="url(#heavyShadow)">
+    <!-- Outer Rim (Specular Chrome/Titanium) -->
+    <!-- Shield Path: Crest shape with pointed bottom -->
+    <path d="M 512 85 
+             C 690 85, 840 120, 850 170
+             C 850 380, 820 620, 512 890
+             C 204 620, 174 380, 174 170
+             C 184 120, 334 85, 512 85 Z" 
+          fill="url(#metalBevelLight)"/>
+
+    <!-- Outer Neon Cyan Accent Rim -->
+    <path d="M 512 95 
+             C 680 95, 828 128, 838 175
+             C 838 375, 808 610, 512 875
+             C 216 610, 186 375, 186 175
+             C 196 128, 344 95, 512 95 Z" 
+          fill="none" stroke="#38bdf8" stroke-width="4" filter="url(#neonCyanGlow)" opacity="0.85"/>
+
+    <!-- Middle Bevel Inset (Dark Gunmetal) -->
+    <path d="M 512 105 
+             C 670 105, 816 136, 826 180
+             C 826 370, 796 600, 512 860
+             C 228 600, 198 370, 198 180
+             C 208 136, 354 105, 512 105 Z" 
+          fill="#0a0f16" stroke="#475569" stroke-width="3"/>
+
+    <!-- Inner Shield Cavity (Carbon Fiber Weave) -->
+    <path d="M 512 120 
+             C 656 120, 800 150, 808 190
+             C 808 365, 780 585, 512 840
+             C 244 585, 216 365, 216 190
+             C 224 150, 368 120, 512 120 Z" 
+          fill="url(#carbonWeave)"/>
+
+    <!-- Hexagonal Cyber Energy Layer over Carbon -->
+    <path d="M 512 120 
+             C 656 120, 800 150, 808 190
+             C 808 365, 780 585, 512 840
+             C 244 585, 216 365, 216 190
+             C 224 150, 368 120, 512 120 Z" 
+          fill="url(#hexGrid)" opacity="0.6"/>
+  </g>
+
+  <!-- 3. CENTERPIECE: IMPENETRABLE IRON WALL & ARMORED GOALPOSTS -->
+  <g>
+    <!-- Goalposts Silhouette (Reinforced heavy steel with cyan bolts) -->
+    <path d="M 320 280 L 320 620 L 348 620 L 348 308 L 676 308 L 676 620 L 704 620 L 704 280 Z" 
+          fill="url(#metalBevelLight)" stroke="#0284c7" stroke-width="2"/>
+    
+    <!-- Neon energy aura inside crossbar and uprights -->
+    <line x1="334" y1="294" x2="690" y2="294" stroke="#38bdf8" stroke-width="3" filter="url(#neonCyanGlow)"/>
+    <line x1="334" y1="294" x2="334" y2="610" stroke="#38bdf8" stroke-width="3" filter="url(#neonCyanGlow)"/>
+    <line x1="690" y1="294" x2="690" y2="610" stroke="#38bdf8" stroke-width="3" filter="url(#neonCyanGlow)"/>
+
+    <!-- Central Fortress Barrier (Heavy Interlocking Armor Plates) -->
+    <!-- Center Fortress Plate -->
+    <polygon points="512,230 640,300 640,560 512,650 384,560 384,300" 
+             fill="url(#steelPlate)" stroke="url(#metalBevelLight)" stroke-width="8" filter="url(#heavyShadow)"/>
+    
+    <!-- Inner High-Tech Plate Detail -->
+    <polygon points="512,255 616,315 616,540 512,620 408,540 408,315" 
+             fill="#0f172a" stroke="#38bdf8" stroke-width="3"/>
+
+    <!-- Heavy Industrial Titanium Cross & Rivets -->
+    <circle cx="425" cy="335" r="7" fill="url(#metalBevelLight)"/>
+    <circle cx="599" cy="335" r="7" fill="url(#metalBevelLight)"/>
+    <circle cx="425" cy="525" r="7" fill="url(#metalBevelLight)"/>
+    <circle cx="599" cy="525" r="7" fill="url(#metalBevelLight)"/>
+    <circle cx="512" cy="275" r="7" fill="url(#metalBevelLight)"/>
+    <circle cx="512" cy="595" r="7" fill="url(#metalBevelLight)"/>
+
+    <!-- Heavy Shield Boss Emblem in center: 3D Armored Padlock / Fortress Tower -->
+    <g transform="translate(512, 430) scale(1.2)">
+      <!-- Fortress Tower Icon -->
+      <path d="M -50 -55 L 50 -55 L 60 -30 L 45 45 L 0 70 L -45 45 L -60 -30 Z" 
+            fill="url(#metalBevelLight)" stroke="#38bdf8" stroke-width="3" filter="url(#neonCyanGlow)"/>
+      <path d="M -40 -45 L 40 -45 L 48 -25 L 36 36 L 0 56 L -36 36 L -48 -25 Z" 
+            fill="#031322"/>
+      
+      <!-- Energy Barrier Symbol -->
+      <polygon points="0,-35 25,-15 25,20 0,38 -25,20 -25,-15" 
+               fill="#38bdf8" filter="url(#neonCyanGlow)" opacity="0.9"/>
+      
+      <!-- Deflected Speeding Football with shockwaves -->
+      <circle cx="-110" cy="-60" r="32" fill="#ffffff" stroke="#000000" stroke-width="4"/>
+      <!-- Ball Pattern -->
+      <polygon points="-110,-72 -98,-64 -103,-52 -117,-52 -122,-64" fill="#0b1118"/>
+      <!-- Shockwave Rings -->
+      <ellipse cx="-80" cy="-45" rx="14" ry="28" fill="none" stroke="#38bdf8" stroke-width="4" transform="rotate(-30 -80 -45)" filter="url(#neonCyanGlow)"/>
+      <ellipse cx="-60" cy="-35" rx="20" ry="42" fill="none" stroke="#38bdf8" stroke-width="3" transform="rotate(-30 -60 -35)" opacity="0.6"/>
+      <line x1="-150" y1="-85" x2="-110" y2="-60" stroke="#f97316" stroke-width="6" stroke-linecap="round"/>
+      <line x1="-165" y1="-75" x2="-115" y2="-55" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
+    </g>
+
+    <!-- Electric Cyan Arc Sparks around barrier -->
+    <path d="M 360 410 Q 380 380 400 420 T 430 400" fill="none" stroke="#38bdf8" stroke-width="3" filter="url(#intenseSparks)"/>
+    <path d="M 640 430 Q 660 400 680 440 T 710 410" fill="none" stroke="#38bdf8" stroke-width="3" filter="url(#intenseSparks)"/>
+    <circle cx="395" cy="415" r="4" fill="#ffffff" filter="url(#neonCyanGlow)"/>
+    <circle cx="665" cy="425" r="4" fill="#ffffff" filter="url(#neonCyanGlow)"/>
+  </g>
+
+  <!-- 4. BOTTOM 3D EMBOSSED METALLIC BANNER RIBBON -->
+  <g filter="url(#heavyShadow)">
+    <!-- Banner Shadow Background Fold -->
+    <path d="M 190 770 L 260 735 L 260 815 L 190 850 Z" fill="#0b131e"/>
+    <path d="M 834 770 L 764 735 L 764 815 L 834 850 Z" fill="#0b131e"/>
+
+    <!-- Banner Ribbon Main Plate -->
+    <!-- Curved 3D Ribbon -->
+    <path d="M 230 740 
+             Q 512 705 794 740 
+             L 814 825 
+             Q 512 795 210 825 Z" 
+          fill="url(#bannerMetal)" stroke="url(#metalBevelLight)" stroke-width="4"/>
+
+    <!-- Glowing Cyan Border Inset -->
+    <path d="M 240 750 
+             Q 512 717 784 750 
+             L 800 815 
+             Q 512 785 224 815 Z" 
+          fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.8"/>
+
+    <!-- Golden Rivet Screws on Banner Ends -->
+    <circle cx="236" cy="782" r="6" fill="url(#metalBevelLight)"/>
+    <circle cx="788" cy="782" r="6" fill="url(#metalBevelLight)"/>
+
+    <!-- Typography: IRON WALL • +50% SAVE AREA -->
+    <!-- Extruded 3D Text Effect -->
+    <!-- Text Shadow -->
+    <text x="512" y="787" 
+          text-anchor="middle" 
+          fill="#02060b" 
+          font-family="'Impact', 'Bebas Neue', Arial Black, sans-serif" 
+          font-size="34" 
+          font-weight="900" 
+          letter-spacing="3.5">
+      IRON WALL • +50% SAVE AREA
+    </text>
+    <!-- Text Face: Specular Silver with Cyan Tint -->
+    <text x="512" y="784" 
+          text-anchor="middle" 
+          fill="#e2e8f0" 
+          stroke="#0f172a" 
+          stroke-width="1.5"
+          font-family="'Impact', 'Bebas Neue', Arial Black, sans-serif" 
+          font-size="34" 
+          font-weight="900" 
+          letter-spacing="3.5">
+      IRON WALL • <tspan fill="#38bdf8">+50% SAVE AREA</tspan>
+    </text>
+  </g>
+</svg>
+</body>
+</html>

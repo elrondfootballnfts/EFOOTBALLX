@@ -1383,6 +1383,7 @@ const SKILLS = [
   {
     id: "steady",
     icon: "🎯",
+    img: "branding/rebranded/skill-laser-aim-badge.png",
     name: "ICE VEINS",
     nameHu: "HIDEGVÉR",
     nameRo: "NERVI DE OȚEL",
@@ -1395,6 +1396,7 @@ const SKILLS = [
   {
     id: "power",
     icon: "🚀",
+    img: "branding/rebranded/skill-rocket-ball-badge.png",
     name: "ROCKET SHOT",
     nameHu: "RAKÉTA LÖVÉS",
     nameRo: "ȘUT RACHETĂ",
@@ -1407,6 +1409,7 @@ const SKILLS = [
   {
     id: "freeze",
     icon: "🧊",
+    img: "branding/rebranded/skill-freeze-keeper-badge.png",
     name: "KEEPER FREEZE",
     nameHu: "KAPUS FAGYASZTÁS",
     nameRo: "PORTAR ÎNGHEȚAT",
@@ -1419,6 +1422,7 @@ const SKILLS = [
   {
     id: "curve",
     icon: "🌀",
+    img: "branding/rebranded/skill-banana-curve-badge.png",
     name: "BANANA CURVE",
     nameHu: "KIFLI CSAVARÁS",
     nameRo: "ȘUT CU EFECT",
@@ -1431,6 +1435,7 @@ const SKILLS = [
   {
     id: "gold",
     icon: "💰",
+    img: "branding/rebranded/skill-gold-multiplier-badge.png",
     name: "GOLD x2",
     nameHu: "DUPLA ARANY (2x)",
     nameRo: "AUR x2",
@@ -1449,6 +1454,7 @@ const KEEPER_SKILLS = [
   {
     id: "iron_wall",
     icon: "🛡️",
+    img: "branding/rebranded/skill-iron-wall-badge.png",
     name: "IRON WALL",
     nameHu: "ACÉLFAL",
     nameRo: "ZID DE OȚEL",
@@ -1461,6 +1467,7 @@ const KEEPER_SKILLS = [
   {
     id: "spider_reach",
     icon: "🧤",
+    img: "branding/rebranded/skill-giant-gloves-badge.png",
     name: "SPIDER REACH",
     nameHu: "POLIP NYÚLÁS",
     nameRo: "REACH TENTACULAR",
@@ -1473,6 +1480,7 @@ const KEEPER_SKILLS = [
   {
     id: "matrix_reflex",
     icon: "⏱️",
+    img: "branding/rebranded/skill-matrix-warp-badge.png",
     name: "MATRIX TIME WARP",
     nameHu: "MÁTRIX IDŐLASSÍTÁS",
     nameRo: "MATRIX BULLET TIME",
@@ -1485,6 +1493,7 @@ const KEEPER_SKILLS = [
   {
     id: "mind_read",
     icon: "👁️",
+    img: "branding/rebranded/skill-mind-radar-badge.png",
     name: "MIND READ RADAR",
     nameHu: "GONDOLATOLVASÁS",
     nameRo: "CITIREA MINȚII",
@@ -6119,7 +6128,7 @@ function renderSkillsDeckUI() {
     } else {
       btn.title = `${sName}: ${sDesc} (${count} owned)`;
       btn.innerHTML = `
-        <span class="skill-slot-icon">${s.icon}</span>
+        ${s.img ? `<img src="${s.img}" class="skill-slot-badge-img" alt="${sName}" onerror="this.style.display='none'" />` : `<span class="skill-slot-icon">${s.icon}</span>`}
         <span class="skill-slot-name">${isArmed ? (isHu ? "AKTÍV!" : "ARMED!") : sName.split(" ")[0]}</span>
         <span class="skill-slot-count">${count}</span>
       `;
@@ -6169,7 +6178,7 @@ function renderSkillsShopModal(highlightSkillId = null, highlightCount = 0) {
       card.innerHTML = `
         <div class="ssc-info">
           <div class="ssc-title" style="color:${s.color};">
-            <span>${s.icon}</span>
+            ${s.img ? `<img src="${s.img}" class="ssc-badge-thumb" alt="${name}" onerror="this.style.display='none'" />` : `<span>${s.icon}</span>`}
             <strong>${name}</strong>
             <span style="font-size:0.75rem; color:#a8ff00; background:rgba(168,255,0,0.12); padding:2px 8px; border-radius:6px; border:1px solid rgba(168,255,0,0.3);">(${ownedText}: ${count})</span>
             ${highlightSkillId === s.id ? `<span style="font-size:0.75rem; color:#a8ff00; font-weight:800;">${boughtFlash}</span>` : ""}

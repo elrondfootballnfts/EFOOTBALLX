@@ -2936,6 +2936,14 @@ body.start-screen-active .hud-top-bar,
   line-height: 1;
 }
 
+.skill-slot-badge-img {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
 .skill-slot-name {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.56rem;
@@ -3342,6 +3350,15 @@ body.start-screen-active .hud-top-bar,
   font-family: 'JetBrains Mono', monospace;
   font-weight: 800;
   font-size: 0.9rem;
+}
+.ssc-badge-thumb {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
 }
 .ssc-desc {
   font-size: 0.74rem;

@@ -870,7 +870,23 @@ body {
 .msk-head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+}
+
+.msk-badge-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.m-skill-card:hover .msk-badge-thumb {
+  transform: scale(1.08);
+  border-color: var(--neon);
 }
 
 .msk-icon {

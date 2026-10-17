@@ -689,15 +689,15 @@ const MARKET_I18N = {
 // SKILLS DEFINITION & BALANCED ECONOMY (2.5k - 9.5k EFOO singles, 20% off 5x)
 // ============================================================================
 const MARKET_SKILLS = [
-  { id: "gold", icon: "💰", name: "GOLD x2", nameHu: "DUPLA ARANY (2x)", nameRo: "AUR x2", price: 2500, color: "#ffb800", desc: "Double points and score multiplier on your next goal.", descHu: "Dupla pontszám és bónusz szorzó, ha a labda gól lesz." },
-  { id: "steady", icon: "🎯", name: "ICE VEINS", nameHu: "HIDEGVÉR", nameRo: "NERVI DE OȚEL", price: 3500, color: "#38bdf8", desc: "Crosshair stops shaking for precise corner aiming.", descHu: "A célkereszt stabilizálódik a következő lövésnél." },
-  { id: "curve", icon: "🌀", name: "BANANA CURVE", nameHu: "KIFLI CSAVARÁS", nameRo: "ȘUT CU EFECT", price: 4500, color: "#c084fc", desc: "Ball bends sharply — keeper misreads it 70% worse.", descHu: "Erősen kanyarodó lövés — a kapus jóval nehezebben védi ki." },
-  { id: "power", icon: "🚀", name: "ROCKET SHOT", nameHu: "RAKÉTA LÖVÉS", nameRo: "ȘUT RACHETĂ", price: 6000, color: "#fb923c", desc: "Superpower sweet-spot and reduces keeper reach by 25%.", descHu: "Tágabb sweet-spot + a kapus elérési távolsága 25%-kal kisebb." },
-  { id: "freeze", icon: "🧊", name: "KEEPER FREEZE", nameHu: "KAPUS FAGYASZTÁS", nameRo: "PORTAR ÎNGHEȚAT", price: 8500, color: "#67e8f9", desc: "Freezes keeper for 1 second causing late reaction and wrong dives.", descHu: "A kapus késve reagál és gyakran a rossz irányba vetődik." },
-  { id: "iron_wall", icon: "🛡️", name: "IRON WALL", nameHu: "ACÉLFAL", nameRo: "ZID DE OȚEL", price: 3500, color: "#38bdf8", desc: "Reinforces goal posts & expands keeper save area by 50%.", descHu: "A kapus teste megnő, a védési felület 50%-kal nagyobb." },
-  { id: "spider_reach", icon: "🧤", name: "SPIDER REACH", nameHu: "POLIP NYÚLÁS", nameRo: "REACH TENTACULAR", price: 6000, color: "#22c55e", desc: "Supernatural dive reach across the entire goalmouth.", descHu: "Óriási kézméret és ugrótávolság az egész kapura." },
-  { id: "matrix_reflex", icon: "⏱️", name: "MATRIX TIME WARP", nameHu: "MÁTRIX IDŐLASSÍTÁS", nameRo: "MATRIX BULLET TIME", price: 7500, color: "#a855f7", desc: "Slows the ball speed by 50% giving full dive reaction time.", descHu: "50%-kal lelassítja a labdát, megkönnyítve a védést." },
-  { id: "mind_read", icon: "👁️", name: "MIND READ RADAR", nameHu: "GONDOLATOLVASÁS", nameRo: "CITIREA MINȚII", price: 9500, color: "#ffb800", desc: "Holographic aura reveals exact AI shot target before the kick.", descHu: "Holografikus aura mutatja a gép lövésének pontos helyét." }
+  { id: "gold", icon: "💰", img: "branding/rebranded/skill-gold-multiplier-badge.png", name: "GOLD x2", nameHu: "DUPLA ARANY (2x)", nameRo: "AUR x2", price: 2500, color: "#ffb800", desc: "Double points and score multiplier on your next goal.", descHu: "Dupla pontszám és bónusz szorzó, ha a labda gól lesz." },
+  { id: "steady", icon: "🎯", img: "branding/rebranded/skill-laser-aim-badge.png", name: "ICE VEINS", nameHu: "HIDEGVÉR", nameRo: "NERVI DE OȚEL", price: 3500, color: "#38bdf8", desc: "Crosshair stops shaking for precise corner aiming.", descHu: "A célkereszt stabilizálódik a következő lövésnél." },
+  { id: "curve", icon: "🌀", img: "branding/rebranded/skill-banana-curve-badge.png", name: "BANANA CURVE", nameHu: "KIFLI CSAVARÁS", nameRo: "ȘUT CU EFECT", price: 4500, color: "#c084fc", desc: "Ball bends sharply — keeper misreads it 70% worse.", descHu: "Erősen kanyarodó lövés — a kapus jóval nehezebben védi ki." },
+  { id: "power", icon: "🚀", img: "branding/rebranded/skill-rocket-ball-badge.png", name: "ROCKET SHOT", nameHu: "RAKÉTA LÖVÉS", nameRo: "ȘUT RACHETĂ", price: 6000, color: "#fb923c", desc: "Superpower sweet-spot and reduces keeper reach by 25%.", descHu: "Tágabb sweet-spot + a kapus elérési távolsága 25%-kal kisebb." },
+  { id: "freeze", icon: "🧊", img: "branding/rebranded/skill-freeze-keeper-badge.png", name: "KEEPER FREEZE", nameHu: "KAPUS FAGYASZTÁS", nameRo: "PORTAR ÎNGHEȚAT", price: 8500, color: "#67e8f9", desc: "Freezes keeper for 1 second causing late reaction and wrong dives.", descHu: "A kapus késve reagál és gyakran a rossz irányba vetődik." },
+  { id: "iron_wall", icon: "🛡️", img: "branding/rebranded/skill-iron-wall-badge.png", name: "IRON WALL", nameHu: "ACÉLFAL", nameRo: "ZID DE OȚEL", price: 3500, color: "#38bdf8", desc: "Reinforces goal posts & expands keeper save area by 50%.", descHu: "A kapus teste megnő, a védési felület 50%-kal nagyobb." },
+  { id: "spider_reach", icon: "🧤", img: "branding/rebranded/skill-giant-gloves-badge.png", name: "SPIDER REACH", nameHu: "POLIP NYÚLÁS", nameRo: "REACH TENTACULAR", price: 6000, color: "#22c55e", desc: "Supernatural dive reach across the entire goalmouth.", descHu: "Óriási kézméret és ugrótávolság az egész kapura." },
+  { id: "matrix_reflex", icon: "⏱️", img: "branding/rebranded/skill-matrix-warp-badge.png", name: "MATRIX TIME WARP", nameHu: "MÁTRIX IDŐLASSÍTÁS", nameRo: "MATRIX BULLET TIME", price: 7500, color: "#a855f7", desc: "Slows the ball speed by 50% giving full dive reaction time.", descHu: "50%-kal lelassítja a labdát, megkönnyítve a védést." },
+  { id: "mind_read", icon: "👁️", img: "branding/rebranded/skill-mind-radar-badge.png", name: "MIND READ RADAR", nameHu: "GONDOLATOLVASÁS", nameRo: "CITIREA MINȚII", price: 9500, color: "#ffb800", desc: "Holographic aura reveals exact AI shot target before the kick.", descHu: "Holografikus aura mutatja a gép lövésének pontos helyét." }
 ];
 
 // ============================================================================
@@ -1623,7 +1623,7 @@ function renderSkillsStore() {
 
     card.innerHTML = `
       <div class="msk-head">
-        <span class="msk-icon">${s.icon}</span>
+        ${s.img ? `<img src="${s.img}" class="msk-badge-thumb" alt="${name}" onerror="this.style.display='none'" />` : `<span class="msk-icon">${s.icon}</span>`}
         <div>
           <strong class="msk-name" style="color:${s.color};">${name}</strong>
           <small style="display:block; font-family:var(--font-mono); font-size:0.68rem; color:var(--neon);">50% BURN • 50% VAULT</small>
