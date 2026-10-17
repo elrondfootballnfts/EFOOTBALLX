@@ -1,0 +1,18 @@
+{
+  "name": "EFootball-X Stadium Vault",
+  "description": "Official Smart Contract for Sunday League Degen FC ($EFOO) Stadium Vault Jackpot, Match Prize Pool, and NFooT NFT Marketplace Escrow on MultiversX.",
+  "social": {
+    "website": "https://efoo.optibase.ro",
+    "twitter": "https://twitter.com/EFootball_X",
+    "telegram": "https://t.me/elrondfootball",
+    "discord": "https://discord.gg/c4ds7WzvKc"
+  },
+  "tags": [
+    "gamefi",
+    "marketplace",
+    "smartcontract",
+    "efoo",
+    "degenfc"
+  ],
+  "icon": "efoo-stadium-vault"
+}

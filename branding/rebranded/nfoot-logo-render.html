@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NFooT Marketplace Logo Render</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Orbitron:wght@800;900&family=Montserrat:wght@800;900&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1024px;
+      height: 1024px;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 45%, #0f2418 0%, #06110a 60%, #010402 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .badge-wrapper {
+      position: relative;
+      width: 920px;
+      height: 920px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Ambient atmospheric glow */
+    .glow-bg {
+      position: absolute;
+      width: 780px;
+      height: 780px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 255, 136, 0.28) 0%, rgba(255, 184, 0, 0.16) 45%, transparent 72%);
+      filter: blur(55px);
+      z-index: 1;
+    }
+
+    /* Outer Cyber Hex/Shield SVG */
+    .svg-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+    }
+
+    /* Center Content Container */
+    .emblem-center {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: -30px;
+    }
+
+    /* ==============================================================
+       BRAND TYPOGRAPHY: NFooT
+       N, F, T are prominent capital letters (instantly reads 'NFT')
+       The two 'oo'-s are compact small golden footballs in between!
+       ============================================================== */
+    .nfoot-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 18px 35px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 30px rgba(0, 255, 136, 0.65));
+      position: relative;
+    }
+
+    /* The Main Prominent NFT Capital Letters */
+    .char-cap {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 155px;
+      line-height: 1;
+      letter-spacing: -2px;
+      background: linear-gradient(180deg, #ffffff 0%, #d4ffea 40%, #00ff88 80%, #00a855 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 0 rgba(255,255,255,0.4));
+    }
+
+    .char-f {
+      margin-right: 2px;
+    }
+
+    .char-t {
+      margin-left: 2px;
+    }
+
+    /* The Small Compact 'oo' Pair (gives the 'football' / 'foot' reading) */
+    .oo-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      margin: 0 5px;
+      padding-top: 15px; /* Aligned nicely between F and T waist */
+    }
+
+    .mini-ball {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      position: relative;
+      filter: drop-shadow(0 0 14px rgba(255, 184, 0, 0.95)) drop-shadow(0 6px 12px rgba(0, 0, 0, 0.8));
+      flex-shrink: 0;
+    }
+
+    .mini-ball svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Visual connector badge under the oo */
+    .sub-hint {
+      position: absolute;
+      top: -24px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 5px;
+      color: #a8ff00;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(168,255,0,0.8);
+    }
+
+    /* Ribbon Banner for MARKETPLACE */
+    .market-banner {
+      margin-top: 22px;
+      padding: 12px 48px;
+      background: linear-gradient(135deg, rgba(14, 32, 22, 0.96), rgba(6, 15, 10, 0.98));
+      border: 2.5px solid #ffb800;
+      border-radius: 40px;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.85), 0 0 25px rgba(255, 184, 0, 0.45), inset 0 0 18px rgba(255, 184, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .banner-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 46px;
+      letter-spacing: 9px;
+      color: #ffb800;
+      text-shadow: 0 0 18px rgba(255, 184, 0, 0.7);
+    }
+
+    .banner-star {
+      color: #00ff88;
+      font-size: 26px;
+      filter: drop-shadow(0 0 10px #00ff88);
+    }
+
+    .sub-tagline {
+      margin-top: 18px;
+      font-family: 'Orbitron', monospace;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 7px;
+      color: #8daaa0;
+      text-transform: uppercase;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+    }
+  </style>
+</head>
+<body>
+  <div class="badge-wrapper">
+    <div class="glow-bg"></div>
+
+    <!-- 3D Vector Shield and Crest -->
+    <svg class="svg-canvas" viewBox="0 0 920 920" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Gold Rim Gradient -->
+        <linearGradient id="goldRim" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fff8d4" />
+          <stop offset="25%" stop-color="#ffb800" />
+          <stop offset="50%" stop-color="#d48800" />
+          <stop offset="75%" stop-color="#ffe285" />
+          <stop offset="100%" stop-color="#8a5000" />
+        </linearGradient>
+
+        <!-- Neon Green Rim Gradient -->
+        <linearGradient id="neonGreenRim" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="30%" stop-color="#a8ff00" />
+          <stop offset="70%" stop-color="#00ff88" />
+          <stop offset="100%" stop-color="#00994d" />
+        </linearGradient>
+
+        <radialGradient id="carbonBase" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#182e22" />
+          <stop offset="55%" stop-color="#0b1710" />
+          <stop offset="100%" stop-color="#030704" />
+        </radialGradient>
+
+        <filter id="dropGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="20" stdDeviation="28" flood-color="#000000" flood-opacity="0.95" />
+          <feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="#00ff88" flood-opacity="0.45" />
+        </filter>
+
+        <pattern id="hexGrid" width="36" height="62.35" patternUnits="userSpaceOnUse">
+          <path d="M18 0 L36 10.39 L36 31.18 L18 41.57 L0 31.18 L0 10.39 Z M18 62.35 L36 51.96 L36 31.18 L18 41.57 L0 31.18 L0 51.96 Z" fill="none" stroke="rgba(0, 255, 136, 0.08)" stroke-width="1.2" />
+        </pattern>
+      </defs>
+
+      <!-- Outer Heavy Shield Crest -->
+      <path d="M460 70 L790 180 C790 480 670 740 460 850 C250 740 130 480 130 180 Z" fill="url(#carbonBase)" stroke="url(#goldRim)" stroke-width="15" filter="url(#dropGlow)" />
+
+      <!-- Inner High-Tech Hex Weave -->
+      <path d="M460 95 L765 195 C765 465 655 710 460 815 C265 710 155 465 155 195 Z" fill="url(#hexGrid)" stroke="url(#neonGreenRim)" stroke-width="4.5" stroke-opacity="0.8" />
+
+      <!-- Curved Stadium Floodlight Beams -->
+      <path d="M175 210 Q 460 360 745 210" stroke="rgba(255, 255, 255, 0.16)" stroke-width="2.5" fill="none" />
+      <path d="M225 270 Q 460 410 695 270" stroke="rgba(0, 255, 136, 0.22)" stroke-width="2" fill="none" />
+      <path d="M280 330 Q 460 460 640 330" stroke="rgba(255, 184, 0, 0.28)" stroke-width="2" fill="none" />
+
+      <!-- Top Crown Finial -->
+      <g transform="translate(460, 115) scale(0.95)">
+        <polygon points="0,-38 24,-10 52,-28 38,16 -38,16 -52,-28 -24,-10" fill="url(#goldRim)" stroke="#ffffff" stroke-width="1.8" />
+        <circle cx="0" cy="-38" r="5.5" fill="#00ff88" />
+        <circle cx="52" cy="-28" r="4.5" fill="#00ff88" />
+        <circle cx="-52" cy="-28" r="4.5" fill="#00ff88" />
+      </g>
+
+      <!-- Golden Laurel Wings on Sides -->
+      <g stroke="url(#goldRim)" stroke-width="3" fill="none" opacity="0.65">
+        <path d="M195 320 C185 430 215 550 268 635" />
+        <path d="M180 350 C170 450 195 540 248 615" />
+        <path d="M725 320 C735 430 705 550 652 635" />
+        <path d="M740 350 C750 450 725 540 672 615" />
+      </g>
+
+      <!-- MultiversX Nexus Cross at Bottom Peak -->
+      <g transform="translate(460, 792) scale(0.85)">
+        <polygon points="0,-20 13,-7 20,0 13,7 0,20 -13,7 -20,0 -13,-7" fill="url(#goldRim)" />
+      </g>
+    </svg>
+
+    <!-- Main Foreground Center Elements -->
+    <div class="emblem-center">
+      <div class="sub-hint">✦ THE FOOTBALL WEB3 HUB ✦</div>
+
+      <div class="nfoot-title">
+        <span class="char-cap">N</span>
+        <span class="char-cap char-f">F</span>
+        <div class="oo-container">
+          <div class="mini-ball">
+            <svg viewBox="0 0 50 50">
+              <defs>
+                <radialGradient id="ballShine1" cx="35%" cy="35%" r="65%">
+                  <stop offset="0%" stop-color="#ffffff" />
+                  <stop offset="35%" stop-color="#ffd700" />
+                  <stop offset="80%" stop-color="#ff8800" />
+                  <stop offset="100%" stop-color="#551a00" />
+                </radialGradient>
+              </defs>
+              <circle cx="25" cy="25" r="23" fill="url(#ballShine1)" stroke="#ffffff" stroke-width="2.2" />
+              <polygon points="25,16.5 32.2,21.8 29.4,30.8 20.6,30.8 17.8,21.8" fill="#2d1500" stroke="#ffe285" stroke-width="1.3" />
+              <line x1="25" y1="16.5" x2="25" y2="2" stroke="#ffe285" stroke-width="1.3" />
+              <line x1="32.2" y1="21.8" x2="46" y2="17.5" stroke="#ffe285" stroke-width="1.3" />
+              <line x1="29.4" y1="30.8" x2="38.5" y2="43.5" stroke="#ffe285" stroke-width="1.3" />
+              <line x1="20.6" y1="30.8" x2="11.5" y2="43.5" stroke="#ffe285" stroke-width="1.3" />
+              <line x1="17.8" y1="21.8" x2="4" y2="17.5" stroke="#ffe285" stroke-width="1.3" />
+              <path d="M10 13 A 18 18 0 0 1 37 11" stroke="#ffffff" stroke-width="1.8" fill="none" opacity="0.8" />
+            </svg>
+          </div>
+          <div class="mini-ball">
+            <svg viewBox="0 0 50 50">
+              <defs>
+                <radialGradient id="ballShine2" cx="35%" cy="35%" r="65%">
+                  <stop offset="0%" stop-color="#ffffff" />
+                  <stop offset="35%" stop-color="#ffd700" />
+                  <stop offset="80%" stop-color="#ff8800" />
+                  <stop offset="100%" stop-color="#551a00" />
+                </radialGradient>
+              </defs>
+              <circle cx="25" cy="25" r="23" fill="url(#ballShine2)" stroke="#ffffff" stroke-width="2.2" />
+              <polygon points="25,16.5 32.2,21.8 29.4,30.8 20.6,30.8 17.8,21.8" fill="#2d1500" stroke="#ffe285" stroke-width="1.3" />
+              <line x1="25" y1="16.5" x2="25" y2="2" stroke="#ffe285" stroke-width="1.3" />
+              <line x1="32.2" y1="21.8" x2="46" y2="17.5" stroke="#ffe285" stroke-width="1.3" />
+              <line x1="29.4" y1="30.8" x2="38.5" y2="43.5" stroke="#ffe285" stroke-width="1.3" />
+              <line x1="20.6" y1="30.8" x2="11.5" y2="43.5" stroke="#ffe285" stroke-width="1.3" />
+              <line x1="17.8" y1="21.8" x2="4" y2="17.5" stroke="#ffe285" stroke-width="1.3" />
+              <path d="M10 13 A 18 18 0 0 1 37 11" stroke="#ffffff" stroke-width="1.8" fill="none" opacity="0.8" />
+            </svg>
+          </div>
+        </div>
+        <span class="char-cap char-t">T</span>
+      </div>
+
+      <div class="market-banner">
+        <span class="banner-star">★</span>
+        <span class="banner-text">MARKETPLACE</span>
+        <span class="banner-star">★</span>
+      </div>
+
+      <div class="sub-tagline">SUNDAY LEAGUE DEGEN FC • MULTIVERSX</div>
+    </div>
+  </div>
+</body>
+</html>

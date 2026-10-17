@@ -33,6 +33,11 @@ multiversx_sc_wasm_adapter::endpoints! {
         getReviveAdvanceFee => revive_advance_fee
         getRetryRoundFee => retry_round_fee
         getNftListing => nft_listings
+        getAllListings => get_all_listings
+        isVip => is_vip
+        addVipAddress => add_vip_address
+        batchAddVipAddresses => batch_add_vip_addresses
+        removeVipAddress => remove_vip_address
         isPaused => is_paused
     )
 }

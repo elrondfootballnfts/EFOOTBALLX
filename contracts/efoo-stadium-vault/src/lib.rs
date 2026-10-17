@@ -141,14 +141,18 @@ pub trait EfooStadiumVault {
 
     /// Internal burning logic:
     /// 1. Updates global total_burned_games telemetry counter
-    /// 2. Executes verifiable on-chain ESDT supply burn using ESDTRoleLocalBurn
+    /// 2. If a dedicated burn address is set (e.g. system burn address), tokens are sent there.
+    ///    Otherwise, executes verifiable on-chain ESDT supply burn using ESDTRoleLocalBurn.
     fn execute_burn(&self, burn_amount: &BigUint) {
         let token_id = self.efoo_token_id().get();
         self.total_burned_games().update(|val| *val += burn_amount);
 
-        // Physically burns the $EFOO supply on MultiversX ledger
-        // Requires ESDTRoleLocalBurn granted to this Smart Contract address
-        self.send().esdt_local_burn(&token_id, 0, burn_amount);
+        let burn_addr = self.burn_address().get();
+        if burn_addr != ManagedAddress::zero() {
+            self.send().direct_esdt(&burn_addr, &token_id, 0, burn_amount);
+        } else {
+            self.send().esdt_local_burn(&token_id, 0, burn_amount);
+        }
     }
 
     // =========================================================================
@@ -228,14 +232,17 @@ pub trait EfooStadiumVault {
         };
 
         self.nft_listings(&token_id, nonce).set(&listing);
+        self.active_listings().insert((token_id, nonce));
     }
 
     /// Buyer purchases listed NFT.
     /// Checks-Effects-Interactions (CEI) compliant: listing is cleared prior to transfers.
     ///
     /// Fee Model:
-    /// - If $EFOO: 95% to Seller, 2.5% Burned, 2.5% to Weekend Vault Jackpot
-    /// - If EGLD: 97.5% to Seller, 2.5% Platform Fee sent directly to efoorewards wallet
+    /// - If Seller or Buyer holds an Ultras VIP Pass: 0% Platform Fee (100% Payout to Seller)
+    /// - Standard Fees:
+    ///     * $EFOO: 95% to Seller, 2.5% Burned, 2.5% to Weekend Vault Jackpot
+    ///     * EGLD: 97.5% to Seller, 2.5% Platform Fee sent directly to efoorewards wallet
     #[payable("*")]
     #[endpoint(buyNft)]
     fn buy_nft(&self, nft_token_id: TokenIdentifier, nft_nonce: u64) {
@@ -251,22 +258,35 @@ pub trait EfooStadiumVault {
 
         // CEI Pattern: Clear listing state BEFORE transferring funds or NFTs
         self.nft_listings(&nft_token_id, nft_nonce).clear();
+        self.active_listings().swap_remove(&(nft_token_id.clone(), nft_nonce));
+
+        // Ultras VIP Pass Check (0% Fees for Life)
+        let is_seller_vip = self.is_vip(&listing.seller);
+        let is_buyer_vip = self.is_vip(&buyer);
+        let is_zero_fee = is_seller_vip || is_buyer_vip;
 
         if listing.payment_token.is_egld() {
             // EGLD Payment Processing
             let payment_egld = self.call_value().egld_value().clone_value();
             require!(payment_egld >= listing.price, "Insufficient EGLD paid");
 
-            // 2.5% platform fee to owner (efoorewards), 97.5% to seller
-            let fee_egld = (&listing.price * 25u32) / 1000u32;
-            let seller_payout = &listing.price - &fee_egld;
+            let (seller_payout, fee_egld) = if is_zero_fee {
+                (listing.price.clone(), BigUint::zero())
+            } else {
+                // 2.5% platform fee to owner (efoorewards), 97.5% to seller
+                let fee = (&listing.price * 25u32) / 1000u32;
+                let payout = &listing.price - &fee;
+                (payout, fee)
+            };
 
             // Payout seller in EGLD
             self.send().direct_egld(&listing.seller, &seller_payout);
 
-            // Send 2.5% platform fee directly to contract owner (efoorewards)
-            let owner_address = self.blockchain().get_owner_address();
-            self.send().direct_egld(&owner_address, &fee_egld);
+            // Send 2.5% platform fee directly to contract owner (efoorewards) if applicable
+            if fee_egld > 0 {
+                let owner_address = self.blockchain().get_owner_address();
+                self.send().direct_egld(&owner_address, &fee_egld);
+            }
 
             // Refund any excess EGLD to buyer
             let excess = &payment_egld - &listing.price;
@@ -279,19 +299,28 @@ pub trait EfooStadiumVault {
             require!(payment_token == self.efoo_token_id().get(), "Payment must be in $EFOO");
             require!(payment_amount >= listing.price, "Insufficient $EFOO paid");
 
-            // 5% platform fee split: 2.5% burned, 2.5% to stadium vault
-            let fee_vault = (&listing.price * 25u32) / 1000u32;
-            let fee_burn = (&listing.price * 25u32) / 1000u32;
-            let seller_payout = &listing.price - &fee_vault - &fee_burn; // 95%
+            let (seller_payout, fee_vault, fee_burn) = if is_zero_fee {
+                (listing.price.clone(), BigUint::zero(), BigUint::zero())
+            } else {
+                // 5% platform fee split: 2.5% burned, 2.5% to stadium vault
+                let vault_share = (&listing.price * 25u32) / 1000u32;
+                let burn_share = (&listing.price * 25u32) / 1000u32;
+                let payout = &listing.price - &vault_share - &burn_share; // 95%
+                (payout, vault_share, burn_share)
+            };
 
-            // Payout 95% $EFOO to seller
+            // Payout seller in $EFOO
             self.send().direct_esdt(&listing.seller, &payment_token, 0, &seller_payout);
 
-            // Add 2.5% to stadium vault
-            self.vault_pot_balance().update(|p| *p += &fee_vault);
+            // Add 2.5% to stadium vault if applicable
+            if fee_vault > 0 {
+                self.vault_pot_balance().update(|p| *p += &fee_vault);
+            }
 
-            // Burn 2.5% permanently on-chain
-            self.execute_burn(&fee_burn);
+            // Burn 2.5% permanently on-chain if applicable
+            if fee_burn > 0 {
+                self.execute_burn(&fee_burn);
+            }
 
             // Refund any excess $EFOO to buyer
             let excess = &payment_amount - &listing.price;
@@ -318,6 +347,7 @@ pub trait EfooStadiumVault {
 
         // CEI Pattern: Clear state before transfer
         self.nft_listings(&nft_token_id, nft_nonce).clear();
+        self.active_listings().swap_remove(&(nft_token_id.clone(), nft_nonce));
 
         // Return NFT to seller
         self.send().direct_esdt(&caller, &listing.nft_token_id, listing.nft_nonce, &BigUint::from(1u32));
@@ -435,7 +465,54 @@ pub trait EfooStadiumVault {
     #[storage_mapper("nftListings")]
     fn nft_listings(&self, token_id: &TokenIdentifier, nonce: u64) -> SingleValueMapper<NftListing<Self::Api>>;
 
+    /// Returns all currently active marketplace listings in a single call
+    #[view(getAllListings)]
+    fn get_all_listings(&self) -> MultiValueEncoded<NftListing<Self::Api>> {
+        let mut listings = MultiValueEncoded::new();
+        for (token_id, nonce) in self.active_listings().iter() {
+            if !self.nft_listings(&token_id, nonce).is_empty() {
+                listings.push(self.nft_listings(&token_id, nonce).get());
+            }
+        }
+        listings
+    }
+
+    /// Checks if a wallet is registered as an Ultras VIP Pass holder (0% fees)
+    #[view(isVip)]
+    fn is_vip(&self, address: &ManagedAddress) -> bool {
+        self.vip_addresses().contains(address)
+    }
+
+    /// Owner adds a wallet to the 0% fee VIP registry
+    #[only_owner]
+    #[endpoint(addVipAddress)]
+    fn add_vip_address(&self, address: ManagedAddress) {
+        self.vip_addresses().insert(address);
+    }
+
+    /// Owner batch adds multiple wallets to the 0% fee VIP registry
+    #[only_owner]
+    #[endpoint(batchAddVipAddresses)]
+    fn batch_add_vip_addresses(&self, addresses: MultiValueEncoded<ManagedAddress>) {
+        for address in addresses {
+            self.vip_addresses().insert(address);
+        }
+    }
+
+    /// Owner removes a wallet from the 0% fee VIP registry
+    #[only_owner]
+    #[endpoint(removeVipAddress)]
+    fn remove_vip_address(&self, address: ManagedAddress) {
+        self.vip_addresses().swap_remove(&address);
+    }
+
     #[view(isPaused)]
     #[storage_mapper("isPaused")]
     fn is_paused(&self) -> SingleValueMapper<bool>;
+
+    #[storage_mapper("activeListings")]
+    fn active_listings(&self) -> UnorderedSetMapper<(TokenIdentifier<Self::Api>, u64)>;
+
+    #[storage_mapper("vipAddresses")]
+    fn vip_addresses(&self) -> UnorderedSetMapper<ManagedAddress>;
 }
