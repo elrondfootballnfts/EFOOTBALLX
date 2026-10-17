@@ -2977,6 +2977,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Mint Handlers
   document.getElementById("m-btn-mint-player")?.addEventListener("click", executeMarketMintPlayer);
   document.getElementById("m-btn-mint-keeper")?.addEventListener("click", executeMarketMintKeeper);
+  document.getElementById("m-btn-mint-ultras")?.addEventListener("click", buyUltrasPassOnChain);
 
   // DEX Swap Handlers
   document.getElementById("m-swap-input-amt")?.addEventListener("input", updateMarketSwapEstimate);
