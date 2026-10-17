@@ -440,19 +440,39 @@
           </p>
 
           <div class="admin-input-group">
-            <label>Befizetendő $EFOO Mennyiség:</label>
-            <input type="number" id="adm-input-deposit-pot" class="admin-input" value="300000000" step="1000000" placeholder="Pl. 300000000" />
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <label style="margin:0;">Befizetendő $EFOO Mennyiség:</label>
+              <span id="adm-token-price-indicator" style="font-family:'JetBrains Mono', monospace; font-size:0.75rem; color:var(--admin-cyan);">1 $EFOO ≈ $0.000000124</span>
+            </div>
+            
+            <div style="position:relative;">
+              <input type="text" id="adm-input-deposit-pot" class="admin-input" value="300,000,000" placeholder="Pl. 300,000,000" style="padding-right:75px; font-family:'JetBrains Mono', monospace; font-size:1.05rem; font-weight:700; color:#fff;" />
+              <span style="position:absolute; right:14px; top:50%; transform:translateY(-50%); font-family:'JetBrains Mono', monospace; font-weight:700; color:var(--admin-gold); pointer-events:none;">$EFOO</span>
+            </div>
+
+            <!-- Active Formatted & USD Live Value Preview -->
+            <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px 14px; margin-top:10px;">
+              <div>
+                <span style="font-size:0.72rem; color:#98aba0; display:block; text-transform:uppercase; letter-spacing:0.5px;">Ezres választóval:</span>
+                <strong id="adm-deposit-formatted-qty" style="color:var(--admin-gold); font-family:'JetBrains Mono', monospace; font-size:1rem;">300,000,000 $EFOO</strong>
+              </div>
+              <div style="text-align:right;">
+                <span style="font-size:0.72rem; color:#98aba0; display:block; text-transform:uppercase; letter-spacing:0.5px;">Aktuális Dollár Érték:</span>
+                <strong id="adm-deposit-usd-val" style="color:var(--admin-neon); font-family:'JetBrains Mono', monospace; font-size:1.15rem; text-shadow:0 0 10px rgba(0,255,136,0.3);">≈ $37.24 USD</strong>
+              </div>
+            </div>
           </div>
 
-          <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
-            <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 10px; font-size: 0.78rem; margin:0;" onclick="setDepositAmount(10000000)">10M</button>
-            <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 10px; font-size: 0.78rem; margin:0;" onclick="setDepositAmount(50000000)">50M</button>
-            <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 10px; font-size: 0.78rem; margin:0;" onclick="setDepositAmount(100000000)">100M</button>
-            <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 10px; font-size: 0.78rem; margin:0;" onclick="setDepositAmount(300000000)">300M</button>
+          <!-- Quick Preset Buttons -->
+          <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
+            <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin:0;" onclick="setDepositAmount(10000000)">10M</button>
+            <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin:0;" onclick="setDepositAmount(50000000)">50M</button>
+            <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin:0;" onclick="setDepositAmount(100000000)">100M</button>
+            <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 6px 12px; font-size: 0.8rem; margin:0; border-color:var(--admin-gold); color:var(--admin-gold);" onclick="setDepositAmount(300000000)">300M</button>
           </div>
 
-          <button id="btn-deposit-pot" class="admin-btn admin-btn-neon">
-            ⚡ $EFOO Befizetése xPortallal / Wallettel
+          <button id="btn-deposit-pot" class="admin-btn admin-btn-neon" style="font-size:0.95rem;">
+            ⚡ 300,000,000 $EFOO (~$37.24 USD) Befizetése xPortallal
           </button>
 
           <div style="margin-top: 14px; font-size: 0.75rem; color: #98aba0;">
@@ -664,10 +684,11 @@
           currentPotTokens = 0;
         }
 
-        document.getElementById("adm-pot-balance").textContent = `${currentPotTokens.toLocaleString("hu-HU")} $EFOO`;
-        document.getElementById("adm-calc-p1").textContent = `${Math.floor(currentPotTokens * 0.65).toLocaleString("hu-HU")} $EFOO`;
-        document.getElementById("adm-calc-p2").textContent = `${Math.floor(currentPotTokens * 0.25).toLocaleString("hu-HU")} $EFOO`;
-        document.getElementById("adm-calc-p3").textContent = `${Math.floor(currentPotTokens * 0.10).toLocaleString("hu-HU")} $EFOO`;
+        const potUsd = (currentPotTokens * efooUsdPrice).toFixed(2);
+        document.getElementById("adm-pot-balance").textContent = `${currentPotTokens.toLocaleString("hu-HU")} $EFOO (≈ $${potUsd} USD)`;
+        document.getElementById("adm-calc-p1").textContent = `${Math.floor(currentPotTokens * 0.65).toLocaleString("hu-HU")} $EFOO (≈ $${(currentPotTokens * 0.65 * efooUsdPrice).toFixed(2)} USD)`;
+        document.getElementById("adm-calc-p2").textContent = `${Math.floor(currentPotTokens * 0.25).toLocaleString("hu-HU")} $EFOO (≈ $${(currentPotTokens * 0.25 * efooUsdPrice).toFixed(2)} USD)`;
+        document.getElementById("adm-calc-p3").textContent = `${Math.floor(currentPotTokens * 0.10).toLocaleString("hu-HU")} $EFOO (≈ $${(currentPotTokens * 0.10 * efooUsdPrice).toFixed(2)} USD)`;
 
         // 2. Query isPaused
         const pRes = await fetch("https://api.multiversx.com/query", {
@@ -844,7 +865,43 @@
     });
 
     // =========================================================================
-    // CARD 1B: DEPOSIT TO VAULT POT TX GENERATOR
+    // EFOO PRICE & CURRENCY HELPERS
+    // =========================================================================
+    let efooUsdPrice = 1.2411926597128006e-7;
+
+    async function fetchEfooPrice() {
+      try {
+        const res = await fetch(`https://api.multiversx.com/tokens/${EFOO_TOKEN_ID}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.price && Number(data.price) > 0) {
+            efooUsdPrice = Number(data.price);
+            const ind = document.getElementById("adm-token-price-indicator");
+            if (ind) ind.textContent = `1 $EFOO ≈ $${efooUsdPrice.toFixed(9)}`;
+            updateDepositPreview();
+            refreshSmartContractTelemetry();
+          }
+        }
+      } catch (e) {
+        console.warn("Could not fetch EFOO USD price:", e);
+      }
+    }
+
+    function formatNumberWithCommas(n) {
+      if (!n && n !== 0) return "0";
+      const parts = n.toString().split(".");
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return parts.join(".");
+    }
+
+    function parseTokensInput(str) {
+      if (!str) return 0;
+      const clean = str.toString().replace(/,/g, "").replace(/\s/g, "");
+      return parseFloat(clean) || 0;
+    }
+
+    // =========================================================================
+    // CARD 1B: DEPOSIT TO VAULT POT TX GENERATOR (WITH COMMAS & USD LIVE PREVIEW)
     // =========================================================================
     function getDepositDataField(tokensVal) {
       const bTokens = BigInt(Math.floor(tokensVal)) * 1000000000000000000n;
@@ -856,35 +913,75 @@
     }
 
     function updateDepositPreview() {
-      const el = document.getElementById("adm-input-deposit-pot");
+      const inputEl = document.getElementById("adm-input-deposit-pot");
+      const fmtQtyEl = document.getElementById("adm-deposit-formatted-qty");
+      const usdValEl = document.getElementById("adm-deposit-usd-val");
+      const btnEl = document.getElementById("btn-deposit-pot");
       const prevEl = document.getElementById("adm-deposit-data-preview");
-      const val = parseFloat(el?.value) || 0;
-      if (val > 0 && prevEl) {
-        prevEl.textContent = getDepositDataField(val);
+
+      const tokens = parseTokensInput(inputEl?.value);
+      const usdVal = tokens * efooUsdPrice;
+      const formattedQty = formatNumberWithCommas(Math.floor(tokens));
+      const formattedUsd = usdVal >= 1000 
+        ? usdVal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        : usdVal >= 0.01 
+          ? usdVal.toFixed(2)
+          : usdVal > 0 
+            ? usdVal.toFixed(4)
+            : "0.00";
+
+      if (fmtQtyEl) fmtQtyEl.textContent = `${formattedQty} $EFOO`;
+      if (usdValEl) usdValEl.textContent = `≈ $${formattedUsd} USD`;
+      if (btnEl) btnEl.textContent = `⚡ ${formattedQty} $EFOO (~$${formattedUsd} USD) Befizetése xPortallal`;
+      if (prevEl && tokens > 0) {
+        prevEl.textContent = getDepositDataField(tokens);
       }
     }
 
     window.setDepositAmount = function(amt) {
       const input = document.getElementById("adm-input-deposit-pot");
       if (input) {
-        input.value = amt;
+        input.value = formatNumberWithCommas(amt);
         updateDepositPreview();
       }
     };
 
-    document.getElementById("adm-input-deposit-pot")?.addEventListener("input", updateDepositPreview);
+    const depositInput = document.getElementById("adm-input-deposit-pot");
+    depositInput?.addEventListener("input", (e) => {
+      const cursor = e.target.selectionStart;
+      const prevLen = e.target.value.length;
+      const rawDigits = e.target.value.replace(/[^0-9]/g, "");
+
+      if (!rawDigits) {
+        e.target.value = "";
+        updateDepositPreview();
+        return;
+      }
+
+      const formatted = formatNumberWithCommas(rawDigits);
+      e.target.value = formatted;
+
+      const newLen = formatted.length;
+      const diff = newLen - prevLen;
+      const newPos = Math.max(0, (cursor || 0) + diff);
+      e.target.setSelectionRange(newPos, newPos);
+
+      updateDepositPreview();
+    });
 
     document.getElementById("btn-deposit-pot")?.addEventListener("click", () => {
-      const tokensVal = parseFloat(document.getElementById("adm-input-deposit-pot").value);
+      const tokensVal = parseTokensInput(document.getElementById("adm-input-deposit-pot")?.value);
       if (!tokensVal || tokensVal <= 0) {
         alert("Kérlek érvényes $EFOO összeget adj meg!");
         return;
       }
 
+      const usdVal = (tokensVal * efooUsdPrice).toFixed(2);
+      const formattedQty = formatNumberWithCommas(Math.floor(tokensVal));
       const dataField = getDepositDataField(tokensVal);
       const walletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${STADIUM_VAULT_SC}&value=0&gasLimit=15000000&data=${encodeURIComponent(dataField)}&callbackUrl=${encodeURIComponent(window.location.href)}`;
       window.open(walletUrl, "_blank");
-      showToast(`⚡ ${tokensVal.toLocaleString("hu-HU")} $EFOO befizetési tranzakció előkészítve! Írd alá az xPortalban.`);
+      showToast(`⚡ ${formattedQty} $EFOO (~$${usdVal} USD) befizetési tranzakció előkészítve! Írd alá az xPortalban.`);
     });
 
     // =========================================================================
@@ -996,6 +1093,7 @@
     // Auto-run check on load
     document.addEventListener("DOMContentLoaded", () => {
       checkOwnerAuth();
+      fetchEfooPrice();
       updateDepositPreview();
     });
   </script>
