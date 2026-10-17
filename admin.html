@@ -218,6 +218,15 @@
       filter: brightness(1.15);
       transform: translateY(-1px);
     }
+    .admin-btn-neon {
+      background: linear-gradient(135deg, #a8ff00, #00ff88);
+      color: #030705;
+      box-shadow: 0 4px 14px rgba(168,255,0,0.3);
+    }
+    .admin-btn-neon:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
     .admin-btn-danger {
       background: linear-gradient(135deg, #ff3b30, #b01b12);
       color: #fff;
@@ -416,6 +425,41 @@
             <button id="btn-execute-jackpot" class="admin-btn admin-btn-gold">
               🏆 Jackpot Kiosztása xPortallal
             </button>
+          </div>
+        </div>
+
+        <!-- CARD 1B: $EFOO BEFIZETÉS A VAULT POTBA (depositToVaultPot) -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">💰 $EFOO Befizetés a Vault Potba</h3>
+            <span style="font-family:'JetBrains Mono'; font-size:0.75rem; color:var(--admin-neon);">depositToVaultPot</span>
+          </div>
+
+          <p style="font-size: 0.85rem; color: #98aba0; margin-bottom: 14px;">
+            Feltöltheted a Hétvégi Jackpot Potot vagy szponzori alapokat helyezhetsz el. A tranzakció a hivatalos <code>depositToVaultPot</code> végpontot hívja meg az SC-n, így nem dob <em>"non payable contract"</em> hibát!
+          </p>
+
+          <div class="admin-input-group">
+            <label>Befizetendő $EFOO Mennyiség:</label>
+            <input type="number" id="adm-input-deposit-pot" class="admin-input" value="300000000" step="1000000" placeholder="Pl. 300000000" />
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+            <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 10px; font-size: 0.78rem; margin:0;" onclick="setDepositAmount(10000000)">10M</button>
+            <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 10px; font-size: 0.78rem; margin:0;" onclick="setDepositAmount(50000000)">50M</button>
+            <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 10px; font-size: 0.78rem; margin:0;" onclick="setDepositAmount(100000000)">100M</button>
+            <button type="button" class="admin-btn admin-btn-outline" style="width: auto; padding: 4px 10px; font-size: 0.78rem; margin:0;" onclick="setDepositAmount(300000000)">300M</button>
+          </div>
+
+          <button id="btn-deposit-pot" class="admin-btn admin-btn-neon">
+            ⚡ $EFOO Befizetése xPortallal / Wallettel
+          </button>
+
+          <div style="margin-top: 14px; font-size: 0.75rem; color: #98aba0;">
+            Közvetlen MultiversX Data kód (ha explorerből vagy külső tárcából küldenéd):
+            <div style="background: rgba(0,0,0,0.4); padding: 8px 10px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; word-break: break-all; margin-top: 4px; user-select: all; border: 1px solid rgba(255,255,255,0.08);" id="adm-deposit-data-preview">
+              ESDTTransfer@45464f4f2d386665326434@f8277896582678ac000000@6465706f736974546f5661756c74506f74
+            </div>
           </div>
         </div>
 
@@ -800,6 +844,50 @@
     });
 
     // =========================================================================
+    // CARD 1B: DEPOSIT TO VAULT POT TX GENERATOR
+    // =========================================================================
+    function getDepositDataField(tokensVal) {
+      const bTokens = BigInt(Math.floor(tokensVal)) * 1000000000000000000n;
+      let hexTokens = bTokens.toString(16);
+      if (hexTokens.length % 2 !== 0) hexTokens = '0' + hexTokens;
+      const efooHex = "45464f4f2d386665326434"; // EFOO-8fe2d4
+      const endpointHex = "6465706f736974546f5661756c74506f74"; // depositToVaultPot
+      return `ESDTTransfer@${efooHex}@${hexTokens}@${endpointHex}`;
+    }
+
+    function updateDepositPreview() {
+      const el = document.getElementById("adm-input-deposit-pot");
+      const prevEl = document.getElementById("adm-deposit-data-preview");
+      const val = parseFloat(el?.value) || 0;
+      if (val > 0 && prevEl) {
+        prevEl.textContent = getDepositDataField(val);
+      }
+    }
+
+    window.setDepositAmount = function(amt) {
+      const input = document.getElementById("adm-input-deposit-pot");
+      if (input) {
+        input.value = amt;
+        updateDepositPreview();
+      }
+    };
+
+    document.getElementById("adm-input-deposit-pot")?.addEventListener("input", updateDepositPreview);
+
+    document.getElementById("btn-deposit-pot")?.addEventListener("click", () => {
+      const tokensVal = parseFloat(document.getElementById("adm-input-deposit-pot").value);
+      if (!tokensVal || tokensVal <= 0) {
+        alert("Kérlek érvényes $EFOO összeget adj meg!");
+        return;
+      }
+
+      const dataField = getDepositDataField(tokensVal);
+      const walletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${STADIUM_VAULT_SC}&value=0&gasLimit=15000000&data=${encodeURIComponent(dataField)}&callbackUrl=${encodeURIComponent(window.location.href)}`;
+      window.open(walletUrl, "_blank");
+      showToast(`⚡ ${tokensVal.toLocaleString("hu-HU")} $EFOO befizetési tranzakció előkészítve! Írd alá az xPortalban.`);
+    });
+
+    // =========================================================================
     // CARD 2: UPDATE FEES TX GENERATOR
     // =========================================================================
     document.getElementById("btn-update-fees").addEventListener("click", () => {
@@ -908,6 +996,7 @@
     // Auto-run check on load
     document.addEventListener("DOMContentLoaded", () => {
       checkOwnerAuth();
+      updateDepositPreview();
     });
   </script>
 </body>
