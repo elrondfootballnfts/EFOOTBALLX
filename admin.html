@@ -2080,12 +2080,13 @@
 
     // Check SFT Roles
     async function checkSftRolesOnChain() {
-      const colId = document.getElementById("sft-collection-id").value.trim();
-      const badge = document.getElementById("sft-roles-status-badge");
+      let colId = document.getElementById("sft-collection-id")?.value?.trim() || "";
       if (!colId) {
-        if (badge) badge.innerHTML = "<span style='color:var(--admin-gold);'>⚠️ Kérlek add meg a kollekció ID-t a vizsgálathoz!</span>";
-        return;
+        colId = "EFOOPASS-5223a8";
+        const inEl = document.getElementById("sft-collection-id");
+        if (inEl) inEl.value = colId;
       }
+      const badge = document.getElementById("sft-roles-status-badge");
       try {
         badge.innerHTML = "⏳ Jogok ellenőrzése a blokkláncon...";
         const res = await fetch(`https://api.multiversx.com/tokens/${colId}/roles`);
@@ -2110,10 +2111,11 @@
 
     // Step 3: Mint SFT Nonce
     document.getElementById("btn-mint-sft-nonce")?.addEventListener("click", async () => {
-      const colId = document.getElementById("sft-collection-id").value.trim();
+      let colId = document.getElementById("sft-collection-id")?.value?.trim() || "";
       if (!colId) {
-        alert("Kérlek add meg az SFT kollekció azonosítóját a 2. lépés mezőjében (pl. EFOOPASS-123456)!");
-        return;
+        colId = "EFOOPASS-5223a8";
+        const inEl = document.getElementById("sft-collection-id");
+        if (inEl) inEl.value = colId;
       }
       const name = document.getElementById("sft-mint-name").value.trim();
       const qty = parseInt(document.getElementById("sft-mint-qty").value, 10);
