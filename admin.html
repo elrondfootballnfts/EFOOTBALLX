@@ -921,6 +921,183 @@
       }
     }
 
+    // =========================================================================
+    // MULTIVERSX TRANSACTION STATE HUD & ROBUST SIGNING ENGINE
+    // =========================================================================
+
+    function normalizeSignedResult(res) {
+      if (!res) return null;
+      if (Array.isArray(res) && res.length > 0) return res;
+      if (res.transactions && Array.isArray(res.transactions) && res.transactions.length > 0) return res.transactions;
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) return res.data;
+      if (res.data && res.data.transactions && Array.isArray(res.data.transactions)) return res.data.transactions;
+      if (typeof res === "object" && (res.signature || (res.signatures && res.signatures.length > 0))) return [res];
+      return null;
+    }
+
+    function extractSignatureHex(sig) {
+      if (!sig) return "";
+      if (typeof sig === "string") return sig;
+      if (typeof sig.hex === "function") return sig.hex();
+      if (typeof sig.hex === "string") return sig.hex;
+      if (sig instanceof Uint8Array || (Array.isArray(sig) && typeof sig[0] === "number")) {
+        return Array.from(sig).map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+      if (typeof sig === "object") {
+        if (sig.data && Array.isArray(sig.data)) {
+          return Array.from(sig.data).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        if (typeof sig.toString === "function") {
+          const s = sig.toString("hex");
+          if (s && s !== "[object Object]") return s;
+        }
+      }
+      return String(sig);
+    }
+
+    let activePollTimer = null;
+
+    function setTxModalUI({ step, icon, title, desc, hash, webWalletUrl, isSuccess, isError }) {
+      const modal = document.getElementById("admin-tx-modal");
+      const card = document.getElementById("admin-tx-card");
+      const iconEl = document.getElementById("admin-tx-icon");
+      const titleEl = document.getElementById("admin-tx-title");
+      const descEl = document.getElementById("admin-tx-desc");
+      const hashEl = document.getElementById("admin-tx-hash-display");
+      const expLink = document.getElementById("admin-tx-explorer-link");
+      const webBtn = document.getElementById("admin-tx-fallback-webwallet");
+      const step1 = document.getElementById("tx-step-1");
+      const step2 = document.getElementById("tx-step-2");
+      const step3 = document.getElementById("tx-step-3");
+
+      if (modal) modal.style.display = "flex";
+
+      if (iconEl && icon) iconEl.innerHTML = icon;
+      if (titleEl && title) titleEl.textContent = title;
+      if (descEl && desc) descEl.innerHTML = desc;
+
+      if (hashEl) {
+        if (hash) {
+          hashEl.innerHTML = `<span style="color:#98aba0; margin-right:6px;">Tx Hash:</span> <a href="https://explorer.multiversx.com/transactions/${hash}" target="_blank" style="color:var(--admin-cyan); font-weight:700; text-decoration:underline;">${hash.slice(0, 16)}...${hash.slice(-16)}</a>`;
+        } else {
+          hashEl.textContent = "⏳ Folyamatban...";
+        }
+      }
+
+      if (expLink) {
+        if (hash) {
+          expLink.href = `https://explorer.multiversx.com/transactions/${hash}`;
+          expLink.style.display = "inline-block";
+        } else {
+          expLink.style.display = "none";
+        }
+      }
+
+      if (webBtn) {
+        if (webWalletUrl) {
+          webBtn.href = webWalletUrl;
+          webBtn.style.display = "inline-block";
+        } else {
+          webBtn.style.display = "none";
+        }
+      }
+
+      // Step styles
+      if (step1 && step2 && step3) {
+        const inactiveStyle = "color:#64748b;";
+        const activeStyle = "color:var(--admin-gold); font-weight:700;";
+        const successStyle = "color:var(--admin-neon); font-weight:700;";
+
+        if (step === 1) {
+          step1.style.cssText = activeStyle;
+          step2.style.cssText = inactiveStyle;
+          step3.style.cssText = inactiveStyle;
+        } else if (step === 2) {
+          step1.style.cssText = successStyle;
+          step2.style.cssText = activeStyle;
+          step3.style.cssText = inactiveStyle;
+        } else if (step === 3) {
+          step1.style.cssText = successStyle;
+          step2.style.cssText = successStyle;
+          step3.style.cssText = isSuccess ? successStyle : activeStyle;
+        }
+      }
+
+      if (card) {
+        if (isSuccess) {
+          card.style.borderColor = "var(--admin-neon)";
+          card.style.boxShadow = "0 0 40px rgba(0, 255, 136, 0.4)";
+        } else if (isError) {
+          card.style.borderColor = "var(--admin-danger)";
+          card.style.boxShadow = "0 0 40px rgba(255, 59, 48, 0.4)";
+        } else {
+          card.style.borderColor = "var(--admin-gold)";
+          card.style.boxShadow = "0 20px 60px rgba(0,0,0,0.8)";
+        }
+      }
+    }
+
+    async function pollTxStatus(hash, onSuccessCallback) {
+      if (activePollTimer) clearInterval(activePollTimer);
+      let attempts = 0;
+      const maxAttempts = 25; // 25 x 2.5s = ~60s
+
+      activePollTimer = setInterval(async () => {
+        attempts++;
+        try {
+          const res = await fetch(`https://api.multiversx.com/transactions/${hash}`);
+          if (res.ok) {
+            const data = await res.json();
+            const status = (data.status || "").toLowerCase();
+            if (status === "success") {
+              clearInterval(activePollTimer);
+              activePollTimer = null;
+              setTxModalUI({
+                step: 3,
+                icon: "🎉",
+                title: "TRANZAKCIÓ SIKERESEN VÉGREHAJTVA!",
+                desc: `A tranzakciót a MultiversX hálózat sikeresen véglegesítette (Success)!<br/>Az eredmény rögzítésre került a blokkláncon.`,
+                hash: hash,
+                isSuccess: true
+              });
+              showToast("🎉 Tranzakció sikeresen megerősítve a láncon!");
+              if (typeof onSuccessCallback === "function") {
+                onSuccessCallback(hash);
+              }
+              return;
+            } else if (status === "fail" || status === "invalid") {
+              clearInterval(activePollTimer);
+              activePollTimer = null;
+              setTxModalUI({
+                step: 3,
+                icon: "❌",
+                title: "TRANZAKCIÓ SIKERTELEN (REVERT)",
+                desc: `A tranzakció hibával tért vissza a láncon: <strong>${data.operations?.[0]?.action || data.status}</strong>.<br/>Ellenőrizd a részleteket az Explorerben!`,
+                hash: hash,
+                isError: true
+              });
+              showToast("❌ Tranzakció sikertelen a láncon!");
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn("Poll tx attempt failed:", e);
+        }
+
+        if (attempts >= maxAttempts) {
+          clearInterval(activePollTimer);
+          activePollTimer = null;
+          setTxModalUI({
+            step: 3,
+            icon: "⛓️",
+            title: "TRANZAKCIÓ KIKÜLDVE (FELDOLGOZÁS ALATT)",
+            desc: `A tranzakció a hálózaton van, a megerősítés kicsit tovább tart. Ellenőrizd a státuszt az Explorerben!`,
+            hash: hash
+          });
+        }
+      }, 2500);
+    }
+
     async function signAdminWithExtension(preparedTxs) {
       const extInputTxs = preparedTxs.map((t) => ({
         ...t,
@@ -930,26 +1107,37 @@
       const ext = window.elrondWallet || window.multiversx || window.elrond;
       if (ext && typeof ext.signTransactions === "function") {
         try {
-          const res = await ext.signTransactions(extInputTxs);
-          if (Array.isArray(res) && res.length > 0) return res;
+          const raw = await ext.signTransactions(extInputTxs);
+          const normalized = normalizeSignedResult(raw);
+          if (normalized) return normalized;
         } catch (e) {
           const msg = (e?.message || "").toLowerCase();
-          if (msg.includes("cancel") || msg.includes("reject") || msg.includes("denied")) {
+          if (msg.includes("cancel") || msg.includes("reject") || msg.includes("denied") || msg.includes("user cancel")) {
             throw e;
           }
           console.warn("Direct ext.signTransactions failed, trying postMessage bridge:", e);
         }
       }
 
-      return await sendAdminExtensionMessage("signTransactions", {
+      const res = await sendAdminExtensionMessage("signTransactions", {
         from: OWNER_ADDRESS,
         transactions: extInputTxs
       });
+      return normalizeSignedResult(res);
     }
 
     async function broadcastAdminSignedTransactions(signedTxs) {
       const hashes = [];
       for (const tx of signedTxs) {
+        // If the extension already returned txHash (some provider versions broadcast automatically)
+        if (tx.txHash) {
+          hashes.push(tx.txHash);
+          continue;
+        }
+
+        const rawSig = tx.signature || (tx.signatures && tx.signatures[0]);
+        const sigHex = extractSignatureHex(rawSig);
+
         const payload = {
           nonce: Number(tx.nonce),
           value: String(tx.value || "0"),
@@ -960,7 +1148,7 @@
           data: tx.dataIsBase64 ? tx.data : toBase64Data(tx.data || ""),
           chainID: String(tx.chainID || "1"),
           version: Number(tx.version || 1),
-          signature: String(tx.signature)
+          signature: sigHex
         };
         if (tx.options !== undefined && tx.options !== null && Number(tx.options) !== 0) {
           payload.options = Number(tx.options);
@@ -968,23 +1156,60 @@
         if (tx.guardian) payload.guardian = tx.guardian;
         if (tx.guardianSignature) payload.guardianSignature = tx.guardianSignature;
 
-        const res = await fetch("https://api.multiversx.com/transactions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        if (!res.ok) {
-          const errBody = await res.text();
-          throw new Error(`MultiversX API Hiba: ${errBody}`);
+        // Try API endpoint first
+        let txSent = false;
+        try {
+          const res = await fetch("https://api.multiversx.com/transactions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok) {
+            const resData = await res.json();
+            if (resData.txHash) {
+              hashes.push(resData.txHash);
+              txSent = true;
+            }
+          }
+        } catch (e) {
+          console.warn("API broadcast failed, trying gateway fallback:", e);
         }
-        const resData = await res.json();
-        if (resData.txHash) hashes.push(resData.txHash);
+
+        // Gateway fallback
+        if (!txSent) {
+          const gRes = await fetch("https://gateway.multiversx.com/transaction/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          if (gRes.ok) {
+            const gData = await gRes.json();
+            const h = gData?.data?.txHash || gData?.txHash;
+            if (h) {
+              hashes.push(h);
+              txSent = true;
+            }
+          } else {
+            const errBody = await gRes.text();
+            throw new Error(`MultiversX Hálózati Hiba: ${errBody}`);
+          }
+        }
       }
       return hashes;
     }
 
     async function executeAdminTransaction({ receiver, value = "0", data = "", gasLimit = 15000000, title = "Művelet", onSuccess = null }) {
-      showToast(`⏳ ${title} tranzakció előkészítése...`);
+      const callbackUrl = window.location.href.split("?")[0];
+      const webWalletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${encodeURIComponent(receiver)}&value=${encodeURIComponent(String(value || "0"))}&gasLimit=${gasLimit}&data=${encodeURIComponent(data)}&callbackUrl=${encodeURIComponent(callbackUrl)}`;
+
+      // IMMEDIATELY OPEN TRANSACTION HUD
+      setTxModalUI({
+        step: 1,
+        icon: "⏳",
+        title: `${title.toUpperCase()}`,
+        desc: `Tranzakció előkészítése és friss számláló (nonce) lekérése a MultiversX hálózatról...`,
+        hash: null
+      });
 
       // 1. Fresh Nonce & Guardian status
       let nonce = 0;
@@ -1028,69 +1253,126 @@
         txObj.guardian = guardianAddress;
       }
 
-      // 2. Primary Path: MultiversX DeFi Wallet Extension
-      const ext = window.elrondWallet || window.multiversx || window.elrond;
-      if (ext || typeof window.postMessage === "function") {
-        try {
-          showToast("🧩 Kérlek hagyd jóvá a felugró MultiversX DeFi Wallet ablakban...");
-          const signedRes = await signAdminWithExtension([txObj]);
-          if (signedRes) {
-            const signedList = Array.isArray(signedRes) ? signedRes : [signedRes];
-            const formattedSigned = signedList.map((st) => ({
-              ...txObj,
-              ...st,
-              data: data,
-              dataIsBase64: false
-            }));
+      // 2. Prompt user in Extension
+      setTxModalUI({
+        step: 1,
+        icon: "🧩",
+        title: "ALÁÍRÁSRA VÁR A DEFI WALLET BŐVÍTMÉNYBEN...",
+        desc: `Kérlek nézz rá a böngésződ jobb felső sarkában felugró <strong>MultiversX DeFi Wallet</strong> ablakra, és kattints az <strong>Aláírás (Sign)</strong> gombra!<br/><br/><small style="color:#94a3b8;">💡 Ha nem ugrott fel automatikusan, kattints a kék MultiversX bővítmény ikonra a böngésződben, vagy használd az alábbi Web Wallet gombot!</small>`,
+        hash: null,
+        webWalletUrl: webWalletUrl
+      });
 
-            const hashes = await broadcastAdminSignedTransactions(formattedSigned);
-            if (hashes && hashes.length > 0) {
-              const hash = hashes[0];
-              showToast("🎉 Tranzakció sikeresen elküldve a blokkláncra!");
-              showTransactionModal(hash, title);
-              if (typeof onSuccess === "function") onSuccess(hash);
-              return { success: true, hash };
-            }
-          }
-        } catch (err) {
-          console.error("Extension execution error:", err);
-          const msg = (err?.message || "").toLowerCase();
-          if (msg.includes("cancel") || msg.includes("reject") || msg.includes("denied") || msg.includes("user cancel")) {
-            showToast("❌ Tranzakció elutasítva a bővítményben.");
-            return;
-          }
-          if (!confirm(`⚠️ A bővítmény hibaüzenetet adott: ${err.message || "Ismeretlen hiba"}.\n\nSzeretnéd megnyitni a MultiversX Web Walletot alternatívaként a jóváhagyáshoz?`)) {
-            return;
-          }
+      try {
+        const signedRes = await signAdminWithExtension([txObj]);
+        if (!signedRes || signedRes.length === 0) {
+          throw new Error("Nem érkezett aláírt tranzakció a bővítményből.");
         }
-      }
 
-      // 3. Fallback: Web Wallet Sign hook
-      const callbackUrl = window.location.href;
-      let walletUrl = `https://wallet.multiversx.com/hook/sign?receiver=${encodeURIComponent(receiver)}&value=${encodeURIComponent(String(value || "0"))}&gasLimit=${txObj.gasLimit}&data=${encodeURIComponent(data)}&callbackUrl=${encodeURIComponent(callbackUrl)}`;
-      if (isGuarded && guardianAddress) {
-        walletUrl += `&version=2&options=2&guardian=${encodeURIComponent(guardianAddress)}`;
+        // STEP 2: Broadcasting
+        setTxModalUI({
+          step: 2,
+          icon: "📡",
+          title: "ALÁÍRÁS MEGÉRKEZETT! KÖZVETÍTÉS...",
+          desc: "A digitális aláírás beérkezett a tárcádból. Tranzakció közvetítése a MultiversX hálózati csomópontok felé...",
+          hash: null
+        });
+
+        const formattedSigned = signedRes.map((st) => ({
+          ...txObj,
+          ...st,
+          data: data,
+          dataIsBase64: false
+        }));
+
+        const hashes = await broadcastAdminSignedTransactions(formattedSigned);
+        if (hashes && hashes.length > 0) {
+          const hash = hashes[0];
+          // STEP 3: Mined pending & live poll
+          setTxModalUI({
+            step: 3,
+            icon: "⛓️",
+            title: "TRANZAKCIÓ KIKÜLDVE A BLOKKLÁNCRA!",
+            desc: "A tranzakció sikeresen bekerült a blokklánc mempoolba! Várakozás a blokk véglegesítésére (~6 mp)...",
+            hash: hash
+          });
+
+          pollTxStatus(hash, onSuccess);
+          return { success: true, hash };
+        } else {
+          throw new Error("Nem sikerült tranzakció azonosítót (txHash) kapni a hálózattól.");
+        }
+      } catch (err) {
+        console.error("Transaction execution error:", err);
+        const msg = (err?.message || "").toLowerCase();
+        if (msg.includes("cancel") || msg.includes("reject") || msg.includes("denied") || msg.includes("user cancel")) {
+          setTxModalUI({
+            step: 1,
+            icon: "⚠️",
+            title: "ALÁÍRÁS MEGSZAKÍTVA",
+            desc: "Megszakítottad a tranzakció aláírását a bővítményben.",
+            hash: null,
+            isError: true
+          });
+          return;
+        }
+
+        setTxModalUI({
+          step: 1,
+          icon: "❌",
+          title: "HIBA AZ ALÁÍRÁS KÖZBEN",
+          desc: `A bővítmény hibát adott: <strong>${err.message || "Ismeretlen hiba"}</strong>.<br/>Kattints az alábbi gombra a tranzakció közvetlen jóváhagyásához a Web Walletban!`,
+          hash: null,
+          webWalletUrl: webWalletUrl,
+          isError: true
+        });
       }
-      window.open(walletUrl, "_blank");
-      showToast("🌐 Tranzakció megnyitva a MultiversX Web Walletban!");
     }
 
     function showTransactionModal(txHash, title = "TRANZAKCIÓ ELKÜLDVE A BLOKKLÁNCRA!") {
-      const modal = document.getElementById("admin-tx-modal");
-      const titleEl = document.getElementById("admin-tx-title");
-      const hashEl = document.getElementById("admin-tx-hash-display");
-      const linkEl = document.getElementById("admin-tx-explorer-link");
-
-      if (titleEl) titleEl.textContent = title.toUpperCase();
-      if (hashEl) hashEl.textContent = txHash;
-      if (linkEl) linkEl.href = `https://explorer.multiversx.com/transactions/${txHash}`;
-      if (modal) modal.style.display = "flex";
+      setTxModalUI({
+        step: 3,
+        icon: "⛓️",
+        title: title.toUpperCase(),
+        desc: "A tranzakció elküldve a blokkláncra.",
+        hash: txHash
+      });
     }
 
     window.closeAdminTxModal = function() {
+      if (activePollTimer) {
+        clearInterval(activePollTimer);
+        activePollTimer = null;
+      }
       const modal = document.getElementById("admin-tx-modal");
       if (modal) modal.style.display = "none";
     };
+
+    // Check URL params from Web Wallet callback if used
+    function checkUrlCallbacks() {
+      const params = new URLSearchParams(window.location.search);
+      const txHash = params.get("txHash");
+
+      if (txHash) {
+        setTxModalUI({
+          step: 3,
+          icon: "🎉",
+          title: "TRANZAKCIÓ SIKERESEN VÉGREHAJTVA!",
+          desc: "A tranzakció sikeresen jóváhagyva a MultiversX Walleton keresztül!",
+          hash: txHash,
+          isSuccess: true
+        });
+        showToast("🎉 Tranzakció visszatért a Web Walletról!");
+        setTimeout(() => {
+          document.getElementById("btn-auto-detect-sft")?.click();
+        }, 1500);
+
+        try {
+          const cleanUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, cleanUrl);
+        } catch (e) {}
+      }
+    }
 
     // Extension & Manual Connect triggers
     document.getElementById("btn-owner-extension-connect")?.addEventListener("click", connectExtensionOwner);
@@ -2014,6 +2296,7 @@
     // Auto-run check on load
     document.addEventListener("DOMContentLoaded", () => {
       checkOwnerAuth();
+      checkUrlCallbacks();
       fetchEfooPrice();
       updateDepositPreview();
 
@@ -2027,23 +2310,59 @@
     });
   </script>
 
-  <!-- Transaction Success / Explorer Modal -->
+  <!-- Live Transaction State HUD / Modal -->
   <div id="admin-tx-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#0e1712; border:1px solid var(--admin-gold); border-radius:18px; max-width:540px; width:100%; padding:28px; box-shadow:0 20px 60px rgba(0,0,0,0.8); text-align:center; position:relative;">
-      <div style="font-size:3rem; margin-bottom:10px;">🎉</div>
-      <h3 style="font-family:'Bebas Neue', sans-serif; font-size:1.8rem; color:#fff; margin:0 0 8px; letter-spacing:1px;" id="admin-tx-title">TRANZAKCIÓ ELKÜLDVE A BLOKKLÁNCRA!</h3>
-      <p style="color:#98aba0; font-size:0.9rem; margin-bottom:18px;" id="admin-tx-desc">A tranzakciót sikeresen aláírtad a DeFi Wallet bővítménnyel, és a MultiversX hálózat feldolgozza.</p>
+    <div style="background:#0e1712; border:1px solid var(--admin-gold); border-radius:18px; max-width:560px; width:100%; padding:28px; box-shadow:0 20px 60px rgba(0,0,0,0.8); text-align:center; position:relative; transition:all 0.3s ease;" id="admin-tx-card">
       
-      <div style="background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; margin-bottom:20px; font-family:'JetBrains Mono', monospace; font-size:0.8rem; word-break:break-all; color:var(--admin-cyan);" id="admin-tx-hash-display">
-        0x...
+      <!-- Close 'X' in top right -->
+      <button type="button" onclick="closeAdminTxModal()" style="position:absolute; top:16px; right:16px; background:none; border:none; color:#98aba0; font-size:1.4rem; cursor:pointer; line-height:1;" title="Bezárás">&times;</button>
+      
+      <!-- Status Icon -->
+      <div id="admin-tx-icon" style="font-size:3.2rem; margin-bottom:12px;">⏳</div>
+      
+      <!-- Title -->
+      <h3 style="font-family:'Bebas Neue', sans-serif; font-size:1.8rem; color:#fff; margin:0 0 8px; letter-spacing:1px;" id="admin-tx-title">
+        ALÁÍRÁSRA VÁR A DEFI WALLET BŐVÍTMÉNYBEN...
+      </h3>
+      
+      <!-- Description -->
+      <p style="color:#98aba0; font-size:0.92rem; line-height:1.5; margin-bottom:16px;" id="admin-tx-desc">
+        Kérlek nézz rá a felugró <strong>MultiversX DeFi Wallet</strong> ablakra, és kattints az <strong>Aláírás (Sign)</strong> gombra!
+      </p>
+
+      <!-- Stepper Progress Tracker -->
+      <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px 14px; margin-bottom:16px; font-size:0.75rem;">
+        <div id="tx-step-1" style="display:flex; align-items:center; gap:6px; color:var(--admin-gold); font-weight:700;">
+          <span style="display:inline-block; width:18px; height:18px; border-radius:50%; background:var(--admin-gold); color:#000; text-align:center; line-height:18px; font-size:0.7rem;">1</span>
+          <span>Bővítmény Aláírás</span>
+        </div>
+        <div style="color:rgba(255,255,255,0.2);">➔</div>
+        <div id="tx-step-2" style="display:flex; align-items:center; gap:6px; color:#64748b;">
+          <span style="display:inline-block; width:18px; height:18px; border-radius:50%; background:#334155; color:#fff; text-align:center; line-height:18px; font-size:0.7rem;">2</span>
+          <span>Hálózati Küldés</span>
+        </div>
+        <div style="color:rgba(255,255,255,0.2);">➔</div>
+        <div id="tx-step-3" style="display:flex; align-items:center; gap:6px; color:#64748b;">
+          <span style="display:inline-block; width:18px; height:18px; border-radius:50%; background:#334155; color:#fff; text-align:center; line-height:18px; font-size:0.7rem;">3</span>
+          <span>Láncon Véglegesítve</span>
+        </div>
+      </div>
+      
+      <!-- Hash / Status box -->
+      <div style="background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px; margin-bottom:18px; font-family:'JetBrains Mono', monospace; font-size:0.8rem; word-break:break-all; color:var(--admin-cyan); min-height:42px; display:flex; align-items:center; justify-content:center;" id="admin-tx-hash-display">
+        ⏳ Csatlakozás a böngészőbővítményhez...
       </div>
 
-      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-        <a id="admin-tx-explorer-link" href="#" target="_blank" rel="noopener noreferrer" class="admin-btn admin-btn-gold" style="width:auto; margin:0; padding:10px 18px; text-decoration:none;">
+      <!-- Action Buttons -->
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;" id="admin-tx-buttons">
+        <a id="admin-tx-explorer-link" href="#" target="_blank" rel="noopener noreferrer" class="admin-btn admin-btn-gold" style="display:none; width:auto; margin:0; padding:10px 18px; text-decoration:none;">
           🔍 Megtekintés a MultiversX Explorerben ↗
         </a>
-        <button type="button" class="admin-btn admin-btn-outline" style="width:auto; margin:0; padding:10px 18px;" onclick="closeAdminTxModal()">
-          Rendben, Bezárás
+        <a id="admin-tx-fallback-webwallet" href="#" target="_blank" rel="noopener noreferrer" class="admin-btn admin-btn-outline" style="display:none; width:auto; margin:0; padding:10px 16px; border-color:var(--admin-cyan); color:var(--admin-cyan); text-decoration:none;">
+          🌐 Jóváhagyás MultiversX Web Walletban ↗
+        </a>
+        <button type="button" class="admin-btn admin-btn-outline" style="width:auto; margin:0; padding:10px 18px;" id="admin-tx-close-btn" onclick="closeAdminTxModal()">
+          Bezárás
         </button>
       </div>
     </div>
