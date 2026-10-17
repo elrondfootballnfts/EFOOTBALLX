@@ -2628,6 +2628,58 @@ async function executeMarketMintKeeper() {
   }
 }
 
+const TOKEN_LOGOS = {
+  EGLD: {
+    name: "EGLD",
+    icon: "branding/icons/egld-logo.svg",
+    isRound: false
+  },
+  WEGLD: {
+    name: "WEGLD",
+    icon: "branding/icons/wegld-logo.svg",
+    isRound: false
+  },
+  USDC: {
+    name: "USDC",
+    icon: "branding/icons/usdc-logo.svg",
+    isRound: false
+  },
+  EFOO: {
+    name: "$EFOO",
+    icon: "branding/icons/efoo-logo.png",
+    isRound: true
+  }
+};
+
+function setMarketSwapToken(tokenVal) {
+  const hiddenInput = document.getElementById("m-swap-token-select");
+  if (hiddenInput) hiddenInput.value = tokenVal;
+
+  const triggerIcon = document.getElementById("m-selected-token-icon");
+  const triggerName = document.getElementById("m-selected-token-name");
+  const menuList = document.getElementById("m-token-menu-list");
+  const dropdownWrap = document.getElementById("m-swap-token-dropdown");
+
+  if (TOKEN_LOGOS[tokenVal]) {
+    if (triggerIcon) {
+      triggerIcon.src = TOKEN_LOGOS[tokenVal].icon;
+      triggerIcon.classList.toggle("round", !!TOKEN_LOGOS[tokenVal].isRound);
+    }
+    if (triggerName) triggerName.textContent = TOKEN_LOGOS[tokenVal].name;
+  }
+
+  // Update active state in menu items
+  document.querySelectorAll(".token-dropdown-item").forEach((item) => {
+    item.classList.toggle("active", item.getAttribute("data-token-val") === tokenVal);
+  });
+
+  // Close dropdown
+  menuList?.classList.add("hidden");
+  dropdownWrap?.classList.remove("open");
+
+  updateMarketSwapEstimate();
+}
+
 function updateMarketSwapEstimate() {
   const amtInput = document.getElementById("m-swap-input-amt");
   const tokSelect = document.getElementById("m-swap-token-select");
@@ -2635,7 +2687,8 @@ function updateMarketSwapEstimate() {
   const balHint = document.getElementById("m-swap-pay-bal");
   const rateLbl = document.getElementById("m-swap-rate-lbl");
   const routeTag = document.getElementById("m-swap-route-tag");
-  const recvBadge = document.getElementById("m-swap-recv-token-badge");
+  const recvIcon = document.getElementById("m-swap-recv-icon");
+  const recvTicker = document.getElementById("m-swap-recv-ticker");
   const actionBtn = document.getElementById("m-btn-exec-swap");
   const isHu = currentMarketLang === "hu";
 
@@ -2647,7 +2700,11 @@ function updateMarketSwapEstimate() {
     const amtInWithFee = amt * 0.99;
     const estEgld = amt > 0 ? (marketDexState.onedexWegldReserve * amtInWithFee) / (marketDexState.onedexEfooReserve + amtInWithFee) : 0;
     if (outField) outField.value = `~${estEgld.toFixed(4)}`;
-    if (recvBadge) recvBadge.textContent = "EGLD";
+    if (recvIcon) {
+      recvIcon.src = "branding/icons/egld-logo.svg";
+      recvIcon.classList.remove("round");
+    }
+    if (recvTicker) recvTicker.textContent = "EGLD";
     if (rateLbl) rateLbl.textContent = `${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO ≈ 1 EGLD`;
     if (routeTag) routeTag.textContent = "Route: OneDex AMM";
     if (balHint) balHint.textContent = `Balance: ${Math.floor(marketWallet.efooBalance || 0).toLocaleString()} $EFOO`;
@@ -2669,7 +2726,11 @@ function updateMarketSwapEstimate() {
       if (balHint) balHint.textContent = `Balance: ${(marketWallet.egldBalance || 0).toFixed(3)} EGLD`;
     }
     if (outField) outField.value = `~${estOut.toLocaleString("en-US")}`;
-    if (recvBadge) recvBadge.textContent = "$EFOO";
+    if (recvIcon) {
+      recvIcon.src = "branding/icons/efoo-logo.png";
+      recvIcon.classList.add("round");
+    }
+    if (recvTicker) recvTicker.textContent = "$EFOO";
     if (actionBtn) actionBtn.textContent = isHu ? `⚡ ${amt} ${tok} Átváltása ➔ $EFOO` : `⚡ Swap ${amt} ${tok} ➔ $EFOO On-Chain`;
   }
 }
@@ -2919,14 +2980,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // DEX Swap Handlers
   document.getElementById("m-swap-input-amt")?.addEventListener("input", updateMarketSwapEstimate);
-  document.getElementById("m-swap-token-select")?.addEventListener("change", updateMarketSwapEstimate);
-  document.getElementById("m-swap-flip-btn")?.addEventListener("click", () => {
-    const sel = document.getElementById("m-swap-token-select");
-    if (sel) {
-      sel.value = sel.value === "EFOO" ? "EGLD" : "EFOO";
-      updateMarketSwapEstimate();
+
+  const tokenTriggerBtn = document.getElementById("m-token-trigger-btn");
+  const tokenMenuList = document.getElementById("m-token-menu-list");
+  const tokenDropdownWrap = document.getElementById("m-swap-token-dropdown");
+
+  tokenTriggerBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isHidden = tokenMenuList?.classList.contains("hidden");
+    tokenMenuList?.classList.toggle("hidden", !isHidden);
+    tokenDropdownWrap?.classList.toggle("open", isHidden);
+  });
+
+  document.querySelectorAll(".token-dropdown-item").forEach((item) => {
+    item.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const val = item.getAttribute("data-token-val");
+      if (val) setMarketSwapToken(val);
+    });
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!tokenDropdownWrap?.contains(e.target)) {
+      tokenMenuList?.classList.add("hidden");
+      tokenDropdownWrap?.classList.remove("open");
     }
   });
+
+  document.getElementById("m-swap-flip-btn")?.addEventListener("click", () => {
+    const currentVal = document.getElementById("m-swap-token-select")?.value || "EGLD";
+    const nextVal = currentVal === "EFOO" ? "EGLD" : "EFOO";
+    setMarketSwapToken(nextVal);
+  });
+
   document.getElementById("m-btn-exec-swap")?.addEventListener("click", executeMarketSwap);
 
   // Liquidity Pool Calculator

@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
 
   <link rel="canonical" href="https://efoo.optibase.ro/market" />
-  <link rel="stylesheet" href="market.css?v=20261017_v4" />
+  <link rel="stylesheet" href="market.css?v=20261017_v5" />
 
   <!-- Clean URL: Strip amateur .html extension from browser address bar -->
   <script>
@@ -326,12 +326,51 @@
               </div>
               <div class="ms-token-row">
                 <input type="number" id="m-swap-input-amt" class="ms-input-amt" value="0.035" min="0.001" step="any" placeholder="0.0" />
-                <select id="m-swap-token-select" class="ms-token-select">
-                  <option value="EGLD">⚡ EGLD (Native)</option>
-                  <option value="WEGLD">🟡 WEGLD (OneDex)</option>
-                  <option value="USDC">💵 USDC (xExchange)</option>
-                  <option value="EFOO">⚽ $EFOO</option>
-                </select>
+                
+                <!-- Custom Token Selector with Official Logos -->
+                <div class="custom-token-selector" id="m-swap-token-dropdown">
+                  <button type="button" class="token-dropdown-trigger" id="m-token-trigger-btn">
+                    <img id="m-selected-token-icon" src="branding/icons/egld-logo.svg" alt="EGLD" class="token-logo-img" />
+                    <span id="m-selected-token-name" class="token-name-text">EGLD</span>
+                    <span class="token-chevron">▾</span>
+                  </button>
+                  <div class="token-dropdown-list hidden" id="m-token-menu-list">
+                    <div class="token-dropdown-item active" data-token-val="EGLD">
+                      <img src="branding/icons/egld-logo.svg" alt="EGLD" class="token-dropdown-logo" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">EGLD</span>
+                        <span class="td-sub">Native MultiversX</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+                    <div class="token-dropdown-item" data-token-val="WEGLD">
+                      <img src="branding/icons/wegld-logo.svg" alt="WEGLD" class="token-dropdown-logo" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">WEGLD</span>
+                        <span class="td-sub">Wrapped EGLD (OneDex)</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+                    <div class="token-dropdown-item" data-token-val="USDC">
+                      <img src="branding/icons/usdc-logo.svg" alt="USDC" class="token-dropdown-logo" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">USDC</span>
+                        <span class="td-sub">USD Coin (xExchange)</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+                    <div class="token-dropdown-item" data-token-val="EFOO">
+                      <img src="branding/icons/efoo-logo.png" alt="EFOO" class="token-dropdown-logo round" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">$EFOO</span>
+                        <span class="td-sub">Sunday League Degen FC</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+                  </div>
+                  <!-- Hidden input to store value -->
+                  <input type="hidden" id="m-swap-token-select" value="EGLD" />
+                </div>
               </div>
             </div>
 
@@ -348,7 +387,10 @@
               </div>
               <div class="ms-token-row">
                 <input type="text" id="m-swap-output-amt" class="ms-input-amt" style="color:var(--neon);" value="~2,995,000" readonly />
-                <span id="m-swap-recv-token-badge" style="font-family:var(--font-mono); font-weight:800; font-size:1.1rem; color:#ffffff; background:#18181b; padding:8px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1);">$EFOO</span>
+                <div class="token-recv-pill-box" id="m-swap-recv-token-badge">
+                  <img id="m-swap-recv-icon" src="branding/icons/efoo-logo.png" alt="EFOO" class="token-logo-img round" />
+                  <span id="m-swap-recv-ticker">$EFOO</span>
+                </div>
               </div>
             </div>
 
@@ -382,8 +424,8 @@
               <div class="pool-head">
                 <div class="pool-pair-badge">
                   <div class="ppb-icons">
-                    <img src="branding/original/assests-2022/logo.png" alt="EFOO" />
-                    <img src="https://tools.multiversx.com/assets-cdn/tokens/WEGLD-bd4d79/icon.png" alt="WEGLD" />
+                    <img src="branding/icons/efoo-logo.png" alt="EFOO" />
+                    <img src="branding/icons/wegld-logo.svg" alt="WEGLD" />
                   </div>
                   <span class="ppb-title">$EFOO / WEGLD</span>
                 </div>
@@ -424,8 +466,8 @@
               <div class="pool-head">
                 <div class="pool-pair-badge">
                   <div class="ppb-icons">
-                    <img src="branding/original/assests-2022/logo.png" alt="EFOO" />
-                    <img src="https://tools.multiversx.com/assets-cdn/tokens/USDC-c76f1f/icon.png" alt="USDC" />
+                    <img src="branding/icons/efoo-logo.png" alt="EFOO" />
+                    <img src="branding/icons/usdc-logo.svg" alt="USDC" />
                   </div>
                   <span class="ppb-title">$EFOO / USDC</span>
                 </div>
@@ -842,6 +884,6 @@
   <div id="m-toast" class="m-toast hidden"></div>
 
   <!-- Scripts -->
-  <script src="market.js?v=20261017_v4"></script>
+  <script src="market.js?v=20261017_v5"></script>
 </body>
 </html>
