@@ -576,14 +576,21 @@
               </strong>
               <span style="font-family:'JetBrains Mono'; font-size:0.7rem; color:#98aba0;">issueSemiFungible</span>
             </div>
+            
+            <div style="background: rgba(255,184,0,0.08); border-left: 3px solid var(--admin-gold); padding: 6px 10px; margin-bottom: 10px; border-radius: 4px; font-size: 0.74rem; color: #cbd5e1;">
+              🔒 <strong>MultiversX Protokoll Szabályok (0.05 EGLD védelem):</strong><br/>
+              • <strong>Név:</strong> 3-50 karakter, kizárólag alfanumerikus betűk és számok (<code>a-z, A-Z, 0-9</code>). <em>Szóköz, &amp;, kötőjel TILOS!</em><br/>
+              • <strong>Ticker:</strong> 3-10 karakter, kizárólag csupa NAGYBETŰ és szám (<code>A-Z, 0-9</code>). <em>Szóköz TILOS!</em>
+            </div>
+
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
               <div>
-                <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Kollekció Neve (3-50 betű):</label>
-                <input type="text" id="sft-issue-name" class="admin-input" value="EFOO Ultras &amp; Skills" />
+                <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Kollekció Neve (3-50 betű, szóköz nélkül):</label>
+                <input type="text" id="sft-issue-name" class="admin-input" value="EFOOUltrasSkills" maxlength="50" placeholder="Pl. EFOOUltrasSkills" />
               </div>
               <div>
-                <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Ticker (3-10 nagybetű):</label>
-                <input type="text" id="sft-issue-ticker" class="admin-input" value="EFOOPASS" maxlength="10" />
+                <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Ticker (3-10 NAGYBETŰ, szóköz nélkül):</label>
+                <input type="text" id="sft-issue-ticker" class="admin-input" value="EFOOPASS" maxlength="10" placeholder="Pl. EFOOPASS" />
               </div>
             </div>
             <button type="button" id="btn-issue-sft" class="admin-btn admin-btn-gold" style="margin-top: 4px; padding: 10px 14px; font-size: 0.88rem;">
@@ -1647,14 +1654,72 @@
       showToast(`⚡ Sablon betöltve: ${p.name} (${p.qty.toLocaleString("hu-HU")} db)!`);
     };
 
+    // Input auto-sanitizers for SFT Collection Name and Ticker
+    const sftNameInput = document.getElementById("sft-issue-name");
+    const sftTickerInput = document.getElementById("sft-issue-ticker");
+
+    if (sftNameInput) {
+      sftNameInput.addEventListener("input", (e) => {
+        // Remove spaces and non-alphanumeric characters automatically
+        const clean = e.target.value.replace(/[^a-zA-Z0-9]/g, "");
+        if (clean !== e.target.value) {
+          e.target.value = clean;
+          showToast("⚠️ Csak angol betűk és számok engedélyezettek a kollekció nevében (szóköz és speciális karakterek nélkül)!");
+        }
+      });
+    }
+
+    if (sftTickerInput) {
+      sftTickerInput.addEventListener("input", (e) => {
+        // Force uppercase and remove invalid chars
+        const clean = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+        if (clean !== e.target.value) {
+          e.target.value = clean;
+          showToast("⚠️ A ticker csak csupa NAGYBETŰ és szám lehet (3-10 karakter)!");
+        }
+      });
+    }
+
     // Step 1: Issue SFT
     document.getElementById("btn-issue-sft")?.addEventListener("click", async () => {
-      const name = document.getElementById("sft-issue-name").value.trim();
-      const ticker = document.getElementById("sft-issue-ticker").value.trim().toUpperCase();
-      if (!name || !ticker) {
-        alert("Kérlek add meg a kollekció nevét és tickerjét!");
+      const name = document.getElementById("sft-issue-name")?.value.trim() || "";
+      const ticker = document.getElementById("sft-issue-ticker")?.value.trim().toUpperCase() || "";
+
+      // STRICT MULTIVERSX PROTOCOL VALIDATION
+      const nameRegex = /^[a-zA-Z0-9]{3,50}$/;
+      if (!nameRegex.test(name)) {
+        alert(
+          "❌ Hiba a kollekció nevében!\n\n" +
+          "A MultiversX protokoll szerint a kollekció neve kizárólag alfanumerikus karakterekből (a-z, A-Z, 0-9) állhat, szóköz vagy speciális karakterek (&, -, _, stb.) nélkül!\n" +
+          "Hossz: minimum 3, maximum 50 karakter.\n\n" +
+          `Jelenlegi megadott: "${name}"\n` +
+          "Javasolt helyes név: EFOOUltrasSkills vagy EFOOUltrasPass"
+        );
         return;
       }
+
+      const tickerRegex = /^[A-Z0-9]{3,10}$/;
+      if (!tickerRegex.test(ticker)) {
+        alert(
+          "❌ Hiba a tickerben!\n\n" +
+          "A MultiversX protokoll szerint a ticker kizárólag angol NAGYBETŰKBŐL és számokból (A-Z, 0-9) állhat, szóköz nélkül!\n" +
+          "Hossz: minimum 3, maximum 10 karakter.\n\n" +
+          `Jelenlegi megadott: "${ticker}"\n` +
+          "Javasolt helyes ticker: EFOOPASS vagy EFOOSFT"
+        );
+        return;
+      }
+
+      const confirmMsg = 
+        `Biztosan kiadod az új SFT kollekciót?\n\n` +
+        `• Név: ${name}\n` +
+        `• Ticker: ${ticker}\n` +
+        `• Díj: 0.05 EGLD (hálózat által levont díj)\n` +
+        `• Aláíró tárca: efoorewards (${OWNER_ADDRESS})\n\n` +
+        `A 'DeFi Wallet' bővítmény felugró ablakában kell jóváhagynod. Folytatod?`;
+
+      if (!confirm(confirmMsg)) return;
+
       const nameHex = stringToHex(name);
       const tickerHex = stringToHex(ticker);
 
@@ -1665,9 +1730,9 @@
         value: "50000000000000000", // 0.05 EGLD
         data: dataField,
         gasLimit: 60000000,
-        title: "⚡ 1. Lépés: SFT Kollekció Kiadása",
+        title: `⚡ 1. Lépés: SFT Kollekció Kiadása (${name} / ${ticker})`,
         onSuccess: () => {
-          showToast("🎉 SFT Kiadva! Várj 10-15 másodpercet a láncon, majd kattints az '⚡ Auto-Betöltés' gombra a 2. lépésnél!");
+          showToast("🎉 SFT Kiadás tranzakció elküldve! Várj 10-15 másodpercet a láncon, majd kattints az '⚡ Auto-Betöltés' gombra a 2. lépésnél!");
         }
       });
     });
