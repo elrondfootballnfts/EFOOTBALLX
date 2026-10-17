@@ -850,20 +850,64 @@
       }
     }
 
+    function isValidMultiversxWallet(addr) {
+      if (!addr || typeof addr !== "string") return false;
+      const clean = addr.trim();
+      return clean.startsWith("erd1") && clean.length === 62 && !clean.includes("...");
+    }
+
+    const EXCLUDED_SYSTEM_ADDRESSES = new Set([
+      "erd1k8w7y5ftg2uax8v8ng8p5azjw96zzfgky9v3fydtpe2xwdz0007q3hl9z8".toLowerCase(), // FOMO_RESERVE
+      "erd1qqqqqqqqqqqqqpgqwdrgl4k7gfa26wp0xcje8qn9gucq87yx55hs39eend".toLowerCase(), // STADIUM_VAULT_SC
+      "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzllls8a5w6u".toLowerCase(), // SYSTEM_SC
+      "erd1qqqqqqqqqqqqqpgq78frnmw5sep0q4r2qd96y3d6f6p7ujwcys5s9evzym".toLowerCase(), // NFT_MINTER
+      "erd1lqh33j0geuxxa8wyj95wk8cy8yqf7gltn73mmdmtucvn332txarqzcdpzp".toLowerCase()  // RESERVE_VAULT
+    ]);
+
     function getAdminLeaderboardList() {
+      let rawList = [];
       try {
         const raw1 = localStorage.getItem("efoo_leaderboard_v2");
         if (raw1) {
           const list1 = JSON.parse(raw1);
-          if (Array.isArray(list1) && list1.length > 0) return list1;
+          if (Array.isArray(list1) && list1.length > 0) rawList = list1;
         }
-        const raw2 = localStorage.getItem("efoo_real_leaderboard_v2");
-        if (raw2) {
-          const list2 = JSON.parse(raw2);
-          if (Array.isArray(list2) && list2.length > 0) return list2;
+        if (rawList.length === 0) {
+          const raw2 = localStorage.getItem("efoo_real_leaderboard_v2");
+          if (raw2) {
+            const list2 = JSON.parse(raw2);
+            if (Array.isArray(list2) && list2.length > 0) rawList = list2;
+          }
         }
       } catch (e) {}
-      return [];
+
+      // Sanitize: Purge any truncated addresses containing "...", invalid lengths, system vaults, and deduplicate
+      const seen = new Set();
+      const sanitized = [];
+      for (const item of rawList) {
+        if (!item || !item.address) continue;
+        const addr = item.address.trim();
+        const lower = addr.toLowerCase();
+
+        // Drop any truncated string like "erd1gy...j8gq"
+        if (addr.includes("...")) continue;
+        // Drop any address with invalid length (MultiversX addresses are strictly 62 characters)
+        if (addr.startsWith("erd1") && addr.length !== 62) continue;
+        // Drop system reserve accounts
+        if (EXCLUDED_SYSTEM_ADDRESSES.has(lower)) continue;
+
+        // Deduplicate: same wallet can only appear once with highest score
+        if (seen.has(lower)) continue;
+        seen.add(lower);
+        sanitized.push(item);
+      }
+
+      // If sanitation cleaned up bad items, persist the clean version
+      if (sanitized.length !== rawList.length) {
+        saveAdminLeaderboardList(sanitized);
+      }
+
+      return sanitized;
     }
 
     function saveAdminLeaderboardList(list) {
@@ -877,25 +921,30 @@
     document.getElementById("btn-autofill-leaderboard").addEventListener("click", () => {
       try {
         const list = getAdminLeaderboardList();
-        if (list.length === 0) {
-          showToast("ℹ️ Még nincs rögzített meccs ezen a gépen! Közvetlenül beírhatod a nyertes erd1 tárcacímet a fenti mezőkbe.");
-          return;
-        }
-        const validWallets = list.filter(item => item.address && item.address.startsWith("erd1"));
+        const validWallets = list.filter(item => isValidMultiversxWallet(item.address));
+
         if (validWallets.length === 0) {
-          showToast("ℹ️ Csak vendég játékosok vannak (tárcacím nélkül). Kérlek add meg a nyertes erd1 tárcacímet!");
+          showToast("ℹ️ Nincs érvényes játékos cím a ranglistán. Kérlek írd be a nyertesek erd1 címét közvetlenül a mezőkbe!");
           return;
         }
+
+        // Clear all 3 first
+        document.getElementById("jackpot-addr-1").value = "";
+        document.getElementById("jackpot-addr-2").value = "";
+        document.getElementById("jackpot-addr-3").value = "";
+
         if (validWallets[0]?.address) {
           document.getElementById("jackpot-addr-1").value = validWallets[0].address;
         }
-        if (validWallets[1]?.address) {
+        if (validWallets[1]?.address && validWallets[1].address.toLowerCase() !== validWallets[0].address.toLowerCase()) {
           document.getElementById("jackpot-addr-2").value = validWallets[1].address;
         }
-        if (validWallets[2]?.address) {
+        if (validWallets[2]?.address && 
+            validWallets[2].address.toLowerCase() !== validWallets[0]?.address?.toLowerCase() &&
+            validWallets[2].address.toLowerCase() !== validWallets[1]?.address?.toLowerCase()) {
           document.getElementById("jackpot-addr-3").value = validWallets[2].address;
         }
-        showToast("⚡ Top játékosok automatikusan beillesztve a beviteli mezőkbe!");
+        showToast("⚡ Valós játékosok automatikusan beillesztve (duplikációk és csonka címek kiszűrve)!");
       } catch (e) {
         console.error(e);
       }
@@ -1203,6 +1252,14 @@
       checkOwnerAuth();
       fetchEfooPrice();
       updateDepositPreview();
+
+      // Clean up any old truncated addresses in input fields
+      const in1 = document.getElementById("jackpot-addr-1");
+      const in2 = document.getElementById("jackpot-addr-2");
+      const in3 = document.getElementById("jackpot-addr-3");
+      if (in1 && in1.value.includes("...")) in1.value = "";
+      if (in2 && in2.value.includes("...")) in2.value = "";
+      if (in3 && in3.value.includes("...")) in3.value = "";
     });
   </script>
 </body>

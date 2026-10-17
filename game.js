@@ -6144,6 +6144,7 @@ async function resolveHerotagAsync(address) {
 
 // Known Mock Addresses to purge from local storage (no fake/dummy accounts!)
 const KNOWN_MOCK_ADDRESSES = new Set([
+  "erd1k8w7y5ftg2uax8v8ng8p5azjw96zzfgky9v3fydtpe2xwdz0007q3hl9z8", // FOMO_RESERVE
   "erd1uaw4x3kretddfqx79qvvta9l29sdq7ad6lygavgynlq5mc52w0hqfzczm7", // augustintr
   "erd1qzm0h502r4x9uslqhfdjxrkmrwtq5qtle57queakzz6majydu3nswj6shc", // digitalmoney
   "erd1q4rrqj2fragmkz7x2jgpqy7svsunwd33hkl69v7h62nlwum9qunq3pllj3", // janhunedoara
@@ -6175,10 +6176,12 @@ function getLeaderboard() {
     }
   } catch (e) {}
 
-  // Filter out any mock dummy entries
+  // Filter out any mock dummy entries & invalid/truncated addresses
   list = list.filter((row) => {
     if (!row || !row.address) return false;
-    const addr = row.address.toLowerCase();
+    const addr = row.address.trim().toLowerCase();
+    if (addr.includes("...")) return false; // Purge old truncated "erd1gy...j8gq" entries
+    if (addr.startsWith("erd1") && addr.length !== 62) return false; // Must be strictly 62 chars
     if (KNOWN_MOCK_ADDRESSES.has(addr)) return false;
     if (row.herotag && MOCK_HEROTAGS_TO_PURGE.has(row.herotag.toLowerCase())) return false;
     return true;
