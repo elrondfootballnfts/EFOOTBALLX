@@ -1030,7 +1030,7 @@ function initMarketWallet() {
       window.history.replaceState({}, document.title, cleanUrl);
     }
 
-    let savedAddr = localStorage.getItem("multiversx_address") || sessionStorage.getItem("multiversx_address") || localStorage.getItem("efoo_wallet_address");
+    let savedAddr = localStorage.getItem("efoo_wallet_address") || localStorage.getItem("multiversx_address") || sessionStorage.getItem("efoo_wallet_address") || sessionStorage.getItem("multiversx_address");
     // Clear out any legacy placeholder docs address
     if (savedAddr && savedAddr.startsWith("erd1qyu5wthldz")) {
       savedAddr = null;
@@ -1039,10 +1039,17 @@ function initMarketWallet() {
       localStorage.removeItem("efoo_wallet_address");
       localStorage.removeItem("efoo_connected_address");
     }
-    const savedProv = localStorage.getItem("multiversx_provider") || sessionStorage.getItem("multiversx_provider") || localStorage.getItem("efoo_wallet_provider");
+    const savedProv = localStorage.getItem("efoo_wallet_provider") || localStorage.getItem("multiversx_provider") || sessionStorage.getItem("efoo_wallet_provider") || sessionStorage.getItem("multiversx_provider") || "webwallet";
     if (savedAddr && savedAddr.startsWith("erd1")) {
       marketWallet.address = savedAddr;
-      marketWallet.provider = savedProv || "webwallet";
+      marketWallet.provider = savedProv;
+      try {
+        localStorage.setItem("efoo_wallet_address", savedAddr);
+        localStorage.setItem("efoo_wallet_provider", savedProv);
+        localStorage.setItem("multiversx_address", savedAddr);
+        localStorage.setItem("multiversx_provider", savedProv);
+        localStorage.setItem("efoo_connected_address", savedAddr);
+      } catch (e) {}
       fetchWalletBalances(savedAddr);
       fetchWalletNfts(savedAddr);
     } else {
@@ -1173,6 +1180,13 @@ async function disconnectWallet() {
     localStorage.removeItem("walletconnect");
     localStorage.removeItem("efoo_user_wallet");
 
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && (k.startsWith("wc@2:") || k.startsWith("walletconnect"))) {
+        localStorage.removeItem(k);
+      }
+    }
+
     sessionStorage.removeItem("multiversx_address");
     sessionStorage.removeItem("multiversx_provider");
     sessionStorage.removeItem("efoo_connected_address");
@@ -1200,6 +1214,30 @@ async function disconnectWallet() {
   );
 }
 
+// Cross-tab & Multi-page Synchronous Wallet State Listener
+window.addEventListener("storage", (e) => {
+  if (e.key === "efoo_wallet_address" || e.key === "multiversx_address" || e.key === null) {
+    const newAddr = localStorage.getItem("efoo_wallet_address") || localStorage.getItem("multiversx_address") || "";
+    const newProv = localStorage.getItem("efoo_wallet_provider") || localStorage.getItem("multiversx_provider") || "webwallet";
+    if (newAddr && newAddr.startsWith("erd1") && newAddr !== marketWallet.address) {
+      marketWallet.address = newAddr;
+      marketWallet.provider = newProv;
+      fetchWalletBalances(newAddr);
+      fetchWalletNfts(newAddr);
+      updateWalletUI();
+      renderMarketplaceGrid();
+      renderMyLockerGrid();
+    } else if (!newAddr && marketWallet.address) {
+      marketWallet.address = null;
+      marketWallet.provider = null;
+      marketWallet.ownedNfts = [];
+      updateWalletUI();
+      renderMarketplaceGrid();
+      renderMyLockerGrid();
+    }
+  }
+});
+
 function connectManualAddress(raw, provider = "inspector") {
   const addr = (raw || "").trim();
   if (!addr.startsWith("erd1") || addr.length < 50) {
@@ -1213,6 +1251,7 @@ function connectManualAddress(raw, provider = "inspector") {
     localStorage.setItem("multiversx_provider", provider);
     localStorage.setItem("efoo_wallet_address", addr);
     localStorage.setItem("efoo_wallet_provider", provider);
+    localStorage.setItem("efoo_connected_address", addr);
   } catch (e) {}
   fetchWalletBalances(addr);
   fetchWalletNfts(addr);

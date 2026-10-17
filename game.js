@@ -1217,8 +1217,22 @@ const audio = new ModernStadiumAudio();
 // ============================================================================
 let currentLang = "en";
 localStorage.setItem("efoo_game_lang", "en");
-let connectedAddress = localStorage.getItem("efoo_wallet_address") || "";
-let connectedProvider = localStorage.getItem("efoo_wallet_provider") || "";
+let connectedAddress = localStorage.getItem("efoo_wallet_address") || localStorage.getItem("multiversx_address") || "";
+let connectedProvider = localStorage.getItem("efoo_wallet_provider") || localStorage.getItem("multiversx_provider") || "webwallet";
+if (connectedAddress && connectedAddress.startsWith("erd1qyu5wthldz")) {
+  connectedAddress = "";
+  connectedProvider = "";
+  localStorage.removeItem("efoo_wallet_address");
+  localStorage.removeItem("multiversx_address");
+}
+if (connectedAddress && connectedAddress.startsWith("erd1")) {
+  try {
+    localStorage.setItem("efoo_wallet_address", connectedAddress);
+    localStorage.setItem("efoo_wallet_provider", connectedProvider);
+    localStorage.setItem("multiversx_address", connectedAddress);
+    localStorage.setItem("multiversx_provider", connectedProvider);
+  } catch (e) {}
+}
 let wcSignClient = null;
 let wcSessionTopic = localStorage.getItem("efoo_wc_topic") || "";
 let pendingGateAction = null; // "buy_efoo" | "mint_nft" | null
@@ -1242,9 +1256,10 @@ function isMobileScreen() {
 }
 
 // If wallet address is present and DeFi extension is available, prefer extension to avoid webwallet redirects
-if (connectedAddress && typeof window !== "undefined" && window.elrondWallet && connectedProvider !== "xportal") {
+if (connectedAddress && typeof window !== "undefined" && window.elrondWallet && connectedProvider !== "xportal" && connectedProvider !== "inspector") {
   connectedProvider = "extension";
   localStorage.setItem("efoo_wallet_provider", "extension");
+  localStorage.setItem("multiversx_provider", "extension");
 }
 
 // Sanitize any legacy demo/inspector session so only real authenticated wallets work
@@ -4878,37 +4893,52 @@ async function signWithExtension(preparedTxs) {
 }
 
 async function connectDefiExtension() {
-  const ext = window.elrondWallet || window.multiversx || window.elrond;
+  const isHu = currentLang === "hu";
+  let ext = window.elrondWallet || window.multiversx || window.elrond;
   if (!ext) {
-    window.open(
-      "https://chromewebstore.google.com/detail/multiversx-defi-wallet/dngmlblcodfobpdpecaadgfbcggfjfnm",
-      "_blank"
+    await new Promise((r) => setTimeout(r, 200));
+    ext = window.elrondWallet || window.multiversx || window.elrond;
+  }
+
+  if (!ext) {
+    const confirmInstall = confirm(
+      isHu
+        ? "A MultiversX DeFi Wallet bővítmény nem található ebben a böngészőben.\n\nKattints az OK gombra a Web Wallet megnyitásához, vagy telepítsd a bővítményt a Chrome Áruházból!"
+        : "MultiversX DeFi Wallet Extension was not detected in this browser.\n\nPress OK to sign in via MultiversX Web Wallet instead (or install the extension from Chrome Web Store)."
     );
+    if (confirmInstall) {
+      window.location.href = getMultiversXLoginHookUrl();
+    }
     return;
   }
+
   try {
-    let addr = "";
-    if (typeof ext.login === "function") {
-      const res = await ext.login();
-      addr = typeof res === "string" ? res : res && res.address ? res.address : "";
-    } else {
-      const res = await sendExtensionMessage("connect", {});
-      addr = typeof res === "string" ? res : res && res.address ? res.address : "";
-    }
+    const res = await sendExtensionMessage("connect", "");
+    const addr = typeof res === "string" ? res : res && res.address ? res.address : "";
     if (addr && addr.startsWith("erd1")) {
       connectWithAddress(addr, "extension");
       showToast(
-        currentLang === "hu"
+        isHu
           ? `✅ Sikeresen csatlakozva: ${shortErd(addr)}!`
           : `✅ Connected via MultiversX DeFi Extension (${shortErd(addr)})!`
       );
+      return;
     }
   } catch (err) {
     console.warn("Extension connect cancelled or failed:", err);
+    const msg = (err?.message || "").toLowerCase();
+    if (msg.includes("cancel") || msg.includes("reject") || msg.includes("denied")) {
+      showToast(
+        isHu
+          ? "❌ A tárca csatlakozást elutasítottad a bővítményben."
+          : "❌ Connection rejected in wallet extension."
+      );
+      return;
+    }
     showToast(
-      currentLang === "hu"
-        ? "❌ A tárca csatlakozást elutasítottad vagy megszakadt."
-        : "❌ Extension connection cancelled or rejected."
+      isHu
+        ? "⚠️ Nem sikerült a csatlakozás a bővítményhez."
+        : "⚠️ Could not connect to extension."
     );
   }
 }
@@ -4924,8 +4954,13 @@ function connectWithAddress(address, provider = "webwallet") {
 
   connectedAddress = clean;
   connectedProvider = provider;
-  localStorage.setItem("efoo_wallet_address", clean);
-  localStorage.setItem("efoo_wallet_provider", provider);
+  try {
+    localStorage.setItem("efoo_wallet_address", clean);
+    localStorage.setItem("efoo_wallet_provider", provider);
+    localStorage.setItem("multiversx_address", clean);
+    localStorage.setItem("multiversx_provider", provider);
+    localStorage.setItem("efoo_connected_address", clean);
+  } catch (e) {}
   document.getElementById("wallet-modal-backdrop")?.classList.add("hidden");
   document.getElementById("nav-wallet-label").textContent = shortErd(clean);
   updateOwnerAdminVisibility(clean);
@@ -5019,6 +5054,13 @@ async function disconnectWallet() {
     localStorage.removeItem("multiversx_address");
     localStorage.removeItem("multiversx_provider");
     localStorage.removeItem("efoo_user_wallet");
+
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && (k.startsWith("wc@2:") || k.startsWith("walletconnect"))) {
+        localStorage.removeItem(k);
+      }
+    }
   } catch (e) {}
 
   // Clear all session storage keys
@@ -5079,6 +5121,35 @@ async function disconnectWallet() {
         : "🚪 Wallet disconnected successfully!")
   );
 }
+
+// Cross-tab & Multi-page Synchronous Wallet State Listener
+window.addEventListener("storage", (e) => {
+  if (e.key === "efoo_wallet_address" || e.key === "multiversx_address" || e.key === null) {
+    const newAddr = localStorage.getItem("efoo_wallet_address") || localStorage.getItem("multiversx_address") || "";
+    const newProv = localStorage.getItem("efoo_wallet_provider") || localStorage.getItem("multiversx_provider") || "webwallet";
+    if (newAddr && newAddr.startsWith("erd1") && newAddr !== connectedAddress) {
+      connectedAddress = newAddr;
+      connectedProvider = newProv;
+      const lbl = document.getElementById("nav-wallet-label");
+      if (lbl) lbl.textContent = shortErd(connectedAddress);
+      updateOwnerAdminVisibility(connectedAddress);
+      updateEntryGateUI();
+      fetchWalletNftsAndBalance(connectedAddress);
+    } else if (!newAddr && connectedAddress) {
+      connectedAddress = "";
+      connectedProvider = "";
+      walletState.efooBalance = 0;
+      walletState.playersCount = 0;
+      walletState.keepersCount = 0;
+      walletState.ownedNfts = [];
+      updateOwnerAdminVisibility("");
+      const lbl = document.getElementById("nav-wallet-label");
+      if (lbl) lbl.textContent = typeof I18N_GAME !== "undefined" && I18N_GAME[currentLang] ? I18N_GAME[currentLang].btn_connect : "Connect";
+      updateEntryGateUI();
+      refreshHudUI();
+    }
+  }
+});
 
 async function fetchWalletNftsAndBalance(address) {
   if (!address) return;
@@ -6474,13 +6545,15 @@ function metaOnMatchEnd({ level, score, goals, cleared, perfect }) {
 // INIT & BINDINGS
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
-  if (connectedAddress && typeof window !== "undefined" && window.elrondWallet && connectedProvider !== "xportal") {
+  if (connectedAddress && typeof window !== "undefined" && window.elrondWallet && connectedProvider !== "xportal" && connectedProvider !== "inspector") {
     connectedProvider = "extension";
     localStorage.setItem("efoo_wallet_provider", "extension");
+    localStorage.setItem("multiversx_provider", "extension");
   }
   checkUrlWalletCallbacks().then((handledLogin) => {
     if (!handledLogin && connectedAddress && VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
       document.getElementById("nav-wallet-label").textContent = shortErd(connectedAddress);
+      updateEntryGateUI();
       fetchWalletNftsAndBalance(connectedAddress);
     }
   });

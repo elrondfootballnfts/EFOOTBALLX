@@ -807,12 +807,28 @@ let currentLang = "en";
 if (localStorage.getItem("efoo_wallet_provider") === "demo") {
   localStorage.removeItem("efoo_wallet_provider");
   localStorage.removeItem("efoo_wallet_address");
+  localStorage.removeItem("multiversx_address");
+  localStorage.removeItem("multiversx_provider");
 }
-let connectedAddress = localStorage.getItem("efoo_wallet_address") || "";
-let connectedProvider = localStorage.getItem("efoo_wallet_provider") || ""; // "xportal" | "extension" | "webwallet" | "inspector"
-if (connectedAddress && typeof window !== "undefined" && window.elrondWallet && connectedProvider !== "xportal") {
+let connectedAddress = localStorage.getItem("efoo_wallet_address") || localStorage.getItem("multiversx_address") || "";
+let connectedProvider = localStorage.getItem("efoo_wallet_provider") || localStorage.getItem("multiversx_provider") || "webwallet";
+if (connectedAddress && connectedAddress.startsWith("erd1qyu5wthldz")) {
+  connectedAddress = "";
+  connectedProvider = "";
+  localStorage.removeItem("efoo_wallet_address");
+  localStorage.removeItem("multiversx_address");
+}
+if (connectedAddress && typeof window !== "undefined" && window.elrondWallet && connectedProvider !== "xportal" && connectedProvider !== "inspector") {
   connectedProvider = "extension";
-  localStorage.setItem("efoo_wallet_provider", "extension");
+}
+if (connectedAddress && connectedAddress.startsWith("erd1")) {
+  try {
+    localStorage.setItem("efoo_wallet_address", connectedAddress);
+    localStorage.setItem("efoo_wallet_provider", connectedProvider);
+    localStorage.setItem("multiversx_address", connectedAddress);
+    localStorage.setItem("multiversx_provider", connectedProvider);
+    localStorage.setItem("efoo_connected_address", connectedAddress);
+  } catch (e) {}
 }
 let wcSignClient = null;
 let wcSessionTopic = localStorage.getItem("efoo_wc_topic") || "";
@@ -1960,8 +1976,13 @@ async function checkUrlCallbacks() {
   if (addrFromHook && addrFromHook.startsWith("erd1")) {
     connectedAddress = addrFromHook.trim();
     connectedProvider = "webwallet";
-    localStorage.setItem("efoo_wallet_address", connectedAddress);
-    localStorage.setItem("efoo_wallet_provider", connectedProvider);
+    try {
+      localStorage.setItem("efoo_wallet_address", connectedAddress);
+      localStorage.setItem("efoo_wallet_provider", connectedProvider);
+      localStorage.setItem("multiversx_address", connectedAddress);
+      localStorage.setItem("multiversx_provider", connectedProvider);
+      localStorage.setItem("efoo_connected_address", connectedAddress);
+    } catch (e) {}
     showToast(
       currentLang === "ro"
         ? `✅ Conectat prin MultiversX Web Wallet (${shortErd(connectedAddress)})!`
@@ -2041,8 +2062,13 @@ async function connectWithWalletAddress(address, providerType = "inspector") {
 
   connectedAddress = address.trim();
   connectedProvider = providerType;
-  localStorage.setItem("efoo_wallet_address", connectedAddress);
-  localStorage.setItem("efoo_wallet_provider", connectedProvider);
+  try {
+    localStorage.setItem("efoo_wallet_address", connectedAddress);
+    localStorage.setItem("efoo_wallet_provider", connectedProvider);
+    localStorage.setItem("multiversx_address", connectedAddress);
+    localStorage.setItem("multiversx_provider", connectedProvider);
+    localStorage.setItem("efoo_connected_address", connectedAddress);
+  } catch (e) {}
   closeWalletModal();
   updateWalletStatusUI();
   updateSwapEstimate();
@@ -2118,6 +2144,13 @@ async function disconnectWallet() {
     localStorage.removeItem("multiversx_provider");
     localStorage.removeItem("efoo_user_wallet");
 
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && (k.startsWith("wc@2:") || k.startsWith("walletconnect"))) {
+        localStorage.removeItem(k);
+      }
+    }
+
     sessionStorage.removeItem("efoo_connected_address");
     sessionStorage.removeItem("efoo_wallet_address");
     sessionStorage.removeItem("efoo_wallet_provider");
@@ -2151,6 +2184,28 @@ async function disconnectWallet() {
       : "🚪 Logged out successfully (xPortal & browser sessions closed)!"
   );
 }
+
+// Cross-tab & Multi-page Synchronous Wallet State Listener
+window.addEventListener("storage", (e) => {
+  if (e.key === "efoo_wallet_address" || e.key === "multiversx_address" || e.key === null) {
+    const newAddr = localStorage.getItem("efoo_wallet_address") || localStorage.getItem("multiversx_address") || "";
+    const newProv = localStorage.getItem("efoo_wallet_provider") || localStorage.getItem("multiversx_provider") || "webwallet";
+    if (newAddr && newAddr.startsWith("erd1") && newAddr !== connectedAddress) {
+      connectedAddress = newAddr;
+      connectedProvider = newProv;
+      updateWalletStatusUI();
+      fetchConnectedWalletData(connectedAddress);
+    } else if (!newAddr && connectedAddress) {
+      connectedAddress = "";
+      connectedProvider = "";
+      walletState.efooBalance = 0;
+      walletState.egldBalance = 0;
+      walletState.ownedNfts = [];
+      updateWalletStatusUI();
+      renderOwnedNftsGallery();
+    }
+  }
+});
 
 function updateWalletStatusUI() {
   const navLabel = document.getElementById("nav-wallet-label");
