@@ -120,6 +120,146 @@ function toBase64Data(str) {
   }
 }
 
+// ============================================================================
+// BECH32 & ON-CHAIN SC LISTING STRUCT DECODERS
+// ============================================================================
+const BECH32_ALPHABET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
+
+function bech32Polymod(values) {
+  const GENERATOR = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
+  let chk = 1;
+  for (let p = 0; p < values.length; ++p) {
+    const top = chk >> 25;
+    chk = ((chk & 0x1ffffff) << 5) ^ values[p];
+    for (let i = 0; i < 5; ++i) {
+      if ((top >> i) & 1) chk ^= GENERATOR[i];
+    }
+  }
+  return chk;
+}
+
+function bech32HrpExpand(hrp) {
+  const ret = [];
+  for (let p = 0; p < hrp.length; ++p) ret.push(hrp.charCodeAt(p) >> 5);
+  ret.push(0);
+  for (let p = 0; p < hrp.length; ++p) ret.push(hrp.charCodeAt(p) & 31);
+  return ret;
+}
+
+function hexToBech32Address(hex, hrp = "erd") {
+  if (!hex || hex.length !== 64) return "";
+  try {
+    const bytes = [];
+    for (let i = 0; i < hex.length; i += 2) bytes.push(parseInt(hex.substr(i, 2), 16));
+    let bits = 0, value = 0, data = [];
+    for (let b of bytes) {
+      value = (value << 8) | b;
+      bits += 8;
+      while (bits >= 5) {
+        bits -= 5;
+        data.push((value >> bits) & 31);
+      }
+    }
+    if (bits > 0) data.push((value << (5 - bits)) & 31);
+    const values = bech32HrpExpand(hrp).concat(data).concat([0, 0, 0, 0, 0, 0]);
+    const mod = bech32Polymod(values) ^ 1;
+    const checksum = [];
+    for (let p = 0; p < 6; ++p) checksum.push((mod >> (5 * (5 - p))) & 31);
+    return hrp + "1" + data.concat(checksum).map((d) => BECH32_ALPHABET[d]).join("");
+  } catch (e) {
+    return "";
+  }
+}
+
+function decodeBase64ToUint8(b64) {
+  const bin = atob(b64);
+  const u8 = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  return u8;
+}
+
+function parseScListingStruct(b64) {
+  try {
+    const u8 = decodeBase64ToUint8(b64);
+    const view = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+    let offset = 0;
+
+    let sellerHex = "";
+    for (let i = 0; i < 32; i++) sellerHex += u8[offset + i].toString(16).padStart(2, "0");
+    offset += 32;
+
+    const tokenIdLen = view.getUint32(offset, false);
+    offset += 4;
+    let tokenId = "";
+    for (let i = 0; i < tokenIdLen; i++) tokenId += String.fromCharCode(u8[offset + i]);
+    offset += tokenIdLen;
+
+    const nonceHigh = view.getUint32(offset, false);
+    const nonceLow = view.getUint32(offset + 4, false);
+    const nonce = (BigInt(nonceHigh) << 32n) | BigInt(nonceLow);
+    offset += 8;
+
+    const payLen = view.getUint32(offset, false);
+    offset += 4;
+    let paymentToken = "";
+    for (let i = 0; i < payLen; i++) paymentToken += String.fromCharCode(u8[offset + i]);
+    offset += payLen;
+
+    const priceLen = view.getUint32(offset, false);
+    offset += 4;
+    let priceHex = "";
+    for (let i = 0; i < priceLen; i++) priceHex += u8[offset + i].toString(16).padStart(2, "0");
+    const priceBig = BigInt("0x" + (priceHex || "0"));
+
+    const nonceNum = Number(nonce);
+    const nonceHex = nonceNum.toString(16).padStart(nonceNum < 256 ? 2 : 4, "0");
+    const identifier = `${tokenId}-${nonceHex}`;
+
+    return {
+      sellerHex,
+      tokenId,
+      nonce: nonceNum,
+      identifier,
+      paymentToken: paymentToken || "EGLD",
+      priceBig,
+      price: Number(priceBig) / 1e18
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+// ============================================================================
+// OFFICIAL CRYPTO LOGO BADGE GENERATOR FOR NFT PRICES
+// ============================================================================
+function getCurrencyBadgeHtml(currency) {
+  const rawCur = String(currency || "EFOO").trim().replace(/^\$/, "");
+  const cur = rawCur.toUpperCase();
+
+  let iconSrc = "branding/icons/efoo-logo.png";
+  let ticker = "$EFOO";
+  let isRound = true;
+
+  if (cur === "EGLD" || cur === "WEGLD") {
+    iconSrc = "branding/icons/egld-logo.svg";
+    ticker = "EGLD";
+    isRound = false;
+  } else if (cur === "USDC") {
+    iconSrc = "branding/icons/usdc-logo.svg";
+    ticker = "USDC";
+    isRound = false;
+  } else if (typeof SWAP_TOKENS !== "undefined" && SWAP_TOKENS[cur]) {
+    iconSrc = SWAP_TOKENS[cur].icon;
+    ticker = SWAP_TOKENS[cur].symbol || cur;
+    isRound = !!SWAP_TOKENS[cur].isRound;
+  }
+
+  return `<span class="m-price-curr-pill" title="${ticker}">
+    <img src="${iconSrc}" alt="${ticker}" class="m-price-curr-logo ${isRound ? 'round' : ''}" />
+    <span class="m-price-curr-ticker">${ticker}</span>
+  </span>`;
+}
+
 let currentMarketWcUri = "";
 
 function getMarketDefiExtension() {
@@ -1146,16 +1286,63 @@ async function fetchLiveScListings() {
   if (!STADIUM_VAULT_SC || !STADIUM_VAULT_SC.startsWith("erd1qqqq")) return [];
   isFetchingScListings = true;
   try {
+    // 1. Fetch on-chain active listings directly from smart contract view getAllListings
+    const scListingsMap = new Map();
+    try {
+      const qRes = await fetch(`${MULTIVERSX_API}/vm-values/query`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          scAddress: STADIUM_VAULT_SC,
+          funcName: "getAllListings",
+          args: []
+        })
+      });
+      if (qRes.ok) {
+        const qData = await qRes.json();
+        const returnData = qData?.data?.data?.returnData || [];
+        for (const b64 of returnData) {
+          const parsed = parseScListingStruct(b64);
+          if (parsed && parsed.identifier) {
+            scListingsMap.set(parsed.identifier, parsed);
+          }
+        }
+      }
+    } catch (scErr) {
+      console.warn("Failed querying getAllListings on SC:", scErr);
+    }
+
+    // 2. Fetch NFTs currently deposited in the smart contract escrow account
     const res = await fetch(`${MULTIVERSX_API}/accounts/${STADIUM_VAULT_SC}/nfts?size=50`);
     if (res.ok) {
       const escrowNfts = await res.json();
       if (Array.isArray(escrowNfts) && escrowNfts.length > 0) {
+        // Also check local marketplace storage in case user just listed and query has delay
+        const localListings = getMarketplaceListings();
+        const localMap = new Map(localListings.map((x) => [x.identifier, x]));
+
         const scItems = [];
         for (const it of escrowNfts) {
           const tier = getNftRarityTier(it);
-          let price = 0.5;
+          const scInfo = scListingsMap.get(it.identifier);
+          const localInfo = localMap.get(it.identifier);
+
+          let price = 0.05;
           let currency = "EGLD";
           let seller = "On-Chain Escrow";
+
+          if (scInfo) {
+            price = scInfo.price;
+            currency = scInfo.paymentToken === "EFOO-8fe2d4" ? "EFOO" : scInfo.paymentToken;
+            if (scInfo.sellerHex) {
+              const bech32Addr = hexToBech32Address(scInfo.sellerHex);
+              if (bech32Addr) seller = bech32Addr;
+            }
+          } else if (localInfo) {
+            price = localInfo.price;
+            currency = localInfo.currency;
+            seller = localInfo.seller;
+          }
 
           scItems.push({
             id: `sc-${it.identifier}`,
@@ -1719,9 +1906,10 @@ function renderMarketplaceGrid() {
     card.style.setProperty("--tier-color", tier.borderColor);
     card.style.setProperty("--tier-glow", `${tier.borderColor}66`);
 
-    const formattedPrice = item.currency === "EGLD"
-      ? (typeof item.price === "number" ? item.price.toFixed(3) : item.price)
-      : item.price.toLocaleString("en-US");
+    const isEgld = item.currency === "EGLD" || item.currency === "WEGLD";
+    const formattedPrice = isEgld
+      ? (typeof item.price === "number" ? item.price.toFixed(3) : Number(item.price).toFixed(3))
+      : (typeof item.price === "number" ? item.price.toLocaleString("en-US") : item.price);
 
     const sellerShort = isOwner
       ? (isHu ? "Te (Tulajdonos)" : (isRo ? "Tu (Proprietar)" : "You (Owner)"))
@@ -1731,12 +1919,15 @@ function renderMarketplaceGrid() {
       ${
         isNative
           ? `<div class="mnc-circuit-frame" aria-hidden="true">
-               <svg class="circuit-corner tl" viewBox="0 0 48 48"><path d="M 0,28 L 0,10 Q 0,0 10,0 L 28,0" class="cc-outer"/><path d="M 6,18 L 14,10 L 32,10" class="cc-inner"/><circle cx="32" cy="10" r="2.2" class="cc-node"/><circle cx="0" cy="28" r="1.8" class="cc-node"/></svg>
-               <svg class="circuit-corner tr" viewBox="0 0 48 48"><path d="M 48,28 L 48,10 Q 48,0 38,0 L 20,0" class="cc-outer"/><path d="M 42,18 L 34,10 L 16,10" class="cc-inner"/><circle cx="16" cy="10" r="2.2" class="cc-node"/><circle cx="48" cy="28" r="1.8" class="cc-node"/></svg>
-               <svg class="circuit-corner bl" viewBox="0 0 48 48"><path d="M 0,20 L 0,38 Q 0,48 10,48 L 28,48" class="cc-outer"/><path d="M 6,30 L 14,38 L 32,38" class="cc-inner"/><circle cx="32" cy="38" r="2.2" class="cc-node"/><circle cx="0" cy="20" r="1.8" class="cc-node"/></svg>
-               <svg class="circuit-corner br" viewBox="0 0 48 48"><path d="M 48,20 L 48,38 Q 48,48 38,48 L 20,48" class="cc-outer"/><path d="M 42,30 L 34,38 L 16,38" class="cc-inner"/><circle cx="16" cy="38" r="2.2" class="cc-node"/><circle cx="48" cy="20" r="1.8" class="cc-node"/></svg>
+               <div class="circuit-top-bar"></div>
+               <div class="circuit-bot-bar"></div>
+               <svg class="circuit-corner tl" viewBox="0 0 54 54"><path d="M 0,36 L 0,12 Q 0,0 12,0 L 36,0" class="cc-outer"/><path d="M 8,24 L 18,14 L 38,14" class="cc-inner"/><circle cx="38" cy="14" r="3" class="cc-node"/><circle cx="0" cy="36" r="2.5" class="cc-node"/></svg>
+               <svg class="circuit-corner tr" viewBox="0 0 54 54"><path d="M 54,36 L 54,12 Q 54,0 42,0 L 18,0" class="cc-outer"/><path d="M 46,24 L 36,14 L 16,14" class="cc-inner"/><circle cx="16" cy="14" r="3" class="cc-node"/><circle cx="54" cy="36" r="2.5" class="cc-node"/></svg>
+               <svg class="circuit-corner bl" viewBox="0 0 54 54"><path d="M 0,18 L 0,42 Q 0,54 12,54 L 36,54" class="cc-outer"/><path d="M 8,30 L 18,40 L 38,40" class="cc-inner"/><circle cx="38" cy="40" r="3" class="cc-node"/><circle cx="0" cy="18" r="2.5" class="cc-node"/></svg>
+               <svg class="circuit-corner br" viewBox="0 0 54 54"><path d="M 54,18 L 54,42 Q 54,54 42,54 L 18,54" class="cc-outer"/><path d="M 46,30 L 36,40 L 16,40" class="cc-inner"/><circle cx="16" cy="40" r="3" class="cc-node"/><circle cx="54" cy="18" r="2.5" class="cc-node"/></svg>
                <div class="circuit-bus-l"></div>
                <div class="circuit-bus-r"></div>
+               <div class="circuit-frame-badge"><span class="cfb-dot"></span>NFOOT ESCROW</div>
              </div>`
           : ""
       }
@@ -1779,7 +1970,10 @@ function renderMarketplaceGrid() {
         <div class="mnc-footer">
           <div class="mnc-price-box">
             <span class="mnc-price-lbl">ASKING PRICE</span>
-            <strong class="mnc-price-val">${formattedPrice} $${item.currency || "EFOO"}</strong>
+            <div class="mnc-price-row">
+              <strong class="mnc-price-val">${formattedPrice}</strong>
+              ${getCurrencyBadgeHtml(item.currency)}
+            </div>
             <span class="mnc-seller-lbl">${item.isXoxno ? "⚡ XOXNO Listing" : `Seller: ${sellerShort}${hasUltrasPass(item.seller) ? ' <span class="mnc-seller-vip-crown" title="0% Fee VIP Ultras Seller">👑 VIP</span>' : ''}`}</span>
           </div>
 
@@ -2002,9 +2196,14 @@ function renderMyLockerGrid() {
         <div class="mnc-footer">
           <div class="mnc-price-box">
             <span class="mnc-price-lbl">STATUS</span>
-            <strong class="mnc-price-val" style="color:${isListed ? 'var(--gold)' : 'var(--neon)'};">
-              ${isListed ? `${isListed.price.toLocaleString("en-US")} $${isListed.currency}` : "Available in Locker"}
-            </strong>
+            ${
+              isListed
+                ? `<div class="mnc-price-row">
+                     <strong class="mnc-price-val" style="color:var(--gold);">${isListed.currency === "EGLD" ? Number(isListed.price).toFixed(3) : Number(isListed.price).toLocaleString("en-US")}</strong>
+                     ${getCurrencyBadgeHtml(isListed.currency)}
+                   </div>`
+                : `<strong class="mnc-price-val" style="color:var(--neon);">Available in Locker</strong>`
+            }
           </div>
 
           <div class="mnc-action-wrap">
@@ -2951,11 +3150,23 @@ function openNftDetailsModal(nft) {
   }
 
   // Price & Actions
-  const listings = getMarketplaceListings();
-  const listedItem = listings.find((x) => x.id === nft.id || x.identifier === nft.identifier);
+  const allListings = getAllActiveListings();
+  const listedItem = allListings.find((x) => x.id === nft.id || x.identifier === nft.identifier) || getMarketplaceListings().find((x) => x.id === nft.id || x.identifier === nft.identifier);
 
   if (listedItem) {
-    if (priceVal) priceVal.textContent = `${listedItem.price.toLocaleString()} $${listedItem.currency || "EFOO"}`;
+    const isEgld = listedItem.currency === "EGLD" || listedItem.currency === "WEGLD";
+    const formattedPrice = isEgld
+      ? (typeof listedItem.price === "number" ? listedItem.price.toFixed(3) : Number(listedItem.price).toFixed(3))
+      : (typeof listedItem.price === "number" ? listedItem.price.toLocaleString("en-US") : listedItem.price);
+
+    if (priceVal) {
+      priceVal.innerHTML = `
+        <div style="display:inline-flex; align-items:center; gap:8px;">
+          <span style="font-family:var(--font-bebas); font-size:1.85rem; color:#ffffff; line-height:1;">${formattedPrice}</span>
+          ${getCurrencyBadgeHtml(listedItem.currency)}
+        </div>
+      `;
+    }
     const curAddr = marketWallet.address ? marketWallet.address.toLowerCase() : "";
     const isOwner = curAddr && listedItem.seller && listedItem.seller.toLowerCase() === curAddr;
 

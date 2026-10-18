@@ -850,22 +850,34 @@ body {
 }
 
 /* =====================================================================
-   NATIVE NFOOT MARKETPLACE LISTING CARDS
-   - Thicker futuristic cyber circuit border (maintains tier rank colors)
-   - Glowing cyber corner accents & side bus connectors
+   NATIVE NFOOT MARKETPLACE LISTING CARDS (FUTURISTIC MECHA PHOTO FRAME)
+   - Heavy cybernetic slab / photo frame chassis
+   - Thick futuristic border (maintains tier rank colors)
+   - High-tech inner neon bevel chamfer & glowing energy conduits
    ===================================================================== */
 .m-nft-card.is-nfoot-native {
-  border-width: 3.5px !important;
+  border-width: 5.5px !important;
   border-style: solid !important;
-  border-color: var(--tier-color, #38bdf8) !important;
+  border-color: var(--tier-color, #23f7dd) !important;
+  border-radius: 20px !important;
   position: relative;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.8), 0 0 24px var(--tier-glow, rgba(56, 189, 248, 0.4)) !important;
+  background: linear-gradient(180deg, #0e1520 0%, #070b10 100%) !important;
+  box-shadow: 
+    inset 0 0 0 2px rgba(255, 255, 255, 0.28),
+    inset 0 0 24px var(--tier-glow, rgba(35, 247, 221, 0.35)),
+    0 18px 45px rgba(0, 0, 0, 0.92),
+    0 0 35px var(--tier-glow, rgba(35, 247, 221, 0.5)) !important;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .m-nft-card.is-nfoot-native:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 38px var(--tier-glow, rgba(56, 189, 248, 0.65)) !important;
+  transform: translateY(-8px);
+  border-color: #ffffff !important;
+  box-shadow: 
+    inset 0 0 0 2.5px rgba(255, 255, 255, 0.45),
+    inset 0 0 32px var(--tier-glow, rgba(35, 247, 221, 0.55)),
+    0 24px 60px rgba(0, 0, 0, 0.95),
+    0 0 50px var(--tier-glow, rgba(35, 247, 221, 0.8)) !important;
 }
 
 /* Circuit Frame Overlay inside Card */
@@ -874,57 +886,99 @@ body {
   inset: 0;
   pointer-events: none;
   z-index: 8;
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
 }
 
 .circuit-corner {
   position: absolute;
-  width: 44px;
-  height: 44px;
+  width: 52px;
+  height: 52px;
 }
 
-.circuit-corner.tl { top: 0; left: 0; }
-.circuit-corner.tr { top: 0; right: 0; }
-.circuit-corner.bl { bottom: 0; left: 0; }
-.circuit-corner.br { bottom: 0; right: 0; }
+.circuit-corner.tl { top: -1px; left: -1px; }
+.circuit-corner.tr { top: -1px; right: -1px; }
+.circuit-corner.bl { bottom: -1px; left: -1px; }
+.circuit-corner.br { bottom: -1px; right: -1px; }
 
 .circuit-corner .cc-outer {
   fill: none;
-  stroke: var(--tier-color, #38bdf8);
-  stroke-width: 3.5;
-  stroke-linecap: round;
-  filter: drop-shadow(0 0 4px var(--tier-color, #38bdf8));
+  stroke: var(--tier-color, #23f7dd);
+  stroke-width: 5;
+  stroke-linecap: square;
+  filter: drop-shadow(0 0 8px var(--tier-color, #23f7dd));
 }
 
 .circuit-corner .cc-inner {
   fill: none;
-  stroke: var(--tier-color, #38bdf8);
-  stroke-width: 1.8;
-  stroke-dasharray: 3 3;
+  stroke: #ffffff;
+  stroke-width: 2.4;
+  stroke-dasharray: 4 4;
   stroke-linecap: round;
-  opacity: 0.85;
+  opacity: 0.95;
+  filter: drop-shadow(0 0 4px #ffffff);
 }
 
 .circuit-corner .cc-node {
   fill: #ffffff;
-  stroke: var(--tier-color, #38bdf8);
-  stroke-width: 1;
-  filter: drop-shadow(0 0 5px var(--tier-color, #38bdf8));
+  stroke: var(--tier-color, #23f7dd);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 8px var(--tier-color, #23f7dd));
 }
 
 .circuit-bus-l, .circuit-bus-r {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 3px;
-  height: 38px;
-  background: var(--tier-color, #38bdf8);
-  box-shadow: 0 0 10px var(--tier-color, #38bdf8);
+  width: 5px;
+  height: 60px;
+  background: var(--tier-color, #23f7dd);
+  box-shadow: 0 0 16px var(--tier-color, #23f7dd), 0 0 6px #ffffff;
+  border-radius: 3px;
+}
+.circuit-bus-l { left: -1px; }
+.circuit-bus-r { right: -1px; }
+
+.circuit-top-bar, .circuit-bot-bar {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 4px;
+  background: var(--tier-color, #23f7dd);
+  box-shadow: 0 0 14px var(--tier-color, #23f7dd);
   border-radius: 2px;
 }
-.circuit-bus-l { left: 0; }
-.circuit-bus-r { right: 0; }
+.circuit-top-bar { top: -1px; }
+.circuit-bot-bar { bottom: -1px; }
+
+.circuit-frame-badge {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: var(--tier-color, #23f7dd);
+  background: rgba(5, 12, 18, 0.88);
+  border: 1px solid var(--tier-color, #23f7dd);
+  padding: 1px 7px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+  opacity: 0.9;
+}
+.circuit-frame-badge .cfb-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 6px #ffffff;
+}
 
 /* NFooT Marketplace Badge in top-right of media */
 .mnc-nfoot-badge {
@@ -1128,6 +1182,43 @@ body {
   font-size: 1.15rem;
   font-weight: 900;
   color: #ffffff;
+}
+
+.mnc-price-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 3px 0 4px 0;
+}
+
+.m-price-curr-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 2px 7px;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.m-price-curr-logo {
+  width: 17px;
+  height: 17px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.6));
+}
+
+.m-price-curr-logo.round {
+  border-radius: 50%;
+}
+
+.m-price-curr-ticker {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #f1f5f9;
+  letter-spacing: 0.03em;
 }
 
 .mnc-seller-lbl {
