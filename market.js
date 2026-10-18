@@ -264,9 +264,20 @@ async function connectMarketDefiExtension() {
   }
 
   try {
-    // Connect via standard inpage postMessage bridge (identical to app.js)
-    const res = await sendMarketExtensionMessage("connect", "");
-    const addr = typeof res === "string" ? res : (res && res.address ? res.address : "");
+    let addr = ext?.account?.address || ext?.address || "";
+    if (!addr && typeof ext.login === "function") {
+      try {
+        const res = await ext.login();
+        addr = typeof res === "string" ? res : (res && res.address ? res.address : "");
+      } catch (e) {
+        console.warn("Direct ext.login failed, trying postMessage bridge:", e);
+      }
+    }
+    if (!addr) {
+      const res = await sendMarketExtensionMessage("connect", "");
+      addr = typeof res === "string" ? res : (res && res.address ? res.address : "");
+    }
+
     if (addr && addr.startsWith("erd1")) {
       connectManualAddress(addr, "extension");
       document.getElementById("m-wallet-modal")?.classList.add("hidden");
@@ -330,6 +341,36 @@ function sendMarketExtensionMessage(type, data = "") {
   });
 }
 
+function normalizeSignedResult(res) {
+  if (!res) return null;
+  if (Array.isArray(res) && res.length > 0) return res;
+  if (res.transactions && Array.isArray(res.transactions) && res.transactions.length > 0) return res.transactions;
+  if (res.data && Array.isArray(res.data) && res.data.length > 0) return res.data;
+  if (res.data && res.data.transactions && Array.isArray(res.data.transactions)) return res.data.transactions;
+  if (typeof res === "object" && (res.signature || (res.signatures && res.signatures.length > 0) || res.txHash || res.hash)) return [res];
+  return null;
+}
+
+function extractSignatureHex(sig) {
+  if (!sig) return "";
+  if (typeof sig === "string") return sig;
+  if (typeof sig.hex === "function") return sig.hex();
+  if (typeof sig.hex === "string") return sig.hex;
+  if (sig instanceof Uint8Array || (Array.isArray(sig) && typeof sig[0] === "number")) {
+    return Array.from(sig).map((b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  if (typeof sig === "object") {
+    if (sig.data && (Array.isArray(sig.data) || sig.data instanceof Uint8Array)) {
+      return Array.from(sig.data).map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+    if (typeof sig.toString === "function") {
+      const s = sig.toString("hex");
+      if (s && s !== "[object Object]") return s;
+    }
+  }
+  return String(sig);
+}
+
 async function signMarketWithExtension(preparedTxs) {
   const extInputTxs = preparedTxs.map((t) => ({
     ...t,
@@ -339,26 +380,43 @@ async function signMarketWithExtension(preparedTxs) {
   const ext = window.elrondWallet || window.multiversx || window.elrond;
   if (ext && typeof ext.signTransactions === "function") {
     try {
-      const res = await ext.signTransactions(extInputTxs);
-      if (Array.isArray(res) && res.length > 0) return res;
+      const raw = await ext.signTransactions(extInputTxs);
+      const normalized = normalizeSignedResult(raw);
+      if (normalized) return normalized;
     } catch (e) {
       const msg = (e?.message || "").toLowerCase();
-      if (msg.includes("cancel") || msg.includes("reject") || msg.includes("denied")) {
+      if (msg.includes("cancel") || msg.includes("reject") || msg.includes("denied") || msg.includes("user cancel")) {
         throw e;
       }
       console.warn("Direct ext.signTransactions failed, trying postMessage bridge:", e);
     }
   }
 
-  return await sendMarketExtensionMessage("signTransactions", {
+  const res = await sendMarketExtensionMessage("signTransactions", {
     from: marketWallet.address,
     transactions: extInputTxs
   });
+  return normalizeSignedResult(res);
 }
 
 async function broadcastMarketSignedTransactions(signedTxs) {
   const hashes = [];
-  for (const tx of signedTxs) {
+  for (const rawTx of signedTxs) {
+    let tx = rawTx;
+    if (tx && typeof tx.toPlainObject === "function") {
+      try { tx = { ...tx.toPlainObject(), ...tx }; } catch (e) {}
+    }
+
+    // 1. If extension auto-broadcasted ("Sign & Submit") and already returned txHash / hash
+    const existingHash = tx.txHash || tx.hash || (typeof tx.getHash === "function" ? tx.getHash().hex() : null);
+    if (existingHash) {
+      hashes.push(existingHash);
+      continue;
+    }
+
+    const rawSig = tx.signature || (tx.signatures && tx.signatures[0]) || (typeof tx.getSignature === "function" ? tx.getSignature() : null);
+    const sigHex = extractSignatureHex(rawSig);
+
     const payload = {
       nonce: Number(tx.nonce),
       value: String(tx.value || "0"),
@@ -369,7 +427,7 @@ async function broadcastMarketSignedTransactions(signedTxs) {
       data: tx.dataIsBase64 ? tx.data : toBase64Data(tx.data || ""),
       chainID: String(tx.chainID || "1"),
       version: Number(tx.version || 1),
-      signature: String(tx.signature)
+      signature: sigHex
     };
     if (tx.options !== undefined && tx.options !== null && Number(tx.options) !== 0) {
       payload.options = Number(tx.options);
@@ -377,17 +435,55 @@ async function broadcastMarketSignedTransactions(signedTxs) {
     if (tx.guardian) payload.guardian = tx.guardian;
     if (tx.guardianSignature) payload.guardianSignature = tx.guardianSignature;
 
-    const res = await fetch("https://api.multiversx.com/transactions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) {
-      const errBody = await res.text();
-      throw new Error(`MultiversX broadcast error: ${errBody}`);
+    let txSent = false;
+    // Primary: API endpoint
+    try {
+      const res = await fetch("https://api.multiversx.com/transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const resData = await res.json();
+        if (resData.txHash) {
+          hashes.push(resData.txHash);
+          txSent = true;
+        }
+      } else {
+        const errText = await res.text();
+        if (errText.includes("already exists") || errText.includes("lowerNonceInTx")) {
+          console.log("Transaction already submitted/in pool:", errText);
+          txSent = true;
+        }
+      }
+    } catch (e) {
+      console.warn("API broadcast failed, trying gateway fallback:", e);
     }
-    const resData = await res.json();
-    if (resData.txHash) hashes.push(resData.txHash);
+
+    // Fallback: Gateway endpoint
+    if (!txSent) {
+      const gRes = await fetch("https://gateway.multiversx.com/transaction/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (gRes.ok) {
+        const gData = await gRes.json();
+        const h = gData?.data?.txHash || gData?.txHash;
+        if (h) {
+          hashes.push(h);
+          txSent = true;
+        }
+      } else {
+        const gErr = await gRes.text();
+        if (gErr.includes("already exists") || gErr.includes("lowerNonceInTx")) {
+          console.log("Transaction already in pool on gateway:", gErr);
+          txSent = true;
+        } else {
+          throw new Error(`MultiversX Hálózati Hiba: ${gErr}`);
+        }
+      }
+    }
   }
   return hashes;
 }
@@ -534,13 +630,14 @@ async function sendMultiversxTransaction({ receiver, value = "0", data = "", gas
         const formattedSigned = signedList.map((st, idx) => ({
           ...preparedTxs[idx],
           ...st,
-          data: preparedTxs[idx].data,
+          data: preparedTxs[idx]?.data || st.data,
           dataIsBase64: false
         }));
 
         const hashes = await broadcastMarketSignedTransactions(formattedSigned);
-        if (hashes.length > 0) {
-          return { success: true, hash: hashes[0], method: "extension" };
+        if (hashes.length > 0 || signedList.length > 0) {
+          const txHash = hashes[0] || (signedList[0]?.txHash || signedList[0]?.hash) || "broadcasted";
+          return { success: true, hash: txHash, method: "extension" };
         }
       }
       throw new Error(isHu ? "Nem sikerült a tranzakció aláírása." : "Transaction signing failed.");
@@ -2289,6 +2386,14 @@ async function executeCreateListing() {
       : `⏳ Preparing transaction: Depositing NFT into Smart Contract escrow (${priceVal.toLocaleString()} $${currency})...`
   );
 
+  const listBtn = document.getElementById("btn-confirm-listing");
+  const origBtnText = listBtn ? listBtn.innerHTML : "";
+  if (listBtn) {
+    listBtn.disabled = true;
+    listBtn.style.opacity = "0.7";
+    listBtn.innerHTML = `⏳ ${isHu ? "Tranzakció küldése..." : "Broadcasting..."}`;
+  }
+
   try {
     await sendMultiversxTransaction({
       receiver: marketWallet.address,
@@ -2344,6 +2449,12 @@ async function executeCreateListing() {
         ? `❌ Hiba a listázási tranzakció során: ${err.message || "Megszakítva"}`
         : `❌ Listing transaction failed: ${err.message || "Cancelled"}`
     );
+  } finally {
+    if (listBtn) {
+      listBtn.disabled = false;
+      listBtn.style.opacity = "1";
+      listBtn.innerHTML = origBtnText;
+    }
   }
 }
 
