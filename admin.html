@@ -557,14 +557,14 @@
         <!-- CARD 3B: SMART CONTRACT ON-CHAIN UPGRADE (NFooT & VIP PASS) -->
         <div class="admin-card" style="border: 1px solid rgba(168, 255, 0, 0.35); box-shadow: 0 0 25px rgba(168, 255, 0, 0.08);">
           <div class="admin-card-header">
-            <h3 class="admin-card-title">🚀 Smart Contract Upgrade (NFooT &amp; VIP Pass)</h3>
+            <h3 class="admin-card-title">🚀 Smart Contract Upgrade (NFooT &amp; Ultras Pass Shop)</h3>
             <span id="adm-sc-upgrade-badge" style="background:rgba(168,255,0,0.2); color:var(--admin-neon); padding:2px 8px; border-radius:10px; font-family:'JetBrains Mono'; font-size:0.75rem;">
-              WASM Kész (11.6 KB)
+              WASM Kész (13.2 KB • Ultras Shop + P2P)
             </span>
           </div>
 
           <p style="font-size: 0.85rem; color: #98aba0; margin-bottom: 14px;">
-            Frissítsd a Smart Contractot a legújabb <strong>NFooT P2P Marketplace</strong> és <strong>Ultras VIP Pass (0% díj)</strong> végpontokkal!
+            Frissítsd a Smart Contractot a legújabb <strong>Ultras Pass Elsődleges Bolttal (buyUltrasPass &amp; depositUltrasPassStock)</strong> és <strong>NFooT P2P Marketplace-szel</strong>!
             A művelet a beépített <code>upgradeContract</code> protokollhívást hajtja végre, így a jelenlegi <strong>Vault Pot egyenleg és az égetési statisztikák sértetlenül megmaradnak</strong>.
           </p>
 
@@ -753,6 +753,73 @@
               </button>
             </div>
             <div id="sft-minted-preview-box" style="margin-top:10px; font-size:0.8rem; color:#98aba0; display:none; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px;"></div>
+
+            <!-- STEP 4: ULTRAS PASS KÉSZLET DEPOZIT A SMART CONTRACTBA -->
+            <div style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 184, 0, 0.4); border-radius: 12px; padding: 16px; margin-top: 18px; box-shadow: 0 0 20px rgba(255, 184, 0, 0.08);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="margin: 0; font-size: 0.98rem; color: var(--admin-gold); display: flex; align-items: center; gap: 8px;">
+                  <span>🎟️ 4. LÉPÉS: Ultras Pass Készlet Depozit a Smart Contractba (On-Chain Shop)</span>
+                </h4>
+                <button type="button" id="btn-refresh-sft-stock" class="admin-btn admin-btn-outline" style="width: auto; margin: 0; padding: 4px 10px; font-size: 0.75rem; border-color: var(--admin-cyan); color: var(--admin-cyan);">
+                  🔄 Készlet Frissítése
+                </button>
+              </div>
+
+              <p style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 12px; line-height: 1.45;">
+                Helyezd letétbe a mintelt <strong>EFOO Ultras PASS SFT</strong> készletet a Smart Contractban!
+                A játékosok így a <strong>NFooT Marketplace</strong> felületén <strong>1 kattintással, azonnal</strong> megvásárolhatják (0.5 EGLD vagy 5M $EFOO), a Smart Contract pedig azonnal átadja nekik az SFT-t, beállítja az örökös 0% VIP díjat, az EGLD bevétel pedig közvetlenül a te tárcádba (<code>efoorewards</code>) érkezik!
+              </p>
+
+              <!-- LIVE STOCK STATUS ROW -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+                <div style="background: rgba(255, 184, 0, 0.08); border: 1px solid rgba(255, 184, 0, 0.25); border-radius: 8px; padding: 10px;">
+                  <span style="font-size: 0.72rem; color: #98aba0; display: block;">Saját Tárcádban lévő SFT:</span>
+                  <strong id="adm-sft-owner-balance" style="font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; color: var(--admin-gold);">300 db</strong>
+                  <span style="font-size: 0.7rem; color: #64748b; display: block; margin-top: 2px;">EFOOPASS-5223a8-01</span>
+                </div>
+                <div style="background: rgba(0, 255, 136, 0.08); border: 1px solid rgba(0, 255, 136, 0.25); border-radius: 8px; padding: 10px;">
+                  <span style="font-size: 0.72rem; color: #98aba0; display: block;">Smart Contract Készlet (Eladó):</span>
+                  <strong id="adm-sft-sc-stock" style="font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; color: var(--admin-neon);">0 db</strong>
+                  <span style="font-size: 0.7rem; color: #64748b; display: block; margin-top: 2px;">Elérhető a vevőknek</span>
+                </div>
+              </div>
+
+              <!-- DEPOSIT INPUTS & PRESETS -->
+              <div style="display: grid; grid-template-columns: 2fr 1fr 2fr; gap: 8px; margin-bottom: 10px;">
+                <div>
+                  <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Kollekció ID:</label>
+                  <input type="text" id="adm-sft-dep-collection" class="admin-input" value="EFOOPASS-5223a8" readonly style="color:#94a3b8; background:rgba(0,0,0,0.5);" />
+                </div>
+                <div>
+                  <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Nonce:</label>
+                  <input type="number" id="adm-sft-dep-nonce" class="admin-input" value="1" readonly style="color:#94a3b8; background:rgba(0,0,0,0.5);" />
+                </div>
+                <div>
+                  <label style="font-size: 0.72rem; color: #98aba0; display:block; margin-bottom:4px;">Depozit Mennyiség (db):</label>
+                  <input type="number" id="adm-sft-dep-qty" class="admin-input" value="50" min="1" max="300" style="font-weight:700; color:var(--admin-gold);" />
+                </div>
+              </div>
+
+              <!-- PRESET QUICK BUTTONS -->
+              <div style="display: flex; gap: 6px; margin-bottom: 12px; align-items: center; flex-wrap: wrap;">
+                <span style="font-size: 0.72rem; color: #98aba0;">Gyors választás:</span>
+                <button type="button" class="admin-btn admin-btn-outline" style="width:auto; margin:0; padding:3px 8px; font-size:0.75rem;" onclick="setDepositQtyPreset(20)">20 db</button>
+                <button type="button" class="admin-btn admin-btn-outline" style="width:auto; margin:0; padding:3px 8px; font-size:0.75rem; border-color:var(--admin-gold); color:var(--admin-gold);" onclick="setDepositQtyPreset(50)">50 db (Ajánlott)</button>
+                <button type="button" class="admin-btn admin-btn-outline" style="width:auto; margin:0; padding:3px 8px; font-size:0.75rem;" onclick="setDepositQtyPreset(100)">100 db</button>
+                <button type="button" class="admin-btn admin-btn-outline" style="width:auto; margin:0; padding:3px 8px; font-size:0.75rem;" onclick="setDepositQtyPreset(300)">Mind a 300 db</button>
+              </div>
+
+              <!-- ACTION BUTTONS -->
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" id="btn-deposit-ultras-stock" class="admin-btn admin-btn-gold" style="flex: 2; margin: 0; padding: 11px 16px; font-size: 0.92rem; font-weight: 800;">
+                  🎟️ Készlet Depozitálása a Smart Contractba [DeFi Extension]
+                </button>
+                <button type="button" id="btn-withdraw-ultras-stock" class="admin-btn admin-btn-outline" style="flex: 1; margin: 0; padding: 11px 12px; font-size: 0.8rem; border-color: rgba(255,255,255,0.25);" title="Eladatlan készlet visszahívása a saját tárcádba">
+                  ↩️ Készlet Visszahívása
+                </button>
+              </div>
+              <div id="adm-sft-dep-status" style="margin-top: 10px; font-size: 0.8rem; color: #98aba0; display: none;"></div>
+            </div>
           </div>
         </div>
 
@@ -889,6 +956,7 @@
       document.getElementById("admin-dashboard").style.display = "block";
       sessionStorage.setItem(STORAGE_ADMIN_SESSION, "VALID_OWNER_AUTH");
       refreshSmartContractTelemetry();
+      refreshSftStockTelemetry();
       renderLeaderboardTable();
       checkBurnRole();
     }
@@ -2348,6 +2416,138 @@
       }
     }
     document.getElementById("btn-verify-minted-sft")?.addEventListener("click", verifyMintedSftsInWallet);
+
+    // =========================================================================
+    // STEP 4: ULTRAS PASS STOCK DEPOSIT & WITHDRAW (ON-CHAIN SHOP)
+    // =========================================================================
+    window.setDepositQtyPreset = function(qty) {
+      const input = document.getElementById("adm-sft-dep-qty");
+      if (input) input.value = qty;
+    };
+
+    async function refreshSftStockTelemetry() {
+      // 1. Owner SFT balance from API
+      try {
+        const url = `https://api.multiversx.com/accounts/${OWNER_ADDRESS}/nfts?identifiers=EFOOPASS-5223a8-01`;
+        const res = await fetch(url);
+        if (res.ok) {
+          const arr = await res.json();
+          if (Array.isArray(arr) && arr.length > 0) {
+            const bal = Number(arr[0].balance || 0);
+            const el = document.getElementById("adm-sft-owner-balance");
+            if (el) el.textContent = `${bal.toLocaleString("hu-HU")} db`;
+          }
+        }
+      } catch (e) {
+        console.warn("Owner SFT balance query failed:", e);
+      }
+
+      // 2. SC in-stock inventory from vm-query getUltrasPassStock
+      try {
+        const queryBody = {
+          scAddress: STADIUM_VAULT_SC,
+          funcName: "getUltrasPassStock",
+          args: []
+        };
+        const scRes = await fetch("https://api.multiversx.com/query", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(queryBody)
+        });
+        if (scRes.ok) {
+          const scData = await scRes.json();
+          if (scData?.data?.returnCode === "ok" && scData?.data?.returnData?.length > 0) {
+            const b64 = scData.data.returnData[0];
+            const hex = atob(b64).split("").map(c => c.charCodeAt(0).toString(16).padStart(2, "0")).join("");
+            const stock = hex ? Number(BigInt("0x" + hex)) : 0;
+            const el = document.getElementById("adm-sft-sc-stock");
+            if (el) el.textContent = `${stock.toLocaleString("hu-HU")} db`;
+          } else {
+            const el = document.getElementById("adm-sft-sc-stock");
+            if (el) el.textContent = "0 db";
+          }
+        }
+      } catch (e) {
+        console.warn("SC stock query failed:", e);
+      }
+    }
+
+    document.getElementById("btn-refresh-sft-stock")?.addEventListener("click", () => {
+      refreshSftStockTelemetry();
+      showToast("🔄 Készlet lekérdezése folyamatban...");
+    });
+
+    // Deposit Button Handler
+    document.getElementById("btn-deposit-ultras-stock")?.addEventListener("click", async () => {
+      const collection = document.getElementById("adm-sft-dep-collection")?.value?.trim() || "EFOOPASS-5223a8";
+      const nonce = Number(document.getElementById("adm-sft-dep-nonce")?.value || 1);
+      const qty = parseInt(document.getElementById("adm-sft-dep-qty")?.value, 10);
+      const statusDiv = document.getElementById("adm-sft-dep-status");
+
+      if (!qty || qty <= 0) {
+        alert("Kérlek adj meg egy érvényes darabszámot (pl. 50)!");
+        return;
+      }
+
+      if (!confirm(`🎟️ Ultras Pass Készlet Depozit\n\nBiztosan átadsz a Smart Contractnak ${qty} db EFOO Ultras PASS-t eladásra?\n\n• SFT: ${collection}-0${nonce}\n• Mennyiség: ${qty} db\n• Cél Smart Contract: ${STADIUM_VAULT_SC}\n\nA vevők közvetlenül ebből a készletből tudnak majd vásárolni.`)) {
+        return;
+      }
+
+      const collectionHex = stringToHex(collection);
+      const nonceHex = numToHex(nonce);
+      const qtyHex = numToHex(qty);
+      const endpointHex = stringToHex("depositUltrasPassStock");
+
+      // MultiversX ESDTNFTTransfer format:
+      // ESDTNFTTransfer@CollectionHex@NonceHex@QuantityHex@SCHex@EndpointHex
+      // Receiver: OWNER_ADDRESS (sender's own address as per protocol!)
+      const dataPayload = `ESDTNFTTransfer@${collectionHex}@${nonceHex}@${qtyHex}@${SC_HEX}@${endpointHex}`;
+
+      if (statusDiv) {
+        statusDiv.style.display = "block";
+        statusDiv.innerHTML = "⏳ Tranzakció aláírásának előkészítése a tárcában...";
+      }
+
+      await executeAdminTransaction({
+        receiver: OWNER_ADDRESS,
+        value: "0",
+        data: dataPayload,
+        gasLimit: 15000000,
+        title: `🎟️ ${qty} db Ultras Pass Depozit a Smart Contractba`,
+        onSuccess: (hash) => {
+          if (statusDiv) {
+            statusDiv.innerHTML = `🎉 <strong>Sikeres SFT Depozit!</strong><br/>Tx Hash: <a href="https://explorer.multiversx.com/transactions/${hash}" target="_blank" style="color:var(--admin-cyan); text-decoration:underline;">${hash}</a>`;
+          }
+          setTimeout(refreshSftStockTelemetry, 6000);
+        }
+      });
+    });
+
+    // Withdraw Button Handler
+    document.getElementById("btn-withdraw-ultras-stock")?.addEventListener("click", async () => {
+      const qtyStr = prompt("Add meg hány darab eladatlan Ultras Pass-t szeretnél visszavonni a saját tárcádban a Smart Contractból:", "10");
+      if (!qtyStr) return;
+      const qty = parseInt(qtyStr, 10);
+      if (!qty || qty <= 0) {
+        alert("Érvénytelen darabszám!");
+        return;
+      }
+
+      const qtyHex = numToHex(qty);
+      const dataPayload = `withdrawUltrasPassStock@${qtyHex}`;
+
+      await executeAdminTransaction({
+        receiver: STADIUM_VAULT_SC,
+        value: "0",
+        data: dataPayload,
+        gasLimit: 12000000,
+        title: `↩️ ${qty} db Ultras Pass Visszavonása a Saját Tárcádba`,
+        onSuccess: (hash) => {
+          alert(`🎉 Sikeres visszavonás!\nTx: ${hash}`);
+          setTimeout(refreshSftStockTelemetry, 6000);
+        }
+      });
+    });
 
     // =========================================================================
     // CARD 4: LEADERBOARD MANAGEMENT

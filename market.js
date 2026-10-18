@@ -2679,6 +2679,8 @@ function updateUltrasPassUI() {
       buyBtn.style.borderColor = "#ffb800";
     }
   }
+
+  fetchUltrasPassStock();
 }
 
 function updateUltrasQtyUI(qty) {
@@ -2700,6 +2702,44 @@ function updateUltrasQtyUI(qty) {
   if (priceSub) priceSub.textContent = `(or ${totalEfoo} $EFOO)`;
 }
 
+async function fetchUltrasPassStock() {
+  try {
+    const res = await fetch("https://api.multiversx.com/query", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        scAddress: STADIUM_VAULT_SC,
+        funcName: "getUltrasPassStock",
+        args: []
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.data?.returnCode === "ok" && data?.data?.returnData?.length > 0) {
+        const b64 = data.data.returnData[0];
+        const hex = atob(b64).split("").map(c => c.charCodeAt(0).toString(16).padStart(2, "0")).join("");
+        const stock = hex ? Number(BigInt("0x" + hex)) : 0;
+        
+        const badge1 = document.getElementById("m-minted-ultras-stat");
+        if (badge1) {
+          badge1.textContent = `${stock} in Stock (300 Total Cap)`;
+          badge1.style.color = stock > 0 ? "#00ff88" : "#ff3b30";
+        }
+        const badge2 = document.getElementById("ultras-supply-stat");
+        if (badge2) {
+          badge2.textContent = stock > 0 
+            ? `${stock} AVAILABLE • 300 SFT STRICTLY CAPPED SUPPLY`
+            : "SOLD OUT IN THIS BATCH • 300 SFT STRICTLY CAPPED SUPPLY";
+        }
+        return stock;
+      }
+    }
+  } catch (e) {
+    console.warn("Could not query Ultras Pass stock:", e);
+  }
+  return null;
+}
+
 async function buyUltrasPassOnChain() {
   const isHu = currentMarketLang === "hu";
   if (!marketWallet.address) {
@@ -2708,34 +2748,32 @@ async function buyUltrasPassOnChain() {
     return;
   }
 
-  const qty = Math.max(1, Math.min(10, Number(document.getElementById("ultras-qty-input")?.value || 1)));
-  const totalEgld = (qty * 0.5).toFixed(2);
-  const totalWei = (BigInt(Math.round(qty * 0.5 * 1e9)) * BigInt(1e9)).toString();
-  const qtyHex = qty.toString(16).padStart(2, "0");
-  const data = `buyUltrasPass@${qtyHex}`;
+  const totalWei = "500000000000000000"; // 0.5 EGLD in wei
+  const data = "buyUltrasPass";
 
   showMarketToast(
     isHu
-      ? `⏳ Ultras PASS vásárlási tranzakció előkészítése (${qty}x = ${totalEgld} EGLD)...`
-      : `⏳ Preparing Ultras PASS transaction (${qty}x = ${totalEgld} EGLD)...`
+      ? "⏳ Ultras PASS vásárlási tranzakció előkészítése (0.50 EGLD)..."
+      : "⏳ Preparing Ultras PASS transaction (0.50 EGLD)..."
   );
 
   try {
     await sendMultiversxTransaction({
-      receiver: EFOOREWARDS_WALLET,
+      receiver: STADIUM_VAULT_SC,
       value: totalWei,
-      gasLimit: 12000000,
+      gasLimit: 15000000,
       data: data
     });
 
     localStorage.setItem(STORAGE_ULTRAS_PASS_PREFIX + marketWallet.address.toLowerCase(), "true");
     updateUltrasPassUI();
     updateListingFeePreview();
+    fetchUltrasPassStock();
 
     showMarketToast(
       isHu
-        ? `🎉 Gratulálunk! EFOO Ultras PASS sikeresen megvásárolva! Örökös 0% kereskedési díj eladáskor és vételkor azonnal aktív!`
-        : `🎉 Congratulations! EFOO Ultras PASS activated! Lifetime 0% trading fee on buy and sell enabled!`
+        ? "🎉 Gratulálunk! EFOO Ultras PASS sikeresen megvásárolva! A Smart Contract átadta az SFT-t a tárcádba, az örökös 0% kereskedési díj azonnal aktív!"
+        : "🎉 Congratulations! EFOO Ultras PASS activated! The Smart Contract delivered the SFT to your wallet with lifetime 0% trading fee!"
     );
   } catch (err) {
     console.error("Ultras Pass purchase failed:", err);
