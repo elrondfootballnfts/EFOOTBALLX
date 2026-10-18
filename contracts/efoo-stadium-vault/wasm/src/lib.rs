@@ -28,6 +28,8 @@ multiversx_sc_wasm_adapter::endpoints! {
         setGameFees => set_game_fees
         emergencyWithdrawToken => emergency_withdraw_token
         getEfooTokenId => efoo_token_id
+        getWegldTokenId => wegld_token_id
+        setWegldTokenId => set_wegld_token_id
         getBurnAddress => burn_address
         getVaultPotBalance => vault_pot_balance
         getTotalBurnedGames => total_burned_games

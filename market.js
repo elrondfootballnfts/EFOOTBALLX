@@ -1331,9 +1331,18 @@ async function fetchLiveScListings() {
           let currency = "EGLD";
           let seller = isPass ? "Official NFooT Escrow" : "On-Chain Escrow";
 
+          let paymentToken = "WEGLD-bd4d79";
+
           if (scInfo) {
             price = scInfo.price;
-            currency = scInfo.paymentToken === "EFOO-8fe2d4" ? "EFOO" : scInfo.paymentToken;
+            paymentToken = scInfo.paymentToken || "WEGLD-bd4d79";
+            if (scInfo.paymentToken === "WEGLD-bd4d79" || scInfo.paymentToken === "EGLD") {
+              currency = "EGLD";
+            } else if (scInfo.paymentToken === "EFOO-8fe2d4" || scInfo.paymentToken === "EFOO") {
+              currency = "EFOO";
+            } else {
+              currency = scInfo.paymentToken;
+            }
             if (scInfo.sellerHex) {
               const bech32Addr = hexToBech32Address(scInfo.sellerHex);
               if (bech32Addr) seller = bech32Addr;
@@ -1341,6 +1350,7 @@ async function fetchLiveScListings() {
           } else if (localInfo) {
             price = localInfo.price;
             currency = localInfo.currency;
+            paymentToken = localInfo.paymentToken || (localInfo.currency === "EGLD" ? "WEGLD-bd4d79" : EFOO_TOKEN_ID);
             seller = localInfo.seller;
           }
 
@@ -1357,6 +1367,7 @@ async function fetchLiveScListings() {
             url: it.url || (isPass ? "branding/rebranded/efoo-ultras-pass-badge.png" : (it.collection === KEEPER_COLLECTION ? "branding/original/GOALKEEPER-cb9e3e/logo.png" : "branding/original/EFOOTBALL-91a4eb/logo.png")),
             price: price,
             currency: currency,
+            paymentToken: paymentToken,
             seller: seller,
             createdAt: it.timestamp ? it.timestamp * 1000 : Date.now(),
             attributes: it.metadata?.attributes || []
@@ -2497,32 +2508,102 @@ async function executeBuyNft(item) {
   if (nonceHex.length % 2 !== 0) nonceHex = "0" + nonceHex;
 
   if (isEgld) {
-    if (marketWallet.egldBalance < Number(item.price)) {
+    const isNativeEgld = item.paymentToken === "EGLD";
+    const priceAtomic = toAtomicUnits(item.price, 18);
+    let priceHex = priceAtomic.toString(16);
+    if (priceHex.length % 2 !== 0) priceHex = "0" + priceHex;
+
+    const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
+    const egldBal = marketWallet.egldBalance || 0;
+    const requiredPrice = Number(item.price);
+
+    if (isNativeEgld && egldBal < requiredPrice) {
       showMarketToast(
         isHu
-          ? `⚠️ Nincs elegendő EGLD egyenleged! Ár: ${item.price} EGLD (Egyenleg: ${marketWallet.egldBalance.toFixed(3)} EGLD)`
-          : `⚠️ Insufficient EGLD balance! Price: ${item.price} EGLD (Balance: ${marketWallet.egldBalance.toFixed(3)} EGLD)`
+          ? `⚠️ Nincs elegendő EGLD egyenleged! Ár: ${item.price} EGLD (Egyenleg: ${egldBal.toFixed(3)} EGLD)`
+          : `⚠️ Insufficient EGLD balance! Price: ${item.price} EGLD (Balance: ${egldBal.toFixed(3)} EGLD)`
       );
       return;
     }
 
-    const priceAtomic = toAtomicUnits(item.price, 18);
-    // buyNft@<colHex>@<nonceHex> (DIRECT SC call: function name must be plain text UTF-8!)
-    const dataField = `buyNft@${colHex}@${nonceHex}`;
-
-    showMarketToast(
-      isHu
-        ? `⚡ Smart Contract vásárlás előkészítése: ${item.name} (${item.price} EGLD)...`
-        : `⚡ Preparing Smart Contract purchase: ${item.name} (${item.price} EGLD)...`
-    );
+    if (!isNativeEgld && (wegldBal + egldBal) < requiredPrice) {
+      showMarketToast(
+        isHu
+          ? `⚠️ Nincs elegendő egyenleged! Ár: ${item.price} EGLD (Egyenleg: ${egldBal.toFixed(3)} EGLD / ${wegldBal.toFixed(3)} WEGLD)`
+          : `⚠️ Insufficient balance! Price: ${item.price} EGLD (Balance: ${egldBal.toFixed(3)} EGLD / ${wegldBal.toFixed(3)} WEGLD)`
+      );
+      return;
+    }
 
     try {
-      await sendMultiversxTransaction({
-        receiver: STADIUM_VAULT_SC,
-        value: priceAtomic.toString(),
-        gasLimit: 15000000,
-        data: dataField
-      });
+      if (isNativeEgld) {
+
+        // buyNft@<colHex>@<nonceHex> (DIRECT SC call: function name must be plain text UTF-8!)
+        const dataField = `buyNft@${colHex}@${nonceHex}`;
+
+        showMarketToast(
+          isHu
+            ? `⚡ Smart Contract vásárlás előkészítése: ${item.name} (${item.price} EGLD)...`
+            : `⚡ Preparing Smart Contract purchase: ${item.name} (${item.price} EGLD)...`
+        );
+
+        await sendMultiversxTransaction({
+          receiver: STADIUM_VAULT_SC,
+          value: priceAtomic.toString(),
+          gasLimit: 15000000,
+          data: dataField
+        });
+      } else {
+        // WEGLD listing (standard MultiversX ESDT escrow)
+        if (wegldBal < requiredPrice) {
+          if (egldBal >= requiredPrice + 0.005) {
+            showMarketToast(
+              isHu
+                ? `🔄 ${requiredPrice} EGLD átváltása WEGLD-re a vásárláshoz...`
+                : `🔄 Wrapping ${requiredPrice} EGLD to WEGLD for purchase...`
+            );
+
+            const shard = marketWallet.shard !== undefined ? marketWallet.shard : 1;
+            const shardWrapper = CONTRACTS.WEGLD_WRAPPERS[shard] || CONTRACTS.WEGLD_WRAPPERS[1];
+            const wrapWei = priceAtomic.toString();
+
+            await sendMultiversxTransaction({
+              receiver: shardWrapper,
+              value: wrapWei,
+              gasLimit: 8000000,
+              data: "wrapEgld"
+            });
+
+            if (!marketWallet.tokens) marketWallet.tokens = {};
+            marketWallet.tokens["WEGLD-bd4d79"] = (marketWallet.tokens["WEGLD-bd4d79"] || 0) + requiredPrice;
+            marketWallet.egldBalance = Math.max(0, marketWallet.egldBalance - requiredPrice);
+          } else {
+            showMarketToast(
+              isHu
+                ? `⚠️ Nincs elegendő egyenleged! Ár: ${item.price} EGLD (Egyenleged: ${egldBal.toFixed(3)} EGLD / ${wegldBal.toFixed(3)} WEGLD)`
+                : `⚠️ Insufficient balance! Price: ${item.price} EGLD (Balance: ${egldBal.toFixed(3)} EGLD / ${wegldBal.toFixed(3)} WEGLD)`
+            );
+            return;
+          }
+        }
+
+        const wegldHex = stringToHex("WEGLD-bd4d79");
+        const endpointHex = stringToHex("buyNft");
+        const dataField = `ESDTTransfer@${wegldHex}@${priceHex}@${endpointHex}@${colHex}@${nonceHex}`;
+
+        showMarketToast(
+          isHu
+            ? `⚡ Smart Contract vásárlás előkészítése: ${item.name} (${item.price} EGLD)...`
+            : `⚡ Preparing Smart Contract purchase: ${item.name} (${item.price} EGLD)...`
+        );
+
+        await sendMultiversxTransaction({
+          receiver: STADIUM_VAULT_SC,
+          value: "0",
+          gasLimit: 15000000,
+          data: dataField
+        });
+      }
 
       // Remove from both local cache and active SC listings
       cachedScListings = (cachedScListings || []).filter((x) => x.id !== item.id && x.identifier !== item.identifier);
@@ -2846,7 +2927,7 @@ async function executeCreateListing() {
   let nonceHex = Number(nonceNum).toString(16);
   if (nonceHex.length % 2 !== 0) nonceHex = "0" + nonceHex;
 
-  const paymentTokenStr = currency === "EGLD" ? "EGLD" : EFOO_TOKEN_ID;
+  const paymentTokenStr = currency === "EGLD" ? "WEGLD-bd4d79" : EFOO_TOKEN_ID;
   const paymentTokenHex = stringToHex(paymentTokenStr);
   const priceAtomic = toAtomicUnits(priceVal, 18);
   let priceHex = priceAtomic.toString(16);
@@ -2907,6 +2988,7 @@ async function executeCreateListing() {
       url: activeModalNft.url || "branding/original/EFOOTBALL-91a4eb/logo.png",
       price: priceVal,
       currency,
+      paymentToken: paymentTokenStr,
       seller: marketWallet.address,
       createdAt: Date.now(),
       isOnChain: true
@@ -3036,7 +3118,7 @@ async function executeEditPrice() {
   let nonceHex = Number(nonceNum).toString(16);
   if (nonceHex.length % 2 !== 0) nonceHex = "0" + nonceHex;
 
-  const paymentTokenStr = currency === "EGLD" ? "EGLD" : EFOO_TOKEN_ID;
+  const paymentTokenStr = currency === "EGLD" ? "WEGLD-bd4d79" : EFOO_TOKEN_ID;
   const paymentTokenHex = stringToHex(paymentTokenStr);
   const priceAtomic = toAtomicUnits(newPrice, 18);
   let priceHex = priceAtomic.toString(16);

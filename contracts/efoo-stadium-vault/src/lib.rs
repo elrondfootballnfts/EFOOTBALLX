@@ -210,8 +210,16 @@ pub trait EfooStadiumVault {
     // MULTI-CURRENCY P2P NFT MARKETPLACE (EFOO + EGLD)
     // =========================================================================
 
+    fn get_wegld_id(&self) -> TokenIdentifier {
+        if !self.wegld_token_id().is_empty() {
+            self.wegld_token_id().get()
+        } else {
+            TokenIdentifier::from("WEGLD-bd4d79")
+        }
+    }
+
     /// Seller lists their owned Striker or Goalkeeper NFT for sale
-    /// Accepts payment in either native EGLD or $EFOO
+    /// Accepts payment in either native EGLD, Wrapped EGLD (WEGLD), or $EFOO
     #[payable("*")]
     #[endpoint(listNft)]
     fn list_nft(&self, payment_token: EgldOrEsdtTokenIdentifier, price: BigUint) {
@@ -219,8 +227,10 @@ pub trait EfooStadiumVault {
         require!(price > 0, "Price must be greater than 0");
 
         let efoo_id = self.efoo_token_id().get();
-        let is_valid_currency = payment_token.is_egld() || (!payment_token.is_egld() && payment_token.clone().unwrap_esdt() == efoo_id);
-        require!(is_valid_currency, "Listing currency must be native EGLD or $EFOO");
+        let wegld_id = self.get_wegld_id();
+        let is_valid_currency = payment_token.is_egld()
+            || (!payment_token.is_egld() && (payment_token.clone().unwrap_esdt() == efoo_id || payment_token.clone().unwrap_esdt() == wegld_id));
+        require!(is_valid_currency, "Listing currency must be native EGLD, WEGLD, or $EFOO");
 
         let caller = self.blockchain().get_caller();
         let payment = self.call_value().single_esdt();
@@ -270,6 +280,9 @@ pub trait EfooStadiumVault {
         let is_buyer_vip = self.is_vip(&buyer);
         let is_zero_fee = is_seller_vip || is_buyer_vip;
 
+        let efoo_id = self.efoo_token_id().get();
+        let wegld_id = self.get_wegld_id();
+
         if listing.payment_token.is_egld() {
             // EGLD Payment Processing
             let payment_egld = self.call_value().egld_value().clone_value();
@@ -298,10 +311,39 @@ pub trait EfooStadiumVault {
             if excess > 0 {
                 self.send().direct_egld(&buyer, &excess);
             }
+        } else if !listing.payment_token.is_egld() && listing.payment_token.clone().unwrap_esdt() == wegld_id {
+            // WEGLD Payment Processing
+            let (payment_token, payment_amount) = self.call_value().single_fungible_esdt();
+            require!(payment_token == wegld_id, "Payment must be in WEGLD");
+            require!(payment_amount >= listing.price, "Insufficient WEGLD paid");
+
+            let (seller_payout, fee_wegld) = if is_zero_fee {
+                (listing.price.clone(), BigUint::zero())
+            } else {
+                // 2.5% platform fee to owner (efoorewards), 97.5% to seller
+                let fee = (&listing.price * 25u32) / 1000u32;
+                let payout = &listing.price - &fee;
+                (payout, fee)
+            };
+
+            // Payout seller in WEGLD
+            self.send().direct_esdt(&listing.seller, &payment_token, 0, &seller_payout);
+
+            // Send 2.5% platform fee directly to contract owner (efoorewards) in WEGLD
+            if fee_wegld > 0 {
+                let owner_address = self.blockchain().get_owner_address();
+                self.send().direct_esdt(&owner_address, &payment_token, 0, &fee_wegld);
+            }
+
+            // Refund any excess WEGLD to buyer
+            let excess = &payment_amount - &listing.price;
+            if excess > 0 {
+                self.send().direct_esdt(&buyer, &payment_token, 0, &excess);
+            }
         } else {
             // $EFOO Payment Processing
             let (payment_token, payment_amount) = self.call_value().single_fungible_esdt();
-            require!(payment_token == self.efoo_token_id().get(), "Payment must be in $EFOO");
+            require!(payment_token == efoo_id, "Payment must be in $EFOO");
             require!(payment_amount >= listing.price, "Insufficient $EFOO paid");
 
             let (seller_payout, fee_vault, fee_burn) = if is_zero_fee {
@@ -371,8 +413,10 @@ pub trait EfooStadiumVault {
         require!(new_price > 0, "Price must be greater than 0");
 
         let efoo_id = self.efoo_token_id().get();
-        let is_valid_currency = new_payment_token.is_egld() || (!new_payment_token.is_egld() && new_payment_token.clone().unwrap_esdt() == efoo_id);
-        require!(is_valid_currency, "Listing currency must be native EGLD or $EFOO");
+        let wegld_id = self.get_wegld_id();
+        let is_valid_currency = new_payment_token.is_egld()
+            || (!new_payment_token.is_egld() && (new_payment_token.clone().unwrap_esdt() == efoo_id || new_payment_token.clone().unwrap_esdt() == wegld_id));
+        require!(is_valid_currency, "Listing currency must be native EGLD, WEGLD, or $EFOO");
 
         require!(
             !self.nft_listings(&nft_token_id, nft_nonce).is_empty(),
@@ -445,6 +489,16 @@ pub trait EfooStadiumVault {
     #[view(getEfooTokenId)]
     #[storage_mapper("efooTokenId")]
     fn efoo_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
+
+    #[view(getWegldTokenId)]
+    #[storage_mapper("wegldTokenId")]
+    fn wegld_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
+
+    #[only_owner]
+    #[endpoint(setWegldTokenId)]
+    fn set_wegld_token_id(&self, token_id: TokenIdentifier) {
+        self.wegld_token_id().set(&token_id);
+    }
 
     #[view(getBurnAddress)]
     #[storage_mapper("burnAddress")]
