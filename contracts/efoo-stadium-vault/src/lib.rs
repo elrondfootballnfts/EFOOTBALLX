@@ -520,4 +520,143 @@ pub trait EfooStadiumVault {
 
     #[storage_mapper("vipAddresses")]
     fn vip_addresses(&self) -> UnorderedSetMapper<ManagedAddress>;
+
+    // =========================================================================
+    // ULTRAS PASS PRIMARY SHOP (DIRECT ATOMIC SFT DELIVERY)
+    // =========================================================================
+
+    #[view(getUltrasPassStock)]
+    #[storage_mapper("ultrasPassStock")]
+    fn ultras_pass_stock(&self) -> SingleValueMapper<BigUint>;
+
+    #[view(getUltrasPassCollection)]
+    #[storage_mapper("ultrasPassCollection")]
+    fn ultras_pass_collection(&self) -> SingleValueMapper<TokenIdentifier>;
+
+    #[view(getUltrasPassNonce)]
+    #[storage_mapper("ultrasPassNonce")]
+    fn ultras_pass_nonce(&self) -> SingleValueMapper<u64>;
+
+    #[view(getUltrasPassPriceEgld)]
+    #[storage_mapper("ultrasPassPriceEgld")]
+    fn ultras_pass_price_egld(&self) -> SingleValueMapper<BigUint>;
+
+    #[view(getUltrasPassPriceEfoo)]
+    #[storage_mapper("ultrasPassPriceEfoo")]
+    fn ultras_pass_price_efoo(&self) -> SingleValueMapper<BigUint>;
+
+    /// Owner sets the Ultras Pass prices (in wei EGLD and $EFOO)
+    #[only_owner]
+    #[endpoint(setUltrasPassPrices)]
+    fn set_ultras_pass_prices(&self, price_egld: BigUint, price_efoo: BigUint) {
+        self.ultras_pass_price_egld().set(&price_egld);
+        self.ultras_pass_price_efoo().set(&price_efoo);
+    }
+
+    /// Owner deposits Ultras Pass SFTs into the Smart Contract shop inventory
+    #[only_owner]
+    #[payable("*")]
+    #[endpoint(depositUltrasPassStock)]
+    fn deposit_ultras_pass_stock(&self) {
+        let (token_id, nonce, payment) = self.call_value().single_esdt();
+        require!(payment > 0, "Deposit amount must be greater than 0");
+
+        if self.ultras_pass_collection().is_empty() {
+            self.ultras_pass_collection().set(&token_id);
+            self.ultras_pass_nonce().set(nonce);
+        } else {
+            require!(token_id == self.ultras_pass_collection().get(), "Invalid token collection");
+            require!(nonce == self.ultras_pass_nonce().get(), "Invalid token nonce");
+        }
+
+        self.ultras_pass_stock().update(|s| *s += &payment);
+    }
+
+    /// Users buy an Ultras Pass SFT directly with 0.5 EGLD or 5,000,000 $EFOO
+    #[payable("*")]
+    #[endpoint(buyUltrasPass)]
+    fn buy_ultras_pass(&self) {
+        self.require_not_paused();
+        let caller = self.blockchain().get_caller();
+        let stock = self.ultras_pass_stock().get();
+        require!(stock > 0, "Ultras Pass is sold out in this batch!");
+
+        let token_id = self.ultras_pass_collection().get();
+        let nonce = self.ultras_pass_nonce().get();
+        let owner = self.blockchain().get_owner_address();
+
+        let egld_payment = self.call_value().egld_value().clone_value();
+        if egld_payment > 0 {
+            // Default 0.5 EGLD = 500,000,000,000,000,000 wei
+            let default_egld_price = BigUint::from(500_000_000_000_000_000u64);
+            let price = if self.ultras_pass_price_egld().is_empty() {
+                default_egld_price
+            } else {
+                self.ultras_pass_price_egld().get()
+            };
+
+            require!(egld_payment >= price, "Insufficient EGLD sent");
+
+            // CEI Pattern: update state first
+            self.ultras_pass_stock().update(|s| *s -= 1u32);
+            self.vip_addresses().insert(caller.clone());
+
+            // Deliver 1 SFT to buyer
+            self.send().direct_esdt(&caller, &token_id, nonce, &BigUint::from(1u32));
+
+            // Forward EGLD payment to owner
+            self.send().direct_egld(&owner, &price);
+
+            // Refund excess
+            let excess = &egld_payment - &price;
+            if excess > 0 {
+                self.send().direct_egld(&caller, &excess);
+            }
+        } else {
+            let (payment_token, payment_amount) = self.call_value().single_fungible_esdt();
+            require!(payment_token == self.efoo_token_id().get(), "Payment must be in EGLD or $EFOO");
+
+            // Default 5,000,000 $EFOO
+            let factor = BigUint::from(10u64).pow(18u32);
+            let default_efoo_price = BigUint::from(5_000_000u64) * &factor;
+            let price = if self.ultras_pass_price_efoo().is_empty() {
+                default_efoo_price
+            } else {
+                self.ultras_pass_price_efoo().get()
+            };
+
+            require!(payment_amount >= price, "Insufficient $EFOO sent");
+
+            // CEI Pattern: update state first
+            self.ultras_pass_stock().update(|s| *s -= 1u32);
+            self.vip_addresses().insert(caller.clone());
+
+            // Deliver 1 SFT to buyer
+            self.send().direct_esdt(&caller, &token_id, nonce, &BigUint::from(1u32));
+
+            // Forward $EFOO payment to owner
+            self.send().direct_esdt(&owner, &payment_token, 0, &price);
+
+            // Refund excess
+            let excess = &payment_amount - &price;
+            if excess > 0 {
+                self.send().direct_esdt(&caller, &payment_token, 0, &excess);
+            }
+        }
+    }
+
+    /// Owner withdraws unsold Ultras Pass SFTs back to owner wallet
+    #[only_owner]
+    #[endpoint(withdrawUltrasPassStock)]
+    fn withdraw_ultras_pass_stock(&self, amount: BigUint) {
+        let stock = self.ultras_pass_stock().get();
+        require!(amount <= stock && amount > 0, "Invalid withdrawal amount");
+
+        self.ultras_pass_stock().update(|s| *s -= &amount);
+
+        let owner = self.blockchain().get_owner_address();
+        let token_id = self.ultras_pass_collection().get();
+        let nonce = self.ultras_pass_nonce().get();
+        self.send().direct_esdt(&owner, &token_id, nonce, &amount);
+    }
 }

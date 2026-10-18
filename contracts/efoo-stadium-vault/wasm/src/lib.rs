@@ -40,6 +40,15 @@ multiversx_sc_wasm_adapter::endpoints! {
         batchAddVipAddresses => batch_add_vip_addresses
         removeVipAddress => remove_vip_address
         isPaused => is_paused
+        getUltrasPassStock => ultras_pass_stock
+        getUltrasPassCollection => ultras_pass_collection
+        getUltrasPassNonce => ultras_pass_nonce
+        getUltrasPassPriceEgld => ultras_pass_price_egld
+        getUltrasPassPriceEfoo => ultras_pass_price_efoo
+        setUltrasPassPrices => set_ultras_pass_prices
+        depositUltrasPassStock => deposit_ultras_pass_stock
+        buyUltrasPass => buy_ultras_pass
+        withdrawUltrasPassStock => withdraw_ultras_pass_stock
     )
 }
 
