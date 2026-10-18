@@ -558,8 +558,10 @@ pub trait EfooStadiumVault {
     #[payable("*")]
     #[endpoint(depositUltrasPassStock)]
     fn deposit_ultras_pass_stock(&self) {
-        let (token_id, nonce, payment) = self.call_value().single_esdt();
-        require!(payment > 0, "Deposit amount must be greater than 0");
+        let payment = self.call_value().single_esdt();
+        require!(payment.amount > 0, "Deposit amount must be greater than 0");
+        let token_id = payment.token_identifier;
+        let nonce = payment.token_nonce;
 
         if self.ultras_pass_collection().is_empty() {
             self.ultras_pass_collection().set(&token_id);
@@ -569,7 +571,7 @@ pub trait EfooStadiumVault {
             require!(nonce == self.ultras_pass_nonce().get(), "Invalid token nonce");
         }
 
-        self.ultras_pass_stock().update(|s| *s += &payment);
+        self.ultras_pass_stock().update(|s| *s += &payment.amount);
     }
 
     /// Users buy an Ultras Pass SFT directly with 0.5 EGLD or 5,000,000 $EFOO
