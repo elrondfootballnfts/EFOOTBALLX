@@ -2653,3 +2653,42 @@ body {
   background: #e5a700;
 }
 
+/* Krogan / Market Badges for In-Dev & Coming Soon items */
+.badge-soon, .krogan-soon-badge, .tab-soon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255, 184, 0, 0.15);
+  color: #ffb800;
+  border: 1px solid rgba(255, 184, 0, 0.4);
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-left: 6px;
+  vertical-align: middle;
+  line-height: 1.2;
+}
+
+.badge-dev, .badge-in-dev {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(0, 229, 255, 0.12);
+  color: #00e5ff;
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-left: 6px;
+  vertical-align: middle;
+  line-height: 1.2;
+}
+

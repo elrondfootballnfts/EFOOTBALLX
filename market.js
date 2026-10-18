@@ -2233,11 +2233,6 @@ function openListNftModal(nft) {
   if (imgEl) imgEl.src = nft.url || "branding/original/EFOOTBALL-91a4eb/logo.png";
   if (rankEl) rankEl.textContent = `${tier.tierIcon} Rank #${tier.rank} (${tier.tierLabel})`;
 
-  const xoxnoBtn = document.getElementById("btn-xoxno-direct-list");
-  if (xoxnoBtn) {
-    xoxnoBtn.href = `https://xoxno.com/nft/${nft.identifier || ""}`;
-  }
-
   updateListingFeePreview();
   modal?.classList.remove("hidden");
 }
