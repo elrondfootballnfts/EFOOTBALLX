@@ -1895,7 +1895,7 @@ function renderMarketplaceGrid() {
   updateMarketPaginationUI(totalCount, totalPages, startIdx, endIdx);
 
   const curAddr = marketWallet.address ? marketWallet.address.toLowerCase() : "";
-  let hasRenderedXoxnoDivider = false;
+  let isFirstXoxno = true;
   const hasNativeItems = pageItems.some((x) => !x.isXoxno);
 
   pageItems.forEach((item) => {
@@ -1903,32 +1903,16 @@ function renderMarketplaceGrid() {
     const isOwner = curAddr && item.seller && item.seller.toLowerCase() === curAddr;
     const isNative = !item.isXoxno;
 
-    // Ensure XOXNO listings always start in a brand new row compared to our native marketplace NFTs
-    if (!isNative && hasNativeItems && !hasRenderedXoxnoDivider) {
-      hasRenderedXoxnoDivider = true;
-      const xoxnoDivider = document.createElement("div");
-      xoxnoDivider.className = "m-grid-xoxno-separator";
-      xoxnoDivider.style.cssText = "grid-column: 1 / -1; width: 100%; margin: 28px 0 14px; padding: 12px 18px; border-radius: 12px; background: linear-gradient(90deg, rgba(20, 27, 45, 0.85), rgba(10, 15, 29, 0.6)); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;";
-      xoxnoDivider.innerHTML = `
-        <div style="display:flex; align-items:center; gap:10px;">
-          <img src="branding/rebranded/xoxno-logo.svg" alt="XOXNO" style="height:20px; display:block;" />
-          <span style="font-family:var(--font-bebas); font-size:1.3rem; letter-spacing:0.06em; color:#ffffff;">XOXNO MARKETPLACE LISTINGS</span>
-          <span style="font-family:var(--font-mono); font-size:0.7rem; font-weight:700; color:#38bdf8; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); padding:2px 8px; border-radius:999px;">
-            ${isHu ? "Másodlagos Kínálat" : "Secondary Market Pool"}
-          </span>
-        </div>
-        <span style="font-family:var(--font-mono); font-size:0.75rem; color:#94a3b8;">
-          ${isHu ? "⚡ Közvetlen On-Chain Vásárlás a dAppunkból" : "⚡ Direct On-Chain Settlement from our dApp"}
-        </span>
-      `;
-      grid.appendChild(xoxnoDivider);
-    }
-
     const card = document.createElement("div");
     card.className = `m-nft-card tier-${tier.tierKey} ${isNative ? "is-nfoot-native" : "is-xoxno-card"}`;
-    if (!isNative && hasNativeItems && hasRenderedXoxnoDivider && !card.style.gridColumnStart) {
+
+    // Separate our marketplace NFTs: only the very first XOXNO card starts a new row,
+    // all subsequent XOXNO cards stay together in standard grid flow (e.g. 4 per row)
+    if (!isNative && hasNativeItems && isFirstXoxno) {
       card.style.gridColumnStart = "1";
+      isFirstXoxno = false;
     }
+
     card.style.setProperty("--tier-color", tier.borderColor);
     card.style.setProperty("--tier-glow", `${tier.borderColor}66`);
 
