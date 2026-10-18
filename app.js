@@ -822,7 +822,7 @@ if (connectedAddress && connectedAddress.startsWith("erd1qyu5wthldz")) {
   localStorage.removeItem("efoo_wallet_address");
   localStorage.removeItem("multiversx_address");
 }
-if (connectedAddress && typeof window !== "undefined" && window.elrondWallet && connectedProvider !== "xportal" && connectedProvider !== "inspector") {
+if (connectedAddress && typeof window !== "undefined" && (window.multiversxWallet || window.elrondWallet || window.multiversx || window.elrond) && connectedProvider !== "xportal" && connectedProvider !== "inspector") {
   connectedProvider = "extension";
 }
 if (connectedAddress && connectedAddress.startsWith("erd1")) {
@@ -1641,6 +1641,24 @@ async function initXPortalWalletConnect() {
 }
 
 // 2. MultiversX DeFi Wallet Browser Extension (erdw-inpage / erdw-contentScript)
+function getDefiExtension() {
+  if (typeof window === "undefined") return null;
+  return window.multiversxWallet || window.elrondWallet || window.multiversx || window.elrond || null;
+}
+
+function extractAddressFromExtensionResponse(res) {
+  if (!res) return "";
+  if (typeof res === "string" && res.startsWith("erd1")) return res;
+  if (res.address && typeof res.address === "string" && res.address.startsWith("erd1")) return res.address;
+  if (res.account?.address && typeof res.account.address === "string" && res.account.address.startsWith("erd1")) return res.account.address;
+  if (res.data) {
+    if (typeof res.data === "string" && res.data.startsWith("erd1")) return res.data;
+    if (res.data.address && typeof res.data.address === "string" && res.data.address.startsWith("erd1")) return res.data.address;
+    if (res.data.account?.address && typeof res.data.account.address === "string" && res.data.account.address.startsWith("erd1")) return res.data.account.address;
+  }
+  return "";
+}
+
 function sendExtensionMessage(type, data = "") {
   return new Promise((resolve, reject) => {
     let settled = false;
@@ -1656,26 +1674,7 @@ function sendExtensionMessage(type, data = "") {
       if (!event.data || event.data.target !== "erdw-contentScript") return;
       const msg = event.data;
 
-      // Filter connect events specifically
-      if (type === "connect") {
-        if (msg.type === "connectResponse" || msg.type === "loginResponse" || (msg.data && msg.data.address)) {
-          settled = true;
-          clearTimeout(timer);
-          window.removeEventListener("message", handleMessage);
-          if (msg.error || (msg.data && msg.data.error)) {
-            reject(new Error(msg.error || msg.data.error));
-          } else {
-            resolve(msg.data !== undefined ? msg.data : msg);
-          }
-        }
-        return;
-      }
-
-      // Non-connect operations (signTransactions, signMessage, etc.):
-      // Ignore stale connect responses
-      if (msg.type === "connectResponse" || msg.type === "loginResponse") return;
-
-      // Handle user cancellation / error
+      // Handle user cancellation / error across ALL operations (connect, signTransactions, etc.)
       if (
         msg.type === "cancelResponse" ||
         msg.type === "cancelActionResponse" ||
@@ -1691,6 +1690,19 @@ function sendExtensionMessage(type, data = "") {
         reject(new Error(errMsg));
         return;
       }
+
+      // If we are waiting for connect/login:
+      if (type === "connect" || type === "login") {
+        settled = true;
+        clearTimeout(timer);
+        window.removeEventListener("message", handleMessage);
+        resolve(msg.data !== undefined ? msg.data : msg);
+        return;
+      }
+
+      // Non-connect operations (signTransactions, signMessage, etc.):
+      // Ignore stale connect responses
+      if (msg.type === "connectResponse" || msg.type === "loginResponse") return;
 
       // ANY other message targeting erdw-contentScript resolves the pending action!
       settled = true;
@@ -1740,7 +1752,7 @@ async function signWithExtension(preparedTxs) {
     data: toBase64Data(t.data)
   }));
 
-  const ext = window.elrondWallet || window.multiversx || window.elrond;
+  const ext = getDefiExtension();
   if (ext && typeof ext.signTransactions === "function") {
     try {
       const raw = await ext.signTransactions(extInputTxs);
@@ -1764,7 +1776,11 @@ async function signWithExtension(preparedTxs) {
 }
 
 async function connectDefiExtension() {
-  const ext = window.elrondWallet || window.multiversx || window.elrond;
+  let ext = getDefiExtension();
+  if (!ext) {
+    await new Promise((r) => setTimeout(r, 200));
+    ext = getDefiExtension();
+  }
   if (!ext) {
     const confirmInstall = confirm(
       currentLang === "ro"
@@ -1778,18 +1794,18 @@ async function connectDefiExtension() {
   }
 
   try {
-    let addr = ext?.account?.address || ext?.address || "";
+    let addr = extractAddressFromExtensionResponse(ext);
     if (!addr && typeof ext.login === "function") {
       try {
         const res = await ext.login();
-        addr = typeof res === "string" ? res : res && res.address ? res.address : "";
+        addr = extractAddressFromExtensionResponse(res);
       } catch (e) {
         console.warn("Direct ext.login failed, trying postMessage bridge:", e);
       }
     }
     if (!addr) {
       const res = await sendExtensionMessage("connect", "");
-      addr = typeof res === "string" ? res : res && res.address ? res.address : "";
+      addr = extractAddressFromExtensionResponse(res);
     }
 
     if (addr && addr.startsWith("erd1")) {
@@ -2034,7 +2050,7 @@ async function signAndBroadcastTransactions(rawTxList) {
   }
 
   // PATH B: Sign via MultiversX DeFi Wallet Extension (In-browser popup, ZERO redirects!)
-  const ext = window.elrondWallet || window.multiversx || window.elrond;
+  const ext = getDefiExtension();
   if (connectedProvider === "extension" || (ext && connectedProvider !== "xportal" && connectedProvider !== "webwallet")) {
     try {
       showToast(
@@ -2189,7 +2205,7 @@ async function connectWithWalletAddress(address, providerType = "inspector") {
     return;
   }
 
-  if (providerType === "webwallet" && typeof window !== "undefined" && window.elrondWallet) {
+  if (providerType === "webwallet" && typeof window !== "undefined" && getDefiExtension()) {
     providerType = "extension";
   }
 
@@ -2260,7 +2276,7 @@ async function disconnectWallet() {
   }
 
   // 2. Revoke DeFi Extension session
-  const ext = window.elrondWallet || window.multiversx || window.elrond;
+  const ext = getDefiExtension();
   if (ext && typeof ext.logout === "function") {
     try { ext.logout(); } catch (e) {}
   }
@@ -4095,10 +4111,10 @@ function openWalletModal() {
   if (!modal) return;
   modal.classList.remove("hidden");
 
-  // Update Extension badge based on whether window.elrondWallet is injected
+  // Update Extension badge based on whether extension is injected
   const extBadge = document.getElementById("ext-detect-badge");
   if (extBadge) {
-    if (window.elrondWallet) {
+    if (getDefiExtension()) {
       extBadge.textContent = "🟢 Detected";
     } else {
       extBadge.textContent = "Browser Ext";
@@ -4218,7 +4234,7 @@ async function fetchLiveTokenStats() {
 // DOM READY BINDINGS
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
-  if (connectedAddress && typeof window !== "undefined" && window.elrondWallet && connectedProvider !== "xportal") {
+  if (connectedAddress && typeof window !== "undefined" && getDefiExtension() && connectedProvider !== "xportal") {
     connectedProvider = "extension";
     localStorage.setItem("efoo_wallet_provider", "extension");
   }

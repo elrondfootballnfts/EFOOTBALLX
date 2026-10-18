@@ -940,8 +940,8 @@
       }
 
       // 2. Auto-detect if DeFi Wallet extension is already active with owner wallet
-      const ext = window.elrondWallet || window.multiversx || window.elrond;
-      const extAddr = ext?.account?.address || ext?.address || "";
+      const ext = getAdminDefiExtension();
+      const extAddr = extractAddressFromExtensionResponse(ext);
       if (extAddr && extAddr.toLowerCase() === OWNER_ADDRESS.toLowerCase()) {
         localStorage.setItem("efoo_connected_address", OWNER_ADDRESS);
         unlockAdminView();
@@ -970,6 +970,24 @@
     // =========================================================================
     // MULTIVERSX DEFI WALLET EXTENSION INFRASTRUCTURE
     // =========================================================================
+    function getAdminDefiExtension() {
+      if (typeof window === "undefined") return null;
+      return window.multiversxWallet || window.elrondWallet || window.multiversx || window.elrond || null;
+    }
+
+    function extractAddressFromExtensionResponse(res) {
+      if (!res) return "";
+      if (typeof res === "string" && res.startsWith("erd1")) return res;
+      if (res.address && typeof res.address === "string" && res.address.startsWith("erd1")) return res.address;
+      if (res.account?.address && typeof res.account.address === "string" && res.account.address.startsWith("erd1")) return res.account.address;
+      if (res.data) {
+        if (typeof res.data === "string" && res.data.startsWith("erd1")) return res.data;
+        if (res.data.address && typeof res.data.address === "string" && res.data.address.startsWith("erd1")) return res.data.address;
+        if (res.data.account?.address && typeof res.data.account.address === "string" && res.data.account.address.startsWith("erd1")) return res.data.account.address;
+      }
+      return "";
+    }
+
     function toBase64Data(str) {
       if (!str) return "";
       try {
@@ -981,58 +999,77 @@
 
     function sendAdminExtensionMessage(type, data = "") {
       return new Promise((resolve, reject) => {
-        const responseTypeMap = {
-          connect: ["connectResponse", "loginResponse"],
-          signTransactions: ["signTransactionsResponse", "signTransactionResponse"],
-          logout: ["logoutResponse"]
-        };
-        const expectedTypes = responseTypeMap[type] || [type + "Response"];
-
+        let settled = false;
         const timer = setTimeout(() => {
+          if (settled) return;
+          settled = true;
           window.removeEventListener("message", handleMessage);
           reject(new Error("A bővítmény nem válaszolt időben (timeout)"));
         }, 60000);
 
         function handleMessage(event) {
-          if (event.source !== window || !event.data) return;
+          if (settled) return;
+          if (!event.data || event.data.target !== "erdw-contentScript") return;
           const msg = event.data;
-          if (!msg || msg.target !== "erdw-contentScript") return;
-          if (expectedTypes.includes(msg.type)) {
+
+          // Handle user cancellation / error across ALL operations (connect, signTransactions, etc.)
+          if (
+            msg.type === "cancelResponse" ||
+            msg.type === "cancelActionResponse" ||
+            msg.type === "errorResponse" ||
+            msg.error ||
+            (msg.data && msg.data.error)
+          ) {
+            settled = true;
             clearTimeout(timer);
             window.removeEventListener("message", handleMessage);
-            if (msg.error || (msg.data && msg.data.error)) {
-              reject(new Error(msg.error || msg.data.error));
-            } else {
-              resolve(msg.data);
-            }
-          } else if (msg.type === "cancelResponse" || msg.type === "errorResponse") {
-            clearTimeout(timer);
-            window.removeEventListener("message", handleMessage);
-            reject(new Error(msg.error || "Művelet megszakítva a felhasználó által"));
+            const err = msg.error || (msg.data && msg.data.error) || "Művelet megszakítva a felhasználó által";
+            const errMsg = typeof err === "string" ? err : (err.message || JSON.stringify(err));
+            reject(new Error(errMsg));
+            return;
           }
+
+          // If we are waiting for connect/login:
+          if (type === "connect" || type === "login") {
+            settled = true;
+            clearTimeout(timer);
+            window.removeEventListener("message", handleMessage);
+            resolve(msg.data !== undefined ? msg.data : msg);
+            return;
+          }
+
+          // Non-connect operations (signTransactions, signMessage, etc.):
+          // Ignore stale connect responses
+          if (msg.type === "connectResponse" || msg.type === "loginResponse") return;
+
+          // ANY other message targeting erdw-contentScript resolves the pending action!
+          settled = true;
+          clearTimeout(timer);
+          window.removeEventListener("message", handleMessage);
+          resolve(msg.data !== undefined ? msg.data : msg);
         }
 
-        window.addEventListener("message", handleMessage);
-        window.postMessage({ target: "erdw-inpage", type, data }, "*");
+        window.addEventListener("message", handleMessage, false);
+        window.postMessage({ target: "erdw-inpage", type, data }, window.origin || "*");
       });
     }
 
     async function connectExtensionOwner() {
-      const ext = window.elrondWallet || window.multiversx || window.elrond;
+      const ext = getAdminDefiExtension();
       try {
         showToast("🧩 Csatlakozás a MultiversX DeFi Wallet bővítményhez...");
-        let addr = ext?.account?.address || ext?.address || "";
+        let addr = extractAddressFromExtensionResponse(ext);
         if (!addr && ext && typeof ext.login === "function") {
           try {
             const res = await ext.login();
-            addr = typeof res === "string" ? res : (res && res.address ? res.address : "");
+            addr = extractAddressFromExtensionResponse(res);
           } catch (e) {
             console.warn("Direct ext.login failed, trying postMessage bridge:", e);
           }
         }
         if (!addr) {
           const res = await sendAdminExtensionMessage("connect", "");
-          addr = typeof res === "string" ? res : (res && res.address ? res.address : "");
+          addr = extractAddressFromExtensionResponse(res);
         }
 
         if (addr && addr.toLowerCase() === OWNER_ADDRESS.toLowerCase()) {
@@ -1238,7 +1275,7 @@
         data: toBase64Data(t.data)
       }));
 
-      const ext = window.elrondWallet || window.multiversx || window.elrond;
+      const ext = getAdminDefiExtension();
       if (ext && typeof ext.signTransactions === "function") {
         try {
           const raw = await ext.signTransactions(extInputTxs);
