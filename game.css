@@ -931,6 +931,9 @@ body.start-screen-active .hud-top-bar,
 .squad-modal-card {
   width: 95%;
   max-width: 620px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: #08160f;
   border: 2px solid rgba(168, 255, 0, 0.4);
   border-radius: 22px;
@@ -941,6 +944,7 @@ body.start-screen-active .hud-top-bar,
   flex-direction: column;
   gap: 18px;
   margin: auto;
+  box-sizing: border-box;
 }
 
 .smc-head h2 {
@@ -2368,36 +2372,64 @@ body.start-screen-active .hud-top-bar,
 }
 
 @media (max-width: 520px) {
+  /* Prevent iOS Safari auto-zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
   /* Ultra-compact phone portrait / xPortal mobile in-app browser */
   .sb-club span {
     display: none; /* Keep club logo badge only */
   }
 
   #lang-label,
-  #sfx-label {
-    display: none; /* Icon-only for language and sound buttons */
+  #sfx-label,
+  #ranks-btn-label {
+    display: none; /* Icon-only for language, sound, and ranks buttons */
   }
 
   .hud-icon-btn {
-    padding: 0 8px;
-    min-width: 36px;
-    height: 36px;
+    padding: 0 6px;
+    min-width: 34px;
+    height: 34px;
   }
 
   .hud-right-group {
-    gap: 5px;
+    gap: 4px;
   }
 
   .btn-godmode {
-    height: 36px;
-    padding: 0 8px;
-    font-size: 0.66rem;
+    height: 34px;
+    padding: 0 6px;
+    font-size: 0.65rem;
+    max-width: 78px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .btn-wallet-pill {
-    height: 36px;
-    padding: 0 10px;
-    font-size: 0.68rem;
+    height: 34px;
+    padding: 0 8px;
+    font-size: 0.66rem;
+    max-width: 84px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tv-scorebug {
+    height: 34px;
+  }
+
+  .sb-shots-dots {
+    padding: 0 4px;
+    gap: 3px;
+  }
+
+  .shot-dot {
+    width: 10px;
+    height: 10px;
   }
 
   .start-hero-cards {
@@ -2494,32 +2526,36 @@ body.start-screen-active .hud-top-bar,
 
   /* Bottom bar on phone portrait */
   .hud-bottom-bar {
+    bottom: max(6px, env(safe-area-inset-bottom));
+    left: max(4px, env(safe-area-inset-left));
+    right: max(4px, env(safe-area-inset-right));
     flex-wrap: nowrap;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
+    padding: 0 4px;
   }
 
   .fut-striker-dock {
-    max-width: 140px;
-    padding: 4px 8px;
+    max-width: 110px;
+    padding: 3px 6px;
   }
 
   .fut-card-avatar {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
   }
 
   .fut-ovr-badge {
-    font-size: 0.68rem;
-    padding: 0 3px;
+    font-size: 0.65rem;
+    padding: 0 2px;
   }
 
   .fut-card-info strong {
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 82px;
+    max-width: 65px;
   }
 
   .fut-card-info small {
@@ -2535,24 +2571,24 @@ body.start-screen-active .hud-top-bar,
   }
 
   .visual-perks-dock .vp-icon-slot {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
   }
 
   .vp-icon-slot .vp-emoji {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
   }
 
   .vp-icon-slot .vp-tag {
-    font-size: 0.46rem;
+    font-size: 0.44rem;
   }
 
   .btn-open-boost {
-    height: 36px;
-    padding: 0 8px;
-    font-size: 0.88rem;
-    border-radius: 8px;
+    height: 32px;
+    padding: 0 6px;
+    font-size: 0.82rem;
+    border-radius: 7px;
   }
 
   /* Modals on small screen */
@@ -3243,6 +3279,9 @@ body.start-screen-active .hud-top-bar,
 .streak-modal-card {
   width: 100%;
   max-width: 540px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 22px;
   border-radius: 24px;
   background: linear-gradient(155deg, rgba(14, 28, 20, 0.98), rgba(6, 12, 8, 0.99));
@@ -5034,6 +5073,225 @@ body.fx-gold-active #arcade-viewport {
   box-shadow: 0 0 12px rgba(255, 184, 0, 0.5);
   letter-spacing: 0.04em;
   margin-left: 6px;
+}
+
+/* ==========================================================================
+   EA SPORTS HUB & GAME MODALS COMPREHENSIVE MOBILE OPTIMIZATIONS
+   ========================================================================== */
+@media (max-width: 768px) {
+  .ea-sports-hub {
+    width: 98% !important;
+    max-height: 95dvh !important;
+    padding: 14px 12px !important;
+    border-radius: 18px !important;
+    gap: 14px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .hub-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding-bottom: 10px;
+  }
+
+  .hub-brand-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .hub-game-title {
+    font-size: 1.3rem;
+  }
+
+  .hub-telemetry-group {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .hub-pot-badge,
+  .hub-burn-badge {
+    flex: 1;
+    padding: 6px 10px;
+    justify-content: center;
+  }
+
+  .hub-pot-badge strong,
+  .hub-burn-badge strong {
+    font-size: 0.82rem;
+  }
+
+  .hub-controls-group {
+    width: 100%;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .hub-ctrl-btn {
+    flex: 1;
+    min-height: 38px;
+    justify-content: center;
+    padding: 6px 8px;
+    font-size: 0.68rem;
+  }
+
+  .hub-wallet-btn {
+    flex: 1.2;
+    min-height: 38px;
+    justify-content: center;
+    padding: 6px 10px;
+    font-size: 0.72rem;
+  }
+
+  /* Hero Kickoff Card */
+  .hub-kickoff-card {
+    padding: 16px 16px;
+  }
+
+  .hk-center-action {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .hk-text-content {
+    min-width: unset;
+  }
+
+  .hk-title {
+    font-size: 1.7rem;
+  }
+
+  .hk-kickoff-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 18px;
+    font-size: 1.4rem;
+    min-height: 50px;
+  }
+
+  /* Squad & Market Banners */
+  .hub-market-banner {
+    padding: 14px 16px;
+  }
+
+  .hmb-content {
+    min-width: unset;
+  }
+
+  .hmb-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .hmb-btn-skills,
+  .hmb-btn-market {
+    width: 100%;
+    justify-content: center;
+    min-height: 42px;
+  }
+
+  /* Leaderboard in Hub */
+  .hub-leaderboard-card {
+    padding: 14px 14px;
+  }
+
+  .hlb-payout-strip {
+    gap: 4px;
+  }
+
+  .hlb-table td,
+  .hlb-table th {
+    padding: 6px 4px;
+    font-size: 0.72rem;
+  }
+
+  /* All Game Modals */
+  .squad-modal-card,
+  .leaderboard-modal-card,
+  .streak-modal-card,
+  .skills-shop-modal-card,
+  .levels-modal-card,
+  .wallet-modal {
+    padding: 16px 12px !important;
+    border-radius: 18px !important;
+    max-height: 92dvh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    box-sizing: border-box !important;
+  }
+
+  .modal-close,
+  .modal-close-btn {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+  }
+
+  .streak-days-row {
+    gap: 4px;
+  }
+
+  .streak-day-bubble {
+    padding: 8px 3px;
+  }
+
+  .sdb-icon {
+    font-size: 1.15rem;
+  }
+
+  .sdb-label {
+    font-size: 0.62rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ea-sports-hub {
+    padding: 10px 8px !important;
+    gap: 10px !important;
+  }
+
+  .hub-logo-img {
+    width: 34px;
+    height: 34px;
+  }
+
+  .hub-game-title {
+    font-size: 1.18rem;
+  }
+
+  .hk-title {
+    font-size: 1.45rem;
+  }
+
+  .hk-desc {
+    font-size: 0.78rem;
+    line-height: 1.35;
+  }
+
+  .hk-kickoff-btn {
+    font-size: 1.25rem;
+    padding: 12px 14px;
+  }
+
+  .hpc-media {
+    height: 170px;
+  }
+
+  .hlb-table td strong {
+    font-size: 0.72rem;
+  }
+
+  .hlb-payout-col span {
+    font-size: 0.5rem;
+  }
+
+  .hlb-payout-col strong {
+    font-size: 0.66rem;
+  }
 }
 
 

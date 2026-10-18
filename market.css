@@ -50,6 +50,13 @@
   box-shadow: 0 0 16px rgba(168, 255, 0, 0.7);
 }
 
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   background-color: var(--bg-deep);
   background-image: 
@@ -62,6 +69,7 @@ body {
   min-height: 100vh;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
 }
 
 .m-container {
@@ -2030,44 +2038,306 @@ body {
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* Mobile Responsiveness */
+/* =====================================================================
+   COMPREHENSIVE MOBILE RESPONSIVENESS & TOUCH OPTIMIZATIONS
+   ===================================================================== */
 @media (max-width: 768px) {
+  /* Prevent iOS Safari auto-zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  .m-container {
+    width: 95%;
+    max-width: 100%;
+    padding: 0 4px;
+    box-sizing: border-box;
+  }
+
+  /* Sticky Navigation */
+  .market-nav.krogan-nav,
+  .market-nav {
+    padding-top: max(8px, env(safe-area-inset-top));
+    padding-bottom: 8px;
+  }
   .m-nav-inner {
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 8px;
   }
   .m-nav-left-cluster {
     width: 100%;
     justify-content: space-between;
-    gap: 14px;
-    flex-wrap: wrap;
-  }
-  .m-nav-menu-krogan {
-    gap: 14px;
+    gap: 8px;
+    flex-wrap: nowrap;
     overflow-x: auto;
-    max-width: 100%;
-    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
   }
-  .m-nav-item-krogan {
-    font-size: 0.82rem;
+  .brand-logo,
+  .m-brand-logo {
+    width: 34px;
+    height: 34px;
   }
+  .brand-title {
+    font-size: 1.2rem;
+  }
+  .brand-sub,
   .m-brand-sub {
     display: none;
+  }
+  .m-nav-menu-krogan {
+    gap: 6px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .m-nav-menu-krogan::-webkit-scrollbar {
+    display: none;
+  }
+  .m-nav-item-krogan {
+    font-size: 0.78rem;
+    padding: 6px 10px;
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 8px;
+    flex-shrink: 0;
   }
   .m-nav-actions {
     width: 100%;
     justify-content: flex-end;
+    gap: 6px;
   }
+
+  /* Krogan Wallet Pill & Connect Button */
+  .krogan-wallet-pill {
+    padding: 5px 8px;
+    font-size: 0.72rem;
+    gap: 5px;
+    border-radius: 8px;
+  }
+  .kwp-addr {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .kwp-divider {
+    display: none;
+  }
+  .kwp-disc {
+    min-width: 32px;
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    padding: 4px;
+  }
+  .krogan-btn-connect {
+    padding: 8px 12px;
+    font-size: 0.76rem;
+    min-height: 40px;
+  }
+
+  /* Hero & Stats Strip */
+  .m-hero-section {
+    padding: 16px 0 12px;
+  }
+  .m-title {
+    font-size: clamp(1.9rem, 6.5vw, 2.6rem);
+    line-height: 1.05;
+  }
+  .m-subtitle {
+    font-size: 0.84rem;
+    line-height: 1.35;
+  }
+  .m-stats-strip {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .m-stat-box {
+    padding: 10px 12px;
+  }
+  .msb-val {
+    font-size: 1.25rem;
+  }
+
+  /* Navigation Tabs */
+  .m-tabs-row {
+    gap: 6px;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .m-tabs-row::-webkit-scrollbar {
+    display: none;
+  }
+  .m-tab-btn {
+    font-size: 1.15rem;
+    padding: 7px 13px;
+    min-height: 42px;
+    flex-shrink: 0;
+  }
+
+  /* Filters Bar */
+  .m-filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+  .m-search-box {
+    width: 100%;
+  }
+  .m-filter-group {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-start;
+  }
+  .m-filter-pill {
+    min-height: 38px;
+    padding: 6px 12px;
+    font-size: 0.78rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .m-select {
+    width: 100%;
+    height: 42px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+
+  /* NFT Cards Grid */
   .m-cards-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 10px;
+  }
+
+  /* Pools, Minters, and Activity Grids */
+  .pools-grid,
+  .mm-cards-grid,
+  .m-activity-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .pool-card-main,
+  .mm-card {
+    padding: 16px 14px;
+    border-radius: 16px;
+    min-width: 0;
+  }
+
+  /* Swap Card */
+  .market-swap-card {
+    padding: 16px 14px;
+    border-radius: 18px;
+  }
+  .ms-input-amt {
+    font-size: 1.35rem;
+  }
+  .ms-swap-action-btn {
+    min-height: 48px;
+    font-size: 1.2rem;
+  }
+
+  /* Modals */
+  .m-modal-card {
+    width: min(96%, 480px);
+    max-height: 92dvh;
+    padding: 18px 14px;
+    border-radius: 20px;
+    box-sizing: border-box;
+  }
+  .m-modal-close {
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    font-size: 0.9rem;
+  }
+  .m-detail-layout {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  /* Ultras Pass */
+  .ultras-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .ultras-card-box {
+    padding: 20px 14px;
+    border-radius: 18px;
+  }
+  .ultras-hologram-stage {
+    width: 160px;
+    height: 160px;
+  }
+  .ultras-hologram-shield {
+    width: 150px;
+    height: 150px;
   }
 }
 
 @media (max-width: 480px) {
+  .m-stats-strip {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
   .m-cards-grid {
     grid-template-columns: 1fr;
     gap: 12px;
+    max-width: 360px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .m-nft-card {
+    border-radius: 16px;
+    min-width: 0;
+  }
+  .mnc-thumb-wrap {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+  }
+  .mnc-media-img {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    object-fit: cover;
+  }
+  .mnc-body {
+    padding: 12px 14px;
+  }
+  .mnc-btn {
+    min-height: 44px;
+    font-size: 1.15rem;
+    width: 100%;
+    justify-content: center;
+  }
+  .m-pagination-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px 14px;
+  }
+  .m-page-size-selector,
+  .m-page-nav-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .m-page-size-btn,
+  .m-page-nav-btn {
+    min-height: 40px;
+    padding: 6px 12px;
   }
 }
 
