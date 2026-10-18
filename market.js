@@ -2115,23 +2115,34 @@ function renderMyLockerGrid() {
     card.className = `m-nft-card tier-${tier.tierKey}`;
 
     if (isPass) {
+      const isHu = currentMarketLang === "hu";
+      const sftQty = parseInt(nft.balance || "1", 10) || 1;
+      const sftFormatted = sftQty.toLocaleString("en-US");
+
       card.innerHTML = `
         <div class="mnc-media-wrap" data-locker-inspect="${nft.identifier}">
           <img src="${nft.url || 'branding/rebranded/efoo-ultras-pass-badge.png'}" alt="${nft.name}" class="mnc-media-img" />
           <div class="mnc-rank-badge" style="border-color:#ffb800; color:#ffb800; background:rgba(255,184,0,0.15);">
             👑 VIP PASS • 0% FEES
           </div>
-          <div class="mnc-col-tag" style="background:#ffb800; color:#050d08; font-weight:800;">👑 ULTRAS SFT</div>
+          <div class="mnc-col-tag" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; font-weight:900; box-shadow:0 0 10px rgba(255,184,0,0.4);">
+            👑 ${sftFormatted} SFT
+          </div>
         </div>
 
         <div class="mnc-body">
           <div class="mnc-title-row">
             <strong class="mnc-title" style="color:#ffb800;">${nft.name || "EFOO ULTRAS PASS"}</strong>
-            <span class="mnc-vip-tag" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:6px;">VIP PASS</span>
+            <div class="mnc-title-tags" style="display:flex; align-items:center; gap:6px;">
+              <span class="mnc-vip-tag" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:6px;">VIP PASS</span>
+              <span class="mnc-qty-badge" style="background:rgba(255,184,0,0.18); border:1px solid rgba(255,184,0,0.6); color:#ffb800; font-family:var(--font-mono); font-size:0.72rem; font-weight:900; padding:2px 8px; border-radius:6px; letter-spacing:0.04em;">
+                ${isHu ? `${sftFormatted} db a tárcádban` : `In Wallet: ${sftFormatted}`}
+              </span>
+            </div>
           </div>
 
           <p class="mnc-trait-desc" style="color:#f3f7f4;">
-            ${currentMarketLang === "hu" ? "Élethosszig tartó 0% piactéri díjkedvezmény • +1.5x szorzó és +1 VIP pajzs a meccseken!" : "Lifetime 0% marketplace trading fee • +1.5x score multiplier & +1 VIP shield!"}
+            ${isHu ? "Élethosszig tartó 0% piactéri díjkedvezmény • +1.5x szorzó és +1 VIP pajzs a meccseken!" : "Lifetime 0% marketplace trading fee • +1.5x score multiplier & +1 VIP shield!"}
           </p>
 
           <div class="mnc-powers-row">
@@ -2142,9 +2153,10 @@ function renderMyLockerGrid() {
 
           <div class="mnc-footer">
             <div class="mnc-price-box">
-              <span class="mnc-price-lbl">MEMBERSHIP</span>
-              <strong class="mnc-price-val" style="color:var(--neon);">
-                👑 Active VIP Pass
+              <span class="mnc-price-lbl">${isHu ? "TÁRCÁDBAN LÉVŐ MENNYISÉG" : "WALLET SFT BALANCE"}</span>
+              <strong class="mnc-price-val" style="color:#ffb800; font-size:1.15rem; display:inline-flex; align-items:center; gap:6px;">
+                <span>👑 ${sftFormatted} SFT</span>
+                <small style="color:var(--neon); font-size:0.75rem; font-weight:700;">(${isHu ? "VIP Aktív" : "VIP Active"})</small>
               </strong>
             </div>
 
@@ -3099,10 +3111,14 @@ function openNftDetailsModal(nft) {
 
   const tier = getNftRarityTier(nft);
 
-  if (imgEl) imgEl.src = nft.url || (isUltrasPassNft(nft) ? "branding/rebranded/efoo-ultras-pass-badge.png" : "branding/original/EFOOTBALL-91a4eb/logo.png");
+  const isPass = isUltrasPassNft(nft);
+  const sftQty = parseInt(nft.balance || "1", 10) || 1;
+  const sftFormatted = sftQty.toLocaleString("en-US");
+
+  if (imgEl) imgEl.src = nft.url || (isPass ? "branding/rebranded/efoo-ultras-pass-badge.png" : "branding/original/EFOOTBALL-91a4eb/logo.png");
   if (rankPill) {
-    if (isUltrasPassNft(nft)) {
-      rankPill.textContent = "👑 VIP PASS • 0% FEES";
+    if (isPass) {
+      rankPill.textContent = `👑 VIP PASS • ${sftFormatted} SFT IN WALLET`;
       rankPill.style.borderColor = "#ffb800";
       rankPill.style.color = "#ffb800";
     } else {
@@ -3111,10 +3127,10 @@ function openNftDetailsModal(nft) {
       rankPill.style.color = tier.borderColor;
     }
   }
-  if (colIdEl) colIdEl.textContent = isUltrasPassNft(nft) ? ULTRAS_PASS_COLLECTION : (nft.collection || STRIKER_COLLECTION);
+  if (colIdEl) colIdEl.textContent = isPass ? ULTRAS_PASS_COLLECTION : (nft.collection || STRIKER_COLLECTION);
   if (nameEl) nameEl.textContent = nft.name || nft.identifier;
   if (traitEl) {
-    traitEl.textContent = isUltrasPassNft(nft)
+    traitEl.textContent = isPass
       ? "Exclusive MultiversX VIP Access SFT (0% Trading Fees for Life)"
       : (nft.trait || "Sunday League Degen Ultra");
   }
@@ -3122,15 +3138,16 @@ function openNftDetailsModal(nft) {
   // Powers
   if (powersList) {
     powersList.innerHTML = tier.powers
-      .map((p) => `<span class="m-power-badge" style="${isUltrasPassNft(nft) ? 'border-color:#ffb800; color:#ffb800;' : ''}">${p}</span>`)
+      .map((p) => `<span class="m-power-badge" style="${isPass ? 'border-color:#ffb800; color:#ffb800;' : ''}">${p}</span>`)
       .join("");
   }
 
   // Attributes table
   if (traitsTable) {
-    const rawAttrs = isUltrasPassNft(nft)
+    const rawAttrs = isPass
       ? [
           { name: "Type", value: "VIP Membership SFT" },
+          { name: "Wallet Balance", value: `${sftFormatted} SFT (VIP Active)` },
           { name: "Trading Fee", value: "0% (Zero Fees for Life)" },
           { name: "Match Booster", value: "+1.5x Multiplier & +1 Shield" },
           { name: "Max Supply", value: "300 SFT" },
