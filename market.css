@@ -1063,16 +1063,6 @@ body {
   line-height: 1;
 }
 
-.mnc-ovr {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  font-weight: 900;
-  color: var(--neon);
-  background: rgba(168, 255, 0, 0.12);
-  border: 1px solid rgba(168, 255, 0, 0.3);
-  padding: 2px 7px;
-  border-radius: 6px;
-}
 
 .mnc-vip-tag {
   font-family: var(--font-mono);

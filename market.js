@@ -1084,7 +1084,6 @@ async function fetchLiveXoxnoListings() {
               name: it.name || it.identifier,
               rarity: tier.tierLabel,
               rank: it.rank || tier.rank,
-              ovr: it.metadata?.attributes?.find((a) => a.trait_type === "OVR")?.value || (col === KEEPER_COLLECTION ? 92 : 88),
               trait: "Official XOXNO Marketplace Listing",
               url: it.url || colConfig.fallbackImg,
               price: colConfig.floor,
@@ -1167,7 +1166,6 @@ async function fetchLiveScListings() {
             name: it.name || it.identifier,
             rarity: tier.tierLabel,
             rank: it.rank || tier.rank,
-            ovr: it.metadata?.attributes?.find((a) => a.trait_type === "OVR")?.value || (it.collection === KEEPER_COLLECTION ? 92 : 88),
             trait: "Official NFooT SC Escrow Listing",
             url: it.url || (it.collection === KEEPER_COLLECTION ? "branding/original/GOALKEEPER-cb9e3e/logo.png" : "branding/original/EFOOTBALL-91a4eb/logo.png"),
             price: price,
@@ -1769,7 +1767,6 @@ function renderMarketplaceGrid() {
                 ? `<span class="mnc-vip-tag" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:6px;">VIP PASS</span>`
                 : `<span class="mnc-role-tag">${item.jersey ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`
             }
-            <span class="mnc-ovr">${item.ovr || 85} OVR</span>
           </div>
         </div>
 
@@ -1987,7 +1984,13 @@ function renderMyLockerGrid() {
       <div class="mnc-body">
         <div class="mnc-title-row">
           <strong class="mnc-title">${nft.name || nft.identifier}</strong>
-          <span class="mnc-ovr">${nft.ovr || 90} OVR</span>
+          <div class="mnc-title-tags">
+            ${
+              isUltrasPassNft(nft)
+                ? `<span class="mnc-vip-tag" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:6px;">VIP PASS</span>`
+                : `<span class="mnc-role-tag">${nft.jersey ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`
+            }
+          </div>
         </div>
 
         <p class="mnc-trait-desc">${nft.trait || "Equipped for 120' Shootout Arena"}</p>
@@ -2656,7 +2659,6 @@ async function executeCreateListing() {
       name: activeModalNft.name || activeModalNft.identifier,
       rarity: tier.tierLabel,
       rank: tier.rank,
-      ovr: activeModalNft.ovr || 90,
       trait: activeModalNft.trait || "Listed by Player in SC Escrow",
       url: activeModalNft.url || "branding/original/EFOOTBALL-91a4eb/logo.png",
       price: priceVal,
@@ -2931,12 +2933,13 @@ function openNftDetailsModal(nft) {
           { name: "Max Supply", value: "300 SFT" },
           { name: "Collection", value: ULTRAS_PASS_COLLECTION }
         ]
-      : (nft.attributes || [
-          { name: "OVR", value: String(nft.ovr || 90) },
-          { name: "Collection", value: nft.collection || STRIKER_COLLECTION },
-          { name: "Rarity Rank", value: `#${tier.rank}` },
-          { name: "Tier", value: tier.tierLabel }
-        ]);
+      : (Array.isArray(nft.attributes) && nft.attributes.length
+          ? nft.attributes.filter((a) => (a.name || a.trait_type) !== "OVR")
+          : [
+              { name: "Collection", value: nft.collection || STRIKER_COLLECTION },
+              { name: "Rarity Rank", value: `#${tier.rank}` },
+              { name: "Tier", value: tier.tierLabel }
+            ]);
     traitsTable.innerHTML = rawAttrs
       .map((a) => `
         <div class="m-trait-cell">
