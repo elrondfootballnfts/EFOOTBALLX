@@ -105,6 +105,12 @@ function toAtomicUnits(val, decimals = 18) {
   return BigInt(fullStr || "0");
 }
 
+function bigIntToHex(bigIntVal) {
+  let hex = BigInt(bigIntVal).toString(16);
+  if (hex.length % 2 !== 0) hex = "0" + hex;
+  return hex || "00";
+}
+
 function toBase64Data(str) {
   if (!str) return "";
   try {
@@ -1371,18 +1377,33 @@ async function fetchWalletBalances(address) {
       marketWallet.egldBalance = parseFloat(acc.balance) / 1e18;
     }
 
-    // Fetch EFOO
-    const tokRes = await fetch(`${MULTIVERSX_API}/accounts/${address}/tokens/${EFOO_TOKEN_ID}`);
-    if (tokRes.ok) {
-      const tok = await tokRes.json();
-      marketWallet.efooBalance = parseFloat(tok.balance) / 1e18;
+    // Fetch All User ESDT Tokens (WEGLD, EFOO, USDC, FOXSY, etc.)
+    const allTokensRes = await fetch(`${MULTIVERSX_API}/accounts/${address}/tokens?size=100`);
+    if (allTokensRes.ok) {
+      const allTokens = await allTokensRes.json();
+      marketWallet.tokens = {};
+      if (Array.isArray(allTokens)) {
+        allTokens.forEach((t) => {
+          const dec = t.decimals !== undefined ? t.decimals : 18;
+          marketWallet.tokens[t.identifier] = parseFloat(t.balance) / Math.pow(10, dec);
+        });
+      }
+      marketWallet.efooBalance = marketWallet.tokens[EFOO_TOKEN_ID] || 0;
     } else {
-      marketWallet.efooBalance = 0;
+      // Fallback single token fetch
+      const tokRes = await fetch(`${MULTIVERSX_API}/accounts/${address}/tokens/${EFOO_TOKEN_ID}`);
+      if (tokRes.ok) {
+        const tok = await tokRes.json();
+        marketWallet.efooBalance = parseFloat(tok.balance) / 1e18;
+      } else {
+        marketWallet.efooBalance = 0;
+      }
     }
   } catch (e) {
     marketWallet.efooBalance = 0;
   }
   updateWalletUI();
+  updateMarketSwapEstimate();
 }
 
 async function fetchWalletNfts(address) {
@@ -3207,28 +3228,250 @@ async function executeMarketMintKeeper() {
   }
 }
 
-const TOKEN_LOGOS = {
-  EGLD: {
-    name: "EGLD",
-    icon: "branding/icons/egld-logo.svg",
-    isRound: false
-  },
+const SWAP_TOKENS = {
   WEGLD: {
-    name: "WEGLD",
-    icon: "branding/icons/wegld-logo.svg",
-    isRound: false
+    symbol: "EGLD",
+    realSymbol: "WEGLD",
+    name: "EGLD",
+    sub: "Wrapped EGLD (OneDex Direct)",
+    identifier: "WEGLD-bd4d79",
+    decimals: 18,
+    icon: "branding/icons/egld-logo.svg",
+    isRound: false,
+    route: "OneDex AMM (Direct)",
+    dex: "onedex_direct"
   },
   USDC: {
+    symbol: "USDC",
+    realSymbol: "USDC",
     name: "USDC",
+    sub: "USD Coin (xExchange)",
+    identifier: "USDC-c76f1f",
+    decimals: 6,
     icon: "branding/icons/usdc-logo.svg",
-    isRound: false
+    isRound: false,
+    route: "xExchange (185.6M Pool)",
+    dex: "xexchange"
+  },
+  FOXSY: {
+    symbol: "FOXSY",
+    realSymbol: "FOXSY",
+    name: "FOXSY",
+    sub: "Foxsy AI",
+    identifier: "FOXSY-5d5f3e",
+    decimals: 18,
+    icon: "branding/icons/foxsy-logo.svg",
+    isRound: true,
+    route: "OneDex (FOXSY ➔ WEGLD ➔ EFOO)",
+    dex: "onedex_hop"
+  },
+  MEX: {
+    symbol: "MEX",
+    realSymbol: "MEX",
+    name: "MEX",
+    sub: "xExchange Token",
+    identifier: "MEX-455c57",
+    decimals: 18,
+    icon: "branding/icons/mex-logo.svg",
+    isRound: false,
+    route: "OneDex (MEX ➔ WEGLD ➔ EFOO)",
+    dex: "onedex_hop"
+  },
+  WBTC: {
+    symbol: "WBTC",
+    realSymbol: "WBTC",
+    name: "WBTC",
+    sub: "Wrapped Bitcoin",
+    identifier: "WBTC-5349b3",
+    decimals: 8,
+    icon: "branding/icons/wbtc-logo.svg",
+    isRound: false,
+    route: "OneDex (WBTC ➔ WEGLD ➔ EFOO)",
+    dex: "onedex_hop"
+  },
+  WETH: {
+    symbol: "WETH",
+    realSymbol: "WETH",
+    name: "WETH",
+    sub: "Wrapped Ethereum",
+    identifier: "WETH-b4ca29",
+    decimals: 18,
+    icon: "branding/icons/weth-logo.svg",
+    isRound: false,
+    route: "OneDex (WETH ➔ WEGLD ➔ EFOO)",
+    dex: "onedex_hop"
+  },
+  XOXNO: {
+    symbol: "XOXNO",
+    realSymbol: "XOXNO",
+    name: "XOXNO",
+    sub: "XOXNO Token",
+    identifier: "XOXNO-c1293a",
+    decimals: 18,
+    icon: "branding/icons/xoxno-logo.svg",
+    isRound: true,
+    route: "OneDex (XOXNO ➔ WEGLD ➔ EFOO)",
+    dex: "onedex_hop"
+  },
+  BOBER: {
+    symbol: "BOBER",
+    realSymbol: "BOBER",
+    name: "BOBER",
+    sub: "Bober Kurwa",
+    identifier: "BOBER-9eb764",
+    decimals: 18,
+    icon: "branding/icons/bober-logo.svg",
+    isRound: true,
+    route: "OneDex (BOBER ➔ WEGLD ➔ EFOO)",
+    dex: "onedex_hop"
+  },
+  OFE: {
+    symbol: "OFE",
+    realSymbol: "OFE",
+    name: "OFE",
+    sub: "Ofero Network",
+    identifier: "OFE-29eb54",
+    decimals: 4,
+    icon: "branding/icons/ofe-logo.svg",
+    isRound: true,
+    route: "OneDex Router (OFE ➔ WEGLD ➔ EFOO)",
+    dex: "onedex_hop"
+  },
+  JEX: {
+    symbol: "JEX",
+    realSymbol: "JEX",
+    name: "JEX",
+    sub: "JEXchange",
+    identifier: "JEX-9040ca",
+    decimals: 18,
+    icon: "branding/icons/jex-logo.svg",
+    isRound: true,
+    route: "OneDex (JEX ➔ WEGLD ➔ EFOO)",
+    dex: "onedex_hop"
+  },
+  VICTOR: {
+    symbol: "VICTOR",
+    realSymbol: "VICTOR",
+    name: "VICTOR",
+    sub: "Victor Token",
+    identifier: "VICTOR-9fa27f",
+    decimals: 18,
+    icon: "branding/icons/victor-logo.svg",
+    isRound: true,
+    route: "OneDex (VICTOR ➔ WEGLD ➔ EFOO)",
+    dex: "onedex_hop"
+  },
+  WAM: {
+    symbol: "WAM",
+    realSymbol: "WAM",
+    name: "WAM",
+    sub: "WAM Gaming",
+    identifier: "WAM-510e42",
+    decimals: 18,
+    icon: "branding/icons/wam-logo.svg",
+    isRound: true,
+    route: "OneDex Router (WAM ➔ WEGLD ➔ EFOO)",
+    dex: "onedex_hop"
+  },
+  RARE: {
+    symbol: "RARE",
+    realSymbol: "RARE",
+    name: "RARE",
+    sub: "SuperRare Token",
+    identifier: "RARE-99e8b0",
+    decimals: 18,
+    icon: "branding/icons/rare-logo.svg",
+    isRound: true,
+    route: "OneDex (RARE ➔ WEGLD ➔ EFOO)",
+    dex: "onedex_hop"
+  },
+  JOJO: {
+    symbol: "JOJO",
+    realSymbol: "JOJO",
+    name: "JOJO",
+    sub: "JoJo Token",
+    identifier: "JOJO-0e7858",
+    decimals: 18,
+    icon: "branding/icons/jojo-logo.svg",
+    isRound: true,
+    route: "OneDex (JOJO ➔ WEGLD ➔ EFOO)",
+    dex: "onedex_hop"
+  },
+  SUPER: {
+    symbol: "SUPER",
+    realSymbol: "SUPER",
+    name: "SUPER",
+    sub: "SuperVerse",
+    identifier: "SUPER-507aa6",
+    decimals: 18,
+    icon: "branding/icons/super-logo.svg",
+    isRound: true,
+    route: "OneDex Router (SUPER ➔ WEGLD ➔ EFOO)",
+    dex: "onedex_hop"
+  },
+  PLATA: {
+    symbol: "PLATA",
+    realSymbol: "PLATA",
+    name: "PLATA",
+    sub: "Plata Token",
+    identifier: "PLATA-9ba6c3",
+    decimals: 8,
+    icon: "branding/icons/plata-logo.svg",
+    isRound: true,
+    route: "OneDex (PLATA ➔ WEGLD ➔ EFOO)",
+    dex: "onedex_hop"
   },
   EFOO: {
+    symbol: "$EFOO",
+    realSymbol: "EFOO",
     name: "$EFOO",
+    sub: "Sunday League Degen FC",
+    identifier: "EFOO-8fe2d4",
+    decimals: 18,
     icon: "branding/icons/efoo-logo.png",
-    isRound: true
+    isRound: true,
+    route: "OneDex AMM (Sell to EGLD)",
+    dex: "sell_efoo"
   }
 };
+
+let TOKEN_PRICES = {
+  "WEGLD-bd4d79": 3.4626,
+  "USDC-c76f1f": 1.0,
+  "FOXSY-5d5f3e": 0.002647,
+  "MEX-455c57": 0.0000004896,
+  "WBTC-5349b3": 81006.57,
+  "WETH-b4ca29": 2366.73,
+  "XOXNO-c1293a": 0.006361,
+  "BOBER-9eb764": 0.00004412,
+  "OFE-29eb54": 0.0004763,
+  "JEX-9040ca": 0.0003583,
+  "VICTOR-9fa27f": 0.002716,
+  "WAM-510e42": 0.0004124,
+  "RARE-99e8b0": 0.0003397,
+  "JOJO-0e7858": 0.01031,
+  "SUPER-507aa6": 0.0005001,
+  "PLATA-9ba6c3": 0.00001687,
+  "EFOO-8fe2d4": 0.00000012257
+};
+
+async function fetchSwapTokenPrices() {
+  try {
+    const ids = Object.values(SWAP_TOKENS).map((t) => t.identifier).join(",");
+    const res = await fetch(`${MULTIVERSX_API}/tokens?identifiers=${ids}`);
+    if (res.ok) {
+      const list = await res.json();
+      if (Array.isArray(list)) {
+        list.forEach((t) => {
+          if (t && t.identifier && typeof t.price === "number") {
+            TOKEN_PRICES[t.identifier] = t.price;
+          }
+        });
+      }
+      updateMarketSwapEstimate();
+    }
+  } catch (e) {}
+}
 
 function setMarketSwapToken(tokenVal) {
   const hiddenInput = document.getElementById("m-swap-token-select");
@@ -3239,16 +3482,17 @@ function setMarketSwapToken(tokenVal) {
   const menuList = document.getElementById("m-token-menu-list");
   const dropdownWrap = document.getElementById("m-swap-token-dropdown");
 
-  if (TOKEN_LOGOS[tokenVal]) {
+  const conf = SWAP_TOKENS[tokenVal] || SWAP_TOKENS.WEGLD;
+  if (conf) {
     if (triggerIcon) {
-      triggerIcon.src = TOKEN_LOGOS[tokenVal].icon;
-      triggerIcon.classList.toggle("round", !!TOKEN_LOGOS[tokenVal].isRound);
+      triggerIcon.src = conf.icon;
+      triggerIcon.classList.toggle("round", !!conf.isRound);
     }
-    if (triggerName) triggerName.textContent = TOKEN_LOGOS[tokenVal].name;
+    if (triggerName) triggerName.textContent = conf.symbol || conf.name;
   }
 
   // Update active state in menu items
-  document.querySelectorAll(".token-dropdown-item").forEach((item) => {
+  document.querySelectorAll("#m-token-menu-list .token-dropdown-item").forEach((item) => {
     item.classList.toggle("active", item.getAttribute("data-token-val") === tokenVal);
   });
 
@@ -3272,10 +3516,26 @@ function updateMarketSwapEstimate() {
   const isHu = currentMarketLang === "hu";
 
   const amt = Math.max(0, parseFloat(amtInput?.value) || 0);
-  const tok = tokSelect?.value || "EGLD";
+  const tok = tokSelect?.value || "WEGLD";
+  const tConf = SWAP_TOKENS[tok] || SWAP_TOKENS.WEGLD;
+
+  // Update Balance Hint
+  if (balHint) {
+    if (!marketWallet.address) {
+      balHint.textContent = "Balance: —";
+    } else if (tok === "EFOO") {
+      balHint.textContent = `Balance: ${Math.floor(marketWallet.efooBalance || 0).toLocaleString()} $EFOO`;
+    } else if (tok === "WEGLD") {
+      const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
+      balHint.textContent = `Balance: ${wegldBal.toFixed(4)} WEGLD (${(marketWallet.egldBalance || 0).toFixed(3)} EGLD)`;
+    } else {
+      const tBal = (marketWallet.tokens && marketWallet.tokens[tConf.identifier]) || 0;
+      balHint.textContent = `Balance: ${tBal > 0 ? (tBal < 1 ? tBal.toFixed(4) : tBal.toLocaleString()) : "0"} ${tConf.symbol}`;
+    }
+  }
 
   if (tok === "EFOO") {
-    // Selling EFOO for EGLD
+    // Selling EFOO for EGLD (WEGLD)
     const amtInWithFee = amt * 0.99;
     const estEgld = amt > 0 ? (marketDexState.onedexWegldReserve * amtInWithFee) / (marketDexState.onedexEfooReserve + amtInWithFee) : 0;
     if (outField) outField.value = `~${estEgld.toFixed(4)}`;
@@ -3286,31 +3546,39 @@ function updateMarketSwapEstimate() {
     if (recvTicker) recvTicker.textContent = "EGLD";
     if (rateLbl) rateLbl.textContent = `${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO ≈ 1 EGLD`;
     if (routeTag) routeTag.textContent = "Route: OneDex AMM";
-    if (balHint) balHint.textContent = `Balance: ${Math.floor(marketWallet.efooBalance || 0).toLocaleString()} $EFOO`;
     if (actionBtn) actionBtn.textContent = isHu ? `⚡ ${amt.toLocaleString()} $EFOO Eladása ➔ EGLD` : `⚡ Sell ${amt.toLocaleString()} $EFOO ➔ EGLD`;
   } else {
     // Buying EFOO
     let estOut = 0;
+    let rateStr = "";
+    let routeStr = tConf.route || "OneDex AMM";
+
     if (tok === "USDC") {
       const amtInWithFee = amt * 0.997;
       estOut = amt > 0 ? Math.floor((marketDexState.xexEfooReserve * amtInWithFee) / (marketDexState.xexUsdcReserve + amtInWithFee)) : 0;
-      if (rateLbl) rateLbl.textContent = `1 USDC ≈ ${marketDexState.efooPerUsdc.toLocaleString("en-US")} $EFOO`;
-      if (routeTag) routeTag.textContent = "Route: xExchange (185.6M Pool)";
-      if (balHint) balHint.textContent = "Balance: Active";
-    } else {
+      rateStr = `1 USDC ≈ ${marketDexState.efooPerUsdc.toLocaleString("en-US")} $EFOO`;
+    } else if (tok === "WEGLD") {
       const amtInWithFee = amt * 0.99;
       estOut = amt > 0 ? Math.floor((marketDexState.onedexEfooReserve * amtInWithFee) / (marketDexState.onedexWegldReserve + amtInWithFee)) : 0;
-      if (rateLbl) rateLbl.textContent = `1 EGLD ≈ ${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO`;
-      if (routeTag) routeTag.textContent = "Route: OneDex (62.1M Pool)";
-      if (balHint) balHint.textContent = `Balance: ${(marketWallet.egldBalance || 0).toFixed(3)} EGLD`;
+      rateStr = `1 EGLD ≈ ${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO`;
+    } else {
+      // Dynamic calculation for other tokens based on live USD pricing
+      const tokenUsd = TOKEN_PRICES[tConf.identifier] || 0.01;
+      const efooUsd = TOKEN_PRICES["EFOO-8fe2d4"] || 0.00000012257;
+      const tokensPerEfoo = efooUsd > 0 ? (tokenUsd / efooUsd) : 1;
+      estOut = Math.floor(amt * tokensPerEfoo * 0.985);
+      rateStr = `1 ${tConf.symbol} ≈ ${Math.round(tokensPerEfoo).toLocaleString("en-US")} $EFOO`;
     }
+
     if (outField) outField.value = `~${estOut.toLocaleString("en-US")}`;
     if (recvIcon) {
       recvIcon.src = "branding/icons/efoo-logo.png";
       recvIcon.classList.add("round");
     }
     if (recvTicker) recvTicker.textContent = "$EFOO";
-    if (actionBtn) actionBtn.textContent = isHu ? `⚡ ${amt} ${tok} Átváltása ➔ $EFOO` : `⚡ Swap ${amt} ${tok} ➔ $EFOO On-Chain`;
+    if (rateLbl) rateLbl.textContent = rateStr;
+    if (routeTag) routeTag.textContent = `Route: ${routeStr}`;
+    if (actionBtn) actionBtn.textContent = isHu ? `⚡ ${amt} ${tConf.symbol} Átváltása ➔ $EFOO` : `⚡ Swap ${amt} ${tConf.symbol} ➔ $EFOO On-Chain`;
   }
 }
 
@@ -3318,21 +3586,22 @@ async function executeMarketSwap() {
   const isHu = currentMarketLang === "hu";
   if (!marketWallet.address) {
     document.getElementById("m-wallet-modal")?.classList.remove("hidden");
-    showMarketToast(isHu ? "⚠️ Kérlek előbb csatlakoztasd a tárcádat a swathoz!" : "⚠️ Please connect your wallet first!");
+    showMarketToast(isHu ? "⚠️ Kérlek előbb csatlakoztasd a tárcádat a swaphoz!" : "⚠️ Please connect your wallet first!");
     return;
   }
 
-  const amt = Math.max(0.0001, parseFloat(document.getElementById("m-swap-input-amt")?.value) || 0.035);
-  const tok = document.getElementById("m-swap-token-select")?.value || "EGLD";
+  const amt = Math.max(0.0001, parseFloat(document.getElementById("m-swap-input-amt")?.value) || 0.01);
+  const tok = document.getElementById("m-swap-token-select")?.value || "WEGLD";
+  const tConf = SWAP_TOKENS[tok] || SWAP_TOKENS.WEGLD;
 
-  showMarketToast(isHu ? `⏳ DEX Swap előkészítése: ${amt} ${tok}...` : `⏳ Preparing DEX Swap: ${amt} ${tok}...`);
+  showMarketToast(isHu ? `⏳ DEX Swap előkészítése: ${amt} ${tConf.symbol}...` : `⏳ Preparing DEX Swap: ${amt} ${tConf.symbol}...`);
 
   try {
     if (tok === "EFOO") {
-      // Selling EFOO -> EGLD
+      // Selling EFOO -> WEGLD (unwrap to native EGLD)
       const efooHex = stringToHex("EFOO-8fe2d4");
       const wegldHex = stringToHex("WEGLD-bd4d79");
-      const amtHex = toAtomicUnits(amt, 18).toString(16).padStart(2, "0");
+      const amtHex = bigIntToHex(toAtomicUnits(amt, 18));
       const funcHex = stringToHex("swapMultiTokensFixedInput");
       const data = `ESDTTransfer@${efooHex}@${amtHex}@${funcHex}@01@01@${efooHex}@${wegldHex}`;
 
@@ -3342,31 +3611,10 @@ async function executeMarketSwap() {
         gasLimit: 85000000,
         data
       });
-    } else if (tok === "EGLD") {
-      // Direct buy with native EGLD
-      const weiStr = (BigInt(Math.round(amt * 1e9)) * BigInt(1e9)).toString();
-      const shardWrapper = CONTRACTS.WEGLD_WRAPPERS[0];
-      const tokenHex = stringToHex("WEGLD-bd4d79");
-      const amtHex = toAtomicUnits(amt, 18).toString(16).padStart(2, "0");
-      const funcHex = stringToHex("swapMultiTokensFixedInput");
-      const efooHex = stringToHex("EFOO-8fe2d4");
-      const swapData = `ESDTTransfer@${tokenHex}@${amtHex}@${funcHex}@01@@${tokenHex}@${efooHex}`;
-
-      await sendMultiversxTransaction({
-        receiver: shardWrapper,
-        value: weiStr,
-        gasLimit: 8000000,
-        data: "wrapEgld"
-      });
-      await sendMultiversxTransaction({
-        receiver: CONTRACTS.ONEDEX_PAIR,
-        value: "0",
-        gasLimit: 85000000,
-        data: swapData
-      });
     } else if (tok === "WEGLD") {
+      // Direct Single-Transaction WEGLD -> EFOO swap (No separate wrap transaction!)
       const tokenHex = stringToHex("WEGLD-bd4d79");
-      const amtHex = toAtomicUnits(amt, 18).toString(16).padStart(2, "0");
+      const amtHex = bigIntToHex(toAtomicUnits(amt, 18));
       const funcHex = stringToHex("swapMultiTokensFixedInput");
       const efooHex = stringToHex("EFOO-8fe2d4");
       const data = `ESDTTransfer@${tokenHex}@${amtHex}@${funcHex}@01@@${tokenHex}@${efooHex}`;
@@ -3377,10 +3625,10 @@ async function executeMarketSwap() {
         gasLimit: 85000000,
         data
       });
-    } else {
-      // USDC
+    } else if (tok === "USDC") {
+      // xExchange USDC -> EFOO
       const usdcHex = stringToHex("USDC-c76f1f");
-      const amtHex = toAtomicUnits(amt, 6).toString(16).padStart(2, "0");
+      const amtHex = bigIntToHex(toAtomicUnits(amt, 6));
       const funcHex = stringToHex("swapTokensFixedInput");
       const efooHex = stringToHex("EFOO-8fe2d4");
       const data = `ESDTTransfer@${usdcHex}@${amtHex}@${funcHex}@${efooHex}@01`;
@@ -3391,19 +3639,42 @@ async function executeMarketSwap() {
         gasLimit: 60000000,
         data
       });
+    } else {
+      // Multi-hop routing on OneDex: TokenIn -> WEGLD -> EFOO
+      const tokenInHex = stringToHex(tConf.identifier);
+      const dec = tConf.decimals !== undefined ? tConf.decimals : 18;
+      const amtHex = bigIntToHex(toAtomicUnits(amt, dec));
+      const funcHex = stringToHex("swapMultiTokensFixedInput");
+      const wegldHex = stringToHex("WEGLD-bd4d79");
+      const efooHex = stringToHex("EFOO-8fe2d4");
+      const data = `ESDTTransfer@${tokenInHex}@${amtHex}@${funcHex}@01@@${tokenInHex}@${wegldHex}@${efooHex}`;
+
+      await sendMultiversxTransaction({
+        receiver: CONTRACTS.ONEDEX_PAIR,
+        value: "0",
+        gasLimit: 95000000,
+        data
+      });
     }
 
     showMarketToast(
       isHu
-        ? `🎉 Swap tranzakció sikeresen elküldve a blokkláncra!`
-        : `🎉 Swap transaction dispatched on-chain!`
+        ? `🎉 Swap tranzakció sikeresen elküldve! A $EFOO jóváírása folyamatban van a blokkláncon!`
+        : `🎉 Swap transaction dispatched! Your $EFOO is being confirmed on-chain!`,
+      7000
     );
+
+    // Refresh wallet balances
+    setTimeout(() => {
+      if (marketWallet.address) fetchWalletBalances(marketWallet.address);
+    }, 6000);
   } catch (err) {
     console.error("Swap execution failed:", err);
     showMarketToast(
       isHu
         ? `❌ Hiba a swap során: ${err.message || "Megszakítva"}`
-        : `❌ Swap error: ${err.message || "Cancelled"}`
+        : `❌ Swap error: ${err.message || "Cancelled"}`,
+      5000
     );
   }
 }
@@ -3466,6 +3737,7 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchLiveXoxnoListings();
   fetchLiveScListings();
   fetchLiveMinterCounts();
+  fetchSwapTokenPrices();
 
   // 7 Tabs: Browse, My Locker & Sell, Recruit & Mint, DEX Swap, Pools, Skills, Ultras PASS
   const tabBrowse = document.getElementById("tab-btn-browse");
@@ -3512,7 +3784,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (tab === "my_nfts") renderMyLockerGrid();
     if (tab === "skills") renderSkillsStore();
     if (tab === "ultras") updateUltrasPassUI();
-    if (tab === "swap") updateMarketSwapEstimate();
+    if (tab === "swap") {
+      fetchSwapTokenPrices();
+      updateMarketSwapEstimate();
+    }
     if (tab === "pools") updateLpCalculator();
   };
   window.switchMarketTab = switchTab;
@@ -3594,8 +3869,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("m-swap-flip-btn")?.addEventListener("click", () => {
-    const currentVal = document.getElementById("m-swap-token-select")?.value || "EGLD";
-    const nextVal = currentVal === "EFOO" ? "EGLD" : "EFOO";
+    const currentVal = document.getElementById("m-swap-token-select")?.value || "WEGLD";
+    const nextVal = currentVal === "EFOO" ? "WEGLD" : "EFOO";
     setMarketSwapToken(nextVal);
   });
 

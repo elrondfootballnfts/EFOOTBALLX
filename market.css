@@ -2803,14 +2803,26 @@ body {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: 270px;
-  background: #141417;
-  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  width: 280px;
+  max-height: 380px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(35, 247, 221, 0.4) transparent;
+  background: #0d151c;
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
   border-radius: 16px;
   padding: 6px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 25px rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.92), 0 0 25px rgba(0, 0, 0, 0.6);
+  z-index: 1050;
   animation: dropdownFadeIn 0.18s ease;
+}
+
+.token-dropdown-list::-webkit-scrollbar {
+  width: 6px;
+}
+.token-dropdown-list::-webkit-scrollbar-thumb {
+  background: rgba(35, 247, 221, 0.4);
+  border-radius: 4px;
 }
 
 @keyframes dropdownFadeIn {
