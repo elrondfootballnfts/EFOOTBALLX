@@ -71,15 +71,16 @@ body {
 }
 
 /* =====================================================================
-   NAVBAR
+   KROGAN-STYLE CLEAN NAVBAR
    ===================================================================== */
+.market-nav.krogan-nav,
 .market-nav {
   position: sticky;
   top: 0;
   z-index: 1000;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  background: rgba(5, 8, 12, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  background: rgba(6, 12, 18, 0.94);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding: 12px 0;
 }
@@ -88,19 +89,26 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 20px;
+}
+
+.m-nav-left-cluster {
+  display: flex;
+  align-items: center;
+  gap: 36px;
 }
 
 .m-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .m-brand-logo {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 10px;
   border: none;
   box-shadow: 0 4px 16px rgba(0, 255, 136, 0.35);
@@ -109,20 +117,137 @@ body {
 
 .m-brand-title {
   font-family: var(--font-bebas);
-  font-size: 1.8rem;
+  font-size: 1.65rem;
   line-height: 1;
   color: #ffffff;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   display: block;
+}
+
+.m-brand-title .brand-oo {
+  font-size: 0.72em;
+  color: #ffb800;
+  vertical-align: baseline;
 }
 
 .m-brand-sub {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
-  font-weight: 700;
-  color: var(--neon);
-  letter-spacing: 0.08em;
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #ffb800;
+  letter-spacing: 0.1em;
   display: block;
+}
+
+.m-nav-menu-krogan {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.m-nav-item-krogan {
+  color: #94a3b8;
+  text-decoration: none;
+  font-family: var(--font-inter);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 6px 4px;
+  transition: color 0.18s ease;
+  white-space: nowrap;
+}
+
+.m-nav-item-krogan:hover {
+  color: #ffffff;
+}
+
+.m-nav-item-krogan.active {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+/* Krogan-style Teal/Cyan Connect Button */
+.krogan-btn-connect {
+  background: linear-gradient(135deg, #1aa4b8, #118192);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-inter);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 8px 18px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(18, 130, 146, 0.4);
+  transition: all 0.18s ease;
+}
+
+.krogan-btn-connect:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(18, 130, 146, 0.55);
+}
+
+/* Krogan-style Teal/Cyan Connected Wallet Capsule Pill */
+.krogan-wallet-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, rgba(26, 164, 184, 0.22), rgba(17, 129, 146, 0.15));
+  border: 1px solid rgba(26, 164, 184, 0.5);
+  border-radius: 10px;
+  padding: 6px 14px;
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.kwp-icon {
+  font-size: 1rem;
+}
+
+.kwp-addr {
+  color: #e2e8f0;
+}
+
+.kwp-divider {
+  color: rgba(255, 255, 255, 0.25);
+  font-weight: 400;
+}
+
+.kwp-bal {
+  color: #38bdf8;
+  font-weight: 800;
+}
+
+.kwp-disc {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0 2px;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.kwp-disc:hover {
+  color: #f87171;
+}
+
+.kwp-admin {
+  color: #ffb800;
+  border: 1px solid rgba(255, 184, 0, 0.4);
+  background: rgba(255, 184, 0, 0.15);
+  padding: 1px 6px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.75rem;
 }
 
 .m-nav-center {
@@ -381,19 +506,25 @@ body {
   100% { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
 }
 
-.m-hero-logo-main {
+.m-hero-logo-main,
+.m-hero-banner-blend {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 520px;
+  max-width: 580px;
   height: auto;
-  filter: drop-shadow(0 14px 35px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 25px rgba(0, 255, 136, 0.38));
+  display: block;
+  margin: 0 auto;
+  -webkit-mask-image: radial-gradient(ellipse 90% 82% at 50% 50%, #000000 60%, transparent 98%);
+  mask-image: radial-gradient(ellipse 90% 82% at 50% 50%, #000000 60%, transparent 98%);
+  filter: drop-shadow(0 16px 45px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 30px rgba(0, 255, 136, 0.25));
   transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.3s ease;
 }
 
-.m-hero-logo-main:hover {
-  transform: translateY(-3px) scale(1.02);
-  filter: drop-shadow(0 18px 45px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 35px rgba(0, 255, 136, 0.55));
+.m-hero-logo-main:hover,
+.m-hero-banner-blend:hover {
+  transform: translateY(-2px) scale(1.015);
+  filter: drop-shadow(0 20px 55px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 40px rgba(0, 255, 136, 0.45));
 }
 
 .m-title {
@@ -1500,13 +1631,29 @@ body {
 @media (max-width: 768px) {
   .m-nav-inner {
     flex-wrap: wrap;
+    gap: 12px;
   }
-  .m-nav-center {
-    order: 3;
+  .m-nav-left-cluster {
     width: 100%;
-    justify-content: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    padding-top: 8px;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .m-nav-menu-krogan {
+    gap: 14px;
+    overflow-x: auto;
+    max-width: 100%;
+    padding-bottom: 2px;
+  }
+  .m-nav-item-krogan {
+    font-size: 0.82rem;
+  }
+  .m-brand-sub {
+    display: none;
+  }
+  .m-nav-actions {
+    width: 100%;
+    justify-content: flex-end;
   }
   .m-cards-grid {
     grid-template-columns: 1fr;

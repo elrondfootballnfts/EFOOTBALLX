@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261017_v4" />
+  <link rel="stylesheet" href="styles.css?v=20261018_v5" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -56,37 +56,32 @@
   </div>
 
   <!-- Navigation -->
-  <header class="navbar">
+  <header class="navbar krogan-navbar">
     <div class="container nav-inner">
-      <a href="#" class="brand">
-        <img src="branding/rebranded/efoo-degen-crest-200x200.png" alt="EFOO Logo" class="brand-logo" />
-        <div class="brand-text">
-          <span class="brand-title">$EFOO</span>
-          <span class="brand-sub" data-i18n="nav_sub">SUNDAY LEAGUE DEGEN FC</span>
-        </div>
-      </a>
+      <div class="nav-left-cluster">
+        <a href="/" class="brand" title="Homepage">
+          <img src="branding/rebranded/efoo-degen-crest-200x200.png" alt="EFOO Logo" class="brand-logo" />
+          <div class="brand-text">
+            <span class="brand-title">$EFOO</span>
+            <span class="brand-sub">SUNDAY LEAGUE DEGEN FC</span>
+          </div>
+        </a>
 
-      <nav class="nav-links">
-        <a href="market" data-i18n="nav_wallethub">🛒 NFooT Market</a>
-        <a href="#meme-locker" data-i18n="nav_locker">🎨 Meme Studio</a>
-        <a href="#brand-kit" data-i18n="nav_brandkit">🛡️ Brand Kit</a>
-      </nav>
+        <nav class="nav-links-krogan">
+          <a href="market" class="nav-item-krogan">NFooT Marketplace</a>
+          <a href="#meme-locker" class="nav-item-krogan">Meme Studio</a>
+          <a href="game" class="nav-item-krogan">Play Game</a>
+        </nav>
+      </div>
 
       <div class="nav-actions">
-        <a href="game?v=20261016_v8" class="nav-game-pill" title="Play EFOO FOMO Arena">
-          ⚽ <span class="ngp-text" data-i18n="nav_play_pill">PLAY GAME</span>
-        </a>
-        <div class="lang-switch" role="group" aria-label="Language Switcher">
-          <button type="button" class="lang-btn active" data-set-lang="en">🇬🇧 EN</button>
-          <button type="button" class="lang-btn" data-set-lang="hu">🇭🇺 HU</button>
-          <button type="button" class="lang-btn" data-set-lang="ro">🇷🇴 RO</button>
-        </div>
         <div class="nav-wallet-group" id="nav-wallet-group">
-          <button type="button" id="open-wallet-modal-btn" class="btn btn-primary btn-sm nav-wallet-btn">
-            ⚡ <span id="nav-wallet-label" data-i18n="nav_connect">Connect Wallet</span>
+          <button type="button" id="open-wallet-modal-btn" class="krogan-btn-connect">
+            <span class="kbc-icon">👛</span>
+            <span id="nav-wallet-label">Connect Wallet</span>
           </button>
           <button type="button" id="nav-disconnect-btn" class="btn-disconnect-nav hidden" title="Disconnect Wallet" aria-label="Disconnect">
-            🚪 <span class="ndb-text" data-i18n="btn_disconnect">Disconnect</span>
+            ✕ <span class="ndb-text">Disconnect</span>
           </button>
         </div>
       </div>

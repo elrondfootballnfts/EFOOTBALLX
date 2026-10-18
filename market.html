@@ -35,42 +35,40 @@
   <!-- =====================================================================
        TOP FLOATING MARKETPLACE NAVBAR
        ===================================================================== -->
-  <header class="market-nav">
+  <header class="market-nav krogan-nav">
     <div class="m-container m-nav-inner">
-      <a href="/" class="m-brand" title="NFooT Marketplace">
-        <img src="branding/rebranded/nfoot-icon-128x128.png" alt="NFooT Marketplace Logo" class="m-brand-logo" />
-        <div class="m-brand-text">
-          <span class="m-brand-title" style="letter-spacing:1px; background:linear-gradient(180deg, #ffffff 0%, #00ff88 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">NF<span style="font-size:0.72em; letter-spacing:0; vertical-align:baseline; color:#ffb800; -webkit-text-fill-color:#ffb800;">oo</span>T</span>
-          <span class="m-brand-sub" data-i18n="nav_market_sub" style="color:#ffb800; font-weight:800; letter-spacing:0.1em;">MARKETPLACE</span>
-        </div>
-      </a>
+      <div class="m-nav-left-cluster">
+        <a href="/" class="m-brand" title="Return to Homepage">
+          <img src="branding/rebranded/nfoot-icon-128x128.png" alt="NFooT" class="m-brand-logo" />
+          <div class="m-brand-text">
+            <span class="m-brand-title">NF<span class="brand-oo">oo</span>T</span>
+            <span class="m-brand-sub">MARKETPLACE</span>
+          </div>
+        </a>
 
-      <div class="m-nav-center">
-        <a href="/" class="m-nav-link">🏠 Home</a>
-        <a href="game" class="m-nav-pill-game">⚽ PLAY GAME ↗</a>
+        <nav class="m-nav-menu-krogan">
+          <a href="market" class="m-nav-item-krogan active">NFooT Marketplace</a>
+          <a href="/#meme-locker" class="m-nav-item-krogan">Meme Studio</a>
+          <a href="game" class="m-nav-item-krogan">Play Game</a>
+        </nav>
       </div>
 
       <div class="m-nav-actions">
-        <!-- Language Switcher -->
-        <div class="m-lang-switch">
-          <button type="button" class="m-lang-btn active" data-market-lang="en">🇬🇧 EN</button>
-          <button type="button" class="m-lang-btn" data-market-lang="hu">🇭🇺 HU</button>
-          <button type="button" class="m-lang-btn" data-market-lang="ro">🇷🇴 RO</button>
-        </div>
-
         <!-- Wallet Hub Group -->
         <div class="m-wallet-group">
-          <div id="m-wallet-connected-pill" class="m-wallet-connected-pill hidden">
-            <span class="m-wallet-badge-dot"></span>
-            <span id="m-wallet-vip-badge" class="m-wallet-vip-pill hidden" title="EFOO Ultras VIP Pass Active: 0% Marketplace Fees for Life!">👑 ULTRAS VIP</span>
-            <span id="m-wallet-short-addr" class="m-wallet-addr-text">erd1...</span>
-            <span id="m-wallet-bal" class="m-wallet-bal-text">0 $EFOO</span>
-            <button type="button" id="m-btn-disconnect" class="m-btn-disc" title="Disconnect">✕</button>
-            <a href="admin" id="m-btn-admin-vault" class="m-btn-disc hidden" style="color:#ffb800; border-color:rgba(255,184,0,0.5); text-decoration:none; margin-left:6px; font-weight:800; font-family:'JetBrains Mono',monospace;" title="Master Administration">👑 ADMIN</a>
+          <div id="m-wallet-connected-pill" class="krogan-wallet-pill hidden">
+            <span class="kwp-icon">👛</span>
+            <span id="m-wallet-vip-badge" class="m-wallet-vip-pill hidden" title="EFOO Ultras VIP Pass Active: 0% Marketplace Fees for Life!">👑 VIP</span>
+            <span id="m-wallet-short-addr" class="kwp-addr">erd1...</span>
+            <span class="kwp-divider">|</span>
+            <span id="m-wallet-bal" class="kwp-bal">0 $EFOO</span>
+            <button type="button" id="m-btn-disconnect" class="kwp-disc" title="Disconnect">✕</button>
+            <a href="admin" id="m-btn-admin-vault" class="kwp-admin hidden" title="Master Administration">👑 ADMIN</a>
           </div>
 
-          <button type="button" id="m-btn-connect" class="m-btn-primary">
-            ⚡ <span id="m-btn-connect-lbl">Connect Wallet</span>
+          <button type="button" id="m-btn-connect" class="krogan-btn-connect">
+            <span class="kbc-icon">👛</span>
+            <span id="m-btn-connect-lbl">Connect Wallet</span>
           </button>
         </div>
       </div>
@@ -91,7 +89,7 @@
 
         <div class="m-hero-logo-stage">
           <div class="m-hero-logo-glow"></div>
-          <img src="branding/rebranded/nfoot-marketplace-logo.png" alt="NFooT Marketplace - MultiversX 3D Web3 NFT &amp; Skill Arena" class="m-hero-logo-main" />
+          <img src="branding/rebranded/nfoot-marketplace-banner.png" alt="NFooT Marketplace - MultiversX 3D Web3 NFT &amp; Skill Arena" class="m-hero-banner-blend" />
         </div>
 
         <p class="m-subtitle" data-i18n="hero_sub">
