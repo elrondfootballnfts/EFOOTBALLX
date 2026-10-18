@@ -2295,17 +2295,61 @@ body {
     gap: 8px;
   }
   .m-cards-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    max-width: 360px;
-    margin: 0 auto;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px;
+    max-width: 100%;
+    margin: 0;
     width: 100%;
   }
   .m-nft-card {
-    border-radius: 16px;
+    border-radius: 14px;
     min-width: 0;
   }
-  .mnc-thumb-wrap {
+  .m-nft-card.is-nfoot-native {
+    border-width: 3.5px !important;
+    border-radius: 14px !important;
+  }
+  .circuit-corner {
+    width: 30px;
+    height: 30px;
+  }
+  .circuit-bus-l, .circuit-bus-r {
+    height: 32px;
+  }
+  .circuit-top-bar, .circuit-bot-bar {
+    width: 45px;
+  }
+  .circuit-frame-badge {
+    display: none;
+  }
+  .mnc-rank-badge {
+    font-size: 0.58rem;
+    padding: 2px 6px;
+    top: 5px;
+    left: 5px;
+  }
+  .mnc-nfoot-badge {
+    font-size: 0.58rem;
+    padding: 2px 6px;
+    top: 5px;
+    right: 5px;
+    gap: 3px;
+  }
+  .mnc-nfoot-logo-img {
+    width: 13px;
+    height: 13px;
+  }
+  .mnc-nfoot-text {
+    font-size: 0.62rem;
+  }
+  .mnc-col-tag {
+    font-size: 0.55rem;
+    padding: 2px 5px;
+    top: 5px;
+    right: 5px;
+  }
+  .mnc-thumb-wrap,
+  .mnc-media-wrap {
     aspect-ratio: 1 / 1;
     width: 100%;
   }
@@ -2315,13 +2359,80 @@ body {
     object-fit: cover;
   }
   .mnc-body {
-    padding: 12px 14px;
+    padding: 8px;
+    gap: 5px;
   }
+  .mnc-title {
+    font-size: 1.12rem;
+    line-height: 1.05;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mnc-role-tag {
+    font-size: 0.58rem;
+    padding: 1px 4px;
+  }
+  .mnc-trait-desc {
+    font-size: 0.68rem;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .mnc-powers-row {
+    gap: 3px;
+  }
+  .mnc-power-pill {
+    font-size: 0.55rem;
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+  .mnc-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 5px;
+    padding-top: 6px;
+  }
+  .mnc-price-box {
+    width: 100%;
+  }
+  .mnc-price-lbl {
+    font-size: 0.55rem;
+  }
+  .mnc-price-val {
+    font-size: 0.95rem;
+  }
+  .m-price-curr-logo {
+    width: 13px;
+    height: 13px;
+  }
+  .m-price-curr-ticker {
+    font-size: 0.62rem;
+  }
+  .mnc-btn-buy,
   .mnc-btn {
-    min-height: 44px;
-    font-size: 1.15rem;
+    min-height: 36px;
+    font-size: 0.95rem;
+    padding: 6px 8px;
     width: 100%;
     justify-content: center;
+    border-radius: 7px;
+  }
+  .mnc-owner-btns {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+  .mnc-btn-edit,
+  .mnc-btn-delist {
+    font-size: 0.65rem;
+    padding: 4px 6px;
+    text-align: center;
+    justify-content: center;
+    min-height: 32px;
   }
   .m-pagination-bar {
     flex-direction: column;
