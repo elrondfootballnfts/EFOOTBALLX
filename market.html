@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
 
   <link rel="canonical" href="https://efoo.optibase.ro/market" />
-  <link rel="stylesheet" href="market.css?v=20261018_v9_egld_icon" />
+  <link rel="stylesheet" href="market.css?v=20261018_v10_currency_fix" />
 
   <!-- Clean URL: Strip amateur .html extension from browser address bar -->
   <script>
@@ -816,11 +816,42 @@
         <div class="m-form-field">
           <label for="list-input-price">Set Asking Price:</label>
           <div class="m-input-with-currency">
-            <input type="number" id="list-input-price" placeholder="e.g. 2,500,000" min="1000" step="1000" />
-            <select id="list-select-currency" class="m-currency-select">
-              <option value="EFOO">$EFOO</option>
-              <option value="EGLD">EGLD</option>
-            </select>
+            <input type="number" id="list-input-price" placeholder="e.g. 0.5" min="0.001" step="0.001" />
+            
+            <div class="custom-token-selector list-currency-dropdown" id="list-currency-dropdown">
+              <button type="button" class="token-dropdown-trigger list-currency-trigger" id="list-currency-trigger-btn">
+                <img id="list-selected-currency-icon" src="branding/icons/egld-logo.svg" alt="EGLD" class="token-logo-img" />
+                <span id="list-selected-currency-name" class="token-name-text">EGLD</span>
+                <span class="token-chevron">▾</span>
+              </button>
+              
+              <div class="token-dropdown-list hidden" id="list-currency-menu-list">
+                <!-- Option 1: EGLD (First & Default) -->
+                <div class="token-dropdown-item active" data-currency-val="EGLD">
+                  <img src="branding/icons/egld-logo.svg" alt="EGLD" class="token-dropdown-logo" />
+                  <div class="token-dropdown-info">
+                    <span class="td-symbol">EGLD</span>
+                    <span class="td-sub">Native MultiversX</span>
+                  </div>
+                  <span class="td-check">✔</span>
+                </div>
+                <!-- Option 2: $EFOO -->
+                <div class="token-dropdown-item" data-currency-val="EFOO">
+                  <img src="branding/icons/efoo-logo.png" alt="EFOO" class="token-dropdown-logo round" />
+                  <div class="token-dropdown-info">
+                    <span class="td-symbol">$EFOO</span>
+                    <span class="td-sub">EFOOTBALL Token</span>
+                  </div>
+                  <span class="td-check">✔</span>
+                </div>
+              </div>
+
+              <!-- Hidden native select for 100% backward compatibility with all JS logic -->
+              <select id="list-select-currency" class="hidden" aria-hidden="true">
+                <option value="EGLD" selected>EGLD</option>
+                <option value="EFOO">$EFOO</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -868,7 +899,9 @@
           <label for="edit-input-price">New Asking Price:</label>
           <div class="m-input-with-currency">
             <input type="number" id="edit-input-price" placeholder="e.g. 1,800,000" min="0.001" step="any" />
-            <span class="m-currency-badge" id="edit-currency-badge">$EFOO</span>
+            <span class="m-currency-badge" id="edit-currency-badge">
+              <img src="branding/icons/egld-logo.svg" alt="EGLD" class="token-logo-img" width="18" height="18" style="vertical-align:middle; display:inline-block; margin-right:6px;" />EGLD
+            </span>
           </div>
         </div>
 
@@ -954,6 +987,6 @@
   <div id="m-toast" class="m-toast hidden"></div>
 
   <!-- Scripts -->
-  <script src="market.js?v=20261018_v8_wallet_fix"></script>
+  <script src="market.js?v=20261018_v10_currency_fix"></script>
 </body>
 </html>

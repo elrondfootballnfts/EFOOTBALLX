@@ -2281,6 +2281,54 @@ async function executeBuyNft(item) {
   }
 }
 
+function setListingCurrency(val) {
+  const hiddenSelect = document.getElementById("list-select-currency");
+  const nameEl = document.getElementById("list-selected-currency-name");
+  const iconEl = document.getElementById("list-selected-currency-icon");
+  const priceInput = document.getElementById("list-input-price");
+  const menuList = document.getElementById("list-currency-menu-list");
+  const dropdownWrap = document.getElementById("list-currency-dropdown");
+
+  if (hiddenSelect) {
+    hiddenSelect.value = val;
+    hiddenSelect.dispatchEvent(new Event("change"));
+  }
+
+  if (val === "EGLD") {
+    if (nameEl) nameEl.textContent = "EGLD";
+    if (iconEl) {
+      iconEl.src = "branding/icons/egld-logo.svg";
+      iconEl.classList.remove("round");
+    }
+    if (priceInput) {
+      priceInput.placeholder = "e.g. 0.5";
+      priceInput.min = "0.001";
+      priceInput.step = "any";
+    }
+  } else {
+    if (nameEl) nameEl.textContent = "$EFOO";
+    if (iconEl) {
+      iconEl.src = "branding/icons/efoo-logo.png";
+      iconEl.classList.add("round");
+    }
+    if (priceInput) {
+      priceInput.placeholder = "e.g. 2,500,000";
+      priceInput.min = "1000";
+      priceInput.step = "1000";
+    }
+  }
+
+  // Update active state in menu list
+  document.querySelectorAll("#list-currency-menu-list .token-dropdown-item").forEach((it) => {
+    const isAct = it.getAttribute("data-currency-val") === val;
+    it.classList.toggle("active", isAct);
+  });
+
+  menuList?.classList.add("hidden");
+  dropdownWrap?.classList.remove("open");
+  updateListingFeePreview();
+}
+
 function updateListingFeePreview() {
   const currSelect = document.getElementById("list-select-currency");
   const priceInput = document.getElementById("list-input-price");
@@ -2291,7 +2339,7 @@ function updateListingFeePreview() {
   const ultrasHint = document.getElementById("list-ultras-hint");
   if (!currSelect || !priceInput) return;
 
-  const currency = currSelect.value || "EFOO";
+  const currency = currSelect.value || "EGLD";
   const isHu = currentMarketLang === "hu";
   const val = parseFloat(priceInput.value) || 0;
   const isUltrasHolder = hasUltrasPass(marketWallet.address);
@@ -2316,9 +2364,6 @@ function updateListingFeePreview() {
       ultrasHint.style.background = "rgba(168,255,0,0.08)";
     }
   } else if (currency === "EGLD") {
-    priceInput.placeholder = "e.g. 0.025";
-    priceInput.min = "0.001";
-    priceInput.step = "any";
     if (feeLabel) feeLabel.textContent = isHu ? "Kereskedési díj (2% efoorewards tárca):" : "Trading Fee (2% efoorewards wallet):";
     if (feePct) feePct.textContent = "2.0%";
     if (recvLabel) recvLabel.textContent = isHu ? "Kézhez kapott összeg (98%):" : "You Receive (98%):";
@@ -2339,9 +2384,6 @@ function updateListingFeePreview() {
       ultrasHint.style.background = "rgba(255,184,0,0.08)";
     }
   } else {
-    priceInput.placeholder = "e.g. 2,500,000";
-    priceInput.min = "1000";
-    priceInput.step = "1000";
     if (feeLabel) feeLabel.textContent = isHu ? "Kereskedési díj (2.5% Égetés 🔥 + 2.5% Reward Pool 🏆):" : "Trading Fee (2.5% Burn 🔥 + 2.5% Reward Pool 🏆):";
     if (feePct) feePct.textContent = "5.0%";
     if (recvLabel) recvLabel.textContent = isHu ? "Kézhez kapott összeg (95%):" : "You Receive (95%):";
@@ -2379,7 +2421,7 @@ function openListNftModal(nft) {
   if (imgEl) imgEl.src = nft.url || "branding/original/EFOOTBALL-91a4eb/logo.png";
   if (rankEl) rankEl.textContent = `${tier.tierIcon} Rank #${tier.rank} (${tier.tierLabel})`;
 
-  updateListingFeePreview();
+  setListingCurrency("EGLD");
   modal?.classList.remove("hidden");
 }
 
@@ -2546,7 +2588,11 @@ function openEditPriceModal(item) {
       inputEl.placeholder = "e.g. 2,500,000";
     }
   }
-  if (badgeEl) badgeEl.textContent = `$${item.currency || "EFOO"}`;
+  if (badgeEl) {
+    const curr = (item.currency || "EGLD").toUpperCase();
+    const isEgld = curr === "EGLD";
+    badgeEl.innerHTML = `<img src="branding/icons/${isEgld ? 'egld-logo.svg' : 'efoo-logo.png'}" class="token-logo-img ${isEgld ? '' : 'round'}" width="18" height="18" style="vertical-align:middle; display:inline-block; margin-right:6px;" alt="${curr}" />${isEgld ? 'EGLD' : '$EFOO'}`;
+  }
 
   modal?.classList.remove("hidden");
 }
@@ -3565,4 +3611,31 @@ document.addEventListener("DOMContentLoaded", () => {
   // Listing modal dynamic currency & price fee preview
   document.getElementById("list-select-currency")?.addEventListener("change", updateListingFeePreview);
   document.getElementById("list-input-price")?.addEventListener("input", updateListingFeePreview);
+
+  // Listing modal custom currency dropdown toggle & selection
+  const listCurrTriggerBtn = document.getElementById("list-currency-trigger-btn");
+  const listCurrMenuList = document.getElementById("list-currency-menu-list");
+  const listCurrDropdownWrap = document.getElementById("list-currency-dropdown");
+
+  listCurrTriggerBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isHidden = listCurrMenuList?.classList.contains("hidden");
+    listCurrMenuList?.classList.toggle("hidden", !isHidden);
+    listCurrDropdownWrap?.classList.toggle("open", isHidden);
+  });
+
+  document.querySelectorAll("#list-currency-menu-list .token-dropdown-item").forEach((item) => {
+    item.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const val = item.getAttribute("data-currency-val");
+      if (val) setListingCurrency(val);
+    });
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!listCurrDropdownWrap?.contains(e.target)) {
+      listCurrMenuList?.classList.add("hidden");
+      listCurrDropdownWrap?.classList.remove("open");
+    }
+  });
 });

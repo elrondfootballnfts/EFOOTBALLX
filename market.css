@@ -1485,14 +1485,116 @@ body {
   border-color: var(--neon);
 }
 
-.m-currency-select, .m-currency-badge {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: var(--neon);
+.m-currency-select {
+  background: #111a24;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
   font-family: var(--font-mono);
   font-weight: 800;
   padding: 10px 12px;
   border-radius: 8px;
+}
+.m-currency-select option {
+  background: #0f1722;
+  color: #ffffff;
+}
+
+.m-currency-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #111a24;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  padding: 9px 12px;
+  border-radius: 8px;
+}
+
+/* Custom Token Selector for Listing Modal */
+.list-currency-dropdown {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.list-currency-trigger {
+  height: 44px;
+  background: #111a24;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 0 14px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.list-currency-trigger:hover {
+  background: #182534;
+  border-color: #23f7dd;
+  box-shadow: 0 0 12px rgba(35, 247, 221, 0.3);
+}
+
+#list-currency-menu-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 260px;
+  background: #0d151c;
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.92), 0 0 25px rgba(0, 0, 0, 0.65);
+  z-index: 1050;
+  animation: dropdownFadeIn 0.16s ease;
+}
+
+#list-currency-menu-list .token-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: transparent;
+}
+
+#list-currency-menu-list .token-dropdown-item:hover {
+  background: rgba(26, 164, 184, 0.25);
+}
+
+#list-currency-menu-list .token-dropdown-item.active {
+  background: rgba(35, 247, 221, 0.16);
+  border: 1px solid rgba(35, 247, 221, 0.45);
+}
+
+#list-currency-menu-list .token-dropdown-item .td-symbol {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+#list-currency-menu-list .token-dropdown-item .td-sub {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+#list-currency-menu-list .token-dropdown-item .td-check {
+  margin-left: auto;
+  color: #23f7dd;
+  font-weight: 800;
+  display: none;
+}
+
+#list-currency-menu-list .token-dropdown-item.active .td-check {
+  display: inline-block;
 }
 
 .m-fee-summary {
