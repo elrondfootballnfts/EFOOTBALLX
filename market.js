@@ -1323,13 +1323,10 @@ async function fetchLiveScListings() {
 
         const scItems = [];
         for (const it of escrowNfts) {
-          const tier = getNftRarityTier(it);
-          const scInfo = scListingsMap.get(it.identifier);
-          const localInfo = localMap.get(it.identifier);
-
-          let price = 0.05;
+          const isPass = isUltrasPassNft(it);
+          let price = isPass ? ULTRAS_PASS_PRICE_EGLD : 0.05;
           let currency = "EGLD";
-          let seller = "On-Chain Escrow";
+          let seller = isPass ? "Official NFooT Escrow" : "On-Chain Escrow";
 
           if (scInfo) {
             price = scInfo.price;
@@ -1350,11 +1347,11 @@ async function fetchLiveScListings() {
             identifier: it.identifier,
             collection: it.collection,
             nonce: it.nonce || 0,
-            name: it.name || it.identifier,
+            name: isPass ? "EFOO ULTRAS PASS" : (it.name || it.identifier),
             rarity: tier.tierLabel,
             rank: it.rank || tier.rank,
-            trait: "Official NFooT SC Escrow Listing",
-            url: it.url || (it.collection === KEEPER_COLLECTION ? "branding/original/GOALKEEPER-cb9e3e/logo.png" : "branding/original/EFOOTBALL-91a4eb/logo.png"),
+            trait: isPass ? "Exclusive MultiversX VIP Access SFT (0% Trading Fees for Life)" : "Official NFooT SC Escrow Listing",
+            url: it.url || (isPass ? "branding/rebranded/efoo-ultras-pass-badge.png" : (it.collection === KEEPER_COLLECTION ? "branding/original/GOALKEEPER-cb9e3e/logo.png" : "branding/original/EFOOTBALL-91a4eb/logo.png")),
             price: price,
             currency: currency,
             seller: seller,
@@ -1908,12 +1905,14 @@ function renderMarketplaceGrid() {
 
     const isEgld = item.currency === "EGLD" || item.currency === "WEGLD";
     const formattedPrice = isEgld
-      ? (typeof item.price === "number" ? item.price.toFixed(3) : Number(item.price).toFixed(3))
+      ? (Number(item.price) === 0.5 ? "0.50" : (Number(item.price) < 0.1 ? Number(item.price).toFixed(3) : Number(item.price).toFixed(2)))
       : (typeof item.price === "number" ? item.price.toLocaleString("en-US") : item.price);
 
     const sellerShort = isOwner
       ? (isHu ? "Te (Tulajdonos)" : (isRo ? "Tu (Proprietar)" : "You (Owner)"))
-      : `${item.seller.slice(0, 6)}...${item.seller.slice(-4)}`;
+      : isUltrasPassNft(item)
+      ? (isHu ? "Hivatalos Letét" : "Official Escrow")
+      : (item.seller && item.seller.startsWith("erd1") ? `${item.seller.slice(0, 6)}...${item.seller.slice(-4)}` : (item.seller || "Escrow"));
 
     card.innerHTML = `
       ${
@@ -2387,6 +2386,11 @@ async function executeBuyNft(item) {
   }
 
   const isHu = currentMarketLang === "hu";
+
+  // Ultras Pass SFT purchase delegates directly to buyUltrasPassOnChain (0.5 EGLD on Smart Contract)
+  if (isUltrasPassNft(item)) {
+    return buyUltrasPassOnChain();
+  }
 
   // =========================================================================
   // DIRECT XOXNO SMART CONTRACT PURCHASE (NO REDIRECT TO XOXNO.COM)
@@ -3156,7 +3160,7 @@ function openNftDetailsModal(nft) {
   if (listedItem) {
     const isEgld = listedItem.currency === "EGLD" || listedItem.currency === "WEGLD";
     const formattedPrice = isEgld
-      ? (typeof listedItem.price === "number" ? listedItem.price.toFixed(3) : Number(listedItem.price).toFixed(3))
+      ? (Number(listedItem.price) === 0.5 ? "0.50" : (Number(listedItem.price) < 0.1 ? Number(listedItem.price).toFixed(3) : Number(listedItem.price).toFixed(2)))
       : (typeof listedItem.price === "number" ? listedItem.price.toLocaleString("en-US") : listedItem.price);
 
     if (priceVal) {
