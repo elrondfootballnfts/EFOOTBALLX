@@ -554,6 +554,50 @@
           </div>
         </div>
 
+        <!-- CARD 3B: SMART CONTRACT ON-CHAIN UPGRADE (NFooT & VIP PASS) -->
+        <div class="admin-card" style="border: 1px solid rgba(168, 255, 0, 0.35); box-shadow: 0 0 25px rgba(168, 255, 0, 0.08);">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">🚀 Smart Contract Upgrade (NFooT &amp; VIP Pass)</h3>
+            <span id="adm-sc-upgrade-badge" style="background:rgba(168,255,0,0.2); color:var(--admin-neon); padding:2px 8px; border-radius:10px; font-family:'JetBrains Mono'; font-size:0.75rem;">
+              WASM Kész (11.6 KB)
+            </span>
+          </div>
+
+          <p style="font-size: 0.85rem; color: #98aba0; margin-bottom: 14px;">
+            Frissítsd a Smart Contractot a legújabb <strong>NFooT P2P Marketplace</strong> és <strong>Ultras VIP Pass (0% díj)</strong> végpontokkal!
+            A művelet a beépített <code>upgradeContract</code> protokollhívást hajtja végre, így a jelenlegi <strong>Vault Pot egyenleg és az égetési statisztikák sértetlenül megmaradnak</strong>.
+          </p>
+
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,184,0,0.2); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <strong style="font-size: 0.82rem; color: var(--admin-gold);">Cél Szerződés (Target SC):</strong>
+              <span style="font-family:'JetBrains Mono'; font-size:0.75rem; color:var(--admin-cyan);">erd1qqqq...eend</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <strong style="font-size: 0.82rem; color: #cbd5e1;">WASM Forrás:</strong>
+              <span style="font-family:'JetBrains Mono'; font-size:0.75rem; color:var(--admin-neon);">contracts-dist/efoo-stadium-vault.wasm</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <strong style="font-size: 0.82rem; color: #cbd5e1;">Code Metadata:</strong>
+              <span style="font-family:'JetBrains Mono'; font-size:0.75rem; color:#cbd5e1;">0500 (Upgradeable + Readable)</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <strong style="font-size: 0.82rem; color: #cbd5e1;">Ajánlott Gas Limit:</strong>
+              <span style="font-family:'JetBrains Mono'; font-size:0.75rem; color:var(--admin-gold);">60,000,000 (~0.006 EGLD)</span>
+            </div>
+          </div>
+
+          <div class="admin-input-group" style="margin-bottom: 12px;">
+            <label style="font-size: 0.75rem; color: #98aba0;">Egyéni WASM fájl feltöltése (Opcionális, ha nem a beépítettet használnád):</label>
+            <input type="file" id="adm-custom-wasm-file" accept=".wasm" class="admin-input" style="padding: 6px;" />
+          </div>
+
+          <button id="btn-upgrade-sc-now" class="admin-btn admin-btn-neon" style="font-size: 0.92rem; font-weight: 800; padding: 12px 16px;">
+            🚀 Smart Contract Upgrade Indítása [DeFi Extension / xPortal]
+          </button>
+          <div id="adm-sc-upgrade-status" style="margin-top: 10px; font-size: 0.8rem; color: #98aba0; display: none;"></div>
+        </div>
+
         <!-- CARD 5: SFT KOLLEKCIÓ & NONCE MINTER (ULTRAS PASS + SKILLS) -->
         <div class="admin-card">
           <div class="admin-card-header">
@@ -1879,6 +1923,71 @@
           setTimeout(refreshSmartContractTelemetry, 6000);
         }
       });
+    });
+
+    // =========================================================================
+    // CARD 3B: SMART CONTRACT ON-CHAIN UPGRADE (NFooT & VIP PASS)
+    // =========================================================================
+    document.getElementById("btn-upgrade-sc-now")?.addEventListener("click", async () => {
+      const fileInput = document.getElementById("adm-custom-wasm-file");
+      const statusDiv = document.getElementById("adm-sc-upgrade-status");
+
+      if (!confirm("⚠️ Figyelem!\n\nBiztosan frissíteni akarod az EFOO Stadium Vault & NFooT Marketplace Smart Contractot a MultiversX hálózaton?\n\nCél: erd1qqqqqqqqqqqqqpgqwdrgl4k7gfa26wp0xcje8qn9gucq87yx55hs39eend\nTulajdonos: erd1p5hfn...hct4my\nGas Limit: 60,000,000 (~0.006 EGLD)")) {
+        return;
+      }
+
+      try {
+        if (statusDiv) {
+          statusDiv.style.display = "block";
+          statusDiv.innerHTML = "⏳ WASM bytecode beolvasása folyamatban...";
+        }
+
+        let wasmBytes = null;
+        if (fileInput && fileInput.files && fileInput.files.length > 0) {
+          wasmBytes = await fileInput.files[0].arrayBuffer();
+        } else {
+          // Fetch the automated production build from contracts-dist
+          const res = await fetch("contracts-dist/efoo-stadium-vault.wasm");
+          if (!res.ok) {
+            throw new Error("Nem sikerült elérni a 'contracts-dist/efoo-stadium-vault.wasm' fájlt. Kérlek válaszd ki a fájlt tallózással!");
+          }
+          wasmBytes = await res.arrayBuffer();
+        }
+
+        const uint8 = new Uint8Array(wasmBytes);
+        let wasmHex = "";
+        for (let i = 0; i < uint8.length; i++) {
+          wasmHex += uint8[i].toString(16).padStart(2, "0");
+        }
+
+        if (statusDiv) {
+          statusDiv.innerHTML = `✅ WASM sikeresen betöltve (${uint8.length.toLocaleString()} bájt). Tranzakció aláírásának előkészítése...`;
+        }
+
+        // upgradeContract@<wasmHex>@0500 (0500: Upgradeable + Readable)
+        const dataPayload = `upgradeContract@${wasmHex}@0500`;
+
+        await executeAdminTransaction({
+          receiver: STADIUM_VAULT_SC,
+          value: "0",
+          data: dataPayload,
+          gasLimit: 60000000,
+          title: "🚀 Smart Contract Upgrade",
+          onSuccess: (hash) => {
+            if (statusDiv) {
+              statusDiv.innerHTML = `🎉 <strong>Sikeres Smart Contract Upgrade!</strong><br/>Tx Hash: <a href="https://explorer.multiversx.com/transactions/${hash}" target="_blank" style="color:var(--admin-cyan); text-decoration:underline;">${hash}</a>`;
+            }
+            setTimeout(refreshSmartContractTelemetry, 6000);
+          }
+        });
+
+      } catch (err) {
+        console.error("Upgrade error:", err);
+        if (statusDiv) {
+          statusDiv.innerHTML = `❌ Hiba az upgrade során: ${err.message || err}`;
+        }
+        alert(`❌ Hiba: ${err.message || err}`);
+      }
     });
 
     // =========================================================================
