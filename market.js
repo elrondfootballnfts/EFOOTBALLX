@@ -4194,7 +4194,8 @@ function updateMarketSwapEstimate() {
     if (recvTicker) recvTicker.textContent = "EGLD";
     if (rateLbl) rateLbl.textContent = `${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO ≈ 1 EGLD`;
     if (routeTag) routeTag.textContent = "Route: OneDex AMM";
-    if (actionBtn) actionBtn.textContent = isHu ? `⚡ ${amt.toLocaleString()} $EFOO Eladása ➔ EGLD` : `⚡ Sell ${amt.toLocaleString()} $EFOO ➔ EGLD`;
+    if (actionBtn) actionBtn.textContent = `⚡ Sell ${amt.toLocaleString()} $EFOO ➔ EGLD`;
+    updateMarketBonusUI(0);
   } else {
     // Buying EFOO
     let estOut = 0;
@@ -4218,16 +4219,17 @@ function updateMarketSwapEstimate() {
       rateStr = `1 ${tConf.symbol} ≈ ${Math.round(tokensPerEfoo).toLocaleString("en-US")} $EFOO`;
     }
 
-    const bState = getBonusEligibilityState(marketWallet.address, marketWallet.ownedNfts);
-    const qualifiesForBonus = estOut >= 1000000 && bState.isEligible && !bState.isClaimed;
+    // Update manual bonus UI state & tooltip dynamically based on live estOut
+    updateMarketBonusUI(estOut);
+
+    const bonusCheckbox = document.getElementById("m-swap-bonus-checkbox");
+    const isBonusApplied = bonusCheckbox && bonusCheckbox.checked && !bonusCheckbox.disabled;
 
     if (outField) {
-      if (qualifiesForBonus) {
+      if (isBonusApplied) {
         outField.value = `~${estOut.toLocaleString("en-US")} + 500k BONUS = ~${(estOut + 500000).toLocaleString("en-US")} $EFOO 🎁`;
-      } else if (estOut >= 1000000 && !bState.isEligible && !bState.isClaimed) {
-        outField.value = `~${estOut.toLocaleString("en-US")} $EFOO (🛡️ For +500k Bonus: 1 NFT or 5 goals required)`;
       } else {
-        outField.value = `~${estOut.toLocaleString("en-US")}`;
+        outField.value = `~${estOut.toLocaleString("en-US")} $EFOO`;
       }
     }
     if (recvIcon) {
@@ -4315,15 +4317,13 @@ async function executeMarketSwap() {
       });
     }
 
-    const bState = getBonusEligibilityState(marketWallet.address, marketWallet.ownedNfts);
+    const bonusCheckbox = document.getElementById("m-swap-bonus-checkbox");
+    const isBonusChecked = bonusCheckbox && bonusCheckbox.checked && !bonusCheckbox.disabled;
+
     let bonusToast = "";
-    if (tok !== "EFOO" && bState.isEligible && !bState.isClaimed) {
-      // Check if buy output is >= 1M
-      const estOutVal = parseFloat((document.getElementById("m-swap-output-amt")?.value || "").replace(/[^0-9.]/g, "")) || 0;
-      if (estOutVal >= 1000000) {
-        markAddressClaimedBonus(marketWallet.address);
-        bonusToast = " 🎁 +500,000 $EFOO Starter Bonus granted from Stadium Vault!";
-      }
+    if (isBonusChecked) {
+      markAddressClaimedBonus(marketWallet.address);
+      bonusToast = " 🎁 +500,000 $EFOO Starter Bonus claimed from Stadium Vault!";
     }
 
     showMarketToast(
@@ -4552,6 +4552,30 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("m-btn-exec-swap")?.addEventListener("click", executeMarketSwap);
+
+  // Manual Starter Bonus Checkbox & Info Tooltip Handlers
+  const swapBonusCheckbox = document.getElementById("m-swap-bonus-checkbox");
+  swapBonusCheckbox?.addEventListener("change", () => {
+    const row = document.getElementById("m-swap-bonus-row");
+    if (row && !swapBonusCheckbox.disabled) {
+      row.classList.toggle("checked", swapBonusCheckbox.checked);
+    }
+    updateMarketSwapEstimate();
+  });
+
+  const bonusInfoWrap = document.getElementById("m-bonus-info-wrap");
+  const bonusInfoBtn = document.getElementById("m-bonus-info-btn");
+  if (bonusInfoBtn && bonusInfoWrap) {
+    bonusInfoBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      bonusInfoWrap.classList.toggle("active");
+    });
+    document.addEventListener("click", (e) => {
+      if (!bonusInfoWrap.contains(e.target)) {
+        bonusInfoWrap.classList.remove("active");
+      }
+    });
+  }
 
   // Liquidity Pool Calculator
   document.getElementById("lp-calc-deposit")?.addEventListener("input", updateLpCalculator);
@@ -4848,34 +4872,135 @@ function getBonusEligibilityState(address, ownedNfts) {
   };
 }
 
-function updateMarketBonusUI() {
-  const banner = document.getElementById("m-starter-bonus-banner");
-  if (!banner) return;
-  const addr = marketWallet.address;
+function updateMarketBonusUI(currentEstOut = null) {
+  const row = document.getElementById("m-swap-bonus-row");
+  const checkbox = document.getElementById("m-swap-bonus-checkbox");
+  const labelText = document.getElementById("m-bonus-label-text");
+  const nftItem = document.getElementById("m-btt-nft");
+  const nftIcon = document.getElementById("m-btt-nft-icon");
+  const nftText = document.getElementById("m-btt-nft-text");
+  const goalsItem = document.getElementById("m-btt-goals");
+  const goalsIcon = document.getElementById("m-btt-goals-icon");
+  const goalsText = document.getElementById("m-btt-goals-text");
+  const amtItem = document.getElementById("m-btt-amt");
+  const amtIcon = document.getElementById("m-btt-amt-icon");
+  const amtText = document.getElementById("m-btt-amt-text");
+  const statusText = document.getElementById("m-bonus-tt-status-text");
+  const linksBox = document.getElementById("m-bonus-tt-links");
 
+  if (!row || !checkbox) return;
+
+  const addr = marketWallet.address;
+  const tok = document.getElementById("m-swap-token-select")?.value || "WEGLD";
+  const isBuyingEfoo = (tok !== "EFOO");
+
+  // Determine current estimated output if not passed
+  let estOut = typeof currentEstOut === "number" ? currentEstOut : 0;
+  if (currentEstOut === null) {
+    const rawVal = (document.getElementById("m-swap-output-amt")?.value || "").replace(/[^0-9.]/g, "");
+    estOut = parseFloat(rawVal) || 0;
+  }
+
+  const meetsMinOutput = estOut >= 1000000;
+  const state = getBonusEligibilityState(addr, marketWallet.ownedNfts);
+
+  // Update tooltip criteria items
+  if (nftIcon && nftText && nftItem) {
+    const met = state.hasQualifyingNft;
+    nftIcon.textContent = met ? "✔" : "○";
+    nftItem.className = "m-btt-item " + (met ? "met" : "unmet");
+    nftText.textContent = `Own min. 1 EFOOTBALL / GOALKEEPER NFT (${state.nftCount} owned)`;
+  }
+
+  if (goalsIcon && goalsText && goalsItem) {
+    const met = state.hasFiveGoals;
+    goalsIcon.textContent = met ? "✔" : "○";
+    goalsItem.className = "m-btt-item " + (met ? "met" : "unmet");
+    goalsText.textContent = `Score min. 5 goals in-game (${state.goalsScored}/5 scored)`;
+  }
+
+  if (amtIcon && amtText && amtItem) {
+    const met = meetsMinOutput;
+    amtIcon.textContent = met ? "✔" : "○";
+    amtItem.className = "m-btt-item " + (met ? "met" : "unmet");
+    amtText.textContent = `Swap output min. 1,000,000 $EFOO (${estOut > 0 ? "~" + Math.floor(estOut).toLocaleString("en-US") : "0"} est.)`;
+  }
+
+  // 1. Not connected
   if (!addr) {
-    banner.className = "ms-bonus-pill";
-    banner.innerHTML = `<span>🎁</span><span><strong>Starter Bonus (+500,000 $EFOO):</strong> Buy min. 1,000,000 $EFOO! <small style="display:block; opacity:0.85; margin-top:2px;">🛡️ Anti-Bot Gate: min. 1 EFOOTBALL / GOALKEEPER NFT <strong>OR</strong> 5 scored goals in-game.</small></span>`;
+    checkbox.disabled = true;
+    checkbox.checked = false;
+    row.className = "m-swap-bonus-row disabled";
+    if (labelText) {
+      labelText.innerHTML = `<strong>🎁 +500,000 $EFOO</strong> Starter Bonus <span class="m-bonus-badge locked">Connect Wallet</span>`;
+    }
+    if (statusText) statusText.textContent = "Connect wallet to check eligibility";
+    if (linksBox) linksBox.style.display = "none";
     return;
   }
 
-  const state = getBonusEligibilityState(addr, marketWallet.ownedNfts);
-
+  // 2. Already claimed
   if (state.isClaimed) {
-    banner.className = "ms-bonus-pill claimed";
-    banner.innerHTML = `<span>✔</span><span><strong>500,000 $EFOO Bonus Already Claimed!</strong> Strictly 1x per MultiversX address.</span>`;
-  } else if (state.isEligible) {
-    banner.className = "ms-bonus-pill eligible";
-    const reason = state.hasQualifyingNft
-      ? `NFT Verified (${state.nftCount} pcs)`
-      : `5+ Goals Verified (${state.goalsScored} goals)`;
-
-    banner.innerHTML = `<span>🎉</span><span><strong>BONUS ACTIVE:</strong> Buy min. 1,000,000 $EFOO ➔ <strong>+500,000 $EFOO BONUS</strong> from Vault! <span class="sbb-anti-bot-badge" style="background:#22c55e; color:#020904;">✔ ${reason}</span></span>`;
-  } else {
-    // Locked by Anti-Bot Gate!
-    banner.className = "ms-bonus-pill locked";
-    banner.innerHTML = `<span>🛡️</span><span><strong>Anti-Bot Gate: +500,000 $EFOO Bonus Locked!</strong><br><small style="opacity:0.9;">Requires min. <strong>1 EFOOTBALL / GOALKEEPER NFT</strong> (Current: 0) OR <strong>5 scored goals</strong> in-game (Current: ${state.goalsScored}/5). Eliminates bot farming!</small><br><span style="margin-top:4px; display:inline-block;"><a href="game.html" class="sbb-action-link">⚽ Score 5 Goals (F2P Shootout) ➔</a> | <a href="market.html?tab=browse" class="sbb-action-link">🏷️ Buy 1 NFT ➔</a></span></span>`;
+    checkbox.disabled = true;
+    checkbox.checked = false;
+    row.className = "m-swap-bonus-row claimed";
+    if (labelText) {
+      labelText.innerHTML = `<strong>🎁 +500,000 $EFOO</strong> Starter Bonus <span class="m-bonus-badge claimed">Already Claimed</span>`;
+    }
+    if (statusText) statusText.textContent = "Already Claimed (Strictly 1x per address)";
+    if (linksBox) linksBox.style.display = "none";
+    return;
   }
+
+  // 3. Selling EFOO (bonus only when buying EFOO)
+  if (!isBuyingEfoo) {
+    checkbox.disabled = true;
+    checkbox.checked = false;
+    row.className = "m-swap-bonus-row disabled";
+    if (labelText) {
+      labelText.innerHTML = `<strong>🎁 +500,000 $EFOO</strong> Starter Bonus`;
+    }
+    if (statusText) statusText.textContent = "Available only when buying $EFOO";
+    if (linksBox) linksBox.style.display = "none";
+    return;
+  }
+
+  // 4. Anti-Bot Condition NOT met (0 NFTs and <5 goals)
+  if (!state.isEligible) {
+    checkbox.disabled = true;
+    checkbox.checked = false;
+    row.className = "m-swap-bonus-row disabled";
+    if (labelText) {
+      labelText.innerHTML = `<strong>🎁 +500,000 $EFOO</strong> Starter Bonus <span class="m-bonus-badge locked">Locked</span>`;
+    }
+    if (statusText) statusText.textContent = "Locked (Requires 1 NFT or 5 goals)";
+    if (linksBox) linksBox.style.display = "flex";
+    return;
+  }
+
+  // 5. Anti-Bot condition MET, but swap output < 1,000,000 $EFOO
+  if (!meetsMinOutput) {
+    checkbox.disabled = true;
+    checkbox.checked = false;
+    row.className = "m-swap-bonus-row disabled";
+    if (labelText) {
+      labelText.innerHTML = `<strong>🎁 +500,000 $EFOO</strong> Starter Bonus <span class="m-bonus-badge locked">Min. 1M $EFOO</span>`;
+    }
+    if (statusText) statusText.textContent = "Swap output must be at least 1,000,000 $EFOO";
+    if (linksBox) linksBox.style.display = "none";
+    return;
+  }
+
+  // 6. ALL CONDITIONS FULLY MET! Eligible to manually activate!
+  checkbox.disabled = false;
+  row.className = "m-swap-bonus-row eligible" + (checkbox.checked ? " checked" : "");
+  if (labelText) {
+    labelText.innerHTML = `<strong>🎁 +500,000 $EFOO</strong> Starter Bonus <span class="m-bonus-badge eligible">Eligible</span>`;
+  }
+  if (statusText) {
+    statusText.textContent = checkbox.checked ? "Activated (Bonus applied to swap!)" : "Eligible • Check box to activate";
+  }
+  if (linksBox) linksBox.style.display = "none";
 }
 
 // ============================================================================

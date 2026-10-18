@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
 
   <link rel="canonical" href="https://efoo.optibase.ro/market" />
-  <link rel="stylesheet" href="market.css?v=20261018_v26_mobile_2col_grid" />
+  <link rel="stylesheet" href="market.css?v=20261018_v28_manual_bonus_tooltip" />
 
   <!-- Clean URL: Strip amateur .html extension from browser address bar -->
   <script>
@@ -358,12 +358,6 @@
 
         <div class="market-swap-wrap">
           <div class="market-swap-card">
-            <!-- STARTER PACK +500,000 $EFOO BONUS BANNER -->
-            <div class="ms-bonus-pill" id="m-starter-bonus-banner">
-              <span>🎁</span>
-              <span><strong>Starter Bonus:</strong> Buy min. 1,000,000 $EFOO ➔ Get <strong>+500,000 $EFOO BONUS</strong> from Stadium Vault!</span>
-            </div>
-
             <!-- YOU PAY -->
             <div class="ms-token-box">
               <div class="ms-token-head">
@@ -574,6 +568,54 @@
                 <div class="token-recv-pill-box" id="m-swap-recv-token-badge">
                   <img id="m-swap-recv-icon" src="branding/icons/efoo-logo.png" alt="EFOO" class="token-logo-img round" />
                   <span id="m-swap-recv-ticker">$EFOO</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- MANUAL BONUS SELECTOR (With Question Mark Tooltip) -->
+            <div class="m-swap-bonus-row disabled" id="m-swap-bonus-row">
+              <label class="m-bonus-checkbox-label" for="m-swap-bonus-checkbox">
+                <input type="checkbox" id="m-swap-bonus-checkbox" disabled />
+                <span class="m-bonus-custom-check"></span>
+                <span class="m-bonus-label-text" id="m-bonus-label-text">
+                  <strong>🎁 +500,000 $EFOO</strong> Starter Bonus
+                </span>
+              </label>
+
+              <div class="m-bonus-info-wrap" id="m-bonus-info-wrap" tabindex="0">
+                <span class="m-bonus-info-btn" id="m-bonus-info-btn" title="View Bonus Requirements">?</span>
+                <div class="m-bonus-tooltip" id="m-bonus-tooltip">
+                  <div class="m-bonus-tt-head">
+                    <span class="m-bonus-tt-title">🛡️ Anti-Bot Starter Bonus</span>
+                  </div>
+                  <div class="m-bonus-tt-desc">
+                    Get an extra <strong>+500,000 $EFOO</strong> from the Stadium Vault on your qualifying swap. Strictly 1x per wallet.
+                  </div>
+                  <div class="m-bonus-tt-criteria">
+                    <div class="m-btt-item" id="m-btt-nft">
+                      <span class="m-btt-icon" id="m-btt-nft-icon">○</span>
+                      <span class="m-btt-text" id="m-btt-nft-text">Own min. 1 EFOOTBALL / GOALKEEPER NFT</span>
+                    </div>
+                    <div class="m-btt-divider">OR</div>
+                    <div class="m-btt-item" id="m-btt-goals">
+                      <span class="m-btt-icon" id="m-btt-goals-icon">○</span>
+                      <span class="m-btt-text" id="m-btt-goals-text">Score min. 5 goals in-game</span>
+                    </div>
+                    <div class="m-btt-item" id="m-btt-amt">
+                      <span class="m-btt-icon" id="m-btt-amt-icon">○</span>
+                      <span class="m-btt-text" id="m-btt-amt-text">Swap output min. 1,000,000 $EFOO</span>
+                    </div>
+                  </div>
+                  <div class="m-bonus-tt-footer">
+                    <div class="m-btt-status-row">
+                      <span>Status:</span>
+                      <strong id="m-bonus-tt-status-text">Checking...</strong>
+                    </div>
+                    <div class="m-btt-links" id="m-bonus-tt-links" style="display:none;">
+                      <a href="game.html" class="sbb-action-link">⚽ Score 5 Goals (F2P) ➔</a>
+                      <a href="market.html?tab=browse" class="sbb-action-link">🏷️ Buy 1 NFT ➔</a>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1217,6 +1259,6 @@
   <div id="m-toast" class="m-toast hidden"></div>
 
   <!-- Scripts -->
-  <script src="market.js?v=20261018_v27_english_bech32_fix"></script>
+  <script src="market.js?v=20261018_v28_manual_bonus_tooltip"></script>
 </body>
 </html>

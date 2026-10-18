@@ -3469,53 +3469,293 @@ body {
   color: #050a07;
 }
 
-.ms-bonus-pill {
-  background: rgba(168, 255, 0, 0.12);
-  border: 1px dashed var(--neon);
-  color: var(--neon);
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 700;
-  padding: 8px 14px;
-  border-radius: 10px;
-  margin-bottom: 14px;
+/* ==========================================================================
+   MANUAL STARTER BONUS SELECTOR & QUESTION MARK TOOLTIP (ENGLISH ONLY)
+   ========================================================================== */
+.m-swap-bonus-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 255, 136, 0.04);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin: 14px 0 16px 0;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.m-swap-bonus-row.disabled {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.08);
+  opacity: 0.65;
+}
+
+.m-swap-bonus-row.eligible {
+  background: rgba(0, 255, 136, 0.06);
+  border-color: rgba(0, 255, 136, 0.35);
+  box-shadow: 0 0 16px rgba(0, 255, 136, 0.08);
+}
+
+.m-swap-bonus-row.checked {
+  background: rgba(0, 255, 136, 0.12);
+  border: 1.5px solid var(--neon);
+  box-shadow: 0 0 22px rgba(0, 255, 136, 0.22);
+}
+
+.m-swap-bonus-row.claimed {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.12);
+  opacity: 0.55;
+}
+
+.m-bonus-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: #fff;
+  flex: 1;
+}
+
+.m-swap-bonus-row.disabled .m-bonus-checkbox-label {
+  cursor: not-allowed;
+  color: var(--text-sub);
+}
+
+.m-bonus-checkbox-label input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.m-bonus-custom-check {
+  width: 19px;
+  height: 19px;
+  border-radius: 5px;
+  border: 1.5px solid rgba(0, 255, 136, 0.45);
+  background: rgba(0, 0, 0, 0.5);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.m-bonus-checkbox-label input[type="checkbox"]:checked + .m-bonus-custom-check {
+  background: var(--neon);
+  border-color: var(--neon);
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+.m-bonus-checkbox-label input[type="checkbox"]:checked + .m-bonus-custom-check::after {
+  content: "✔";
+  color: #020904;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.m-bonus-checkbox-label input[type="checkbox"]:disabled + .m-bonus-custom-check {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: not-allowed;
+}
+
+.m-bonus-label-text {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
-.ms-bonus-pill.claimed {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #8899a6;
+.m-bonus-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
 }
 
-.ms-bonus-pill.locked {
-  background: rgba(255, 184, 0, 0.08);
-  border: 1px dashed #ffb800;
+.m-bonus-badge.eligible {
+  background: #22c55e;
+  color: #020904;
+}
+
+.m-bonus-badge.locked {
+  background: rgba(255, 184, 0, 0.15);
+  border: 1px solid #ffb800;
   color: #ffb800;
 }
 
-.ms-bonus-pill.eligible {
-  background: rgba(0, 255, 136, 0.12);
-  border: 1px solid var(--neon);
-  color: #fff;
+.m-bonus-badge.claimed {
+  background: rgba(255, 255, 255, 0.1);
+  color: #9ca3af;
 }
 
-.sbb-anti-bot-badge {
-  display: inline-block;
-  padding: 2px 7px;
-  border-radius: 4px;
-  font-size: 0.7rem;
+/* Question Mark Tooltip Trigger & Popup */
+.m-bonus-info-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.m-bonus-info-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #e5e7eb;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
   font-weight: 800;
-  margin-left: 6px;
-  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.m-bonus-info-wrap:hover .m-bonus-info-btn,
+.m-bonus-info-wrap:focus-within .m-bonus-info-btn,
+.m-bonus-info-wrap.active .m-bonus-info-btn {
+  background: var(--neon);
+  color: #020904;
+  border-color: var(--neon);
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+.m-bonus-tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  width: 310px;
+  max-width: 88vw;
+  background: #0b131a;
+  border: 1.5px solid rgba(0, 255, 136, 0.35);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: #d1d5db;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: all 0.22s ease;
+}
+
+.m-bonus-info-wrap:hover .m-bonus-tooltip,
+.m-bonus-info-wrap:focus-within .m-bonus-tooltip,
+.m-bonus-info-wrap.active .m-bonus-tooltip {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.m-bonus-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  right: 6px;
+  border: 6px solid transparent;
+  border-top-color: rgba(0, 255, 136, 0.35);
+}
+
+.m-bonus-tt-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 6px;
+}
+
+.m-bonus-tt-title {
+  color: var(--neon);
+  font-weight: 800;
+  font-size: 0.82rem;
+}
+
+.m-bonus-tt-desc {
+  color: #9ca3af;
+  font-size: 0.72rem;
+  margin-bottom: 10px;
+}
+
+.m-bonus-tt-criteria {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.m-btt-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 0.71rem;
+}
+
+.m-btt-icon {
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.m-btt-item.met .m-btt-icon {
+  color: #22c55e;
+}
+
+.m-btt-item.unmet .m-btt-icon {
+  color: #ef4444;
+}
+
+.m-btt-divider {
+  font-size: 0.64rem;
+  color: var(--neon);
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 1px;
+  opacity: 0.8;
+  margin: -2px 0;
+}
+
+.m-bonus-tt-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 8px;
+}
+
+.m-btt-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+}
+
+.m-btt-links {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .sbb-action-link {
   color: var(--neon);
   text-decoration: underline;
-  margin-left: 4px;
   font-weight: 800;
   cursor: pointer;
 }
