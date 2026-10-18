@@ -65,6 +65,11 @@ pub trait EfooStadiumVault {
         self.is_paused().set(false);
     }
 
+    #[upgrade]
+    fn upgrade(&self) {
+        // Upgrade hook: runs on contract upgrade to preserve storage without resetting state
+    }
+
     // =========================================================================
     // GAMEPLAY ENDPOINTS: STREAK REVIVE & ROUND RETRY (50% BURN / 50% VAULT)
     // =========================================================================
