@@ -1266,7 +1266,9 @@
 
     async function executeAdminTransaction({ receiver, value = "0", data = "", gasLimit = 15000000, title = "Művelet", onSuccess = null }) {
       const callbackUrl = window.location.href.split("?")[0];
-      const webWalletUrl = `https://wallet.multiversx.com/hook/transaction?receiver=${encodeURIComponent(receiver)}&value=${encodeURIComponent(String(value || "0"))}&gasLimit=${gasLimit}&data=${encodeURIComponent(data)}&callbackUrl=${encodeURIComponent(callbackUrl)}`;
+      // CloudFront enforces a strict 8KB URL limit on wallet.multiversx.com. Large payloads (such as 23KB WASM) must use the extension or utils.multiversx.com!
+      const isLargePayload = data && data.length > 1500;
+      const webWalletUrl = isLargePayload ? null : `https://wallet.multiversx.com/hook/transaction?receiver=${encodeURIComponent(receiver)}&value=${encodeURIComponent(String(value || "0"))}&gasLimit=${gasLimit}&data=${encodeURIComponent(data)}&callbackUrl=${encodeURIComponent(callbackUrl)}`;
 
       // IMMEDIATELY OPEN TRANSACTION HUD
       setTxModalUI({
@@ -1324,7 +1326,9 @@
         step: 1,
         icon: "🧩",
         title: "ALÁÍRÁSRA VÁR A DEFI WALLET BŐVÍTMÉNYBEN...",
-        desc: `Kérlek nézz rá a böngésződ jobb felső sarkában felugró <strong>MultiversX DeFi Wallet</strong> ablakra, és kattints az <strong>Aláírás (Sign)</strong> gombra!<br/><br/><small style="color:#94a3b8;">💡 Ha nem ugrott fel automatikusan, kattints a kék MultiversX bővítmény ikonra a böngésződben, vagy használd az alábbi Web Wallet gombot!</small>`,
+        desc: isLargePayload
+          ? `Kérlek nyisd meg a böngésződ jobb felső sarkában a <strong>MultiversX DeFi Wallet</strong> bővítményt, és kattints az <strong>Aláírás (Sign)</strong> gombra!<br/><br/><small style="color:var(--admin-gold);">💡 Nagy méretű SC Upgrade tranzakciót kizárólag a DeFi Wallet bővítményen vagy a utils.multiversx.com felületen keresztül lehet aláírni.</small>`
+          : `Kérlek nézz rá a böngésződ jobb felső sarkában felugró <strong>MultiversX DeFi Wallet</strong> ablakra, és kattints az <strong>Aláírás (Sign)</strong> gombra!<br/><br/><small style="color:#94a3b8;">💡 Ha nem ugrott fel automatikusan, kattints a kék MultiversX bővítmény ikonra a böngésződben, vagy használd az alábbi Web Wallet gombot!</small>`,
         hash: null,
         webWalletUrl: webWalletUrl
       });
