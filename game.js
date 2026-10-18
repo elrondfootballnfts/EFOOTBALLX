@@ -2665,6 +2665,12 @@ function onBallReachGoal(endScreenX, endScreenY) {
     game.userShotHistory.push("goal");
     game.shotHistory.push("goal");
 
+    try {
+      if (typeof recordGoalsForBonus === "function") {
+        recordGoalsForBonus(goalsAdded);
+      }
+    } catch (e) {}
+
     const rawPts = Math.round(
       (1000 + game.streak * 350) * (b.hitBullseye ? 2 : 1) * (b.isSweet ? 1.5 : 1) * lv.scoreMul
     );
@@ -5762,6 +5768,33 @@ async function signAndSendTxs(txList, actionKey = null) {
   window.location.href = `https://wallet.multiversx.com/hook/sign?${params.toString()}`;
 }
 
+function recordGoalsForBonus(goalsAdded) {
+  if (!goalsAdded || goalsAdded <= 0) return;
+  try {
+    const total = (parseInt(localStorage.getItem("efoo_total_goals_scored"), 10) || 0) + goalsAdded;
+    localStorage.setItem("efoo_total_goals_scored", String(total));
+    if (connectedAddress) {
+      const addrKey = "efoo_player_goals_" + connectedAddress.toLowerCase();
+      const addrTotal = (parseInt(localStorage.getItem(addrKey), 10) || 0) + goalsAdded;
+      localStorage.setItem(addrKey, String(addrTotal));
+    }
+  } catch (e) {}
+}
+
+function getPlayerGoalsCount(addr) {
+  try {
+    if (addr) {
+      const addrKey = "efoo_player_goals_" + addr.toLowerCase();
+      const addrGoals = parseInt(localStorage.getItem(addrKey), 10);
+      if (!isNaN(addrGoals) && addrGoals >= 0) return addrGoals;
+    }
+    const globalGoals = parseInt(localStorage.getItem("efoo_total_goals_scored"), 10);
+    return !isNaN(globalGoals) ? globalGoals : 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
 function getClaimedBonusAddresses() {
   try {
     const raw = localStorage.getItem("efoo_claimed_bonus_addresses");
@@ -5790,6 +5823,35 @@ function markAddressClaimedBonus(addr) {
 }
 
 function buyStarterPackOnChain() {
+  const isRo = currentLang === "ro";
+  const isHu = currentLang === "hu";
+
+  if (!connectedAddress) {
+    pendingGateAction = "buy_starter";
+    document.getElementById("wallet-modal-backdrop")?.classList.remove("hidden");
+    showToast(isHu ? "⚠️ Kérlek előbb csatlakoztasd a tárcádat a vásárláshoz!" : "⚠️ Please connect your wallet first!");
+    return;
+  }
+
+  // Anti-Bot Gate Check:
+  // Requirement: Wallet owns at least 1 EFOOTBALL or GOALKEEPER NFT, OR has scored at least 5 goals!
+  const nfts = walletState.ownedNfts || [];
+  const hasNft = (walletState.playersCount > 0 || walletState.keepersCount > 0 || nfts.some(n => {
+    const col = (n.collection || n.identifier || "").toUpperCase();
+    return col.startsWith("EFOOTBALL-") || col.startsWith("GOALKEEPER-") || col.startsWith("FOOTBALL-");
+  }));
+  const goalsScored = getPlayerGoalsCount(connectedAddress);
+  const hasFiveGoals = goalsScored >= 5;
+
+  if (!hasNft && !hasFiveGoals) {
+    showToast(
+      isHu
+        ? `🛡️ Anti-Bot Védelem: A +500.000 $EFOO bónusz aktiválásához rendelkezned kell legalább 1 db NFT-vel, vagy legalább 5 gólt kell lőnöd a büntetőpárbajban! (Jelenleg: ${goalsScored}/5 gól)`
+        : `🛡️ Anti-Bot Protection: Starter Bonus requires at least 1 NFT or 5 scored goals in-game! (Current: ${goalsScored}/5 goals)`
+    );
+    return;
+  }
+
   const amt = 0.035;
   if (connectedAddress && !hasAddressClaimedBonus(connectedAddress)) {
     markAddressClaimedBonus(connectedAddress);

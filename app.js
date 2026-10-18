@@ -3152,6 +3152,39 @@ function markAddressClaimedBonus(addr) {
   updateSwapEstimate();
 }
 
+function getBonusEligibilityState(address, ownedNfts) {
+  const nfts = Array.isArray(ownedNfts) ? ownedNfts : (walletState.ownedNfts || []);
+  const matchingNfts = nfts.filter((nft) => {
+    const col = (nft.collection || nft.identifier || "").toUpperCase();
+    return col.startsWith("EFOOTBALL-") || col.startsWith("GOALKEEPER-") || col.startsWith("FOOTBALL-");
+  });
+  const hasQualifyingNft = (walletState.playersCount > 0 || walletState.keepersCount > 0 || matchingNfts.length > 0);
+
+  let goalsScored = 0;
+  try {
+    if (address) {
+      const addrKey = "efoo_player_goals_" + address.toLowerCase();
+      goalsScored = parseInt(localStorage.getItem(addrKey), 10) || 0;
+    }
+    if (!goalsScored) {
+      goalsScored = parseInt(localStorage.getItem("efoo_total_goals_scored"), 10) || 0;
+    }
+  } catch (e) {}
+
+  const hasFiveGoals = goalsScored >= 5;
+  const isEligible = hasQualifyingNft || hasFiveGoals;
+  const isClaimed = address ? hasAddressClaimedBonus(address) : false;
+
+  return {
+    isEligible,
+    isClaimed,
+    hasQualifyingNft,
+    nftCount: matchingNfts.length || (walletState.playersCount + walletState.keepersCount),
+    hasFiveGoals,
+    goalsScored
+  };
+}
+
 function updateStarterBonusBannerUI() {
   const banner = document.getElementById("starter-bonus-banner");
   if (!banner) return;
@@ -3167,11 +3200,25 @@ function updateStarterBonusBannerUI() {
     if (badgeEl) badgeEl.textContent = i18n.sbb_claimed_badge || "✔ BONUS ALREADY CLAIMED";
     if (titleEl) titleEl.textContent = i18n.sbb_claimed_title || "500,000 $EFOO Bonus Already Claimed for this Wallet";
     if (subEl) subEl.textContent = i18n.sbb_claimed_sub || "Each MultiversX address can receive the one-time 500,000 $EFOO bonus strictly once.";
-  } else {
+  } else if (!connectedAddress) {
     banner.classList.remove("claimed");
     if (badgeEl) badgeEl.textContent = i18n.sbb_badge || "🎁 +500,000 $EFOO BONUS";
     if (titleEl) titleEl.textContent = i18n.sbb_title || "Starter Bonus: Buy min. 1,000,000 $EFOO ➔ GET +500,000 $EFOO BONUS!";
-    if (subEl) subEl.textContent = i18n.sbb_sub || "+500,000 $EFOO bonus granted from Stadium Vault (erd1lqh3...zp) — strictly 1x per address on min. 1M purchase!";
+    if (subEl) subEl.textContent = i18n.sbb_sub || "+500,000 $EFOO bonus granted from Stadium Vault — strictly 1x per address on min. 1M purchase (Anti-Bot: 1 NFT or 5 goals)!";
+  } else {
+    const bState = getBonusEligibilityState(connectedAddress, walletState.ownedNfts);
+    if (bState.isEligible) {
+      banner.classList.remove("claimed");
+      if (badgeEl) badgeEl.textContent = "🎁 BONUS ACTIVE";
+      if (titleEl) titleEl.textContent = "Starter Bonus Active: Buy min. 1,000,000 $EFOO ➔ GET +500,000 $EFOO BONUS!";
+      const reason = bState.hasQualifyingNft ? `NFT Verified (${bState.nftCount} pcs)` : `5+ Goals Verified (${bState.goalsScored} goals)`;
+      if (subEl) subEl.textContent = `+500,000 $EFOO bonus granted from Stadium Vault! (${reason})`;
+    } else {
+      banner.classList.remove("claimed");
+      if (badgeEl) badgeEl.textContent = "🛡️ ANTI-BOT LOCKED";
+      if (titleEl) titleEl.textContent = "Starter Bonus Locked by Anti-Bot Protection";
+      if (subEl) subEl.textContent = `To activate the +500,000 $EFOO bonus, hold at least 1 NFT or score 5 goals in the game! (Current: ${bState.goalsScored}/5 goals)`;
+    }
   }
 }
 
@@ -3213,11 +3260,14 @@ function updateSwapEstimate() {
     }
 
     const alreadyClaimed = connectedAddress && hasAddressClaimedBonus(connectedAddress);
-    const qualifiesForBonus = estOut >= 1000000 && !alreadyClaimed;
+    const bState = getBonusEligibilityState(connectedAddress, walletState.ownedNfts);
+    const qualifiesForBonus = estOut >= 1000000 && bState.isEligible && !alreadyClaimed;
 
     if (outField) {
       if (qualifiesForBonus) {
         outField.value = `~${estOut.toLocaleString("en-US")} + 500k BONUS = ~${(estOut + 500000).toLocaleString("en-US")} $EFOO 🎁`;
+      } else if (estOut >= 1000000 && !bState.isEligible && !alreadyClaimed) {
+        outField.value = `~${estOut.toLocaleString("en-US")} $EFOO (🛡️ +500k Bónuszhoz: 1 NFT vagy 5 gól kell)`;
       } else {
         outField.value = `~${estOut.toLocaleString("en-US")} $EFOO`;
       }

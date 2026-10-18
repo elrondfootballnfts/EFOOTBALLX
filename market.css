@@ -3373,6 +3373,46 @@ body {
   gap: 8px;
 }
 
+.ms-bonus-pill.claimed {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #8899a6;
+}
+
+.ms-bonus-pill.locked {
+  background: rgba(255, 184, 0, 0.08);
+  border: 1px dashed #ffb800;
+  color: #ffb800;
+}
+
+.ms-bonus-pill.eligible {
+  background: rgba(0, 255, 136, 0.12);
+  border: 1px solid var(--neon);
+  color: #fff;
+}
+
+.sbb-anti-bot-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.sbb-action-link {
+  color: var(--neon);
+  text-decoration: underline;
+  margin-left: 4px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sbb-action-link:hover {
+  color: #fff;
+}
+
 .m-swap-slippage-wrap {
   display: inline-flex;
   align-items: center;

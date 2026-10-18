@@ -720,7 +720,7 @@ function watchMarketTransaction(txHash, onConfirmed = null, onFailed = null) {
   }, 2000);
 }
 
-async function sendMultiversxTransaction({ receiver, value = "0", data = "", gasLimit = 15000000, onSigned = null }) {
+async function sendMultiversxTransaction({ txs = null, receiver, value = "0", data = "", gasLimit = 15000000, onSigned = null }) {
   const isHu = currentMarketLang === "hu";
   if (!marketWallet.address) {
     document.getElementById("m-wallet-modal")?.classList.remove("hidden");
@@ -754,24 +754,45 @@ async function sendMultiversxTransaction({ receiver, value = "0", data = "", gas
     }
   }
 
-  const txObj = {
-    nonce: nonce,
-    value: String(value || "0"),
-    receiver: receiver,
-    sender: marketWallet.address,
-    gasPrice: 1000000000,
-    gasLimit: Number(gasLimit || 15000000) + (isGuarded ? 50000 : 0),
-    data: data || "",
-    chainID: "1",
-    version: isGuarded ? 2 : 1
-  };
+  let preparedTxs = [];
+  if (Array.isArray(txs) && txs.length > 0) {
+    preparedTxs = txs.map((tx, idx) => {
+      const single = {
+        nonce: nonce + idx,
+        value: String(tx.value || "0"),
+        receiver: tx.receiver,
+        sender: marketWallet.address,
+        gasPrice: 1000000000,
+        gasLimit: Number(tx.gasLimit || 15000000) + (isGuarded ? 50000 : 0),
+        data: tx.data || "",
+        chainID: "1",
+        version: isGuarded ? 2 : 1
+      };
+      if (isGuarded && guardianAddress) {
+        single.options = 2;
+        single.guardian = guardianAddress;
+      }
+      return single;
+    });
+  } else {
+    const txObj = {
+      nonce: nonce,
+      value: String(value || "0"),
+      receiver: receiver,
+      sender: marketWallet.address,
+      gasPrice: 1000000000,
+      gasLimit: Number(gasLimit || 15000000) + (isGuarded ? 50000 : 0),
+      data: data || "",
+      chainID: "1",
+      version: isGuarded ? 2 : 1
+    };
 
-  if (isGuarded && guardianAddress) {
-    txObj.options = 2;
-    txObj.guardian = guardianAddress;
+    if (isGuarded && guardianAddress) {
+      txObj.options = 2;
+      txObj.guardian = guardianAddress;
+    }
+    preparedTxs = [txObj];
   }
-
-  const preparedTxs = [txObj];
 
   // PATH A: xPortal Mobile App (WalletConnect v2)
   if (marketWallet.provider === "xportal") {
@@ -813,28 +834,62 @@ async function sendMultiversxTransaction({ receiver, value = "0", data = "", gas
         data: toBase64Data(t.data)
       }));
 
-      const res = await marketWcSignClient.request({
-        topic: activeTopic,
-        chainId: "mvx:1",
-        request: {
-          method: "mvx_signTransaction",
-          params: { transaction: wcTxs[0] }
+      let signedList = [];
+      if (wcTxs.length > 1) {
+        try {
+          const multiRes = await marketWcSignClient.request({
+            topic: activeTopic,
+            chainId: "mvx:1",
+            request: {
+              method: "mvx_signTransactions",
+              params: { transactions: wcTxs }
+            }
+          });
+          if (Array.isArray(multiRes?.signatures)) {
+            signedList = multiRes.signatures.map((sig, i) => ({
+              ...wcTxs[i],
+              signature: sig,
+              data: wcTxs[i].data,
+              dataIsBase64: true
+            }));
+          } else if (Array.isArray(multiRes)) {
+            signedList = multiRes.map((st, i) => ({
+              ...wcTxs[i],
+              ...st,
+              data: wcTxs[i].data,
+              dataIsBase64: true
+            }));
+          }
+        } catch (multiErr) {
+          console.warn("xPortal multi-sign error, falling back to sequential:", multiErr);
         }
-      });
+      }
 
-      const signedTx = {
-        ...wcTxs[0],
-        ...res,
-        data: wcTxs[0].data,
-        dataIsBase64: true
-      };
+      if (signedList.length === 0) {
+        for (let i = 0; i < wcTxs.length; i++) {
+          const singleRes = await marketWcSignClient.request({
+            topic: activeTopic,
+            chainId: "mvx:1",
+            request: {
+              method: "mvx_signTransaction",
+              params: { transaction: wcTxs[i] }
+            }
+          });
+          signedList.push({
+            ...wcTxs[i],
+            ...singleRes,
+            data: wcTxs[i].data,
+            dataIsBase64: true
+          });
+        }
+      }
 
-      const hashes = await broadcastMarketSignedTransactions([signedTx]);
+      const hashes = await broadcastMarketSignedTransactions(signedList);
       if (hashes.length > 0) {
         if (typeof onSigned === "function") {
           try { onSigned(hashes); } catch (e) { console.warn("onSigned callback error:", e); }
         }
-        return { success: true, hash: hashes[0], method: "xportal" };
+        return { success: true, hash: hashes[hashes.length - 1], hashes, method: "xportal" };
       }
       throw new Error(isHu ? "Nem sikerült a tranzakció kiküldése." : "Transaction broadcast failed.");
     } catch (err) {
@@ -883,8 +938,8 @@ async function sendMultiversxTransaction({ receiver, value = "0", data = "", gas
 
         const hashes = await broadcastMarketSignedTransactions(formattedSigned);
         if (hashes.length > 0 || signedList.length > 0) {
-          const txHash = hashes[0] || (signedList[0]?.txHash || signedList[0]?.hash) || "broadcasted";
-          return { success: true, hash: txHash, method: "extension" };
+          const txHash = hashes[hashes.length - 1] || (signedList[signedList.length - 1]?.txHash || signedList[signedList.length - 1]?.hash) || "broadcasted";
+          return { success: true, hash: txHash, hashes, method: "extension" };
         }
       }
       throw new Error(isHu ? "Nem sikerült a tranzakció aláírása." : "Transaction signing failed.");
@@ -1721,6 +1776,8 @@ function updateWalletUI() {
       sessionStorage.removeItem("efoo_admin_session_auth_v1");
     }
   }
+
+  updateMarketBonusUI();
 }
 
 async function disconnectWallet() {
@@ -4136,7 +4193,18 @@ function updateMarketSwapEstimate() {
       rateStr = `1 ${tConf.symbol} ≈ ${Math.round(tokensPerEfoo).toLocaleString("en-US")} $EFOO`;
     }
 
-    if (outField) outField.value = `~${estOut.toLocaleString("en-US")}`;
+    const bState = getBonusEligibilityState(marketWallet.address, marketWallet.ownedNfts);
+    const qualifiesForBonus = estOut >= 1000000 && bState.isEligible && !bState.isClaimed;
+
+    if (outField) {
+      if (qualifiesForBonus) {
+        outField.value = `~${estOut.toLocaleString("en-US")} + 500k BONUS = ~${(estOut + 500000).toLocaleString("en-US")} $EFOO 🎁`;
+      } else if (estOut >= 1000000 && !bState.isEligible && !bState.isClaimed) {
+        outField.value = `~${estOut.toLocaleString("en-US")} $EFOO (🛡️ +500k Bónuszhoz: 1 NFT vagy 5 gól kell)`;
+      } else {
+        outField.value = `~${estOut.toLocaleString("en-US")}`;
+      }
+    }
     if (recvIcon) {
       recvIcon.src = "branding/icons/efoo-logo.png";
       recvIcon.classList.add("round");
@@ -4223,11 +4291,24 @@ async function executeMarketSwap() {
       });
     }
 
+    const bState = getBonusEligibilityState(marketWallet.address, marketWallet.ownedNfts);
+    let bonusToast = "";
+    if (tok !== "EFOO" && bState.isEligible && !bState.isClaimed) {
+      // Check if buy output is >= 1M
+      const estOutVal = parseFloat((document.getElementById("m-swap-output-amt")?.value || "").replace(/[^0-9.]/g, "")) || 0;
+      if (estOutVal >= 1000000) {
+        markAddressClaimedBonus(marketWallet.address);
+        bonusToast = isHu
+          ? " 🎁 +500.000 $EFOO Kezdő Bónusz aktiválva a tárcádra a Stadium Vaultból!"
+          : " 🎁 +500,000 $EFOO Starter Bonus granted from Stadium Vault!";
+      }
+    }
+
     showMarketToast(
       isHu
-        ? `🎉 Swap tranzakció sikeresen elküldve! A $EFOO jóváírása folyamatban van a blokkláncon!`
-        : `🎉 Swap transaction dispatched! Your $EFOO is being confirmed on-chain!`,
-      7000
+        ? `🎉 Swap tranzakció sikeresen elküldve! A $EFOO jóváírása folyamatban van a blokkláncon!${bonusToast}`
+        : `🎉 Swap transaction dispatched! Your $EFOO is being confirmed on-chain!${bonusToast}`,
+      8000
     );
 
     // Refresh wallet balances
@@ -4353,6 +4434,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (tab === "swap") {
       fetchSwapTokenPrices();
       updateMarketSwapEstimate();
+      updateMarketBonusUI();
     }
     if (tab === "pools") updateLpCalculator();
   };
@@ -4683,7 +4765,112 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ============================================================================
-// DIRECT ON-CHAIN ADD LIQUIDITY (No external redirection!)
+// 1-TIME 500k $EFOO STARTER BONUS & ANTI-BOT GATED CONDITIONS
+// Requirements: Holds min 1 EFOOTBALL/GOALKEEPER NFT OR scored >= 5 goals
+// ============================================================================
+function getClaimedBonusAddresses() {
+  try {
+    const raw = localStorage.getItem("efoo_claimed_bonus_addresses");
+    if (!raw) return [];
+    const list = JSON.parse(raw);
+    return Array.isArray(list) ? list : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function hasAddressClaimedBonus(addr) {
+  if (!addr) return false;
+  const list = getClaimedBonusAddresses();
+  return list.includes(addr.toLowerCase().trim());
+}
+
+function markAddressClaimedBonus(addr) {
+  if (!addr) return;
+  const clean = addr.toLowerCase().trim();
+  const list = getClaimedBonusAddresses();
+  if (!list.includes(clean)) {
+    list.push(clean);
+    localStorage.setItem("efoo_claimed_bonus_addresses", JSON.stringify(list));
+  }
+  updateMarketBonusUI();
+  updateMarketSwapEstimate();
+}
+
+function getBonusEligibilityState(address, ownedNfts) {
+  const nfts = Array.isArray(ownedNfts) ? ownedNfts : (marketWallet.ownedNfts || []);
+  const matchingNfts = nfts.filter((nft) => {
+    const col = (nft.collection || nft.identifier || "").toUpperCase();
+    return col.startsWith("EFOOTBALL-") || col.startsWith("GOALKEEPER-") || col.startsWith("FOOTBALL-");
+  });
+  const hasQualifyingNft = matchingNfts.length > 0;
+
+  let goalsScored = 0;
+  try {
+    if (address) {
+      const addrKey = "efoo_player_goals_" + address.toLowerCase();
+      goalsScored = parseInt(localStorage.getItem(addrKey), 10) || 0;
+    }
+    if (!goalsScored) {
+      goalsScored = parseInt(localStorage.getItem("efoo_total_goals_scored"), 10) || 0;
+    }
+  } catch (e) {}
+
+  const hasFiveGoals = goalsScored >= 5;
+  const isEligible = hasQualifyingNft || hasFiveGoals;
+  const isClaimed = address ? hasAddressClaimedBonus(address) : false;
+
+  return {
+    isEligible,
+    isClaimed,
+    hasQualifyingNft,
+    nftCount: matchingNfts.length,
+    hasFiveGoals,
+    goalsScored
+  };
+}
+
+function updateMarketBonusUI() {
+  const banner = document.getElementById("m-starter-bonus-banner");
+  if (!banner) return;
+  const isHu = currentMarketLang === "hu";
+  const addr = marketWallet.address;
+
+  if (!addr) {
+    banner.className = "ms-bonus-pill";
+    banner.innerHTML = isHu
+      ? `<span>🎁</span><span><strong>Starter Bónusz (+500,000 $EFOO):</strong> Vásárolj min. 1,000,000 $EFOO-t! <small style="display:block; opacity:0.85; margin-top:2px;">🛡️ Anti-Bot követelmény: min. 1 EFOOTBALL / GOALKEEPER NFT <strong>VAGY</strong> 5 lőtt gól a játékban.</small></span>`
+      : `<span>🎁</span><span><strong>Starter Bonus (+500,000 $EFOO):</strong> Buy min. 1,000,000 $EFOO! <small style="display:block; opacity:0.85; margin-top:2px;">🛡️ Anti-Bot gate: min. 1 EFOOTBALL / GOALKEEPER NFT <strong>OR</strong> 5 scored goals in-game.</small></span>`;
+    return;
+  }
+
+  const state = getBonusEligibilityState(addr, marketWallet.ownedNfts);
+
+  if (state.isClaimed) {
+    banner.className = "ms-bonus-pill claimed";
+    banner.innerHTML = isHu
+      ? `<span>✔</span><span><strong>500,000 $EFOO Bónusz Beváltva!</strong> Erre a tárcára a kezdő bónusz már rögzítésre került.</span>`
+      : `<span>✔</span><span><strong>500,000 $EFOO Bonus Already Claimed!</strong> Strictly 1x per MultiversX address.</span>`;
+  } else if (state.isEligible) {
+    banner.className = "ms-bonus-pill eligible";
+    const reason = state.hasQualifyingNft
+      ? (isHu ? `NFT Igazolva (${state.nftCount} db)` : `NFT Verified (${state.nftCount} pcs)`)
+      : (isHu ? `5+ Lőtt Gól Igazolva (${state.goalsScored} gól)` : `5+ Goals Verified (${state.goalsScored} goals)`);
+
+    banner.innerHTML = isHu
+      ? `<span>🎉</span><span><strong>BÓNUSZ AKTÍV:</strong> Vásárolj min. 1.000.000 $EFOO-t ➔ <strong>+500.000 $EFOO BÓNUSZ</strong> a Vaultból! <span class="sbb-anti-bot-badge" style="background:#22c55e; color:#020904;">✔ ${reason}</span></span>`
+      : `<span>🎉</span><span><strong>BONUS ACTIVE:</strong> Buy min. 1,000,000 $EFOO ➔ <strong>+500,000 $EFOO BONUS</strong> from Vault! <span class="sbb-anti-bot-badge" style="background:#22c55e; color:#020904;">✔ ${reason}</span></span>`;
+  } else {
+    // Locked by Anti-Bot Gate!
+    banner.className = "ms-bonus-pill locked";
+    banner.innerHTML = isHu
+      ? `<span>🛡️</span><span><strong>Anti-Bot Védelem: A +500.000 $EFOO Bónusz Zárolva!</strong><br><small style="opacity:0.9;">Feltétel: tarts legalább <strong>1 db EFOOTBALL / GOALKEEPER NFT-t</strong> (Jelenleg: 0), VAGY lőj legalább <strong>5 gólt</strong> a játékban (Jelenleg: ${state.goalsScored}/5 gól). Ezzel a botok azonnal ki vannak zárva!</small><br><span style="margin-top:4px; display:inline-block;"><a href="game.html" class="sbb-action-link">⚽ Lőj 5 gólt (F2P Ingyenes Játék) ➔</a> | <a href="market.html?tab=browse" class="sbb-action-link">🏷️ NFT Vásárlás ➔</a></span></span>`
+      : `<span>🛡️</span><span><strong>Anti-Bot Gate: +500,000 $EFOO Bonus Locked!</strong><br><small style="opacity:0.9;">Requires min. <strong>1 EFOOTBALL / GOALKEEPER NFT</strong> (Current: 0) OR <strong>5 scored goals</strong> in-game (Current: ${state.goalsScored}/5). Eliminates bot farming!</small><br><span style="margin-top:4px; display:inline-block;"><a href="game.html" class="sbb-action-link">⚽ Score 5 Goals (F2P) ➔</a> | <a href="market.html?tab=browse" class="sbb-action-link">🏷️ Buy 1 NFT ➔</a></span></span>`;
+  }
+}
+
+// ============================================================================
+// DIRECT ON-CHAIN ADD LIQUIDITY (100% In-DApp • Zero Redirection!)
 // ============================================================================
 let activeLiqPool = "WEGLD";
 
@@ -4695,55 +4882,80 @@ function openAddLiquidityModal(poolKey) {
   const icon = document.getElementById("m-liq-token-a-icon");
   const rateLbl = document.getElementById("m-liq-rate-lbl");
   const settlLbl = document.getElementById("m-liq-settlement-lbl");
-  const extLink = document.getElementById("m-liq-ext-link");
   const inputA = document.getElementById("m-liq-input-a");
   const inputB = document.getElementById("m-liq-input-b");
   const balA = document.getElementById("m-liq-token-a-bal");
   const balB = document.getElementById("m-liq-token-b-bal");
+  const subDesc = document.getElementById("m-liq-sub-desc");
+  const autoWrapNote = document.getElementById("m-liq-autowrap-note");
 
   if (activeLiqPool === "WEGLD") {
-    if (title) title.textContent = "ADD EGLD / $EFOO LIQUIDITY";
-    if (sym) sym.textContent = "EGLD";
-    if (icon) icon.src = "branding/icons/egld-icon.svg";
-    if (rateLbl) rateLbl.textContent = "1 EGLD ≈ 30,004,200 $EFOO";
+    if (title) title.textContent = "ADD WEGLD / $EFOO LIQUIDITY";
+    if (sym) sym.textContent = "WEGLD";
+    if (icon) icon.src = "branding/icons/wegld-logo.svg";
+    if (rateLbl) rateLbl.textContent = "1 WEGLD / EGLD ≈ 30,004,200 $EFOO";
     if (settlLbl) settlLbl.textContent = "Direct OneDex AMM Pair";
-    if (extLink) extLink.href = "https://swap.onedex.app/pool";
     if (inputA) inputA.value = "0.05";
     if (inputB) inputB.value = String(Math.floor(0.05 * 30004200));
 
     const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
     const egldBal = marketWallet.egldBalance || 0;
-    const availA = wegldBal > 0 ? wegldBal : Math.max(0, egldBal - 0.005);
-    if (balA) balA.textContent = `Balance: ${availA.toFixed(4)} EGLD`;
+    const totalAvail = wegldBal + Math.max(0, egldBal - 0.008);
+    if (balA) balA.textContent = `WEGLD: ${wegldBal.toFixed(4)} | EGLD: ${egldBal.toFixed(4)}`;
+    if (subDesc) subDesc.textContent = `Total Available: ${totalAvail.toFixed(4)} (Auto-wraps EGLD)`;
+    if (autoWrapNote) autoWrapNote.textContent = "⚡ In-DApp Auto-Wrap";
   } else {
     if (title) title.textContent = "ADD USDC / $EFOO LIQUIDITY";
     if (sym) sym.textContent = "USDC";
     if (icon) icon.src = "branding/icons/usdc-logo.svg";
     if (rateLbl) rateLbl.textContent = "1 USDC ≈ 1,180,000 $EFOO";
     if (settlLbl) settlLbl.textContent = "Direct xExchange Pair";
-    if (extLink) extLink.href = "https://xexchange.com/liquidity/add";
     if (inputA) inputA.value = "5";
     if (inputB) inputB.value = String(Math.floor(5 * 1180000));
 
     const usdcBal = (marketWallet.tokens && marketWallet.tokens["USDC-c76f1f"]) || 0;
     if (balA) balA.textContent = `Balance: ${usdcBal.toFixed(2)} USDC`;
+    if (subDesc) subDesc.textContent = "Direct xExchange AMM Pair";
+    if (autoWrapNote) autoWrapNote.textContent = "🔒 100% In-DApp";
   }
 
   const efooBal = marketWallet.efooBalance || 0;
   if (balB) balB.textContent = `Balance: ${Math.floor(efooBal).toLocaleString("en-US")} $EFOO`;
 
+  updateLiqCalculation();
   modal?.classList.remove("hidden");
 }
 
 function updateLiqCalculation() {
   const inputA = document.getElementById("m-liq-input-a");
   const inputB = document.getElementById("m-liq-input-b");
+  const btn = document.getElementById("m-btn-confirm-add-liq");
+  const isHu = currentMarketLang === "hu";
   if (!inputA || !inputB) return;
   const aVal = parseFloat(inputA.value) || 0;
+
   if (activeLiqPool === "WEGLD") {
     inputB.value = String(Math.floor(aVal * 30004200));
+    const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
+    const egldBal = marketWallet.egldBalance || 0;
+    const totalAvail = wegldBal + Math.max(0, egldBal - 0.008);
+
+    if (btn) {
+      if (aVal <= 0) {
+        btn.textContent = isHu ? "💧 ADJ MEG ÖSSZEGET" : "💧 ENTER DEPOSIT AMOUNT";
+      } else if (wegldBal >= aVal) {
+        btn.textContent = isHu ? "💧 LIKVIDITÁS ELHELYEZÉSE (WEGLD)" : "💧 DEPOSIT LIQUIDITY (DIRECT WEGLD)";
+      } else if (totalAvail >= aVal) {
+        btn.textContent = isHu ? "⚡ EGLD AUTO-WRAP ÉS LETÉT (1-CLICK)" : "⚡ AUTO-WRAP EGLD & DEPOSIT LIQUIDITY";
+      } else {
+        btn.textContent = isHu ? "⚠️ NINCS ELEGENDŐ EGLD/WEGLD EGYENLEG" : "⚠️ INSUFFICIENT BALANCE";
+      }
+    }
   } else {
     inputB.value = String(Math.floor(aVal * 1180000));
+    if (btn) {
+      btn.textContent = isHu ? "💧 USDC LIKVIDITÁS ELHELYEZÉSE" : "💧 DEPOSIT USDC LIQUIDITY ON-CHAIN";
+    }
   }
 }
 
@@ -4765,57 +4977,162 @@ async function executeAddLiquidityOnChain() {
     return;
   }
 
+  if ((marketWallet.efooBalance || 0) < bVal) {
+    showMarketToast(
+      isHu
+        ? `⚠️ Nincs elegendő $EFOO egyenleged! Szükséges: ${bVal.toLocaleString("en-US")} $EFOO (Egyenleged: ${Math.floor(marketWallet.efooBalance || 0).toLocaleString("en-US")} $EFOO)`
+        : `⚠️ Insufficient $EFOO balance! Needed: ${bVal.toLocaleString("en-US")} $EFOO`
+    );
+    return;
+  }
+
   const pairSc = activeLiqPool === "WEGLD" ? CONTRACTS.ONEDEX_PAIR : CONTRACTS.XEXCHANGE_PAIR;
   const tokenAId = activeLiqPool === "WEGLD" ? "WEGLD-bd4d79" : "USDC-c76f1f";
   const tokenADecimals = activeLiqPool === "WEGLD" ? 18 : 6;
   const tokenBId = "EFOO-8fe2d4";
 
-  if ((marketWallet.efooBalance || 0) < bVal) {
-    showMarketToast(isHu ? `⚠️ Nincs elegendő $EFOO egyenleged! Szükséges: ${bVal.toLocaleString("en-US")} $EFOO` : `⚠️ Insufficient $EFOO balance!`);
-    return;
-  }
+  const pairHex = stringToHex(pairSc);
+  const tokAHex = stringToHex(tokenAId);
+  const amtAHex = bigIntToHex(toAtomicUnits(aVal, tokenADecimals));
+  const tokBHex = stringToHex(tokenBId);
+  const amtBHex = bigIntToHex(toAtomicUnits(bVal, 18));
+  const funcHex = stringToHex("addLiquidity");
 
-  showMarketToast(
-    isHu
-      ? `⏳ Likviditási tranzakció előkészítése a ${activeLiqPool === "WEGLD" ? "OneDex" : "xExchange"} poolba...`
-      : `⏳ Preparing On-Chain Liquidity Deposit...`
-  );
+  const depositData = `MultiESDTNFTTransfer@${pairHex}@02@${tokAHex}@00@${amtAHex}@${tokBHex}@00@${amtBHex}@${funcHex}`;
 
-  try {
-    const pairHex = stringToHex(pairSc);
-    const tokAHex = stringToHex(tokenAId);
-    const amtAHex = bigIntToHex(toAtomicUnits(aVal, tokenADecimals));
-    const tokBHex = stringToHex(tokenBId);
-    const amtBHex = bigIntToHex(toAtomicUnits(bVal, 18));
-    const funcHex = stringToHex("addLiquidity");
+  if (activeLiqPool === "WEGLD") {
+    const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
+    const egldBal = marketWallet.egldBalance || 0;
+    const totalAvail = wegldBal + Math.max(0, egldBal - 0.008);
 
-    const data = `MultiESDTNFTTransfer@${pairHex}@02@${tokAHex}@00@${amtAHex}@${tokBHex}@00@${amtBHex}@${funcHex}`;
+    if (totalAvail < aVal) {
+      showMarketToast(
+        isHu
+          ? `⚠️ Nincs elegendő egyenleged! Szükséges: ${aVal} WEGLD/EGLD (Egyenleg: ${wegldBal.toFixed(4)} WEGLD / ${egldBal.toFixed(4)} EGLD)`
+          : `⚠️ Insufficient balance! Needed: ${aVal} WEGLD/EGLD (You have: ${wegldBal.toFixed(4)} WEGLD / ${egldBal.toFixed(4)} EGLD)`
+      );
+      return;
+    }
 
-    await sendMultiversxTransaction({
-      receiver: marketWallet.address,
-      value: "0",
-      gasLimit: 85000000,
-      data
-    });
+    let txsToSend = [];
+    if (wegldBal >= aVal) {
+      showMarketToast(
+        isHu
+          ? `⏳ Közvetlen WEGLD & $EFOO OneDex Smart Contract letét előkészítése (100% In-DApp)...`
+          : `⏳ Preparing direct OneDex Liquidity Deposit (100% In-DApp)...`
+      );
+      txsToSend.push({
+        receiver: marketWallet.address,
+        value: "0",
+        gasLimit: 85000000,
+        data: depositData
+      });
+    } else {
+      const neededWrap = aVal - wegldBal;
+      const shard = marketWallet.shard !== undefined ? marketWallet.shard : 1;
+      const shardWrapper = CONTRACTS.WEGLD_WRAPPERS[shard] || CONTRACTS.WEGLD_WRAPPERS[1];
+      const wrapWei = toAtomicUnits(neededWrap, 18).toString();
 
-    document.getElementById("m-add-liquidity-modal")?.classList.add("hidden");
+      showMarketToast(
+        isHu
+          ? `⚡ In-DApp Auto-Wrap & Letét: ${neededWrap.toFixed(4)} EGLD becsomagolása és letét a OneDex poolba külső átirányítás nélkül...`
+          : `⚡ In-DApp Auto-Wrap & Deposit: Wrapping ${neededWrap.toFixed(4)} EGLD and depositing into OneDex (Zero Redirect)...`
+      );
+
+      txsToSend.push({
+        receiver: shardWrapper,
+        value: wrapWei,
+        gasLimit: 8000000,
+        data: "wrapEgld"
+      });
+      txsToSend.push({
+        receiver: marketWallet.address,
+        value: "0",
+        gasLimit: 85000000,
+        data: depositData
+      });
+    }
+
+    try {
+      const txResult = await sendMultiversxTransaction({ txs: txsToSend });
+      document.getElementById("m-add-liquidity-modal")?.classList.add("hidden");
+
+      const shortHash = txResult?.hash && txResult.hash !== "broadcasted" ? ` (${txResult.hash.slice(0, 8)}...)` : "";
+      showMarketToast(
+        isHu
+          ? `🎉 Likviditási letét sikeresen elküldve${shortHash}! 100% In-DApp elhelyezés — mostantól részesülsz a kereskedési díjakból!`
+          : `🎉 Liquidity deposit submitted${shortHash}! 100% In-DApp — now earning trading fees!`,
+        8000
+      );
+
+      if (txResult?.hash && txResult.hash !== "broadcasted") {
+        watchMarketTransaction(txResult.hash, async () => {
+          if (marketWallet.address) fetchWalletBalances(marketWallet.address);
+        });
+      }
+
+      setTimeout(() => {
+        if (marketWallet.address) fetchWalletBalances(marketWallet.address);
+      }, 5000);
+    } catch (err) {
+      console.error("Add liquidity failed:", err);
+      showMarketToast(
+        isHu
+          ? `❌ Hiba a likviditás hozzáadásakor: ${err.message || "Megszakítva"}`
+          : `❌ Liquidity deposit error: ${err.message || "Cancelled"}`
+      );
+    }
+  } else {
+    const usdcBal = (marketWallet.tokens && marketWallet.tokens["USDC-c76f1f"]) || 0;
+    if (usdcBal < aVal) {
+      showMarketToast(
+        isHu
+          ? `⚠️ Nincs elegendő USDC egyenleged! Szükséges: ${aVal} USDC (Egyenleged: ${usdcBal.toFixed(2)} USDC)`
+          : `⚠️ Insufficient USDC balance! Needed: ${aVal} USDC (You have: ${usdcBal.toFixed(2)} USDC)`
+      );
+      return;
+    }
 
     showMarketToast(
       isHu
-        ? `🎉 Likviditási tranzakció elküldve! A pozíciód sikeresen rögzült a blokkláncon, mostantól részesülsz a kereskedési díjakból!`
-        : `🎉 Liquidity deposit submitted! You are now earning 0.3% LP trading fees on MultiversX!`,
-      8000
+        ? `⏳ USDC & $EFOO xExchange Smart Contract letét előkészítése (100% In-DApp)...`
+        : `⏳ Preparing USDC & $EFOO xExchange Liquidity Deposit (100% In-DApp)...`
     );
 
-    setTimeout(() => {
-      if (marketWallet.address) fetchWalletBalances(marketWallet.address);
-    }, 6000);
-  } catch (err) {
-    console.error("Add liquidity failed:", err);
-    showMarketToast(
-      isHu
-        ? `❌ Hiba a likviditás hozzáadásakor: ${err.message || "Megszakítva"}`
-        : `❌ Liquidity deposit error: ${err.message || "Cancelled"}`
-    );
+    try {
+      const txResult = await sendMultiversxTransaction({
+        receiver: marketWallet.address,
+        value: "0",
+        gasLimit: 85000000,
+        data: depositData
+      });
+      document.getElementById("m-add-liquidity-modal")?.classList.add("hidden");
+
+      const shortHash = txResult?.hash && txResult.hash !== "broadcasted" ? ` (${txResult.hash.slice(0, 8)}...)` : "";
+      showMarketToast(
+        isHu
+          ? `🎉 Likviditási letét sikeresen elküldve${shortHash}! 100% In-DApp elhelyezés az xExchange poolba!`
+          : `🎉 Liquidity deposit submitted${shortHash}! Direct in-dApp deposit to xExchange!`,
+        8000
+      );
+
+      if (txResult?.hash && txResult.hash !== "broadcasted") {
+        watchMarketTransaction(txResult.hash, async () => {
+          if (marketWallet.address) fetchWalletBalances(marketWallet.address);
+        });
+      }
+
+      setTimeout(() => {
+        if (marketWallet.address) fetchWalletBalances(marketWallet.address);
+      }, 5000);
+    } catch (err) {
+      console.error("USDC Add liquidity failed:", err);
+      showMarketToast(
+        isHu
+          ? `❌ Hiba a likviditás hozzáadásakor: ${err.message || "Megszakítva"}`
+          : `❌ Liquidity deposit error: ${err.message || "Cancelled"}`
+      );
+    }
   }
 }
+

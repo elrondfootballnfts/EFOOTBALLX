@@ -644,11 +644,11 @@
 
               <div class="pool-actions-row">
                 <button type="button" class="pool-btn primary" id="m-btn-add-egld-pool">
-                  💧 Add EGLD Liquidity
+                  💧 Add WEGLD / EGLD Liquidity
                 </button>
-                <a href="https://swap.onedex.app/pool" target="_blank" rel="noopener noreferrer" class="pool-btn sec">
-                  OneDex ↗
-                </a>
+                <button type="button" class="pool-btn sec" onclick="openAddLiquidityModal('WEGLD')">
+                  ⚡ In-DApp Letét
+                </button>
               </div>
             </div>
 
@@ -1161,9 +1161,13 @@
             <input type="number" id="m-liq-input-a" class="ms-input-amt" value="0.05" min="0.0001" step="any" placeholder="0.0" />
             <button type="button" id="m-liq-max-a" class="ms-btn-max">MAX</button>
             <div style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(255,255,255,0.06); border-radius: 10px; font-weight: 800; font-family: var(--font-mono);">
-              <img id="m-liq-token-a-icon" src="branding/icons/egld-icon.svg" alt="Token A" style="width: 20px; height: 20px; border-radius: 50%;" />
-              <span id="m-liq-token-a-sym">EGLD</span>
+              <img id="m-liq-token-a-icon" src="branding/icons/wegld-logo.svg" alt="Token A" style="width: 20px; height: 20px; border-radius: 50%;" />
+              <span id="m-liq-token-a-sym">WEGLD</span>
             </div>
+          </div>
+          <div id="m-liq-token-a-subbal" style="font-size: 0.72rem; color: var(--text-sub); font-family: var(--font-mono); margin-top: 5px; display: flex; justify-content: space-between;">
+            <span id="m-liq-sub-desc">Supports native EGLD &amp; WEGLD</span>
+            <span id="m-liq-autowrap-note" style="color: #22c55e;">⚡ In-DApp Auto-Wrap</span>
           </div>
         </div>
 
@@ -1189,7 +1193,7 @@
         <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 14px; font-family: var(--font-mono); font-size: 0.78rem; display: flex; flex-direction: column; gap: 6px;">
           <div style="display: flex; justify-content: space-between;">
             <span style="color: var(--text-sub);">Pool Ratio:</span>
-            <strong id="m-liq-rate-lbl" style="color: #fff;">1 EGLD ≈ 30,004,200 $EFOO</strong>
+            <strong id="m-liq-rate-lbl" style="color: #fff;">1 WEGLD ≈ 30,004,200 $EFOO</strong>
           </div>
           <div style="display: flex; justify-content: space-between;">
             <span style="color: var(--text-sub);">Fee Share:</span>
@@ -1205,9 +1209,8 @@
           💧 DEPOSIT LIQUIDITY ON-CHAIN
         </button>
 
-        <div style="text-align: center; font-size: 0.75rem; color: var(--text-sub);">
-          <span>Prefer external DEX UI? </span>
-          <a id="m-liq-ext-link" href="https://swap.onedex.app/pool" target="_blank" rel="noopener" style="color: #38bdf8; text-decoration: underline;">Open DEX Portal ↗</a>
+        <div style="text-align: center; font-size: 0.78rem; color: var(--neon); background: rgba(0, 255, 136, 0.06); padding: 9px 12px; border-radius: 8px; border: 1px solid rgba(0, 255, 136, 0.2); font-family: var(--font-mono);">
+          🔒 <strong>100% In-DApp Elhelyezés:</strong> Közvetlen OneDex &amp; xExchange Smart Contract letét — Nincs külső átirányítás!
         </div>
       </div>
     </div>
@@ -1217,6 +1220,6 @@
   <div id="m-toast" class="m-toast hidden"></div>
 
   <!-- Scripts -->
-  <script src="market.js?v=20261018_v24_egld_onchain_fix"></script>
+  <script src="market.js?v=20261018_v25_direct_liquidity_anti_bot"></script>
 </body>
 </html>
