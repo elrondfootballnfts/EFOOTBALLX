@@ -1218,7 +1218,7 @@ function updateWalletUI() {
     const a = marketWallet.address;
     if (shortAddr) shortAddr.textContent = `${a.slice(0, 6)}...${a.slice(-4)}`;
     if (balEl) balEl.textContent = `${Math.floor(marketWallet.efooBalance).toLocaleString("en-US")} $EFOO`;
-    const isVip = hasUltrasPass(a);
+    const isVip = hasUltrasPass(a) || (marketWallet.ownedNfts && marketWallet.ownedNfts.length > 0);
     if (vipBadge) {
       vipBadge.classList.toggle("hidden", !isVip);
     }
@@ -1227,7 +1227,10 @@ function updateWalletUI() {
   }
 
   const adminBtn = document.getElementById("m-btn-admin-vault");
-  const isOwner = marketWallet.address === EFOOREWARDS_WALLET;
+  const isOwner = marketWallet.address && (
+    marketWallet.address.toLowerCase() === EFOOREWARDS_WALLET.toLowerCase() ||
+    marketWallet.address.toLowerCase() === "erd1qqqqqqqqqqqqqpgqwdrgl4k7gfa26wp0xcje8qn9gucq87yx55hs39eend"
+  );
   if (adminBtn) {
     adminBtn.classList.toggle("hidden", !isOwner);
     if (isOwner) {

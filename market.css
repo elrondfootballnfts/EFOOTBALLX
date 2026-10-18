@@ -98,44 +98,46 @@ body {
   gap: 36px;
 }
 
-.m-brand {
+.m-brand,
+.brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   text-decoration: none;
   cursor: pointer;
 }
 
-.m-brand-logo {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  border: none;
-  box-shadow: 0 4px 16px rgba(0, 255, 136, 0.35);
+.m-brand-logo,
+.brand-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid var(--neon);
+  box-shadow: 0 0 14px rgba(0, 255, 136, 0.4);
   display: block;
 }
 
-.m-brand-title {
-  font-family: var(--font-bebas);
-  font-size: 1.65rem;
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.m-brand-title,
+.brand-title {
+  font-family: var(--font-bebas, 'Bebas Neue', sans-serif);
+  font-size: 1.75rem;
+  letter-spacing: 1px;
   line-height: 1;
   color: #ffffff;
-  letter-spacing: 0.04em;
   display: block;
 }
 
-.m-brand-title .brand-oo {
-  font-size: 0.72em;
-  color: #ffb800;
-  vertical-align: baseline;
-}
-
-.m-brand-sub {
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  font-weight: 800;
-  color: #ffb800;
-  letter-spacing: 0.1em;
+.m-brand-sub,
+.brand-sub {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-sub, #94a3b8);
   display: block;
 }
 
