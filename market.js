@@ -1323,6 +1323,9 @@ async function fetchLiveScListings() {
 
         const scItems = [];
         for (const it of escrowNfts) {
+          const tier = getNftRarityTier(it);
+          const scInfo = scListingsMap.get(it.identifier);
+          const localInfo = localMap.get(it.identifier);
           const isPass = isUltrasPassNft(it);
           let price = isPass ? ULTRAS_PASS_PRICE_EGLD : 0.05;
           let currency = "EGLD";
@@ -1892,14 +1895,40 @@ function renderMarketplaceGrid() {
   updateMarketPaginationUI(totalCount, totalPages, startIdx, endIdx);
 
   const curAddr = marketWallet.address ? marketWallet.address.toLowerCase() : "";
+  let hasRenderedXoxnoDivider = false;
+  const hasNativeItems = pageItems.some((x) => !x.isXoxno);
 
   pageItems.forEach((item) => {
     const tier = getNftRarityTier(item);
     const isOwner = curAddr && item.seller && item.seller.toLowerCase() === curAddr;
     const isNative = !item.isXoxno;
 
+    // Ensure XOXNO listings always start in a brand new row compared to our native marketplace NFTs
+    if (!isNative && hasNativeItems && !hasRenderedXoxnoDivider) {
+      hasRenderedXoxnoDivider = true;
+      const xoxnoDivider = document.createElement("div");
+      xoxnoDivider.className = "m-grid-xoxno-separator";
+      xoxnoDivider.style.cssText = "grid-column: 1 / -1; width: 100%; margin: 28px 0 14px; padding: 12px 18px; border-radius: 12px; background: linear-gradient(90deg, rgba(20, 27, 45, 0.85), rgba(10, 15, 29, 0.6)); border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;";
+      xoxnoDivider.innerHTML = `
+        <div style="display:flex; align-items:center; gap:10px;">
+          <img src="branding/rebranded/xoxno-logo.svg" alt="XOXNO" style="height:20px; display:block;" />
+          <span style="font-family:var(--font-bebas); font-size:1.3rem; letter-spacing:0.06em; color:#ffffff;">XOXNO MARKETPLACE LISTINGS</span>
+          <span style="font-family:var(--font-mono); font-size:0.7rem; font-weight:700; color:#38bdf8; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); padding:2px 8px; border-radius:999px;">
+            ${isHu ? "Másodlagos Kínálat" : "Secondary Market Pool"}
+          </span>
+        </div>
+        <span style="font-family:var(--font-mono); font-size:0.75rem; color:#94a3b8;">
+          ${isHu ? "⚡ Közvetlen On-Chain Vásárlás a dAppunkból" : "⚡ Direct On-Chain Settlement from our dApp"}
+        </span>
+      `;
+      grid.appendChild(xoxnoDivider);
+    }
+
     const card = document.createElement("div");
     card.className = `m-nft-card tier-${tier.tierKey} ${isNative ? "is-nfoot-native" : "is-xoxno-card"}`;
+    if (!isNative && hasNativeItems && hasRenderedXoxnoDivider && !card.style.gridColumnStart) {
+      card.style.gridColumnStart = "1";
+    }
     card.style.setProperty("--tier-color", tier.borderColor);
     card.style.setProperty("--tier-glow", `${tier.borderColor}66`);
 
@@ -2133,12 +2162,7 @@ function renderMyLockerGrid() {
         <div class="mnc-body">
           <div class="mnc-title-row">
             <strong class="mnc-title" style="color:#ffb800;">${nft.name || "EFOO ULTRAS PASS"}</strong>
-            <div class="mnc-title-tags" style="display:flex; align-items:center; gap:6px;">
-              <span class="mnc-vip-tag" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:6px;">VIP PASS</span>
-              <span class="mnc-qty-badge" style="background:rgba(255,184,0,0.18); border:1px solid rgba(255,184,0,0.6); color:#ffb800; font-family:var(--font-mono); font-size:0.72rem; font-weight:900; padding:2px 8px; border-radius:6px; letter-spacing:0.04em;">
-                ${isHu ? `${sftFormatted} db a tárcádban` : `In Wallet: ${sftFormatted}`}
-              </span>
-            </div>
+            <span class="mnc-vip-tag" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:6px;">VIP PASS</span>
           </div>
 
           <p class="mnc-trait-desc" style="color:#f3f7f4;">
@@ -2153,10 +2177,9 @@ function renderMyLockerGrid() {
 
           <div class="mnc-footer">
             <div class="mnc-price-box">
-              <span class="mnc-price-lbl">${isHu ? "TÁRCÁDBAN LÉVŐ MENNYISÉG" : "WALLET SFT BALANCE"}</span>
-              <strong class="mnc-price-val" style="color:#ffb800; font-size:1.15rem; display:inline-flex; align-items:center; gap:6px;">
-                <span>👑 ${sftFormatted} SFT</span>
-                <small style="color:var(--neon); font-size:0.75rem; font-weight:700;">(${isHu ? "VIP Aktív" : "VIP Active"})</small>
+              <span class="mnc-price-lbl">MEMBERSHIP</span>
+              <strong class="mnc-price-val" style="color:var(--neon);">
+                👑 Active VIP Pass
               </strong>
             </div>
 
@@ -3292,10 +3315,8 @@ function updateUltrasQtyUI(qty) {
   if (qtyLabel) qtyLabel.textContent = safeQty === 1 ? "1 PASS" : `${safeQty} PASSES`;
 
   const totalEgld = (safeQty * 0.5).toFixed(1);
-  const totalEfoo = (safeQty * 5000000).toLocaleString("en-US");
-
   if (priceDisplay) priceDisplay.textContent = `${totalEgld} EGLD`;
-  if (priceSub) priceSub.textContent = `(or ${totalEfoo} $EFOO)`;
+  if (priceSub) priceSub.textContent = "";
 }
 
 async function fetchUltrasPassStock() {
@@ -4359,4 +4380,181 @@ document.addEventListener("DOMContentLoaded", () => {
       listCurrDropdownWrap?.classList.remove("open");
     }
   });
+
+  // Direct On-Chain Add Liquidity Handlers
+  document.getElementById("m-btn-add-egld-pool")?.addEventListener("click", () => openAddLiquidityModal("WEGLD"));
+  document.getElementById("m-btn-add-usdc-pool")?.addEventListener("click", () => openAddLiquidityModal("USDC"));
+  document.getElementById("m-close-liq-modal")?.addEventListener("click", () => {
+    document.getElementById("m-add-liquidity-modal")?.classList.add("hidden");
+  });
+  document.getElementById("m-add-liquidity-modal")?.addEventListener("click", (e) => {
+    if (e.target === document.getElementById("m-add-liquidity-modal")) {
+      document.getElementById("m-add-liquidity-modal")?.classList.add("hidden");
+    }
+  });
+  document.getElementById("m-liq-input-a")?.addEventListener("input", updateLiqCalculation);
+  document.getElementById("m-btn-confirm-add-liq")?.addEventListener("click", executeAddLiquidityOnChain);
+
+  document.getElementById("m-liq-max-a")?.addEventListener("click", () => {
+    const inputA = document.getElementById("m-liq-input-a");
+    if (!inputA) return;
+    if (activeLiqPool === "WEGLD") {
+      const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
+      const egldBal = marketWallet.egldBalance || 0;
+      const avail = wegldBal > 0 ? wegldBal : Math.max(0, egldBal - 0.005);
+      inputA.value = avail.toFixed(4);
+    } else {
+      const usdcBal = (marketWallet.tokens && marketWallet.tokens["USDC-c76f1f"]) || 0;
+      inputA.value = usdcBal.toFixed(2);
+    }
+    updateLiqCalculation();
+  });
+
+  document.getElementById("m-liq-max-b")?.addEventListener("click", () => {
+    const inputA = document.getElementById("m-liq-input-a");
+    const inputB = document.getElementById("m-liq-input-b");
+    const efooBal = marketWallet.efooBalance || 0;
+    if (!inputA || !inputB || efooBal <= 0) return;
+    inputB.value = String(Math.floor(efooBal));
+    const rate = activeLiqPool === "WEGLD" ? 30004200 : 1180000;
+    inputA.value = (efooBal / rate).toFixed(4);
+  });
 });
+
+// ============================================================================
+// DIRECT ON-CHAIN ADD LIQUIDITY (No external redirection!)
+// ============================================================================
+let activeLiqPool = "WEGLD";
+
+function openAddLiquidityModal(poolKey) {
+  activeLiqPool = poolKey || "WEGLD";
+  const modal = document.getElementById("m-add-liquidity-modal");
+  const title = document.getElementById("m-liq-modal-title");
+  const sym = document.getElementById("m-liq-token-a-sym");
+  const icon = document.getElementById("m-liq-token-a-icon");
+  const rateLbl = document.getElementById("m-liq-rate-lbl");
+  const settlLbl = document.getElementById("m-liq-settlement-lbl");
+  const extLink = document.getElementById("m-liq-ext-link");
+  const inputA = document.getElementById("m-liq-input-a");
+  const inputB = document.getElementById("m-liq-input-b");
+  const balA = document.getElementById("m-liq-token-a-bal");
+  const balB = document.getElementById("m-liq-token-b-bal");
+
+  if (activeLiqPool === "WEGLD") {
+    if (title) title.textContent = "ADD EGLD / $EFOO LIQUIDITY";
+    if (sym) sym.textContent = "EGLD";
+    if (icon) icon.src = "branding/icons/egld-icon.svg";
+    if (rateLbl) rateLbl.textContent = "1 EGLD ≈ 30,004,200 $EFOO";
+    if (settlLbl) settlLbl.textContent = "Direct OneDex AMM Pair";
+    if (extLink) extLink.href = "https://swap.onedex.app/pool";
+    if (inputA) inputA.value = "0.05";
+    if (inputB) inputB.value = String(Math.floor(0.05 * 30004200));
+
+    const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
+    const egldBal = marketWallet.egldBalance || 0;
+    const availA = wegldBal > 0 ? wegldBal : Math.max(0, egldBal - 0.005);
+    if (balA) balA.textContent = `Balance: ${availA.toFixed(4)} EGLD`;
+  } else {
+    if (title) title.textContent = "ADD USDC / $EFOO LIQUIDITY";
+    if (sym) sym.textContent = "USDC";
+    if (icon) icon.src = "branding/icons/usdc-logo.svg";
+    if (rateLbl) rateLbl.textContent = "1 USDC ≈ 1,180,000 $EFOO";
+    if (settlLbl) settlLbl.textContent = "Direct xExchange Pair";
+    if (extLink) extLink.href = "https://xexchange.com/liquidity/add";
+    if (inputA) inputA.value = "5";
+    if (inputB) inputB.value = String(Math.floor(5 * 1180000));
+
+    const usdcBal = (marketWallet.tokens && marketWallet.tokens["USDC-c76f1f"]) || 0;
+    if (balA) balA.textContent = `Balance: ${usdcBal.toFixed(2)} USDC`;
+  }
+
+  const efooBal = marketWallet.efooBalance || 0;
+  if (balB) balB.textContent = `Balance: ${Math.floor(efooBal).toLocaleString("en-US")} $EFOO`;
+
+  modal?.classList.remove("hidden");
+}
+
+function updateLiqCalculation() {
+  const inputA = document.getElementById("m-liq-input-a");
+  const inputB = document.getElementById("m-liq-input-b");
+  if (!inputA || !inputB) return;
+  const aVal = parseFloat(inputA.value) || 0;
+  if (activeLiqPool === "WEGLD") {
+    inputB.value = String(Math.floor(aVal * 30004200));
+  } else {
+    inputB.value = String(Math.floor(aVal * 1180000));
+  }
+}
+
+async function executeAddLiquidityOnChain() {
+  const isHu = currentMarketLang === "hu";
+  if (!marketWallet.address) {
+    document.getElementById("m-wallet-modal")?.classList.remove("hidden");
+    showMarketToast(isHu ? "⚠️ Kérlek előbb csatlakoztasd a tárcádat!" : "⚠️ Please connect your wallet first!");
+    return;
+  }
+
+  const inputA = document.getElementById("m-liq-input-a");
+  const inputB = document.getElementById("m-liq-input-b");
+  const aVal = parseFloat(inputA?.value) || 0;
+  const bVal = parseFloat(inputB?.value) || 0;
+
+  if (aVal <= 0 || bVal <= 0) {
+    showMarketToast(isHu ? "⚠️ Kérlek adj meg érvényes összegeket!" : "⚠️ Please enter valid deposit amounts!");
+    return;
+  }
+
+  const pairSc = activeLiqPool === "WEGLD" ? CONTRACTS.ONEDEX_PAIR : CONTRACTS.XEXCHANGE_PAIR;
+  const tokenAId = activeLiqPool === "WEGLD" ? "WEGLD-bd4d79" : "USDC-c76f1f";
+  const tokenADecimals = activeLiqPool === "WEGLD" ? 18 : 6;
+  const tokenBId = "EFOO-8fe2d4";
+
+  if ((marketWallet.efooBalance || 0) < bVal) {
+    showMarketToast(isHu ? `⚠️ Nincs elegendő $EFOO egyenleged! Szükséges: ${bVal.toLocaleString("en-US")} $EFOO` : `⚠️ Insufficient $EFOO balance!`);
+    return;
+  }
+
+  showMarketToast(
+    isHu
+      ? `⏳ Likviditási tranzakció előkészítése a ${activeLiqPool === "WEGLD" ? "OneDex" : "xExchange"} poolba...`
+      : `⏳ Preparing On-Chain Liquidity Deposit...`
+  );
+
+  try {
+    const pairHex = stringToHex(pairSc);
+    const tokAHex = stringToHex(tokenAId);
+    const amtAHex = bigIntToHex(toAtomicUnits(aVal, tokenADecimals));
+    const tokBHex = stringToHex(tokenBId);
+    const amtBHex = bigIntToHex(toAtomicUnits(bVal, 18));
+    const funcHex = stringToHex("addLiquidity");
+
+    const data = `MultiESDTNFTTransfer@${pairHex}@02@${tokAHex}@00@${amtAHex}@${tokBHex}@00@${amtBHex}@${funcHex}`;
+
+    await sendMultiversxTransaction({
+      receiver: marketWallet.address,
+      value: "0",
+      gasLimit: 85000000,
+      data
+    });
+
+    document.getElementById("m-add-liquidity-modal")?.classList.add("hidden");
+
+    showMarketToast(
+      isHu
+        ? `🎉 Likviditási tranzakció elküldve! A pozíciód sikeresen rögzült a blokkláncon, mostantól részesülsz a kereskedési díjakból!`
+        : `🎉 Liquidity deposit submitted! You are now earning 0.3% LP trading fees on MultiversX!`,
+      8000
+    );
+
+    setTimeout(() => {
+      if (marketWallet.address) fetchWalletBalances(marketWallet.address);
+    }, 6000);
+  } catch (err) {
+    console.error("Add liquidity failed:", err);
+    showMarketToast(
+      isHu
+        ? `❌ Hiba a likviditás hozzáadásakor: ${err.message || "Megszakítva"}`
+        : `❌ Liquidity deposit error: ${err.message || "Cancelled"}`
+    );
+  }
+}

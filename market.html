@@ -328,7 +328,7 @@
             </p>
             <div class="mm-meta-row">
               <span>Price:</span>
-              <strong class="mm-price-tag gold">0.5 EGLD <small style="font-size:0.75rem; font-weight:normal; color:var(--text-sub);">(or 5M $EFOO)</small></strong>
+              <strong class="mm-price-tag gold">0.5 EGLD</strong>
             </div>
             <div class="mm-meta-row">
               <span>Supply:</span>
@@ -643,9 +643,9 @@
               </div>
 
               <div class="pool-actions-row">
-                <a href="https://xexchange.com/liquidity/add" target="_blank" rel="noopener noreferrer" class="pool-btn primary">
-                  💧 Add EGLD Liquidity ↗
-                </a>
+                <button type="button" class="pool-btn primary" id="m-btn-add-egld-pool">
+                  💧 Add EGLD Liquidity
+                </button>
                 <a href="https://swap.onedex.app/pool" target="_blank" rel="noopener noreferrer" class="pool-btn sec">
                   OneDex ↗
                 </a>
@@ -685,9 +685,9 @@
               </div>
 
               <div class="pool-actions-row">
-                <a href="https://xexchange.com/liquidity/add" target="_blank" rel="noopener noreferrer" class="pool-btn primary">
-                  💧 Add USDC Liquidity ↗
-                </a>
+                <button type="button" class="pool-btn primary" id="m-btn-add-usdc-pool">
+                  💧 Add USDC Liquidity
+                </button>
                 <button type="button" class="pool-btn sec" onclick="switchMarketTab('swap')">
                   Swap $EFOO ➔
                 </button>
@@ -794,7 +794,6 @@
 
               <div class="ultras-price-total">
                 Total Price: <strong id="ultras-price-display">0.5 EGLD</strong>
-                <span style="font-size:0.8rem; color:var(--text-sub); display:block; margin-top:2px;" id="ultras-price-sub">(or 5,000,000 $EFOO)</span>
               </div>
 
               <button type="button" id="btn-buy-ultras-pass" class="ultras-buy-btn">
@@ -1135,10 +1134,89 @@
     </div>
   </div>
 
+  <!-- =====================================================================
+       DIRECT IN-DAPP ADD LIQUIDITY MODAL (No external redirection!)
+       ===================================================================== -->
+  <div id="m-add-liquidity-modal" class="m-modal-backdrop hidden">
+    <div class="m-modal-card" style="max-width: 520px;">
+      <div class="m-modal-head">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.5rem;">💧</span>
+          <div>
+            <h3 style="font-family: var(--font-bebas); font-size: 1.55rem; letter-spacing: 0.05em; color: #fff; margin: 0;" id="m-liq-modal-title">ADD EGLD / $EFOO LIQUIDITY</h3>
+            <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #38bdf8;" id="m-liq-modal-sub">Direct On-Chain Pool Deposit • Zero Redirect</span>
+          </div>
+        </div>
+        <button type="button" class="m-modal-close" id="m-close-liq-modal">✕</button>
+      </div>
+
+      <div class="m-modal-body" style="display: flex; flex-direction: column; gap: 16px;">
+        <!-- Token A Input -->
+        <div class="ms-token-box" style="margin: 0;">
+          <div class="ms-token-head">
+            <span id="m-liq-token-a-lbl">DEPOSIT TOKEN</span>
+            <span id="m-liq-token-a-bal" style="cursor: pointer; color: var(--text-sub); font-family: var(--font-mono); font-size: 0.75rem;">Balance: —</span>
+          </div>
+          <div class="ms-token-row">
+            <input type="number" id="m-liq-input-a" class="ms-input-amt" value="0.05" min="0.0001" step="any" placeholder="0.0" />
+            <button type="button" id="m-liq-max-a" class="ms-btn-max">MAX</button>
+            <div style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(255,255,255,0.06); border-radius: 10px; font-weight: 800; font-family: var(--font-mono);">
+              <img id="m-liq-token-a-icon" src="branding/icons/egld-icon.svg" alt="Token A" style="width: 20px; height: 20px; border-radius: 50%;" />
+              <span id="m-liq-token-a-sym">EGLD</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align: center; color: var(--neon); font-size: 1.2rem; font-weight: 900; line-height: 1;">+</div>
+
+        <!-- Token B Input ($EFOO) -->
+        <div class="ms-token-box" style="margin: 0;">
+          <div class="ms-token-head">
+            <span>MATCHING $EFOO</span>
+            <span id="m-liq-token-b-bal" style="cursor: pointer; color: var(--text-sub); font-family: var(--font-mono); font-size: 0.75rem;">Balance: —</span>
+          </div>
+          <div class="ms-token-row">
+            <input type="number" id="m-liq-input-b" class="ms-input-amt" value="1500000" min="1" step="any" placeholder="0" />
+            <button type="button" id="m-liq-max-b" class="ms-btn-max">MAX</button>
+            <div style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(255,255,255,0.06); border-radius: 10px; font-weight: 800; font-family: var(--font-mono);">
+              <img src="branding/icons/efoo-logo.png" alt="EFOO" style="width: 20px; height: 20px; border-radius: 50%;" />
+              <span>$EFOO</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Telemetry box -->
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 14px; font-family: var(--font-mono); font-size: 0.78rem; display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-sub);">Pool Ratio:</span>
+            <strong id="m-liq-rate-lbl" style="color: #fff;">1 EGLD ≈ 30,004,200 $EFOO</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-sub);">Fee Share:</span>
+            <strong style="color: #38bdf8;">0.3% / Trade (Earn LP Fees)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-sub);">Settlement:</span>
+            <strong style="color: var(--neon);" id="m-liq-settlement-lbl">Direct OneDex AMM Pair</strong>
+          </div>
+        </div>
+
+        <button type="button" id="m-btn-confirm-add-liq" class="ms-swap-action-btn" style="background: linear-gradient(135deg, #00ff88, #22c55e); color: #020904; font-size: 1.05rem; padding: 14px; font-weight: 900;">
+          💧 DEPOSIT LIQUIDITY ON-CHAIN
+        </button>
+
+        <div style="text-align: center; font-size: 0.75rem; color: var(--text-sub);">
+          <span>Prefer external DEX UI? </span>
+          <a id="m-liq-ext-link" href="https://swap.onedex.app/pool" target="_blank" rel="noopener" style="color: #38bdf8; text-decoration: underline;">Open DEX Portal ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="m-toast" class="m-toast hidden"></div>
 
   <!-- Scripts -->
-  <script src="market.js?v=20261018_v18_locker_sft_qty"></script>
+  <script src="market.js?v=20261018_v19_direct_liquidity"></script>
 </body>
 </html>
