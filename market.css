@@ -65,8 +65,8 @@ body {
 }
 
 .m-container {
-  width: 92%;
-  max-width: 1320px;
+  width: 94%;
+  max-width: 1440px;
   margin: 0 auto;
 }
 
@@ -774,8 +774,22 @@ body {
    ===================================================================== */
 .m-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+@media (min-width: 1680px) {
+  .m-cards-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .m-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
 }
 
 .m-nft-card {
@@ -796,30 +810,186 @@ body {
   box-shadow: 0 16px 45px rgba(0, 0, 0, 0.75);
 }
 
-/* Rarity Tier Glowing Borders */
+/* Rarity Tier Glowing Borders & Variables */
 .m-nft-card.tier-ultras-pass {
+  --tier-color: #ffb800;
+  --tier-glow: rgba(255, 184, 0, 0.45);
   border-color: #ffb800;
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 184, 0, 0.35);
   background: radial-gradient(circle at 50% 0%, rgba(255, 184, 0, 0.08), rgba(6, 13, 8, 0.95) 70%);
 }
 .m-nft-card.tier-mythic {
+  --tier-color: #ffd700;
+  --tier-glow: rgba(255, 215, 0, 0.45);
   border-color: #ffd700;
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 215, 0, 0.25);
 }
 .m-nft-card.tier-legendary {
+  --tier-color: #c084fc;
+  --tier-glow: rgba(192, 132, 252, 0.45);
   border-color: #c084fc;
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(192, 132, 252, 0.25);
 }
 .m-nft-card.tier-epic {
+  --tier-color: #818cf8;
+  --tier-glow: rgba(129, 140, 248, 0.45);
   border-color: #818cf8;
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 22px rgba(129, 140, 248, 0.22);
 }
 .m-nft-card.tier-rare {
+  --tier-color: #38bdf8;
+  --tier-glow: rgba(56, 189, 248, 0.45);
   border-color: #38bdf8;
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.2);
 }
-.m-nft-card.tier-common {
+.m-nft-card.tier-common,
+.m-nft-card.tier-rookie {
+  --tier-color: #94a3b8;
+  --tier-glow: rgba(148, 163, 184, 0.35);
   border-color: #71717a;
+}
+
+/* =====================================================================
+   NATIVE NFOOT MARKETPLACE LISTING CARDS
+   - Thicker futuristic cyber circuit border (maintains tier rank colors)
+   - Glowing cyber corner accents & side bus connectors
+   ===================================================================== */
+.m-nft-card.is-nfoot-native {
+  border-width: 3.5px !important;
+  border-style: solid !important;
+  border-color: var(--tier-color, #38bdf8) !important;
+  position: relative;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.8), 0 0 24px var(--tier-glow, rgba(56, 189, 248, 0.4)) !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.m-nft-card.is-nfoot-native:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 38px var(--tier-glow, rgba(56, 189, 248, 0.65)) !important;
+}
+
+/* Circuit Frame Overlay inside Card */
+.mnc-circuit-frame {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.circuit-corner {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+}
+
+.circuit-corner.tl { top: 0; left: 0; }
+.circuit-corner.tr { top: 0; right: 0; }
+.circuit-corner.bl { bottom: 0; left: 0; }
+.circuit-corner.br { bottom: 0; right: 0; }
+
+.circuit-corner .cc-outer {
+  fill: none;
+  stroke: var(--tier-color, #38bdf8);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px var(--tier-color, #38bdf8));
+}
+
+.circuit-corner .cc-inner {
+  fill: none;
+  stroke: var(--tier-color, #38bdf8);
+  stroke-width: 1.8;
+  stroke-dasharray: 3 3;
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+
+.circuit-corner .cc-node {
+  fill: #ffffff;
+  stroke: var(--tier-color, #38bdf8);
+  stroke-width: 1;
+  filter: drop-shadow(0 0 5px var(--tier-color, #38bdf8));
+}
+
+.circuit-bus-l, .circuit-bus-r {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 38px;
+  background: var(--tier-color, #38bdf8);
+  box-shadow: 0 0 10px var(--tier-color, #38bdf8);
+  border-radius: 2px;
+}
+.circuit-bus-l { left: 0; }
+.circuit-bus-r { right: 0; }
+
+/* NFooT Marketplace Badge in top-right of media */
+.mnc-nfoot-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(6, 13, 20, 0.94);
+  border: 1.5px solid #23f7dd;
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 4px 10px 4px 6px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 15px rgba(35, 247, 221, 0.4), 0 0 10px rgba(0, 255, 136, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 10;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mnc-nfoot-badge:hover {
+  transform: scale(1.06);
+  border-color: var(--neon);
+  box-shadow: 0 6px 20px rgba(35, 247, 221, 0.65), 0 0 16px rgba(0, 255, 136, 0.5);
+}
+
+.mnc-nfoot-logo-img {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: block;
+  object-fit: cover;
+  box-shadow: 0 0 8px rgba(35, 247, 221, 0.6);
+}
+
+.mnc-nfoot-text {
+  background: linear-gradient(135deg, #ffffff, #23f7dd 60%, #a8ff00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+}
+
+.mnc-title-tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mnc-role-tag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  padding: 2px 7px;
+  border-radius: 5px;
+  letter-spacing: 0.04em;
 }
 
 .mnc-media-wrap {
@@ -1770,7 +1940,138 @@ body {
     justify-content: flex-end;
   }
   .m-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .m-cards-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* =====================================================================
+   MARKETPLACE PAGINATION & PAGE SIZE TOOLBAR
+   ===================================================================== */
+.m-pagination-bar {
+  margin-top: 36px;
+  padding: 16px 22px;
+  background: rgba(10, 18, 26, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.m-page-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.m-page-size-label {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-sub);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.m-page-size-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(4, 8, 12, 0.6);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.m-page-size-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94a3b8;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.m-page-size-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.m-page-size-btn.active {
+  background: linear-gradient(135deg, rgba(35, 247, 221, 0.22), rgba(168, 255, 0, 0.22));
+  border-color: #23f7dd;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(35, 247, 221, 0.35);
+}
+
+.m-page-nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.m-page-nav-btn {
+  background: #111a24;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.m-page-nav-btn:hover:not(:disabled) {
+  background: #1a2736;
+  border-color: #23f7dd;
+  box-shadow: 0 0 14px rgba(35, 247, 221, 0.35);
+  transform: translateY(-1px);
+}
+
+.m-page-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.m-page-info {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  padding: 0 6px;
+}
+
+@media (max-width: 640px) {
+  .m-pagination-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 14px 16px;
+  }
+  .m-page-size-selector, .m-page-nav-controls {
+    justify-content: space-between;
+    width: 100%;
   }
 }
 

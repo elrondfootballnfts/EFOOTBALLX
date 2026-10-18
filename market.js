@@ -726,6 +726,18 @@ let filterCollection = "all";
 let filterRarity = "all";
 let sortOrder = "price_asc";
 
+// Marketplace Pagination State
+let marketCurrentPage = 1;
+let marketPageSize = 24; // 24 items per page by default (6 full rows of 4)
+try {
+  const savedSize = localStorage.getItem("efoo_market_page_size");
+  if (savedSize === "all") marketPageSize = "all";
+  else if (savedSize) {
+    const p = parseInt(savedSize, 10);
+    if ([24, 48, 96].includes(p)) marketPageSize = p;
+  }
+} catch (e) {}
+
 // Connected Wallet State (Syncs seamlessly with index.html & game.html)
 let marketWallet = {
   address: null,
@@ -1628,8 +1640,14 @@ function renderMarketplaceGrid() {
     });
   }
 
-  // Apply Sort
+  // Apply Sort: Native NFooT marketplace listings ALWAYS come first!
   filtered.sort((a, b) => {
+    const aIsNative = !a.isXoxno;
+    const bIsNative = !b.isXoxno;
+    if (aIsNative && !bIsNative) return -1;
+    if (!aIsNative && bIsNative) return 1;
+
+    // Within same marketplace tier, apply selected sort
     if (sortOrder === "price_asc") return a.price - b.price;
     if (sortOrder === "price_desc") return b.price - a.price;
     if (sortOrder === "rank_asc") {
@@ -1641,7 +1659,10 @@ function renderMarketplaceGrid() {
     return 0;
   });
 
+  const paginationBar = document.getElementById("market-pagination-bar");
+
   if (filtered.length === 0) {
+    if (paginationBar) paginationBar.classList.add("hidden");
     grid.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 48px; color: var(--text-sub);">
         <h3>${isHu ? "Nincs a szűrésnek megfelelő NFT." : "No NFTs match the selected filter."}</h3>
@@ -1651,14 +1672,33 @@ function renderMarketplaceGrid() {
     return;
   }
 
+  // Calculate Pagination Slices
+  if (paginationBar) paginationBar.classList.remove("hidden");
+  const totalCount = filtered.length;
+  const pageSizeNum = marketPageSize === "all" ? totalCount : Number(marketPageSize);
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSizeNum));
+
+  if (marketCurrentPage > totalPages) marketCurrentPage = totalPages;
+  if (marketCurrentPage < 1) marketCurrentPage = 1;
+
+  const startIdx = marketPageSize === "all" ? 0 : (marketCurrentPage - 1) * pageSizeNum;
+  const endIdx = marketPageSize === "all" ? totalCount : Math.min(startIdx + pageSizeNum, totalCount);
+  const pageItems = filtered.slice(startIdx, endIdx);
+
+  // Update Pagination Controls UI
+  updateMarketPaginationUI(totalCount, totalPages, startIdx, endIdx);
+
   const curAddr = marketWallet.address ? marketWallet.address.toLowerCase() : "";
 
-  filtered.forEach((item) => {
+  pageItems.forEach((item) => {
     const tier = getNftRarityTier(item);
     const isOwner = curAddr && item.seller && item.seller.toLowerCase() === curAddr;
+    const isNative = !item.isXoxno;
 
     const card = document.createElement("div");
-    card.className = `m-nft-card tier-${tier.tierKey}`;
+    card.className = `m-nft-card tier-${tier.tierKey} ${isNative ? "is-nfoot-native" : "is-xoxno-card"}`;
+    card.style.setProperty("--tier-color", tier.borderColor);
+    card.style.setProperty("--tier-glow", `${tier.borderColor}66`);
 
     const formattedPrice = item.currency === "EGLD"
       ? (typeof item.price === "number" ? item.price.toFixed(3) : item.price)
@@ -1669,6 +1709,18 @@ function renderMarketplaceGrid() {
       : `${item.seller.slice(0, 6)}...${item.seller.slice(-4)}`;
 
     card.innerHTML = `
+      ${
+        isNative
+          ? `<div class="mnc-circuit-frame" aria-hidden="true">
+               <svg class="circuit-corner tl" viewBox="0 0 48 48"><path d="M 0,28 L 0,10 Q 0,0 10,0 L 28,0" class="cc-outer"/><path d="M 6,18 L 14,10 L 32,10" class="cc-inner"/><circle cx="32" cy="10" r="2.2" class="cc-node"/><circle cx="0" cy="28" r="1.8" class="cc-node"/></svg>
+               <svg class="circuit-corner tr" viewBox="0 0 48 48"><path d="M 48,28 L 48,10 Q 48,0 38,0 L 20,0" class="cc-outer"/><path d="M 42,18 L 34,10 L 16,10" class="cc-inner"/><circle cx="16" cy="10" r="2.2" class="cc-node"/><circle cx="48" cy="28" r="1.8" class="cc-node"/></svg>
+               <svg class="circuit-corner bl" viewBox="0 0 48 48"><path d="M 0,20 L 0,38 Q 0,48 10,48 L 28,48" class="cc-outer"/><path d="M 6,30 L 14,38 L 32,38" class="cc-inner"/><circle cx="32" cy="38" r="2.2" class="cc-node"/><circle cx="0" cy="20" r="1.8" class="cc-node"/></svg>
+               <svg class="circuit-corner br" viewBox="0 0 48 48"><path d="M 48,20 L 48,38 Q 48,48 38,48 L 20,48" class="cc-outer"/><path d="M 42,30 L 34,38 L 16,38" class="cc-inner"/><circle cx="16" cy="38" r="2.2" class="cc-node"/><circle cx="48" cy="20" r="1.8" class="cc-node"/></svg>
+               <div class="circuit-bus-l"></div>
+               <div class="circuit-bus-r"></div>
+             </div>`
+          : ""
+      }
       <div class="mnc-media-wrap" data-inspect="${item.id}">
         <img src="${item.url}" alt="${item.name}" class="mnc-media-img" loading="lazy" />
         <div class="mnc-rank-badge" style="border-color:${tier.borderColor}; color:${tier.borderColor};">
@@ -1680,20 +1732,24 @@ function renderMarketplaceGrid() {
                  <img src="branding/rebranded/xoxno-logo.svg" alt="XOXNO" class="mnc-xoxno-logo-img" />
                  <span class="mnc-xoxno-text">XOXNO</span>
                </div>`
-            : isUltrasPassNft(item)
-            ? `<div class="mnc-col-tag" style="background:#ffb800; color:#050d08; font-weight:800;">👑 VIP PASS</div>`
-            : `<div class="mnc-col-tag">${item.jersey ? "🧤 KEEPER" : "⚽ STRIKER"}</div>`
+            : `<div class="mnc-nfoot-badge" title="Official NFooT Marketplace Listing">
+                 <img src="branding/rebranded/nfoot-icon-128x128.png" alt="NFooT Marketplace" class="mnc-nfoot-logo-img" />
+                 <span class="mnc-nfoot-text">NFooT</span>
+               </div>`
         }
       </div>
 
       <div class="mnc-body">
         <div class="mnc-title-row">
           <strong class="mnc-title">${item.name}</strong>
-          ${
-            isUltrasPassNft(item)
-              ? `<span class="mnc-vip-tag" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:6px;">VIP PASS</span>`
-              : `<span class="mnc-ovr">${item.ovr || 85} OVR</span>`
-          }
+          <div class="mnc-title-tags">
+            ${
+              isUltrasPassNft(item)
+                ? `<span class="mnc-vip-tag" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:6px;">VIP PASS</span>`
+                : `<span class="mnc-role-tag">${item.jersey ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`
+            }
+            <span class="mnc-ovr">${item.ovr || 85} OVR</span>
+          </div>
         </div>
 
         <p class="mnc-trait-desc">${isUltrasPassNft(item) ? (isHu ? "Élethosszig tartó 0% kereskedési díj az Áruházban • Match Booster" : "Lifetime 0% marketplace trading fee • Match Booster") : (item.trait || (item.isXoxno ? "Listed on XOXNO Marketplace" : "Sunday League Degen Ultra"))}</p>
@@ -1750,6 +1806,68 @@ function renderMarketplaceGrid() {
 
     grid.appendChild(card);
   });
+}
+
+function updateMarketPaginationUI(totalCount, totalPages, startIdx, endIdx) {
+  const bar = document.getElementById("market-pagination-bar");
+  if (!bar) return;
+
+  const isHu = currentMarketLang === "hu";
+  const isRo = currentMarketLang === "ro";
+
+  const lblPerPage = document.getElementById("m-lbl-per-page");
+  if (lblPerPage) {
+    lblPerPage.textContent = isHu ? "Oldalanként:" : isRo ? "Pe pagină:" : "Show per page:";
+  }
+
+  document.querySelectorAll(".m-page-size-btn").forEach((btn) => {
+    const sz = btn.getAttribute("data-size");
+    const isAct = String(marketPageSize) === sz;
+    btn.classList.toggle("active", isAct);
+    if (sz === "all") {
+      btn.textContent = isHu ? "Mind" : isRo ? "Toate" : "All";
+    }
+  });
+
+  const prevBtn = document.getElementById("m-btn-prev-page");
+  const nextBtn = document.getElementById("m-btn-next-page");
+  const infoText = document.getElementById("m-page-info-text");
+
+  if (prevBtn) {
+    prevBtn.disabled = marketCurrentPage <= 1 || marketPageSize === "all";
+    prevBtn.textContent = isHu ? "◀ Előző" : isRo ? "◀ Anterior" : "◀ Prev";
+  }
+
+  if (nextBtn) {
+    nextBtn.disabled = marketCurrentPage >= totalPages || marketPageSize === "all";
+    nextBtn.textContent = isHu ? "Következő ▶" : isRo ? "Următor ▶" : "Next ▶";
+  }
+
+  if (infoText) {
+    if (totalCount === 0) {
+      infoText.textContent = "0 NFT";
+    } else if (marketPageSize === "all") {
+      infoText.textContent = isHu 
+        ? `Összes megjelenítve (${totalCount} db NFT)`
+        : isRo
+        ? `Toate afișate (${totalCount} NFT-uri)`
+        : `Showing all ${totalCount} NFTs`;
+    } else {
+      infoText.textContent = isHu
+        ? `${marketCurrentPage}. / ${totalPages} oldal (${startIdx + 1} - ${endIdx} / ${totalCount} NFT)`
+        : isRo
+        ? `Pagina ${marketCurrentPage} din ${totalPages} (${startIdx + 1} - ${endIdx} din ${totalCount})`
+        : `Page ${marketCurrentPage} of ${totalPages} (${startIdx + 1} - ${endIdx} of ${totalCount})`;
+    }
+  }
+}
+
+function scrollToMarketGrid() {
+  const grid = document.getElementById("market-listings-grid");
+  if (grid) {
+    const y = grid.getBoundingClientRect().top + window.pageYOffset - 110;
+    window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+  }
 }
 
 // ============================================================================
@@ -3492,18 +3610,51 @@ document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll("[data-filter-col]").forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       filterCollection = btn.getAttribute("data-filter-col") || "all";
+      marketCurrentPage = 1;
       renderMarketplaceGrid();
     });
   });
 
   document.getElementById("select-rarity-filter")?.addEventListener("change", (e) => {
     filterRarity = e.target.value;
+    marketCurrentPage = 1;
     renderMarketplaceGrid();
   });
 
   document.getElementById("select-sort-order")?.addEventListener("change", (e) => {
     sortOrder = e.target.value;
+    marketCurrentPage = 1;
     renderMarketplaceGrid();
+  });
+
+  // Marketplace Pagination & Page Size controls
+  document.querySelectorAll(".m-page-size-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const sz = btn.getAttribute("data-size");
+      marketPageSize = sz === "all" ? "all" : parseInt(sz, 10);
+      try { localStorage.setItem("efoo_market_page_size", String(marketPageSize)); } catch (e) {}
+      marketCurrentPage = 1;
+      renderMarketplaceGrid();
+    });
+  });
+
+  document.getElementById("m-btn-prev-page")?.addEventListener("click", () => {
+    if (marketCurrentPage > 1 && marketPageSize !== "all") {
+      marketCurrentPage--;
+      renderMarketplaceGrid();
+      scrollToMarketGrid();
+    }
+  });
+
+  document.getElementById("m-btn-next-page")?.addEventListener("click", () => {
+    const totalCount = getAllActiveListings().length;
+    const pageSizeNum = marketPageSize === "all" ? totalCount : Number(marketPageSize);
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSizeNum));
+    if (marketCurrentPage < totalPages && marketPageSize !== "all") {
+      marketCurrentPage++;
+      renderMarketplaceGrid();
+      scrollToMarketGrid();
+    }
   });
 
   // Languages

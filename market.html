@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
 
   <link rel="canonical" href="https://efoo.optibase.ro/market" />
-  <link rel="stylesheet" href="market.css?v=20261018_v10_currency_fix" />
+  <link rel="stylesheet" href="market.css?v=20261018_v11_nfoot_circuits_pagination" />
 
   <!-- Clean URL: Strip amateur .html extension from browser address bar -->
   <script>
@@ -208,6 +208,25 @@
         <!-- NFT Cards Grid -->
         <div class="m-cards-grid" id="market-listings-grid">
           <!-- Dynamically populated by market.js -->
+        </div>
+
+        <!-- Marketplace Pagination & Page Size Toolbar -->
+        <div class="m-pagination-bar" id="market-pagination-bar">
+          <div class="m-page-size-selector">
+            <span class="m-page-size-label" id="m-lbl-per-page">Show per page:</span>
+            <div class="m-page-size-buttons">
+              <button type="button" class="m-page-size-btn active" data-size="24">24</button>
+              <button type="button" class="m-page-size-btn" data-size="48">48</button>
+              <button type="button" class="m-page-size-btn" data-size="96">96</button>
+              <button type="button" class="m-page-size-btn" data-size="all">All</button>
+            </div>
+          </div>
+
+          <div class="m-page-nav-controls">
+            <button type="button" class="m-page-nav-btn" id="m-btn-prev-page" title="Previous Page">◀ Prev</button>
+            <span class="m-page-info" id="m-page-info-text">Page 1 of 1</span>
+            <button type="button" class="m-page-nav-btn" id="m-btn-next-page" title="Next Page">Next ▶</button>
+          </div>
         </div>
       </div>
 
@@ -987,6 +1006,6 @@
   <div id="m-toast" class="m-toast hidden"></div>
 
   <!-- Scripts -->
-  <script src="market.js?v=20261018_v10_currency_fix"></script>
+  <script src="market.js?v=20261018_v11_nfoot_circuits_pagination"></script>
 </body>
 </html>
