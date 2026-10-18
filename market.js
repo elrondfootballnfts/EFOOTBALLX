@@ -671,6 +671,55 @@ async function broadcastMarketSignedTransactions(signedTxs) {
   return hashes;
 }
 
+/**
+ * Polls the MultiversX API for the on-chain status of a transaction
+ * and notifies the user with clear feedback upon success or failure.
+ */
+function watchMarketTransaction(txHash, onConfirmed = null, onFailed = null) {
+  if (!txHash || txHash === "broadcasted" || !txHash.length || txHash.length < 32) return;
+  const isHu = currentMarketLang === "hu";
+  let attempts = 0;
+  const maxAttempts = 20; // ~40 seconds
+
+  const interval = setInterval(async () => {
+    attempts++;
+    if (attempts > maxAttempts) {
+      clearInterval(interval);
+      return;
+    }
+
+    try {
+      const res = await fetch(`https://api.multiversx.com/transactions/${txHash}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const status = (data.status || "").toLowerCase();
+
+      if (status === "success") {
+        clearInterval(interval);
+        showMarketToast(
+          isHu
+            ? "✅ Tranzakció sikeresen jóváhagyva a MultiversX blokkláncon!"
+            : "✅ Transaction successfully confirmed on MultiversX blockchain!",
+          4000
+        );
+        if (typeof onConfirmed === "function") onConfirmed(data);
+      } else if (status === "fail" || status === "invalid") {
+        clearInterval(interval);
+        const returnMsg = data.returnMessage || (data.results && data.results[0]?.returnMessage) || "";
+        showMarketToast(
+          isHu
+            ? `❌ A tranzakció meghiúsult a blokkláncon! ${returnMsg ? `(Hiba: ${returnMsg})` : ""}`
+            : `❌ Transaction failed on blockchain! ${returnMsg ? `(Error: ${returnMsg})` : ""}`,
+          6500
+        );
+        if (typeof onFailed === "function") onFailed(data);
+      }
+    } catch (e) {
+      // Ignore network polling glitches
+    }
+  }, 2000);
+}
+
 async function sendMultiversxTransaction({ receiver, value = "0", data = "", gasLimit = 15000000, onSigned = null }) {
   const isHu = currentMarketLang === "hu";
   if (!marketWallet.address) {
@@ -782,6 +831,9 @@ async function sendMultiversxTransaction({ receiver, value = "0", data = "", gas
 
       const hashes = await broadcastMarketSignedTransactions([signedTx]);
       if (hashes.length > 0) {
+        if (typeof onSigned === "function") {
+          try { onSigned(hashes); } catch (e) { console.warn("onSigned callback error:", e); }
+        }
         return { success: true, hash: hashes[0], method: "xportal" };
       }
       throw new Error(isHu ? "Nem sikerült a tranzakció kiküldése." : "Transaction broadcast failed.");
@@ -1331,11 +1383,11 @@ async function fetchLiveScListings() {
           let currency = "EGLD";
           let seller = isPass ? "Official NFooT Escrow" : "On-Chain Escrow";
 
-          let paymentToken = "WEGLD-bd4d79";
+          let paymentToken = "EGLD";
 
           if (scInfo) {
             price = scInfo.price;
-            paymentToken = scInfo.paymentToken || "WEGLD-bd4d79";
+            paymentToken = scInfo.paymentToken || "EGLD";
             if (scInfo.paymentToken === "WEGLD-bd4d79" || scInfo.paymentToken === "EGLD") {
               currency = "EGLD";
             } else if (scInfo.paymentToken === "EFOO-8fe2d4" || scInfo.paymentToken === "EFOO") {
@@ -1350,7 +1402,7 @@ async function fetchLiveScListings() {
           } else if (localInfo) {
             price = localInfo.price;
             currency = localInfo.currency;
-            paymentToken = localInfo.paymentToken || (localInfo.currency === "EGLD" ? "WEGLD-bd4d79" : EFOO_TOKEN_ID);
+            paymentToken = localInfo.paymentToken || (localInfo.currency === "EGLD" ? "EGLD" : EFOO_TOKEN_ID);
             seller = localInfo.seller;
           }
 
@@ -2927,7 +2979,7 @@ async function executeCreateListing() {
   let nonceHex = Number(nonceNum).toString(16);
   if (nonceHex.length % 2 !== 0) nonceHex = "0" + nonceHex;
 
-  const paymentTokenStr = currency === "EGLD" ? "WEGLD-bd4d79" : EFOO_TOKEN_ID;
+  const paymentTokenStr = currency === "EGLD" ? "EGLD" : EFOO_TOKEN_ID;
   const paymentTokenHex = stringToHex(paymentTokenStr);
   const priceAtomic = toAtomicUnits(priceVal, 18);
   let priceHex = priceAtomic.toString(16);
@@ -3012,6 +3064,36 @@ async function executeCreateListing() {
     renderMyLockerGrid();
     renderTelemetry();
 
+    // Watch blockchain status of the transaction
+    if (txResult?.hash && txResult.hash !== "broadcasted") {
+      watchMarketTransaction(
+        txResult.hash,
+        async () => {
+          if (marketWallet.address) {
+            await fetchWalletNfts(marketWallet.address);
+            await fetchLiveScListings();
+            renderMarketplaceGrid();
+            renderMyLockerGrid();
+            renderTelemetry();
+          }
+        },
+        async (failData) => {
+          // Revert optimistic listing if transaction failed on-chain
+          cachedScListings = (cachedScListings || []).filter((x) => x.identifier !== activeModalNft.identifier);
+          const currentLocal = getMarketplaceListings().filter((x) => x.identifier !== activeModalNft.identifier);
+          saveMarketplaceListings(currentLocal);
+
+          if (marketWallet.address) {
+            await fetchWalletNfts(marketWallet.address);
+            await fetchLiveScListings();
+            renderMarketplaceGrid();
+            renderMyLockerGrid();
+            renderTelemetry();
+          }
+        }
+      );
+    }
+
     // Trigger auto-refresh from blockchain
     setTimeout(async () => {
       if (marketWallet.address) {
@@ -3039,7 +3121,7 @@ async function executeCreateListing() {
     // SIKERES STÁTUSZ A JOBB ALSÓ SAROKBAN!
     showMarketToast(
       isHu
-        ? `✅ Sikeres tranzakció${shortHash}! ${newListing.name} sikeresen eladásra került a Smart Contractban ${priceVal.toLocaleString()} $${currency} áron!`
+        ? `✅ Sikeres tranzakció${shortHash}! ${newListing.name} eladási megbízása elküldve a Smart Contractnak (${priceVal.toLocaleString()} $${currency})!`
         : `✅ Transaction dispatched${shortHash}! ${newListing.name} is listed in Smart Contract for ${priceVal.toLocaleString()} $${currency}!`,
       7000
     );
@@ -3118,7 +3200,7 @@ async function executeEditPrice() {
   let nonceHex = Number(nonceNum).toString(16);
   if (nonceHex.length % 2 !== 0) nonceHex = "0" + nonceHex;
 
-  const paymentTokenStr = currency === "EGLD" ? "WEGLD-bd4d79" : EFOO_TOKEN_ID;
+  const paymentTokenStr = currency === "EGLD" ? "EGLD" : EFOO_TOKEN_ID;
   const paymentTokenHex = stringToHex(paymentTokenStr);
   const priceAtomic = toAtomicUnits(newPrice, 18);
   let priceHex = priceAtomic.toString(16);
@@ -3240,6 +3322,30 @@ async function executeDelistNft(item) {
         ? `✅ Sikeres visszavonási tranzakció${shortHash}! ${item.name || item.identifier} visszatért a tárcádba!`
         : `✅ Successfully delisted${shortHash}! ${item.name || item.identifier} returned to your locker!`
     );
+
+    if (txResult?.hash && txResult.hash !== "broadcasted") {
+      watchMarketTransaction(
+        txResult.hash,
+        async () => {
+          if (marketWallet.address) {
+            await fetchWalletNfts(marketWallet.address);
+            await fetchLiveScListings();
+            renderMarketplaceGrid();
+            renderMyLockerGrid();
+            renderTelemetry();
+          }
+        },
+        async () => {
+          if (marketWallet.address) {
+            await fetchWalletNfts(marketWallet.address);
+            await fetchLiveScListings();
+            renderMarketplaceGrid();
+            renderMyLockerGrid();
+            renderTelemetry();
+          }
+        }
+      );
+    }
 
     // Refresh wallet NFTs & on-chain listings automatically after block inclusion
     setTimeout(async () => {
