@@ -3717,6 +3717,55 @@ function setMarketSwapToken(tokenVal) {
   updateMarketSwapEstimate();
 }
 
+let marketSwapSlippage = 1.0;
+
+function applyMarketSwapMaxBalance() {
+  const tokSelect = document.getElementById("m-swap-token-select");
+  const amtInput = document.getElementById("m-swap-input-amt");
+  if (!amtInput) return;
+
+  const tok = tokSelect?.value || "WEGLD";
+  const tConf = SWAP_TOKENS[tok] || SWAP_TOKENS.WEGLD;
+  let maxBal = 0;
+
+  if (tok === "EFOO") {
+    maxBal = marketWallet.efooBalance || 0;
+  } else if (tok === "WEGLD") {
+    const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
+    if (wegldBal > 0) {
+      maxBal = wegldBal;
+    } else {
+      maxBal = Math.max(0, (marketWallet.egldBalance || 0) - 0.005);
+    }
+  } else {
+    maxBal = (marketWallet.tokens && marketWallet.tokens[tConf.identifier]) || 0;
+  }
+
+  if (maxBal <= 0) {
+    const isHu = currentMarketLang === "hu";
+    showMarketToast(
+      isHu
+        ? `⚠️ Nincs elérhető ${tConf.symbol} egyenleg a tárcádban!`
+        : `⚠️ No ${tConf.symbol} balance available in your wallet!`
+    );
+    return;
+  }
+
+  let formattedMax = "";
+  if (tok === "EFOO") {
+    formattedMax = String(Math.floor(maxBal));
+  } else if (maxBal < 0.0001) {
+    formattedMax = maxBal.toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
+  } else if (maxBal < 1) {
+    formattedMax = maxBal.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+  } else {
+    formattedMax = maxBal.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+  }
+
+  amtInput.value = formattedMax;
+  updateMarketSwapEstimate();
+}
+
 function updateMarketSwapEstimate() {
   const amtInput = document.getElementById("m-swap-input-amt");
   const tokSelect = document.getElementById("m-swap-token-select");
@@ -4055,6 +4104,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // DEX Swap Handlers
   document.getElementById("m-swap-input-amt")?.addEventListener("input", updateMarketSwapEstimate);
+  document.getElementById("m-swap-max-btn")?.addEventListener("click", applyMarketSwapMaxBalance);
+  document.getElementById("m-swap-pay-bal")?.addEventListener("click", applyMarketSwapMaxBalance);
+
+  document.querySelectorAll(".m-slip-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".m-slip-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      marketSwapSlippage = parseFloat(btn.getAttribute("data-slip")) || 1.0;
+      updateMarketSwapEstimate();
+    });
+  });
 
   const tokenTriggerBtn = document.getElementById("m-token-trigger-btn");
   const tokenMenuList = document.getElementById("m-token-menu-list");

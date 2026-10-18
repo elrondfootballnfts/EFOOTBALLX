@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
 
   <link rel="canonical" href="https://efoo.optibase.ro/market" />
-  <link rel="stylesheet" href="market.css?v=20261018_v14_frame_and_prices" />
+  <link rel="stylesheet" href="market.css?v=20261018_v16_ui_refine" />
 
   <!-- Clean URL: Strip amateur .html extension from browser address bar -->
   <script>
@@ -48,8 +48,8 @@
 
         <nav class="m-nav-menu-krogan">
           <a href="market" class="m-nav-item-krogan active">NFooT Marketplace</a>
-          <a href="/#meme-locker" class="m-nav-item-krogan">Meme Studio <span class="badge-soon">SOON</span></a>
           <a href="game" class="m-nav-item-krogan">Play Game</a>
+          <a href="/#meme-locker" class="m-nav-item-krogan">Meme Studio</a>
         </nav>
       </div>
 
@@ -63,12 +63,18 @@
                 <path fill="#23f7dd" d="M 105.65625 99.953125 L 152.476562 75.019531 L 144.613281 60 L 101.714844 77.234375 C 100.617188 77.683594 99.382812 77.683594 98.285156 77.234375 L 55.386719 60 L 47.5 75.066406 L 94.320312 100 L 47.5 124.933594 L 55.386719 140 L 98.285156 122.632812 C 99.382812 122.1875 100.617188 122.1875 101.714844 122.632812 L 144.613281 139.914062 L 152.5 124.847656 Z M 105.65625 99.953125 "/>
               </svg>
             </span>
-            <span id="m-wallet-vip-badge" class="m-wallet-vip-pill hidden" title="EFOO Ultras VIP Pass Active: 0% Marketplace Fees for Life!">👑 VIP</span>
+            <span id="m-wallet-vip-badge" class="m-wallet-vip-pill hidden" title="EFOO Ultras VIP Pass Active: 0% Marketplace Fees for Life!">
+              <span class="m-vip-icon">👑</span>
+              <span class="m-vip-text">VIP</span>
+            </span>
             <span id="m-wallet-short-addr" class="kwp-addr">erd1...</span>
             <span class="kwp-divider">|</span>
             <span id="m-wallet-bal" class="kwp-bal">0 $EFOO</span>
             <button type="button" id="m-btn-disconnect" class="kwp-disc" title="Disconnect">✕</button>
-            <a href="admin" id="m-btn-admin-vault" class="kwp-admin hidden" title="Master Administration">👑 ADMIN</a>
+            <a href="admin" id="m-btn-admin-vault" class="kwp-admin hidden" title="Master Administration">
+              <span class="m-admin-icon">👑</span>
+              <span class="m-admin-text">ADMIN</span>
+            </a>
           </div>
 
           <button type="button" id="m-btn-connect" class="krogan-btn-connect">
@@ -90,24 +96,6 @@
        ===================================================================== -->
   <section class="m-hero">
     <div class="m-container">
-      <div class="m-hero-head">
-        <div class="m-hero-pill-row">
-          <span class="m-kicker">⚡ MULTIVERSX ON-CHAIN ARENA</span>
-          <span class="m-kicker-gold">👑 NF<span style="font-size:0.75em; vertical-align:baseline;">oo</span>T MARKETPLACE</span>
-          <span class="m-kicker-fire">🔥 100% DEFLATIONARY $EFOO</span>
-        </div>
-
-        <div class="m-hero-logo-stage">
-          <div class="m-hero-logo-glow"></div>
-          <img src="branding/rebranded/nfoot-marketplace-banner.png" alt="NFooT Marketplace - MultiversX 3D Web3 NFT &amp; Skill Arena" class="m-hero-banner-blend" />
-        </div>
-
-        <p class="m-subtitle" data-i18n="hero_sub">
-          Trade official <strong>EFOOTBALL-91a4eb</strong> Strikers, <strong>GOALKEEPER-cb9e3e</strong> Keepers, and <strong>EFOOSkills</strong> directly with players.
-          Every trade burns <strong>$EFOO</strong> and fuels the weekend Stadium Vault Jackpot!
-        </p>
-      </div>
-
       <!-- Telemetry Strip (Jackpot removed per user request) -->
       <div class="m-stats-strip">
         <div class="m-stat-box red">
@@ -380,10 +368,11 @@
             <div class="ms-token-box">
               <div class="ms-token-head">
                 <span id="m-swap-pay-label">YOU PAY</span>
-                <span id="m-swap-pay-bal">Balance: —</span>
+                <span id="m-swap-pay-bal" style="cursor:pointer;" title="Click to use maximum balance">Balance: —</span>
               </div>
               <div class="ms-token-row">
-                <input type="number" id="m-swap-input-amt" class="ms-input-amt" value="0.035" min="0.001" step="any" placeholder="0.0" />
+                <input type="number" id="m-swap-input-amt" class="ms-input-amt" value="0.035" min="0.0001" step="any" placeholder="0.0" />
+                <button type="button" id="m-swap-max-btn" class="ms-btn-max" title="Use 100% of wallet balance">MAX</button>
                 
                 <!-- Custom Token Selector with Official Logos -->
                 <div class="custom-token-selector" id="m-swap-token-dropdown">
@@ -590,9 +579,16 @@
             </div>
 
             <!-- RATE & TELEMETRY -->
-            <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-sub); margin-bottom:18px;">
-              <span id="m-swap-rate-lbl">1 EGLD ≈ 29,950,000 $EFOO</span>
-              <span>Slippage: <strong>1.0%</strong></span>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-sub); margin-bottom:18px; flex-wrap:wrap; gap:8px;">
+              <span id="m-swap-rate-lbl">1 EGLD ≈ 30,004,200 $EFOO</span>
+              <div class="m-swap-slippage-wrap">
+                <span>Slippage:</span>
+                <div class="m-slippage-pills">
+                  <button type="button" class="m-slip-btn" data-slip="0.5">0.5%</button>
+                  <button type="button" class="m-slip-btn active" data-slip="1.0">1.0%</button>
+                  <button type="button" class="m-slip-btn" data-slip="2.5">2.5%</button>
+                </div>
+              </div>
             </div>
 
             <button type="button" id="m-btn-exec-swap" class="ms-swap-action-btn">
@@ -1143,6 +1139,6 @@
   <div id="m-toast" class="m-toast hidden"></div>
 
   <!-- Scripts -->
-  <script src="market.js?v=20261018_v14_frame_and_prices"></script>
+  <script src="market.js?v=20261018_v16_ui_refine"></script>
 </body>
 </html>

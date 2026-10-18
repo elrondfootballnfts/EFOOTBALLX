@@ -254,12 +254,28 @@ body {
 
 .kwp-admin {
   color: #ffb800;
-  border: 1px solid rgba(255, 184, 0, 0.4);
+  border: 1px solid rgba(255, 184, 0, 0.5);
   background: rgba(255, 184, 0, 0.15);
-  padding: 1px 6px;
-  border-radius: 6px;
+  padding: 3px 8px;
+  border-radius: 8px;
   text-decoration: none;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.1;
+  min-width: 44px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.kwp-admin:hover {
+  background: rgba(255, 184, 0, 0.25);
+  border-color: #ffb800;
+  box-shadow: 0 0 12px rgba(255, 184, 0, 0.4);
 }
 
 .m-nav-center {
@@ -390,15 +406,37 @@ body {
   border: 1px solid rgba(255, 184, 0, 0.6);
   color: #ffb800;
   font-weight: 800;
-  font-size: 0.68rem;
-  padding: 2px 7px;
+  font-size: 0.65rem;
+  padding: 3px 8px;
   border-radius: 999px;
   letter-spacing: 0.04em;
   box-shadow: 0 0 10px rgba(255, 184, 0, 0.3);
   text-shadow: 0 0 8px rgba(255, 184, 0, 0.5);
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  gap: 3px;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.1;
+  min-width: 38px;
+  flex-shrink: 0;
+}
+
+.m-vip-icon, .m-admin-icon {
+  font-size: 0.85rem;
+  line-height: 1;
+  display: block;
+  margin-bottom: 2px;
+  text-align: center;
+}
+
+.m-vip-text, .m-admin-text {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-align: center;
+  line-height: 1;
 }
 
 .mnc-seller-vip-crown {
@@ -431,7 +469,7 @@ body {
    HERO & TELEMETRY STRIP
    ===================================================================== */
 .m-hero {
-  padding: 36px 0 24px;
+  padding: 16px 0 20px;
 }
 
 .m-hero-head {
@@ -2816,6 +2854,7 @@ body {
 }
 .ms-input-amt {
   flex: 1;
+  min-width: 0;
   background: transparent;
   border: none;
   color: #ffffff;
@@ -2823,6 +2862,34 @@ body {
   font-size: 1.6rem;
   font-weight: 700;
   outline: none;
+}
+
+.ms-btn-max {
+  background: rgba(168, 255, 0, 0.12);
+  border: 1px solid rgba(168, 255, 0, 0.4);
+  color: var(--neon);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 6px 11px;
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.ms-btn-max:hover {
+  background: var(--neon);
+  color: #040c06;
+  box-shadow: 0 0 14px rgba(168, 255, 0, 0.6);
+  transform: scale(1.05);
+}
+
+.ms-btn-max:active {
+  transform: scale(0.96);
 }
 /* Custom Token Selector with Official Logos */
 .custom-token-selector {
@@ -3034,6 +3101,47 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.m-swap-slippage-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.m-slippage-pills {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 3px;
+}
+
+.m-slip-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-sub);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.m-slip-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.m-slip-btn.active {
+  background: var(--neon);
+  color: #040c06;
+  font-weight: 900;
+  box-shadow: 0 0 8px rgba(168, 255, 0, 0.4);
 }
 
 .ms-swap-action-btn {

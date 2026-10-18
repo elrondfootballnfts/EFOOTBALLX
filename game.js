@@ -6901,7 +6901,7 @@ function renderStartScreenLeaderboard() {
           <small style="color:#64748b; font-size:0.68rem; font-family:'JetBrains Mono',monospace;">${shortAddr}</small>
         </div>
       </td>
-      <td style="text-align:center;"><span style="color:#38bdf8; font-weight:800; font-family:'JetBrains Mono',monospace; font-size:0.84rem; background:rgba(56,189,248,0.12); padding:3px 9px; border-radius:999px; border:1px solid rgba(56,189,248,0.3);">LVL ${row.level || 1}</span></td>
+      <td style="text-align:center; white-space:nowrap;"><span style="color:#38bdf8; font-weight:800; font-family:'JetBrains Mono',monospace; font-size:0.84rem; background:rgba(56,189,248,0.12); padding:3px 10px; border-radius:999px; border:1px solid rgba(56,189,248,0.3); display:inline-block; white-space:nowrap; letter-spacing:0.02em;">LVL ${row.level || 1}</span></td>
       <td style="text-align:right;"><strong style="color:#a8ff00; font-family:'JetBrains Mono',monospace; font-size:0.92rem;">${row.score.toLocaleString("en-US")}</strong></td>
     `;
     tbody.appendChild(tr);

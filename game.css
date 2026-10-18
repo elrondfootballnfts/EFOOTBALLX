@@ -4966,6 +4966,14 @@ body.fx-gold-active #arcade-viewport {
 .hlb-table td {
   padding: 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+}
+
+.hlb-table th:nth-child(3),
+.hlb-table td:nth-child(3) {
+  white-space: nowrap !important;
+  text-align: center;
+  width: 1%;
 }
 
 .hlb-footer {
