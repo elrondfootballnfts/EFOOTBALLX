@@ -800,6 +800,7 @@ const CONTRACTS = {
   FOMO_RESERVE: "erd1k8w7y5ftg2uax8v8ng8p5azjw96zzfgky9v3fydtpe2xwdz0007q3hl9z8",
   SHOWCASE_VAULT: "erd1gyw9wtsjcg62mdrkxym3l4t3qelf83mq85whefp979h7pzmjm0zq96j8gq",
   RESERVE_VAULT: "erd1lqh33j0geuxxa8wyj95wk8cy8yqf7gltn73mmdmtucvn332txarqzcdpzp",
+  STADIUM_VAULT_SC: "erd1qqqqqqqqqqqqqpgqwdrgl4k7gfa26wp0xcje8qn9gucq87yx55hs39eend",
   WC_PROJECT_ID: "9b1a9564f91cb659ffe21b73d5c4e2d8"
 };
 

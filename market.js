@@ -974,9 +974,63 @@ function getMarketplaceListings() {
   return [];
 }
 
+let cachedScListings = [];
+let isFetchingScListings = false;
+
+// Fetch live listings from our Smart Contract (erd1qqqqqqqqqqqqqpgqwdrgl4k7gfa26wp0xcje8qn9gucq87yx55hs39eend)
+async function fetchLiveScListings() {
+  if (isFetchingScListings) return cachedScListings;
+  if (!STADIUM_VAULT_SC || !STADIUM_VAULT_SC.startsWith("erd1qqqq")) return [];
+  isFetchingScListings = true;
+  try {
+    const res = await fetch(`${MULTIVERSX_API}/accounts/${STADIUM_VAULT_SC}/nfts?size=50`);
+    if (res.ok) {
+      const escrowNfts = await res.json();
+      if (Array.isArray(escrowNfts) && escrowNfts.length > 0) {
+        const scItems = [];
+        for (const it of escrowNfts) {
+          const tier = getNftRarityTier(it);
+          let price = 0.5;
+          let currency = "EGLD";
+          let seller = "On-Chain Escrow";
+
+          scItems.push({
+            id: `sc-${it.identifier}`,
+            isScListing: true,
+            identifier: it.identifier,
+            collection: it.collection,
+            nonce: it.nonce || 0,
+            name: it.name || it.identifier,
+            rarity: tier.tierLabel,
+            rank: it.rank || tier.rank,
+            ovr: it.metadata?.attributes?.find((a) => a.trait_type === "OVR")?.value || (it.collection === KEEPER_COLLECTION ? 92 : 88),
+            trait: "Official NFooT SC Escrow Listing",
+            url: it.url || (it.collection === KEEPER_COLLECTION ? "branding/original/GOALKEEPER-cb9e3e/logo.png" : "branding/original/EFOOTBALL-91a4eb/logo.png"),
+            price: price,
+            currency: currency,
+            seller: seller,
+            createdAt: it.timestamp ? it.timestamp * 1000 : Date.now(),
+            attributes: it.metadata?.attributes || []
+          });
+        }
+        cachedScListings = scItems;
+        renderMarketplaceGrid();
+        renderTelemetry();
+      }
+    }
+  } catch (err) {
+    console.warn("fetchLiveScListings error:", err);
+  } finally {
+    isFetchingScListings = false;
+  }
+  return cachedScListings;
+}
+
 function getAllActiveListings() {
   const p2p = getMarketplaceListings();
-  return [...p2p, ...cachedXoxnoListings];
+  const scIds = new Set(cachedScListings.map((x) => x.identifier));
+  const uniqueP2p = p2p.filter((x) => !scIds.has(x.identifier));
+  return [...cachedScListings, ...uniqueP2p, ...cachedXoxnoListings];
 }
 
 function saveMarketplaceListings(listings) {
@@ -3032,6 +3086,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderMarketplaceGrid();
   renderSkillsStore();
   fetchLiveXoxnoListings();
+  fetchLiveScListings();
   fetchLiveMinterCounts();
 
   // 7 Tabs: Browse, My Locker & Sell, Recruit & Mint, DEX Swap, Pools, Skills, Ultras PASS

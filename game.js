@@ -5713,10 +5713,10 @@ function burnReviveOnChain() {
   const aHex = amountToHex(amt, 18);
   signAndSendTxs([
     {
-      receiver: CONTRACTS.RESERVE_VAULT,
+      receiver: CONTRACTS.STADIUM_VAULT_SC,
       value: "0",
-      gasLimit: 6000000,
-      data: `ESDTTransfer@${tHex}@${aHex}@${strToHex("reviveMatch")}`
+      gasLimit: 12000000,
+      data: `ESDTTransfer@${tHex}@${aHex}@${strToHex("retryCurrentRound")}`
     }
   ]);
 }
@@ -6966,6 +6966,22 @@ document.addEventListener("DOMContentLoaded", () => {
     game.streak = (game.streak || 0) + 1;
     document.getElementById("summary-screen-overlay")?.classList.add("hidden");
     if (typeof audio.playGoalCheer === "function") audio.playGoalCheer();
+
+    // Broadcast on-chain transaction to Stadium Vault SC if wallet is connected
+    if (walletState.address && typeof signAndSendTxs === "function") {
+      const tHex = strToHex("EFOO-8fe2d4");
+      const aHex = amountToHex(cost, 18);
+      const endpointHex = strToHex("reviveStreakAndAdvance");
+      signAndSendTxs([
+        {
+          receiver: CONTRACTS.STADIUM_VAULT_SC,
+          value: "0",
+          gasLimit: 12000000,
+          data: `ESDTTransfer@${tHex}@${aHex}@${endpointHex}`
+        }
+      ], "revive_streak");
+    }
+
     showToast(
       isHu
         ? `🔥 Széria megmentve! 25,000 $EFOO elégetve, 25,000 $EFOO a Stadium Vaultba küldve! Ugrás a ${Math.min(MAX_LEVEL, game.level + 1)}. szintre!`
@@ -6995,6 +7011,22 @@ document.addEventListener("DOMContentLoaded", () => {
     walletState.efooBalance -= cost;
     updateHudEfooBadge();
     addVaultContributions(12500, 12500); // 50% to vault (12.5k), 50% burned (12.5k)!
+
+    // Broadcast on-chain transaction to Stadium Vault SC if wallet is connected
+    if (walletState.address && typeof signAndSendTxs === "function") {
+      const tHex = strToHex("EFOO-8fe2d4");
+      const aHex = amountToHex(cost, 18);
+      const endpointHex = strToHex("retryCurrentRound");
+      signAndSendTxs([
+        {
+          receiver: CONTRACTS.STADIUM_VAULT_SC,
+          value: "0",
+          gasLimit: 12000000,
+          data: `ESDTTransfer@${tHex}@${aHex}@${endpointHex}`
+        }
+      ], "retry_round");
+    }
+
     // Streak preserved!
     document.getElementById("summary-screen-overlay")?.classList.add("hidden");
     if (typeof audio.playWhistle === "function") audio.playWhistle();
