@@ -209,8 +209,18 @@ body {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
-.kwp-icon {
-  font-size: 1rem;
+.kwp-icon,
+.kbc-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.egld-icon-svg {
+  display: block;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(35, 247, 221, 0.45);
 }
 
 .kwp-addr {
