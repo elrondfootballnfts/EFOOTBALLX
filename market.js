@@ -2507,9 +2507,8 @@ async function executeBuyNft(item) {
     }
 
     const priceAtomic = toAtomicUnits(item.price, 18);
-    // buyNft@<colHex>@<nonceHex>
-    const endpointHex = stringToHex("buyNft"); // 6275794e6674
-    const dataField = `${endpointHex}@${colHex}@${nonceHex}`;
+    // buyNft@<colHex>@<nonceHex> (DIRECT SC call: function name must be plain text UTF-8!)
+    const dataField = `buyNft@${colHex}@${nonceHex}`;
 
     showMarketToast(
       isHu
@@ -2525,7 +2524,8 @@ async function executeBuyNft(item) {
         data: dataField
       });
 
-      // Transfer ownership in marketplace state
+      // Remove from both local cache and active SC listings
+      cachedScListings = (cachedScListings || []).filter((x) => x.id !== item.id && x.identifier !== item.identifier);
       let listings = getMarketplaceListings().filter((x) => x.id !== item.id && x.identifier !== item.identifier);
       saveMarketplaceListings(listings);
 
@@ -2538,6 +2538,16 @@ async function executeBuyNft(item) {
       renderMarketplaceGrid();
       renderMyLockerGrid();
       renderTelemetry();
+
+      setTimeout(async () => {
+        if (marketWallet.address) {
+          await fetchWalletNfts(marketWallet.address);
+          await fetchLiveScListings();
+          renderMarketplaceGrid();
+          renderMyLockerGrid();
+          renderTelemetry();
+        }
+      }, 4500);
 
       const sellerHasPass = hasUltrasPass(item.seller);
       const buyerHasPass = hasUltrasPass(marketWallet.address);
@@ -2609,6 +2619,8 @@ async function executeBuyNft(item) {
       addVaultContributions(fee2_5, fee2_5);
     }
 
+    // Remove from both local cache and active SC listings
+    cachedScListings = (cachedScListings || []).filter((x) => x.id !== item.id && x.identifier !== item.identifier);
     let listings = getMarketplaceListings().filter((x) => x.id !== item.id && x.identifier !== item.identifier);
     saveMarketplaceListings(listings);
 
@@ -2621,6 +2633,16 @@ async function executeBuyNft(item) {
     renderMarketplaceGrid();
     renderMyLockerGrid();
     renderTelemetry();
+
+    setTimeout(async () => {
+      if (marketWallet.address) {
+        await fetchWalletNfts(marketWallet.address);
+        await fetchLiveScListings();
+        renderMarketplaceGrid();
+        renderMyLockerGrid();
+        renderTelemetry();
+      }
+    }, 4500);
 
     if (isZeroFeeTrade) {
       showMarketToast(
@@ -2894,14 +2916,39 @@ async function executeCreateListing() {
     listings.unshift(newListing);
     saveMarketplaceListings(listings);
 
+    // Also add to cachedScListings so it appears immediately on native listings
+    if (!cachedScListings.some((x) => x.identifier === newListing.identifier)) {
+      cachedScListings.unshift(newListing);
+    }
+
     // Remove from locally displayed owned locker NFTs (it is now held in the SC escrow)
     if (marketWallet.ownedNfts) {
-      marketWallet.ownedNfts = marketWallet.ownedNfts.filter((x) => x.identifier !== activeModalNft.identifier);
+      marketWallet.ownedNfts = marketWallet.ownedNfts.filter((x) => x.identifier !== activeModalNft.identifier && x.nonce !== activeModalNft.nonce);
     }
 
     renderMarketplaceGrid();
     renderMyLockerGrid();
     renderTelemetry();
+
+    // Trigger auto-refresh from blockchain
+    setTimeout(async () => {
+      if (marketWallet.address) {
+        await fetchWalletNfts(marketWallet.address);
+        await fetchLiveScListings();
+        renderMarketplaceGrid();
+        renderMyLockerGrid();
+        renderTelemetry();
+      }
+    }, 4500);
+    setTimeout(async () => {
+      if (marketWallet.address) {
+        await fetchWalletNfts(marketWallet.address);
+        await fetchLiveScListings();
+        renderMarketplaceGrid();
+        renderMyLockerGrid();
+        renderTelemetry();
+      }
+    }, 10000);
 
     const shortHash = txResult?.hash && txResult.hash !== "broadcasted" 
       ? ` (${txResult.hash.slice(0, 8)}...)` 
@@ -2995,9 +3042,8 @@ async function executeEditPrice() {
   let priceHex = priceAtomic.toString(16);
   if (priceHex.length % 2 !== 0) priceHex = "0" + priceHex;
 
-  // updateListingPrice@<colHex>@<nonceHex>@<paymentTokenHex>@<priceHex>
-  const endpointHex = stringToHex("updateListingPrice"); // 7570646174654c697374696e675072696365
-  const dataField = `${endpointHex}@${colHex}@${nonceHex}@${paymentTokenHex}@${priceHex}`;
+  // updateListingPrice@<colHex>@<nonceHex>@<paymentTokenHex>@<priceHex> (DIRECT SC call: function name must be plain text UTF-8!)
+  const dataField = `updateListingPrice@${colHex}@${nonceHex}@${paymentTokenHex}@${priceHex}`;
 
   showMarketToast(
     isHu
@@ -3009,7 +3055,7 @@ async function executeEditPrice() {
     await sendMultiversxTransaction({
       receiver: STADIUM_VAULT_SC,
       value: "0",
-      gasLimit: 10000000,
+      gasLimit: 12000000,
       data: dataField
     });
 
@@ -3017,12 +3063,27 @@ async function executeEditPrice() {
     const target = listings.find((x) => x.id === activeModalNft.id || x.identifier === activeModalNft.identifier);
     if (target) {
       target.price = newPrice;
+      target.currency = currency;
       saveMarketplaceListings(listings);
+    }
+
+    const targetSc = (cachedScListings || []).find((x) => x.id === activeModalNft.id || x.identifier === activeModalNft.identifier);
+    if (targetSc) {
+      targetSc.price = newPrice;
+      targetSc.currency = currency;
     }
 
     document.getElementById("edit-price-modal")?.classList.add("hidden");
     renderMarketplaceGrid();
     renderMyLockerGrid();
+
+    setTimeout(async () => {
+      if (marketWallet.address) {
+        await fetchLiveScListings();
+        renderMarketplaceGrid();
+        renderMyLockerGrid();
+      }
+    }, 4500);
 
     showMarketToast(
       isHu
@@ -3053,9 +3114,8 @@ async function executeDelistNft(item) {
   let nonceHex = Number(nonceNum).toString(16);
   if (nonceHex.length % 2 !== 0) nonceHex = "0" + nonceHex;
 
-  // delistNft@<colHex>@<nonceHex>
-  const endpointHex = stringToHex("delistNft"); // 64656c6973744e6674
-  const dataField = `${endpointHex}@${colHex}@${nonceHex}`;
+  // delistNft@<colHex>@<nonceHex> (DIRECT SC call: function name must be plain text UTF-8!)
+  const dataField = `delistNft@${colHex}@${nonceHex}`;
 
   showMarketToast(
     isHu
@@ -3064,31 +3124,60 @@ async function executeDelistNft(item) {
   );
 
   try {
-    await sendMultiversxTransaction({
+    const txResult = await sendMultiversxTransaction({
       receiver: STADIUM_VAULT_SC,
       value: "0",
-      gasLimit: 10000000,
+      gasLimit: 15000000,
       data: dataField
     });
 
+    // Remove from both local cache and active SC listings
+    cachedScListings = (cachedScListings || []).filter((x) => x.id !== item.id && x.identifier !== item.identifier);
     let listings = getMarketplaceListings().filter((x) => x.id !== item.id && x.identifier !== item.identifier);
     saveMarketplaceListings(listings);
 
-    // Add back to locker room
+    // Add back to locker room (NFT is returning to user's wallet)
     if (!marketWallet.ownedNfts) marketWallet.ownedNfts = [];
     if (!marketWallet.ownedNfts.some((x) => x.identifier === item.identifier)) {
-      marketWallet.ownedNfts.push(item);
+      marketWallet.ownedNfts.push({
+        ...item,
+        seller: marketWallet.address
+      });
     }
 
     renderMarketplaceGrid();
     renderMyLockerGrid();
     renderTelemetry();
 
+    const shortHash = txResult?.hash && txResult.hash !== "broadcasted" 
+      ? ` (${txResult.hash.slice(0, 8)}...)` 
+      : "";
+
     showMarketToast(
       isHu
-        ? `❌ ${item.name} visszavonási tranzakció elküldve! A Smart Contract visszaküldi az NFT-t a tárcádba.`
-        : `❌ Successfully delisted ${item.name}! Smart Contract is returning the NFT to your locker.`
+        ? `✅ Sikeres visszavonási tranzakció${shortHash}! ${item.name || item.identifier} visszatért a tárcádba!`
+        : `✅ Successfully delisted${shortHash}! ${item.name || item.identifier} returned to your locker!`
     );
+
+    // Refresh wallet NFTs & on-chain listings automatically after block inclusion
+    setTimeout(async () => {
+      if (marketWallet.address) {
+        await fetchWalletNfts(marketWallet.address);
+        await fetchLiveScListings();
+        renderMarketplaceGrid();
+        renderMyLockerGrid();
+        renderTelemetry();
+      }
+    }, 4500);
+    setTimeout(async () => {
+      if (marketWallet.address) {
+        await fetchWalletNfts(marketWallet.address);
+        await fetchLiveScListings();
+        renderMarketplaceGrid();
+        renderMyLockerGrid();
+        renderTelemetry();
+      }
+    }, 10000);
   } catch (err) {
     console.error("Delist failed:", err);
     showMarketToast(
