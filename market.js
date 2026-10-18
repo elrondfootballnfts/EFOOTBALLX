@@ -305,39 +305,64 @@ async function connectMarketDefiExtension() {
 
 function sendMarketExtensionMessage(type, data = "") {
   return new Promise((resolve, reject) => {
-    const responseTypeMap = {
-      connect: ["connectResponse", "loginResponse"],
-      signTransactions: ["signTransactionsResponse", "signTransactionResponse"],
-      logout: ["logoutResponse"]
-    };
-    const expectedTypes = responseTypeMap[type] || [type + "Response"];
-
+    let settled = false;
     const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
       window.removeEventListener("message", handleMessage);
       reject(new Error("Extension response timed out"));
     }, 60000);
 
     function handleMessage(event) {
-      if (event.source !== window || !event.data) return;
+      if (settled) return;
+      if (!event.data || event.data.target !== "erdw-contentScript") return;
       const msg = event.data;
-      if (!msg || msg.target !== "erdw-contentScript") return;
-      if (expectedTypes.includes(msg.type)) {
-        clearTimeout(timer);
-        window.removeEventListener("message", handleMessage);
-        if (msg.error || (msg.data && msg.data.error)) {
-          reject(new Error(msg.error || msg.data.error));
-        } else {
-          resolve(msg.data);
+
+      // Filter connect events specifically
+      if (type === "connect") {
+        if (msg.type === "connectResponse" || msg.type === "loginResponse" || (msg.data && msg.data.address)) {
+          settled = true;
+          clearTimeout(timer);
+          window.removeEventListener("message", handleMessage);
+          if (msg.error || (msg.data && msg.data.error)) {
+            reject(new Error(msg.error || msg.data.error));
+          } else {
+            resolve(msg.data !== undefined ? msg.data : msg);
+          }
         }
-      } else if (msg.type === "cancelResponse" || msg.type === "errorResponse") {
+        return;
+      }
+
+      // Non-connect operations (signTransactions, signMessage, etc.):
+      // Ignore stale connect responses
+      if (msg.type === "connectResponse" || msg.type === "loginResponse") return;
+
+      // Handle user cancellation / error
+      if (
+        msg.type === "cancelResponse" ||
+        msg.type === "cancelActionResponse" ||
+        msg.type === "errorResponse" ||
+        msg.error ||
+        (msg.data && msg.data.error)
+      ) {
+        settled = true;
         clearTimeout(timer);
         window.removeEventListener("message", handleMessage);
-        reject(new Error(msg.error || "User cancelled"));
+        const err = msg.error || (msg.data && msg.data.error) || "User cancelled";
+        const errMsg = typeof err === "string" ? err : (err.message || JSON.stringify(err));
+        reject(new Error(errMsg));
+        return;
       }
+
+      // ANY other message targeting erdw-contentScript resolves the pending action!
+      settled = true;
+      clearTimeout(timer);
+      window.removeEventListener("message", handleMessage);
+      resolve(msg.data !== undefined ? msg.data : msg);
     }
 
-    window.addEventListener("message", handleMessage);
-    window.postMessage({ target: "erdw-inpage", type, data }, "*");
+    window.addEventListener("message", handleMessage, false);
+    window.postMessage({ target: "erdw-inpage", type, data }, window.origin || "*");
   });
 }
 
@@ -488,7 +513,7 @@ async function broadcastMarketSignedTransactions(signedTxs) {
   return hashes;
 }
 
-async function sendMultiversxTransaction({ receiver, value = "0", data = "", gasLimit = 15000000 }) {
+async function sendMultiversxTransaction({ receiver, value = "0", data = "", gasLimit = 15000000, onSigned = null }) {
   const isHu = currentMarketLang === "hu";
   if (!marketWallet.address) {
     document.getElementById("m-wallet-modal")?.classList.remove("hidden");
@@ -621,11 +646,23 @@ async function sendMultiversxTransaction({ receiver, value = "0", data = "", gas
       showMarketToast(
         isHu
           ? "🧩 Erősítsd meg a tranzakciót a MultiversX DeFi Wallet felugró ablakában..."
-          : "🧩 Please confirm the transaction in your MultiversX DeFi Wallet Extension popup..."
+          : "🧩 Please confirm the transaction in your MultiversX DeFi Wallet Extension popup...",
+        0
       );
 
       const signedRes = await signMarketWithExtension(preparedTxs);
       if (signedRes) {
+        if (typeof onSigned === "function") {
+          try { onSigned(signedRes); } catch (e) { console.warn("onSigned callback error:", e); }
+        }
+
+        showMarketToast(
+          isHu
+            ? "📡 Tranzakció aláírva! Közvetítés a MultiversX hálózatra..."
+            : "📡 Transaction signed! Broadcasting to MultiversX network...",
+          0
+        );
+
         const signedList = Array.isArray(signedRes) ? signedRes : [signedRes];
         const formattedSigned = signedList.map((st, idx) => ({
           ...preparedTxs[idx],
@@ -2395,12 +2432,27 @@ async function executeCreateListing() {
   }
 
   try {
-    await sendMultiversxTransaction({
+    const txResult = await sendMultiversxTransaction({
       receiver: marketWallet.address,
       value: "0",
       gasLimit: 15000000,
-      data: dataField
+      data: dataField,
+      onSigned: () => {
+        // AZ ELADÁSI ABLAK AZONNAL LEZÁRUL!
+        document.getElementById("list-nft-modal")?.classList.add("hidden");
+        // A JOBB ALSÓ SAROKBAN MUTATJA A STÁTUSZT!
+        showMarketToast(
+          isHu
+            ? "📡 Tranzakció aláírva a tárcádban! Közvetítés a MultiversX hálózatra..."
+            : "📡 Transaction signed in wallet! Broadcasting to MultiversX network...",
+          0
+        );
+      }
     });
+
+    // Make sure listing modal is closed
+    document.getElementById("list-nft-modal")?.classList.add("hidden");
+    if (priceInput) priceInput.value = "";
 
     const tier = getNftRarityTier(activeModalNft);
     const newListing = {
@@ -2430,24 +2482,28 @@ async function executeCreateListing() {
       marketWallet.ownedNfts = marketWallet.ownedNfts.filter((x) => x.identifier !== activeModalNft.identifier);
     }
 
-    document.getElementById("list-nft-modal")?.classList.add("hidden");
-    priceInput.value = "";
-
     renderMarketplaceGrid();
     renderMyLockerGrid();
     renderTelemetry();
 
+    const shortHash = txResult?.hash && txResult.hash !== "broadcasted" 
+      ? ` (${txResult.hash.slice(0, 8)}...)` 
+      : "";
+
+    // SIKERES STÁTUSZ A JOBB ALSÓ SAROKBAN!
     showMarketToast(
       isHu
-        ? `🏷️ Sikeres tranzakció! ${newListing.name} eladásra került a Smart Contractban ${priceVal.toLocaleString()} $${currency} áron!`
-        : `🏷️ Transaction dispatched! ${newListing.name} is listed in Smart Contract for ${priceVal.toLocaleString()} $${currency}!`
+        ? `✅ Sikeres tranzakció${shortHash}! ${newListing.name} sikeresen eladásra került a Smart Contractban ${priceVal.toLocaleString()} $${currency} áron!`
+        : `✅ Transaction dispatched${shortHash}! ${newListing.name} is listed in Smart Contract for ${priceVal.toLocaleString()} $${currency}!`,
+      7000
     );
   } catch (err) {
     console.error("Listing transaction failed:", err);
     showMarketToast(
       isHu
         ? `❌ Hiba a listázási tranzakció során: ${err.message || "Megszakítva"}`
-        : `❌ Listing transaction failed: ${err.message || "Cancelled"}`
+        : `❌ Listing transaction failed: ${err.message || "Cancelled"}`,
+      5000
     );
   } finally {
     if (listBtn) {
@@ -2743,15 +2799,17 @@ function openNftDetailsModal(nft) {
 // ============================================================================
 // TOAST NOTIFICATIONS
 // ============================================================================
-function showMarketToast(msg) {
+function showMarketToast(msg, duration = 4000) {
   const t = document.getElementById("m-toast");
   if (!t) return;
-  t.textContent = msg;
+  t.innerHTML = msg;
   t.classList.remove("hidden");
   clearTimeout(t._timer);
-  t._timer = setTimeout(() => {
-    t.classList.add("hidden");
-  }, 4000);
+  if (duration > 0) {
+    t._timer = setTimeout(() => {
+      t.classList.add("hidden");
+    }, duration);
+  }
 }
 
 // ============================================================================

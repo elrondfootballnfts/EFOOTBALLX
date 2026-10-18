@@ -4975,39 +4975,64 @@ async function initXPortalWalletConnect() {
 
 function sendExtensionMessage(type, data = "") {
   return new Promise((resolve, reject) => {
-    const responseTypeMap = {
-      connect: ["connectResponse", "loginResponse"],
-      signTransactions: ["signTransactionsResponse", "signTransactionResponse"],
-      logout: ["logoutResponse"]
-    };
-    const expectedTypes = responseTypeMap[type] || [type + "Response"];
-
+    let settled = false;
     const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
       window.removeEventListener("message", handleMessage);
       reject(new Error("Extension response timed out"));
     }, 60000);
 
     function handleMessage(event) {
-      if (event.source !== window || !event.data) return;
+      if (settled) return;
+      if (!event.data || event.data.target !== "erdw-contentScript") return;
       const msg = event.data;
-      if (!msg || msg.target !== "erdw-contentScript") return;
-      if (expectedTypes.includes(msg.type)) {
-        clearTimeout(timer);
-        window.removeEventListener("message", handleMessage);
-        if (msg.error || (msg.data && msg.data.error)) {
-          reject(new Error(msg.error || msg.data.error));
-        } else {
-          resolve(msg.data);
+
+      // Filter connect events specifically
+      if (type === "connect") {
+        if (msg.type === "connectResponse" || msg.type === "loginResponse" || (msg.data && msg.data.address)) {
+          settled = true;
+          clearTimeout(timer);
+          window.removeEventListener("message", handleMessage);
+          if (msg.error || (msg.data && msg.data.error)) {
+            reject(new Error(msg.error || msg.data.error));
+          } else {
+            resolve(msg.data !== undefined ? msg.data : msg);
+          }
         }
-      } else if (msg.type === "cancelResponse" || msg.type === "errorResponse") {
+        return;
+      }
+
+      // Non-connect operations (signTransactions, signMessage, etc.):
+      // Ignore stale connect responses
+      if (msg.type === "connectResponse" || msg.type === "loginResponse") return;
+
+      // Handle user cancellation / error
+      if (
+        msg.type === "cancelResponse" ||
+        msg.type === "cancelActionResponse" ||
+        msg.type === "errorResponse" ||
+        msg.error ||
+        (msg.data && msg.data.error)
+      ) {
+        settled = true;
         clearTimeout(timer);
         window.removeEventListener("message", handleMessage);
-        reject(new Error(msg.error || "User cancelled"));
+        const err = msg.error || (msg.data && msg.data.error) || "User cancelled";
+        const errMsg = typeof err === "string" ? err : (err.message || JSON.stringify(err));
+        reject(new Error(errMsg));
+        return;
       }
+
+      // ANY other message targeting erdw-contentScript resolves the pending action!
+      settled = true;
+      clearTimeout(timer);
+      window.removeEventListener("message", handleMessage);
+      resolve(msg.data !== undefined ? msg.data : msg);
     }
 
-    window.addEventListener("message", handleMessage);
-    window.postMessage({ target: "erdw-inpage", type, data }, "*");
+    window.addEventListener("message", handleMessage, false);
+    window.postMessage({ target: "erdw-inpage", type, data }, window.origin || "*");
   });
 }
 
