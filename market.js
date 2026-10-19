@@ -2065,15 +2065,22 @@ function renderMarketplaceGrid() {
     card.style.setProperty("--tier-color", tier.borderColor);
     card.style.setProperty("--tier-glow", `${tier.borderColor}66`);
 
+    const isKeeper = (item.collection === KEEPER_COLLECTION) || 
+      (item.identifier && item.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
+      (item.name && item.name.toLowerCase().includes("goalkeeper"));
+    const keeperFallback = "branding/original/GOALKEEPER-cb9e3e/logo.png";
+    const strikerFallback = "branding/original/EFOOTBALL-91a4eb/logo.png";
+    const cardImgUrl = item.url || (isKeeper ? keeperFallback : strikerFallback);
+
     const isEgld = item.currency === "EGLD" || item.currency === "WEGLD";
     const formattedPrice = isEgld
       ? (Number(item.price) === 0.5 ? "0.50" : (Number(item.price) < 0.1 ? Number(item.price).toFixed(3) : Number(item.price).toFixed(2)))
       : (typeof item.price === "number" ? item.price.toLocaleString("en-US") : item.price);
 
     const sellerShort = isOwner
-      ? (isHu ? "Te (Tulajdonos)" : (isRo ? "Tu (Proprietar)" : "You (Owner)"))
+      ? "You (Owner)"
       : isUltrasPassNft(item)
-      ? (isHu ? "Hivatalos Letét" : "Official Escrow")
+      ? "Official Escrow"
       : (item.seller && item.seller.startsWith("erd1") ? `${item.seller.slice(0, 6)}...${item.seller.slice(-4)}` : (item.seller || "Escrow"));
 
     card.innerHTML = `
@@ -2093,7 +2100,7 @@ function renderMarketplaceGrid() {
           : ""
       }
       <div class="mnc-media-wrap" data-inspect="${item.id}">
-        <img src="${item.url}" alt="${item.name}" class="mnc-media-img" loading="lazy" />
+        <img src="${cardImgUrl}" alt="${item.name}" class="mnc-media-img" loading="lazy" />
         <div class="mnc-rank-badge" style="border-color:${tier.borderColor}; color:${tier.borderColor};">
           ${tier.tierIcon} Rank #${tier.rank} • ${tier.tierLabel}
         </div>
@@ -2116,13 +2123,13 @@ function renderMarketplaceGrid() {
           <div class="mnc-title-tags">
             ${
               isUltrasPassNft(item)
-                ? `<span class="mnc-vip-tag" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:6px;">VIP PASS</span>`
-                : `<span class="mnc-role-tag">${item.jersey ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`
+                ? `<span class="mnc-vip-tag">VIP PASS</span>`
+                : `<span class="mnc-role-tag">${isKeeper ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`
             }
           </div>
         </div>
 
-        <p class="mnc-trait-desc">${isUltrasPassNft(item) ? (isHu ? "Élethosszig tartó 0% kereskedési díj az Áruházban • Match Booster" : "Lifetime 0% marketplace trading fee • Match Booster") : (item.trait || (item.isXoxno ? "Listed on XOXNO Marketplace" : "Sunday League Degen Ultra"))}</p>
+        <p class="mnc-trait-desc">${isUltrasPassNft(item) ? "Lifetime 0% marketplace trading fee • Match Booster" : (item.trait || (item.isXoxno ? "Listed on XOXNO Marketplace" : "Sunday League Degen Ultra"))}</p>
 
         <div class="mnc-powers-row">
           ${tier.powers.slice(0, 3).map((p) => `<span class="mnc-power-pill">${p}</span>`).join("")}
@@ -2130,12 +2137,14 @@ function renderMarketplaceGrid() {
 
         <div class="mnc-footer">
           <div class="mnc-price-box">
-            <span class="mnc-price-lbl">ASKING PRICE</span>
+            <div class="mnc-price-head">
+              <span class="mnc-price-lbl">ASKING PRICE</span>
+              <span class="mnc-seller-lbl">${item.isXoxno ? "⚡ XOXNO Listing" : `Seller: ${sellerShort}${hasUltrasPass(item.seller) ? ' <span class="mnc-seller-vip-crown" title="0% Fee VIP Ultras Seller">👑 VIP</span>' : ''}`}</span>
+            </div>
             <div class="mnc-price-row">
               <strong class="mnc-price-val">${formattedPrice}</strong>
               ${getCurrencyBadgeHtml(item.currency)}
             </div>
-            <span class="mnc-seller-lbl">${item.isXoxno ? "⚡ XOXNO Listing" : `Seller: ${sellerShort}${hasUltrasPass(item.seller) ? ' <span class="mnc-seller-vip-crown" title="0% Fee VIP Ultras Seller">👑 VIP</span>' : ''}`}</span>
           </div>
 
           <div class="mnc-action-wrap">
@@ -2295,11 +2304,11 @@ function renderMyLockerGrid() {
         <div class="mnc-body">
           <div class="mnc-title-row">
             <strong class="mnc-title" style="color:#ffb800;">${nft.name || "EFOO ULTRAS PASS"}</strong>
-            <span class="mnc-vip-tag" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:6px;">VIP PASS</span>
+            <span class="mnc-vip-tag">VIP PASS</span>
           </div>
 
           <p class="mnc-trait-desc" style="color:#f3f7f4;">
-            ${isHu ? "Élethosszig tartó 0% piactéri díjkedvezmény • +1.5x szorzó és +1 VIP pajzs a meccseken!" : "Lifetime 0% marketplace trading fee • +1.5x score multiplier & +1 VIP shield!"}
+            Lifetime 0% marketplace trading fee • +1.5x score multiplier & +1 VIP shield!
           </p>
 
           <div class="mnc-powers-row">
@@ -2310,14 +2319,17 @@ function renderMyLockerGrid() {
 
           <div class="mnc-footer">
             <div class="mnc-price-box">
-              <span class="mnc-price-lbl">MEMBERSHIP</span>
-              <strong class="mnc-price-val" style="color:var(--neon);">
-                👑 Active VIP Pass
-              </strong>
+              <div class="mnc-price-head">
+                <span class="mnc-price-lbl">MEMBERSHIP</span>
+                <span class="mnc-seller-lbl" style="color:#ffb800;">👑 Active VIP Pass</span>
+              </div>
+              <div class="mnc-price-row">
+                <strong class="mnc-price-val" style="color:var(--neon); font-size:1.05rem;">Lifetime 0% Fees</strong>
+              </div>
             </div>
 
             <div class="mnc-action-wrap">
-              <a href="https://xspotlight.com/nfts/${nft.identifier || 'EFOOPASS-5223a8-01'}" target="_blank" rel="noopener" class="m-btn-primary" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; text-decoration:none; padding:8px 12px; font-size:0.8rem; display:inline-flex; align-items:center; gap:6px;">
+              <a href="https://xspotlight.com/nfts/${nft.identifier || 'EFOOPASS-5223a8-01'}" target="_blank" rel="noopener" class="m-btn-primary" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; text-decoration:none; padding:8px 12px; font-size:0.85rem; display:flex; align-items:center; justify-content:center; gap:6px; width:100%; box-sizing:border-box;">
                 xSpotlight ↗
               </a>
             </div>
@@ -2355,7 +2367,7 @@ function renderMyLockerGrid() {
           <div class="mnc-title-tags">
             ${
               isUltrasPassNft(nft)
-                ? `<span class="mnc-vip-tag" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:6px;">VIP PASS</span>`
+                ? `<span class="mnc-vip-tag">VIP PASS</span>`
                 : `<span class="mnc-role-tag">${isKeeper ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`
             }
           </div>
@@ -2369,14 +2381,19 @@ function renderMyLockerGrid() {
 
         <div class="mnc-footer">
           <div class="mnc-price-box">
-            <span class="mnc-price-lbl">STATUS</span>
+            <div class="mnc-price-head">
+              <span class="mnc-price-lbl">STATUS</span>
+              <span class="mnc-seller-lbl" style="color:${isListed ? 'var(--gold)' : 'var(--neon)'};">${isListed ? '🏷️ Listed on Market' : '🎒 In Wallet'}</span>
+            </div>
             ${
               isListed
                 ? `<div class="mnc-price-row">
                      <strong class="mnc-price-val" style="color:var(--gold);">${isListed.currency === "EGLD" ? Number(isListed.price).toFixed(3) : Number(isListed.price).toLocaleString("en-US")}</strong>
                      ${getCurrencyBadgeHtml(isListed.currency)}
                    </div>`
-                : `<strong class="mnc-price-val" style="color:var(--neon);">Available in Locker</strong>`
+                : `<div class="mnc-price-row">
+                     <strong class="mnc-price-val" style="color:var(--neon); font-size:1.02rem;">Available in Locker</strong>
+                   </div>`
             }
           </div>
 
@@ -2387,7 +2404,7 @@ function renderMyLockerGrid() {
                      <button type="button" class="mnc-btn-edit" data-locker-edit="${isListed.id}">✏️ Edit</button>
                      <button type="button" class="mnc-btn-delist" data-locker-delist="${isListed.id}">✕ Withdraw</button>
                    </div>`
-                : `<button type="button" class="m-btn-primary" data-locker-list="${nft.identifier}">🏷️ SELL</button>`
+                : `<button type="button" class="m-btn-primary" data-locker-list="${nft.identifier}" style="width:100%; justify-content:center;">🏷️ SELL</button>`
             }
           </div>
         </div>
