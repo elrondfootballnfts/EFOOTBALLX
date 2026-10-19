@@ -6729,13 +6729,11 @@ function renderLeaderboardModal(options = {}) {
       postMatchBanner.innerHTML = `
         <div class="verified-winner-banner">
           <div class="gjs-head">
-            <span class="gjs-badge" style="background:rgba(168,255,0,0.2); border-color:#a8ff00; color:#a8ff00;">✅ HIVATALOS RANGLISTA RÖGZÍTVE</span>
+            <span class="gjs-badge" style="background:rgba(168,255,0,0.2); border-color:#a8ff00; color:#a8ff00;">✅ OFFICIAL LEADERBOARD VERIFIED</span>
             <span class="gjs-jackpot-share">${rankPill}</span>
           </div>
           <p class="gjs-desc" style="margin:0;">
-            ${currentLang === "hu"
-              ? `Gratulálunk! Az elért <strong>${currentScore.toLocaleString("en-US")} PTS</strong> pontszámod hivatalosan felkerült a heti Stadium Vault ranglistára a(z) <strong>#${userRank || 1}</strong> helyre!`
-              : `Congratulations! Your score of <strong>${currentScore.toLocaleString("en-US")} PTS</strong> is verified on the weekly Stadium Vault Leaderboard at <strong>#${userRank || 1}</strong>!`}
+            Congratulations! Your score of <strong>${currentScore.toLocaleString("en-US")} PTS</strong> is verified on the weekly Stadium Vault Leaderboard at <strong>#${userRank || 1}</strong>!
           </p>
         </div>
       `;
@@ -6749,42 +6747,34 @@ function renderLeaderboardModal(options = {}) {
 
       if (simulatedRank === 1) {
         const shareEst = Math.round(potVal * 0.65);
-        headline = currentLang === "hu" ? `🥇 65% ESÉLY A JACKPOTRA (~${shareEst.toLocaleString("en-US")} $EFOO)` : `🥇 65% JACKPOT ODDS (~${shareEst.toLocaleString("en-US")} $EFOO)`;
-        desc = currentLang === "hu"
-          ? `Ha bejelentkezve vagy NFT birtokosként játszanál, most <strong>ÁTVENNÉD AZ 1. HELYET</strong> és <strong>65% esélyed lenne megnyerni a heti Jackpotot</strong>! Mivel vendégként játszottál, ez az eredmény nem került mentésre a hivatalos ranglistára.`
-          : `If you were connected with an NFT, you would be <strong>#1 RANKED</strong> with <strong>65% chance to win the weekly Jackpot</strong>! As a guest, this score is simulated and not saved to the official leaderboard.`;
+        headline = `🥇 65% JACKPOT ODDS (~${shareEst.toLocaleString("en-US")} $EFOO)`;
+        desc = `If you were connected with an NFT, you would be <strong>#1 RANKED</strong> with <strong>65% chance to win the weekly Jackpot</strong>! As a guest, this score is simulated and not saved to the official leaderboard.`;
       } else if (simulatedRank === 2) {
         const shareEst = Math.round(potVal * 0.25);
-        headline = currentLang === "hu" ? `🥈 25% ESÉLY A JACKPOTRA (~${shareEst.toLocaleString("en-US")} $EFOO)` : `🥈 25% JACKPOT ODDS (~${shareEst.toLocaleString("en-US")} $EFOO)`;
-        desc = currentLang === "hu"
-          ? `Ha bejelentkezve vagy NFT birtokosként játszanál, most a <strong>2. HELYEN ÁLLNÁL</strong> és <strong>25% esélyed lenne a heti Jackpotra</strong>! Vendégként az eredményed csak szimuláció.`
-          : `If you were connected with an NFT, you would hold <strong>2ND PLACE</strong> with <strong>25% Jackpot odds</strong>! As a guest, your score is simulated.`;
+        headline = `🥈 25% JACKPOT ODDS (~${shareEst.toLocaleString("en-US")} $EFOO)`;
+        desc = `If you were connected with an NFT, you would hold <strong>2ND PLACE</strong> with <strong>25% Jackpot odds</strong>! As a guest, your score is simulated.`;
       } else if (simulatedRank === 3) {
         const shareEst = Math.round(potVal * 0.10);
-        headline = currentLang === "hu" ? `🥉 10% ESÉLY A JACKPOTRA (~${shareEst.toLocaleString("en-US")} $EFOO)` : `🥉 10% JACKPOT ODDS (~${shareEst.toLocaleString("en-US")} $EFOO)`;
-        desc = currentLang === "hu"
-          ? `Ha bejelentkezve vagy NFT birtokosként játszanál, most a <strong>3. HELYEN ÁLLNÁL</strong> és <strong>10% esélyed lenne a heti Jackpotra</strong>! Vendégként az eredményed csak szimuláció.`
-          : `If you were connected with an NFT, you would hold <strong>3RD PLACE</strong> with <strong>10% Jackpot odds</strong>! As a guest, your score is simulated.`;
+        headline = `🥉 10% JACKPOT ODDS (~${shareEst.toLocaleString("en-US")} $EFOO)`;
+        desc = `If you were connected with an NFT, you would hold <strong>3RD PLACE</strong> with <strong>10% Jackpot odds</strong>! As a guest, your score is simulated.`;
       } else {
         const top3Score = list.length >= 3 ? list[2].score : (list.length > 0 ? list[list.length - 1].score : 10000);
         const ptsNeeded = Math.max(0, top3Score - currentScore);
         const pctOfTop3 = Math.min(99, Math.round((currentScore / top3Score) * 100));
-        headline = currentLang === "hu" ? `⚡ #${simulatedRank}. HELY (TOP 3 KÖZELÉBEN: ${pctOfTop3}%)` : `⚡ #${simulatedRank} RANK (NEAR TOP 3: ${pctOfTop3}%)`;
-        desc = currentLang === "hu"
-          ? `A pontszámoddal a <strong>#${simulatedRank}</strong> helyen végeztél volna! Csupán <strong>${ptsNeeded.toLocaleString("en-US")} pont</strong> választott el a heti 10%-os Jackpot díjtól (~${Math.round(potVal * 0.10).toLocaleString("en-US")} $EFOO).`
-          : `With this score you would rank <strong>#${simulatedRank}</strong>! Only <strong>${ptsNeeded.toLocaleString("en-US")} PTS</strong> away from the 10% Jackpot prize tier (~${Math.round(potVal * 0.10).toLocaleString("en-US")} $EFOO).`;
+        headline = `⚡ #${simulatedRank} RANK (NEAR TOP 3: ${pctOfTop3}%)`;
+        desc = `With this score you would rank <strong>#${simulatedRank}</strong>! Only <strong>${ptsNeeded.toLocaleString("en-US")} PTS</strong> away from the 10% Jackpot prize tier (~${Math.round(potVal * 0.10).toLocaleString("en-US")} $EFOO).`;
       }
 
       postMatchBanner.innerHTML = `
         <div class="guest-jackpot-simulation-banner">
           <div class="gjs-head">
-            <span class="gjs-badge">${currentLang === "hu" ? `⚠️ VENDÉG SZIMULÁCIÓ • #${simulatedRank}. HELY` : `⚠️ GUEST SIMULATION • #${simulatedRank} RANK`}</span>
+            <span class="gjs-badge">⚠️ GUEST SIMULATION • #${simulatedRank} RANK</span>
             <span class="gjs-jackpot-share">${headline}</span>
           </div>
           <p class="gjs-desc">${desc}</p>
           <div class="gjs-cta-row">
             <button type="button" class="gjs-connect-btn" id="btn-gjs-connect-wallet">
-              ⚡ ${currentLang === "hu" ? "CSATLAKOZTASD A TÁRCÁD (MENTÉSHEZ & NYEREMÉNYHEZ)" : "CONNECT WALLET (TO SAVE & WIN JACKPOT)"}
+              ⚡ CONNECT WALLET (TO SAVE & WIN JACKPOT)
             </button>
           </div>
         </div>
@@ -6809,11 +6799,11 @@ function renderLeaderboardModal(options = {}) {
       rank: simulatedRank,
       address: "Guest",
       herotag: "",
-      nickname: currentLang === "hu" ? "TE (Vendég Játékos)" : "YOU (Guest Striker)",
+      nickname: "YOU (Guest Striker)",
       level: currentLevel,
       goals: currentGoals,
       score: currentScore,
-      date: currentLang === "hu" ? "Most (Szimuláció)" : "Just now (Simulated)",
+      date: "Just now (Simulated)",
       isGuest: true,
       isSimulated: true
     };
@@ -6832,8 +6822,8 @@ function renderLeaderboardModal(options = {}) {
     emptyTr.innerHTML = `
       <td colspan="6" style="text-align:center; padding:38px 16px; color:#94a3b8;">
         <div style="font-size:2.2rem; margin-bottom:8px;">🏟️ ⚽</div>
-        <strong style="color:#fff; font-size:1.05rem; letter-spacing:0.04em;">MÉG NINCS RÖGZÍTETT EREDMÉNY E HÉTEN</strong><br>
-        <span style="font-size:0.82rem; color:#64748b; margin-top:4px; display:inline-block;">Játssz le egy meccset, lőj gólokat, és légy te az #1 a vasárnapi Jackpotért!</span>
+        <strong style="color:#fff; font-size:1.05rem; letter-spacing:0.04em;">NO RECORDED SCORES THIS WEEK YET</strong><br>
+        <span style="font-size:0.82rem; color:#64748b; margin-top:4px; display:inline-block;">Play a match, score goals, and claim the #1 spot for the Sunday Jackpot!</span>
       </td>
     `;
     tbody.appendChild(emptyTr);
@@ -6862,7 +6852,7 @@ function renderLeaderboardModal(options = {}) {
     }
 
     const isHero = !!(herotag && herotag.trim().length > 0);
-    const shortAddr = row.isGuest ? (row.isSimulated ? (currentLang === "hu" ? "Nem mentve" : "Unsaved") : "Guest") : shortErd(row.address);
+    const shortAddr = row.isGuest ? (row.isSimulated ? "Unsaved" : "Guest") : shortErd(row.address);
     const isRowUltras = !row.isGuest && (row.isUltras || hasUltrasPass(row.address));
     const vipCrown = isRowUltras ? `<span class="ultras-vip-crown" title="👑 EFOO Ultras VIP Pass Active (0% Fees & 2x Jackpot Boost)">👑 VIP</span> ` : "";
     const displayName = row.isSimulated
@@ -6904,8 +6894,8 @@ function renderStartScreenLeaderboard() {
 
   if (countEl) {
     countEl.textContent = list.length === 0
-      ? (currentLang === "hu" ? "Még nincs rangsorolt játékos" : "0 Players Ranked")
-      : (currentLang === "hu" ? `${list.length} rangsorolt góllövő` : `${list.length} Player${list.length === 1 ? "" : "s"} Ranked`);
+      ? "0 Players Ranked"
+      : `${list.length} Player${list.length === 1 ? "" : "s"} Ranked`;
   }
 
   if (list.length === 0) {
@@ -6913,8 +6903,8 @@ function renderStartScreenLeaderboard() {
     emptyTr.innerHTML = `
       <td colspan="4" style="text-align:center; padding:28px 12px; color:#94a3b8;">
         <div style="font-size:1.8rem; margin-bottom:6px;">🏟️ ⚽</div>
-        <strong style="color:#fff; font-size:0.92rem; letter-spacing:0.04em;">MÉG NINCS HETI GÓLLÖVŐ</strong><br>
-        <span style="font-size:0.75rem; color:#64748b; margin-top:3px; display:inline-block;">Kattints a "PLAY MATCH NOW" gombra, lőj gólt és légy te az #1!</span>
+        <strong style="color:#fff; font-size:0.92rem; letter-spacing:0.04em;">NO WEEKLY SCORERS YET</strong><br>
+        <span style="font-size:0.75rem; color:#64748b; margin-top:3px; display:inline-block;">Click "PLAY MATCH NOW", score a goal and claim the #1 spot!</span>
       </td>
     `;
     tbody.appendChild(emptyTr);
