@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
 
   <link rel="canonical" href="https://efoo.optibase.ro/market" />
-  <link rel="stylesheet" href="market.css?v=20261019_v33_explorer_link_fix" />
+  <link rel="stylesheet" href="market.css?v=20261019_v34_wegld_only" />
 
   <!-- Clean URL: Strip amateur .html extension from browser address bar -->
   <script>
@@ -371,17 +371,17 @@
                 <!-- Custom Token Selector with Official Logos -->
                 <div class="custom-token-selector" id="m-swap-token-dropdown">
                   <button type="button" class="token-dropdown-trigger" id="m-token-trigger-btn">
-                    <img id="m-selected-token-icon" src="branding/icons/egld-logo.svg" alt="EGLD" class="token-logo-img" />
-                    <span id="m-selected-token-name" class="token-name-text">EGLD</span>
+                    <img id="m-selected-token-icon" src="branding/icons/egld-logo.svg" alt="WEGLD" class="token-logo-img" />
+                    <span id="m-selected-token-name" class="token-name-text">WEGLD</span>
                     <span class="token-chevron">▾</span>
                   </button>
                   <div class="token-dropdown-list hidden" id="m-token-menu-list">
-                    <!-- 1. WEGLD (Default, displayed as EGLD) -->
+                    <!-- 1. WEGLD (Default) -->
                     <div class="token-dropdown-item active" data-token-val="WEGLD">
-                      <img src="branding/icons/egld-logo.svg" alt="EGLD" class="token-dropdown-logo" />
+                      <img src="branding/icons/egld-logo.svg" alt="WEGLD" class="token-dropdown-logo" />
                       <div class="token-dropdown-info">
-                        <span class="td-symbol">EGLD</span>
-                        <span class="td-sub">Wrapped EGLD (OneDex Direct)</span>
+                        <span class="td-symbol">WEGLD</span>
+                        <span class="td-sub">Wrapped EGLD (ESDT)</span>
                       </div>
                       <span class="td-check">✔</span>
                     </div>
@@ -577,12 +577,12 @@
                     <span class="token-chevron">▾</span>
                   </button>
                   <div class="token-dropdown-list hidden" id="m-recv-token-menu-list">
-                    <!-- 1. WEGLD (Displayed as EGLD) -->
+                    <!-- 1. WEGLD -->
                     <div class="token-dropdown-item" data-recv-token-val="WEGLD">
-                      <img src="branding/icons/egld-logo.svg" alt="EGLD" class="token-dropdown-logo" />
+                      <img src="branding/icons/egld-logo.svg" alt="WEGLD" class="token-dropdown-logo" />
                       <div class="token-dropdown-info">
-                        <span class="td-symbol">EGLD</span>
-                        <span class="td-sub">Wrapped EGLD (OneDex Direct)</span>
+                        <span class="td-symbol">WEGLD</span>
+                        <span class="td-sub">Wrapped EGLD (ESDT)</span>
                       </div>
                       <span class="td-check">✔</span>
                     </div>
@@ -803,7 +803,7 @@
 
             <!-- RATE & TELEMETRY -->
             <div style="display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-sub); margin-bottom:18px; flex-wrap:wrap; gap:8px;">
-              <span id="m-swap-rate-lbl">1 EGLD ≈ 30,004,200 $EFOO</span>
+              <span id="m-swap-rate-lbl">1 WEGLD ≈ 30,004,200 $EFOO</span>
               <div class="m-swap-slippage-wrap">
                 <span>Slippage:</span>
                 <div class="m-slippage-pills">
@@ -1444,6 +1444,6 @@
   <div id="m-toast" class="m-toast hidden"></div>
 
   <!-- Scripts -->
-  <script src="market.js?v=20261019_v33_explorer_link_fix"></script>
+  <script src="market.js?v=20261019_v34_wegld_only"></script>
 </body>
 </html>

@@ -3854,16 +3854,16 @@ async function executeMarketMintKeeper() {
 
 const SWAP_TOKENS = {
   WEGLD: {
-    symbol: "EGLD",
+    symbol: "WEGLD",
     realSymbol: "WEGLD",
-    name: "EGLD",
-    sub: "Wrapped EGLD (OneDex Direct)",
+    name: "WEGLD",
+    sub: "Wrapped EGLD (ESDT)",
     identifier: "WEGLD-bd4d79",
     decimals: 18,
     icon: "branding/icons/egld-logo.svg",
     isRound: false,
-    route: "OneDex AMM (Direct)",
-    dex: "onedex_direct"
+    route: "xExchange & OneDex AMM",
+    dex: "direct"
   },
   USDC: {
     symbol: "USDC",
@@ -4054,7 +4054,7 @@ const SWAP_TOKENS = {
     decimals: 18,
     icon: "branding/icons/efoo-logo.png",
     isRound: true,
-    route: "OneDex AMM (Sell to EGLD)",
+    route: "OneDex AMM (Sell to WEGLD)",
     dex: "sell_efoo"
   }
 };
@@ -4202,12 +4202,7 @@ function applyMarketSwapMaxBalance() {
   if (tok === "EFOO") {
     maxBal = marketWallet.efooBalance || 0;
   } else if (tok === "WEGLD") {
-    const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
-    if (wegldBal > 0) {
-      maxBal = wegldBal;
-    } else {
-      maxBal = Math.max(0, (marketWallet.egldBalance || 0) - 0.005);
-    }
+    maxBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
   } else {
     maxBal = (marketWallet.tokens && marketWallet.tokens[tConf.identifier]) || 0;
   }
@@ -4262,7 +4257,7 @@ function updateMarketSwapEstimate(source = null) {
       balHint.textContent = `Balance: ${Math.floor(marketWallet.efooBalance || 0).toLocaleString()} $EFOO`;
     } else if (payTok === "WEGLD") {
       const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
-      balHint.textContent = `Balance: ${wegldBal.toFixed(4)} WEGLD (${(marketWallet.egldBalance || 0).toFixed(3)} EGLD)`;
+      balHint.textContent = `Balance: ${wegldBal.toFixed(4)} WEGLD`;
     } else {
       const tBal = (marketWallet.tokens && marketWallet.tokens[payConf.identifier]) || 0;
       balHint.textContent = `Balance: ${tBal > 0 ? (tBal < 1 ? tBal.toFixed(4) : tBal.toLocaleString()) : "0"} ${payConf.symbol}`;
@@ -4295,7 +4290,7 @@ function updateMarketSwapEstimate(source = null) {
   // 3. Bidirectional AMM Pool vs Universal DEX Router
   if (payTok === "WEGLD" && recvTok === "EFOO") {
     // Direct OneDex AMM (WEGLD <-> EFOO)
-    rateStr = `1 EGLD ≈ ${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO`;
+    rateStr = `1 WEGLD ≈ ${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO`;
     routeStr = "OneDex Direct AMM";
 
     if (source === "pay") {
@@ -4310,7 +4305,7 @@ function updateMarketSwapEstimate(source = null) {
     }
   } else if (payTok === "EFOO" && recvTok === "WEGLD") {
     // Direct OneDex AMM (EFOO <-> WEGLD)
-    rateStr = `${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO ≈ 1 EGLD`;
+    rateStr = `${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO ≈ 1 WEGLD`;
     routeStr = "OneDex Direct AMM";
 
     if (source === "pay") {
@@ -4356,7 +4351,7 @@ function updateMarketSwapEstimate(source = null) {
   } else if (payTok === "WEGLD" && recvTok === "USDC") {
     // Direct xExchange AMM (WEGLD <-> USDC)
     const egldPriceUsd = TOKEN_PRICES["WEGLD-bd4d79"] || 3.46;
-    rateStr = `1 EGLD ≈ ${egldPriceUsd.toFixed(2)} USDC`;
+    rateStr = `1 WEGLD ≈ ${egldPriceUsd.toFixed(2)} USDC`;
     routeStr = "xExchange Direct AMM (Deep Liquidity)";
 
     if (source === "pay") {
@@ -4368,7 +4363,7 @@ function updateMarketSwapEstimate(source = null) {
   } else if (payTok === "USDC" && recvTok === "WEGLD") {
     // Direct xExchange AMM (USDC <-> WEGLD)
     const egldPriceUsd = TOKEN_PRICES["WEGLD-bd4d79"] || 3.46;
-    rateStr = `1 USDC ≈ ${(1 / egldPriceUsd).toFixed(4)} EGLD`;
+    rateStr = `1 USDC ≈ ${(1 / egldPriceUsd).toFixed(4)} WEGLD`;
     routeStr = "xExchange Direct AMM (Deep Liquidity)";
 
     if (source === "pay") {
@@ -4506,42 +4501,14 @@ async function executeMarketSwap() {
   const payConf = SWAP_TOKENS[payTok] || SWAP_TOKENS.WEGLD;
   const recvConf = SWAP_TOKENS[recvTok] || SWAP_TOKENS.EFOO;
 
-  // 1. Balance validation & Auto-Wrap setup for native EGLD
-  let neededWrap = 0;
-  let wrapTx = null;
+  // 1. Balance validation for WEGLD and other tokens
+  const userTokBal = payTok === "EFOO"
+    ? (marketWallet.efooBalance || 0)
+    : ((marketWallet.tokens && marketWallet.tokens[payConf.identifier]) || 0);
 
-  if (payTok === "WEGLD") {
-    const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
-    const egldBal = marketWallet.egldBalance || 0;
-    const totalAvail = wegldBal + egldBal;
-
-    if (totalAvail < amt) {
-      showMarketToast(`⚠️ Insufficient balance! Required: ${amt} EGLD (Balance: ${wegldBal.toFixed(4)} WEGLD + ${egldBal.toFixed(4)} EGLD)`);
-      return;
-    }
-
-    if (wegldBal < amt) {
-      neededWrap = amt - wegldBal;
-      if (egldBal < neededWrap + 0.005) {
-        showMarketToast(`⚠️ Insufficient native EGLD! You need ${neededWrap.toFixed(4)} EGLD to wrap + 0.005 EGLD for network gas fees.`);
-        return;
-      }
-      const shard = marketWallet.shard !== undefined ? marketWallet.shard : 1;
-      const shardWrapper = CONTRACTS.WEGLD_WRAPPERS[shard] || CONTRACTS.WEGLD_WRAPPERS[1];
-      const wrapWei = toAtomicUnits(neededWrap, 18).toString();
-      wrapTx = {
-        receiver: shardWrapper,
-        value: wrapWei,
-        gasLimit: 8000000,
-        data: "wrapEgld"
-      };
-    }
-  } else {
-    const userTokBal = payTok === "EFOO" ? (marketWallet.efooBalance || 0) : ((marketWallet.tokens && marketWallet.tokens[payConf.identifier]) || 0);
-    if (userTokBal < amt) {
-      showMarketToast(`⚠️ Insufficient balance! Required: ${amt} ${payConf.symbol} (Balance: ${userTokBal.toLocaleString()} ${payConf.symbol})`);
-      return;
-    }
+  if (userTokBal < amt) {
+    showMarketToast(`⚠️ Insufficient ${payConf.symbol} balance! Required: ${amt} ${payConf.symbol} (Your balance: ${userTokBal > 0 ? (userTokBal < 1 ? userTokBal.toFixed(4) : userTokBal.toLocaleString()) : "0"} ${payConf.symbol})`);
+    return;
   }
 
   showMarketToast(`⏳ Preparing DEX Swap: ${amt} ${payConf.symbol} ➔ ${recvConf.symbol}...`);
@@ -4662,13 +4629,7 @@ async function executeMarketSwap() {
       };
     }
 
-    let txResult;
-    if (wrapTx) {
-      showMarketToast(`🔄 Auto-Wrapping ${neededWrap.toFixed(4)} EGLD to WEGLD and executing swap...`);
-      txResult = await sendMultiversxTransaction({ txs: [wrapTx, swapTx] });
-    } else {
-      txResult = await sendMultiversxTransaction(swapTx);
-    }
+    const txResult = await sendMultiversxTransaction(swapTx);
 
     const txHash = txResult?.hash || (Array.isArray(txResult?.hashes) ? txResult.hashes[txResult.hashes.length - 1] : null);
 
