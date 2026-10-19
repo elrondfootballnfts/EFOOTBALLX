@@ -4031,16 +4031,43 @@ async function fetchSwapTokenPrices() {
   } catch (e) {}
 }
 
+let currentMarketSwapPayToken = "WEGLD";
+let currentMarketSwapRecvToken = "EFOO";
+
 function setMarketSwapToken(tokenVal) {
+  setMarketSwapPayToken(tokenVal);
+}
+
+function setMarketSwapPayToken(tokenVal) {
+  if (tokenVal === currentMarketSwapRecvToken) {
+    currentMarketSwapRecvToken = tokenVal === "EFOO" ? "WEGLD" : "EFOO";
+    updateRecvTokenUI();
+  }
+  currentMarketSwapPayToken = tokenVal;
+  updatePayTokenUI();
+  updateMarketSwapEstimate();
+}
+
+function setMarketSwapRecvToken(tokenVal) {
+  if (tokenVal === currentMarketSwapPayToken) {
+    currentMarketSwapPayToken = tokenVal === "WEGLD" ? "EFOO" : "WEGLD";
+    updatePayTokenUI();
+  }
+  currentMarketSwapRecvToken = tokenVal;
+  updateRecvTokenUI();
+  updateMarketSwapEstimate();
+}
+
+function updatePayTokenUI() {
   const hiddenInput = document.getElementById("m-swap-token-select");
-  if (hiddenInput) hiddenInput.value = tokenVal;
+  if (hiddenInput) hiddenInput.value = currentMarketSwapPayToken;
 
   const triggerIcon = document.getElementById("m-selected-token-icon");
   const triggerName = document.getElementById("m-selected-token-name");
   const menuList = document.getElementById("m-token-menu-list");
   const dropdownWrap = document.getElementById("m-swap-token-dropdown");
 
-  const conf = SWAP_TOKENS[tokenVal] || SWAP_TOKENS.WEGLD;
+  const conf = SWAP_TOKENS[currentMarketSwapPayToken] || SWAP_TOKENS.WEGLD;
   if (conf) {
     if (triggerIcon) {
       triggerIcon.src = conf.icon;
@@ -4049,26 +4076,59 @@ function setMarketSwapToken(tokenVal) {
     if (triggerName) triggerName.textContent = conf.symbol || conf.name;
   }
 
-  // Update active state in menu items
+  // Update active state in pay menu items
   document.querySelectorAll("#m-token-menu-list .token-dropdown-item").forEach((item) => {
-    item.classList.toggle("active", item.getAttribute("data-token-val") === tokenVal);
+    item.classList.toggle("active", item.getAttribute("data-token-val") === currentMarketSwapPayToken);
   });
 
-  // Close dropdown
   menuList?.classList.add("hidden");
   dropdownWrap?.classList.remove("open");
+}
 
+function updateRecvTokenUI() {
+  const hiddenInput = document.getElementById("m-swap-recv-token-select");
+  if (hiddenInput) hiddenInput.value = currentMarketSwapRecvToken;
+
+  const triggerIcon = document.getElementById("m-selected-recv-token-icon");
+  const triggerName = document.getElementById("m-selected-recv-token-name");
+  const menuList = document.getElementById("m-recv-token-menu-list");
+  const dropdownWrap = document.getElementById("m-swap-recv-token-dropdown");
+
+  const conf = SWAP_TOKENS[currentMarketSwapRecvToken] || SWAP_TOKENS.EFOO;
+  if (conf) {
+    if (triggerIcon) {
+      triggerIcon.src = conf.icon;
+      triggerIcon.classList.toggle("round", !!conf.isRound);
+    }
+    if (triggerName) triggerName.textContent = conf.symbol || conf.name;
+  }
+
+  // Update active state in receive menu items
+  document.querySelectorAll("#m-recv-token-menu-list .token-dropdown-item").forEach((item) => {
+    item.classList.toggle("active", item.getAttribute("data-recv-token-val") === currentMarketSwapRecvToken);
+  });
+
+  menuList?.classList.add("hidden");
+  dropdownWrap?.classList.remove("open");
+}
+
+function flipMarketSwapDirection() {
+  const oldPay = currentMarketSwapPayToken;
+  const oldRecv = currentMarketSwapRecvToken;
+  currentMarketSwapPayToken = oldRecv;
+  currentMarketSwapRecvToken = oldPay;
+  updatePayTokenUI();
+  updateRecvTokenUI();
   updateMarketSwapEstimate();
 }
 
 let marketSwapSlippage = 1.0;
 
 function applyMarketSwapMaxBalance() {
-  const tokSelect = document.getElementById("m-swap-token-select");
   const amtInput = document.getElementById("m-swap-input-amt");
   if (!amtInput) return;
 
-  const tok = tokSelect?.value || "WEGLD";
+  const tok = currentMarketSwapPayToken || "WEGLD";
   const tConf = SWAP_TOKENS[tok] || SWAP_TOKENS.WEGLD;
   let maxBal = 0;
 
@@ -4086,12 +4146,7 @@ function applyMarketSwapMaxBalance() {
   }
 
   if (maxBal <= 0) {
-    const isHu = currentMarketLang === "hu";
-    showMarketToast(
-      isHu
-        ? `⚠️ Nincs elérhető ${tConf.symbol} egyenleg a tárcádban!`
-        : `⚠️ No ${tConf.symbol} balance available in your wallet!`
-    );
+    showMarketToast(`⚠️ No ${tConf.symbol} balance available in your wallet!`);
     return;
   }
 
@@ -4112,73 +4167,93 @@ function applyMarketSwapMaxBalance() {
 
 function updateMarketSwapEstimate() {
   const amtInput = document.getElementById("m-swap-input-amt");
-  const tokSelect = document.getElementById("m-swap-token-select");
   const outField = document.getElementById("m-swap-output-amt");
   const balHint = document.getElementById("m-swap-pay-bal");
   const rateLbl = document.getElementById("m-swap-rate-lbl");
   const routeTag = document.getElementById("m-swap-route-tag");
-  const recvIcon = document.getElementById("m-swap-recv-icon");
-  const recvTicker = document.getElementById("m-swap-recv-ticker");
   const actionBtn = document.getElementById("m-btn-exec-swap");
-  const isHu = currentMarketLang === "hu";
 
   const amt = Math.max(0, parseFloat(amtInput?.value) || 0);
-  const tok = tokSelect?.value || "WEGLD";
-  const tConf = SWAP_TOKENS[tok] || SWAP_TOKENS.WEGLD;
+  const payTok = currentMarketSwapPayToken || "WEGLD";
+  const recvTok = currentMarketSwapRecvToken || "EFOO";
 
-  // Update Balance Hint
+  const payConf = SWAP_TOKENS[payTok] || SWAP_TOKENS.WEGLD;
+  const recvConf = SWAP_TOKENS[recvTok] || SWAP_TOKENS.EFOO;
+
+  // 1. Update Pay Balance Hint
   if (balHint) {
     if (!marketWallet.address) {
       balHint.textContent = "Balance: —";
-    } else if (tok === "EFOO") {
+    } else if (payTok === "EFOO") {
       balHint.textContent = `Balance: ${Math.floor(marketWallet.efooBalance || 0).toLocaleString()} $EFOO`;
-    } else if (tok === "WEGLD") {
+    } else if (payTok === "WEGLD") {
       const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
       balHint.textContent = `Balance: ${wegldBal.toFixed(4)} WEGLD (${(marketWallet.egldBalance || 0).toFixed(3)} EGLD)`;
     } else {
-      const tBal = (marketWallet.tokens && marketWallet.tokens[tConf.identifier]) || 0;
-      balHint.textContent = `Balance: ${tBal > 0 ? (tBal < 1 ? tBal.toFixed(4) : tBal.toLocaleString()) : "0"} ${tConf.symbol}`;
+      const tBal = (marketWallet.tokens && marketWallet.tokens[payConf.identifier]) || 0;
+      balHint.textContent = `Balance: ${tBal > 0 ? (tBal < 1 ? tBal.toFixed(4) : tBal.toLocaleString()) : "0"} ${payConf.symbol}`;
     }
   }
 
-  if (tok === "EFOO") {
-    // Selling EFOO for EGLD (WEGLD)
+  let estOut = 0;
+  let rateStr = "";
+  let routeStr = "";
+
+  // 2. Direct AMM Pool vs Universal DEX Router
+  if (payTok === "WEGLD" && recvTok === "EFOO") {
+    // Direct OneDex AMM (WEGLD -> EFOO)
     const amtInWithFee = amt * 0.99;
-    const estEgld = amt > 0 ? (marketDexState.onedexWegldReserve * amtInWithFee) / (marketDexState.onedexEfooReserve + amtInWithFee) : 0;
-    if (outField) outField.value = `~${estEgld.toFixed(4)}`;
-    if (recvIcon) {
-      recvIcon.src = "branding/icons/egld-logo.svg";
-      recvIcon.classList.remove("round");
-    }
-    if (recvTicker) recvTicker.textContent = "EGLD";
-    if (rateLbl) rateLbl.textContent = `${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO ≈ 1 EGLD`;
-    if (routeTag) routeTag.textContent = "Route: OneDex AMM";
-    if (actionBtn) actionBtn.textContent = `⚡ Sell ${amt.toLocaleString()} $EFOO ➔ EGLD`;
-    updateMarketBonusUI(0);
+    estOut = amt > 0 ? Math.floor((marketDexState.onedexEfooReserve * amtInWithFee) / (marketDexState.onedexWegldReserve + amtInWithFee)) : 0;
+    rateStr = `1 EGLD ≈ ${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO`;
+    routeStr = "OneDex Direct AMM";
+  } else if (payTok === "EFOO" && recvTok === "WEGLD") {
+    // Direct OneDex AMM (EFOO -> WEGLD)
+    const amtInWithFee = amt * 0.99;
+    estOut = amt > 0 ? ((marketDexState.onedexWegldReserve * amtInWithFee) / (marketDexState.onedexEfooReserve + amtInWithFee)) : 0;
+    rateStr = `${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO ≈ 1 EGLD`;
+    routeStr = "OneDex Direct AMM";
+  } else if (payTok === "USDC" && recvTok === "EFOO") {
+    // Direct xExchange AMM (USDC -> EFOO)
+    const amtInWithFee = amt * 0.997;
+    estOut = amt > 0 ? Math.floor((marketDexState.xexEfooReserve * amtInWithFee) / (marketDexState.xexUsdcReserve + amtInWithFee)) : 0;
+    rateStr = `1 USDC ≈ ${marketDexState.efooPerUsdc.toLocaleString("en-US")} $EFOO`;
+    routeStr = "xExchange Direct AMM";
+  } else if (payTok === "EFOO" && recvTok === "USDC") {
+    // Direct xExchange AMM (EFOO -> USDC)
+    const amtInWithFee = amt * 0.997;
+    estOut = amt > 0 ? ((marketDexState.xexUsdcReserve * amtInWithFee) / (marketDexState.xexEfooReserve + amtInWithFee)) : 0;
+    rateStr = `${marketDexState.efooPerUsdc.toLocaleString("en-US")} $EFOO ≈ 1 USDC`;
+    routeStr = "xExchange Direct AMM";
   } else {
-    // Buying EFOO
-    let estOut = 0;
-    let rateStr = "";
-    let routeStr = tConf.route || "OneDex AMM";
+    // Universal Multi-Token Router via live MultiversX DEX Oracle prices
+    const payPrice = TOKEN_PRICES[payConf.identifier] || 0.01;
+    const recvPrice = TOKEN_PRICES[recvConf.identifier] || 0.01;
+    const ratio = recvPrice > 0 ? (payPrice / recvPrice) : 1;
+    estOut = amt * ratio * 0.985; // 1.5% fee + slippage buffer
 
-    if (tok === "USDC") {
-      const amtInWithFee = amt * 0.997;
-      estOut = amt > 0 ? Math.floor((marketDexState.xexEfooReserve * amtInWithFee) / (marketDexState.xexUsdcReserve + amtInWithFee)) : 0;
-      rateStr = `1 USDC ≈ ${marketDexState.efooPerUsdc.toLocaleString("en-US")} $EFOO`;
-    } else if (tok === "WEGLD") {
-      const amtInWithFee = amt * 0.99;
-      estOut = amt > 0 ? Math.floor((marketDexState.onedexEfooReserve * amtInWithFee) / (marketDexState.onedexWegldReserve + amtInWithFee)) : 0;
-      rateStr = `1 EGLD ≈ ${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO`;
+    // Format rate string
+    if (ratio < 0.0001) {
+      rateStr = `1 ${payConf.symbol} ≈ ${ratio.toFixed(8)} ${recvConf.symbol}`;
+    } else if (ratio < 1) {
+      rateStr = `1 ${payConf.symbol} ≈ ${ratio.toFixed(4)} ${recvConf.symbol}`;
+    } else if (ratio > 1000) {
+      rateStr = `1 ${payConf.symbol} ≈ ${Math.round(ratio).toLocaleString("en-US")} ${recvConf.symbol}`;
     } else {
-      // Dynamic calculation for other tokens based on live USD pricing
-      const tokenUsd = TOKEN_PRICES[tConf.identifier] || 0.01;
-      const efooUsd = TOKEN_PRICES["EFOO-8fe2d4"] || 0.00000012257;
-      const tokensPerEfoo = efooUsd > 0 ? (tokenUsd / efooUsd) : 1;
-      estOut = Math.floor(amt * tokensPerEfoo * 0.985);
-      rateStr = `1 ${tConf.symbol} ≈ ${Math.round(tokensPerEfoo).toLocaleString("en-US")} $EFOO`;
+      rateStr = `1 ${payConf.symbol} ≈ ${ratio.toFixed(2)} ${recvConf.symbol}`;
     }
 
-    // Update manual bonus UI state & tooltip dynamically based on live estOut
+    if (payTok === "WEGLD" || recvTok === "WEGLD") {
+      routeStr = `OneDex (${payConf.symbol} ➔ ${recvConf.symbol})`;
+    } else {
+      routeStr = `OneDex Router (${payConf.symbol} ➔ WEGLD ➔ ${recvConf.symbol})`;
+    }
+  }
+
+  // 3. Format Output Field & Starter Bonus
+  if (recvTok === "EFOO") {
+    estOut = Math.floor(estOut);
+    const bonusRow = document.getElementById("m-swap-bonus-row");
+    if (bonusRow) bonusRow.style.removeProperty("display");
     updateMarketBonusUI(estOut);
 
     const bonusCheckbox = document.getElementById("m-swap-bonus-checkbox");
@@ -4191,14 +4266,38 @@ function updateMarketSwapEstimate() {
         outField.value = `~${estOut.toLocaleString("en-US")} $EFOO`;
       }
     }
-    if (recvIcon) {
-      recvIcon.src = "branding/icons/efoo-logo.png";
-      recvIcon.classList.add("round");
+  } else {
+    const bonusRow = document.getElementById("m-swap-bonus-row");
+    if (bonusRow) bonusRow.style.setProperty("display", "none");
+    updateMarketBonusUI(0);
+
+    let formattedOut = "";
+    if (recvTok === "WBTC") {
+      formattedOut = `~${estOut.toFixed(6)} WBTC`;
+    } else if (recvTok === "WETH") {
+      formattedOut = `~${estOut.toFixed(5)} WETH`;
+    } else if (recvTok === "WEGLD") {
+      formattedOut = `~${estOut.toFixed(4)} EGLD`;
+    } else if (recvTok === "USDC") {
+      formattedOut = `~${estOut.toFixed(2)} USDC`;
+    } else if (estOut < 0.0001) {
+      formattedOut = `~${estOut.toFixed(6).replace(/0+$/, "")} ${recvConf.symbol}`;
+    } else if (estOut < 1) {
+      formattedOut = `~${estOut.toFixed(4)} ${recvConf.symbol}`;
+    } else if (estOut >= 1000) {
+      formattedOut = `~${Math.floor(estOut).toLocaleString("en-US")} ${recvConf.symbol}`;
+    } else {
+      formattedOut = `~${estOut.toFixed(2)} ${recvConf.symbol}`;
     }
-    if (recvTicker) recvTicker.textContent = "$EFOO";
-    if (rateLbl) rateLbl.textContent = rateStr;
-    if (routeTag) routeTag.textContent = `Route: ${routeStr}`;
-    if (actionBtn) actionBtn.textContent = `⚡ Swap ${amt} ${tConf.symbol} ➔ $EFOO On-Chain`;
+
+    if (outField) outField.value = formattedOut;
+  }
+
+  if (rateLbl) rateLbl.textContent = rateStr;
+  if (routeTag) routeTag.textContent = `Route: ${routeStr}`;
+  if (actionBtn) {
+    const formattedAmt = amt >= 1000 ? Math.floor(amt).toLocaleString("en-US") : amt;
+    actionBtn.textContent = `⚡ Swap ${formattedAmt} ${payConf.symbol} ➔ ${recvConf.symbol} On-Chain`;
   }
 }
 
@@ -4210,19 +4309,29 @@ async function executeMarketSwap() {
   }
 
   const amt = Math.max(0.0001, parseFloat(document.getElementById("m-swap-input-amt")?.value) || 0.01);
-  const tok = document.getElementById("m-swap-token-select")?.value || "WEGLD";
-  const tConf = SWAP_TOKENS[tok] || SWAP_TOKENS.WEGLD;
+  const payTok = currentMarketSwapPayToken || "WEGLD";
+  const recvTok = currentMarketSwapRecvToken || "EFOO";
 
-  showMarketToast(`⏳ Preparing DEX Swap: ${amt} ${tConf.symbol}...`);
+  if (payTok === recvTok) {
+    showMarketToast("⚠️ Please select different tokens to swap!");
+    return;
+  }
+
+  const payConf = SWAP_TOKENS[payTok] || SWAP_TOKENS.WEGLD;
+  const recvConf = SWAP_TOKENS[recvTok] || SWAP_TOKENS.EFOO;
+
+  showMarketToast(`⏳ Preparing DEX Swap: ${amt} ${payConf.symbol} ➔ ${recvConf.symbol}...`);
 
   try {
-    if (tok === "EFOO") {
-      // Selling EFOO -> WEGLD (unwrap to native EGLD)
+    const payDec = payConf.decimals !== undefined ? payConf.decimals : 18;
+    const payAmtHex = bigIntToHex(toAtomicUnits(amt, payDec));
+
+    if (payTok === "EFOO" && recvTok === "WEGLD") {
+      // Selling EFOO -> WEGLD (OneDex direct)
       const efooHex = stringToHex("EFOO-8fe2d4");
       const wegldHex = stringToHex("WEGLD-bd4d79");
-      const amtHex = bigIntToHex(toAtomicUnits(amt, 18));
       const funcHex = stringToHex("swapMultiTokensFixedInput");
-      const data = `ESDTTransfer@${efooHex}@${amtHex}@${funcHex}@01@01@${efooHex}@${wegldHex}`;
+      const data = `ESDTTransfer@${efooHex}@${payAmtHex}@${funcHex}@01@01@${efooHex}@${wegldHex}`;
 
       await sendMultiversxTransaction({
         receiver: CONTRACTS.ONEDEX_PAIR,
@@ -4230,13 +4339,12 @@ async function executeMarketSwap() {
         gasLimit: 85000000,
         data
       });
-    } else if (tok === "WEGLD") {
-      // Direct Single-Transaction WEGLD -> EFOO swap (No separate wrap transaction!)
+    } else if (payTok === "WEGLD" && recvTok === "EFOO") {
+      // Direct Single-Transaction WEGLD -> EFOO swap
       const tokenHex = stringToHex("WEGLD-bd4d79");
-      const amtHex = bigIntToHex(toAtomicUnits(amt, 18));
       const funcHex = stringToHex("swapMultiTokensFixedInput");
       const efooHex = stringToHex("EFOO-8fe2d4");
-      const data = `ESDTTransfer@${tokenHex}@${amtHex}@${funcHex}@01@@${tokenHex}@${efooHex}`;
+      const data = `ESDTTransfer@${tokenHex}@${payAmtHex}@${funcHex}@01@@${tokenHex}@${efooHex}`;
 
       await sendMultiversxTransaction({
         receiver: CONTRACTS.ONEDEX_PAIR,
@@ -4244,13 +4352,12 @@ async function executeMarketSwap() {
         gasLimit: 85000000,
         data
       });
-    } else if (tok === "USDC") {
+    } else if (payTok === "USDC" && recvTok === "EFOO") {
       // xExchange USDC -> EFOO
       const usdcHex = stringToHex("USDC-c76f1f");
-      const amtHex = bigIntToHex(toAtomicUnits(amt, 6));
       const funcHex = stringToHex("swapTokensFixedInput");
       const efooHex = stringToHex("EFOO-8fe2d4");
-      const data = `ESDTTransfer@${usdcHex}@${amtHex}@${funcHex}@${efooHex}@01`;
+      const data = `ESDTTransfer@${usdcHex}@${payAmtHex}@${funcHex}@${efooHex}@01`;
 
       await sendMultiversxTransaction({
         receiver: CONTRACTS.XEXCHANGE_PAIR,
@@ -4258,15 +4365,52 @@ async function executeMarketSwap() {
         gasLimit: 60000000,
         data
       });
-    } else {
-      // Multi-hop routing on OneDex: TokenIn -> WEGLD -> EFOO
-      const tokenInHex = stringToHex(tConf.identifier);
-      const dec = tConf.decimals !== undefined ? tConf.decimals : 18;
-      const amtHex = bigIntToHex(toAtomicUnits(amt, dec));
-      const funcHex = stringToHex("swapMultiTokensFixedInput");
-      const wegldHex = stringToHex("WEGLD-bd4d79");
+    } else if (payTok === "EFOO" && recvTok === "USDC") {
+      // xExchange EFOO -> USDC
       const efooHex = stringToHex("EFOO-8fe2d4");
-      const data = `ESDTTransfer@${tokenInHex}@${amtHex}@${funcHex}@01@@${tokenInHex}@${wegldHex}@${efooHex}`;
+      const funcHex = stringToHex("swapTokensFixedInput");
+      const usdcHex = stringToHex("USDC-c76f1f");
+      const data = `ESDTTransfer@${efooHex}@${payAmtHex}@${funcHex}@${usdcHex}@01`;
+
+      await sendMultiversxTransaction({
+        receiver: CONTRACTS.XEXCHANGE_PAIR,
+        value: "0",
+        gasLimit: 60000000,
+        data
+      });
+    } else if (payTok === "WEGLD") {
+      // Direct router WEGLD -> TokenOut on OneDex
+      const wegldHex = stringToHex("WEGLD-bd4d79");
+      const tokenOutHex = stringToHex(recvConf.identifier);
+      const funcHex = stringToHex("swapMultiTokensFixedInput");
+      const data = `ESDTTransfer@${wegldHex}@${payAmtHex}@${funcHex}@01@@${wegldHex}@${tokenOutHex}`;
+
+      await sendMultiversxTransaction({
+        receiver: CONTRACTS.ONEDEX_PAIR,
+        value: "0",
+        gasLimit: 85000000,
+        data
+      });
+    } else if (recvTok === "WEGLD") {
+      // Direct router TokenIn -> WEGLD on OneDex
+      const tokenInHex = stringToHex(payConf.identifier);
+      const wegldHex = stringToHex("WEGLD-bd4d79");
+      const funcHex = stringToHex("swapMultiTokensFixedInput");
+      const data = `ESDTTransfer@${tokenInHex}@${payAmtHex}@${funcHex}@01@@${tokenInHex}@${wegldHex}`;
+
+      await sendMultiversxTransaction({
+        receiver: CONTRACTS.ONEDEX_PAIR,
+        value: "0",
+        gasLimit: 85000000,
+        data
+      });
+    } else {
+      // Universal multi-hop routing on OneDex: TokenIn -> WEGLD -> TokenOut
+      const tokenInHex = stringToHex(payConf.identifier);
+      const tokenOutHex = stringToHex(recvConf.identifier);
+      const wegldHex = stringToHex("WEGLD-bd4d79");
+      const funcHex = stringToHex("swapMultiTokensFixedInput");
+      const data = `ESDTTransfer@${tokenInHex}@${payAmtHex}@${funcHex}@01@@${tokenInHex}@${wegldHex}@${tokenOutHex}`;
 
       await sendMultiversxTransaction({
         receiver: CONTRACTS.ONEDEX_PAIR,
@@ -4277,7 +4421,7 @@ async function executeMarketSwap() {
     }
 
     const bonusCheckbox = document.getElementById("m-swap-bonus-checkbox");
-    const isBonusChecked = bonusCheckbox && bonusCheckbox.checked && !bonusCheckbox.disabled;
+    const isBonusChecked = bonusCheckbox && bonusCheckbox.checked && !bonusCheckbox.disabled && recvTok === "EFOO";
 
     let bonusToast = "";
     if (isBonusChecked) {
@@ -4286,7 +4430,7 @@ async function executeMarketSwap() {
     }
 
     showMarketToast(
-      `🎉 Swap transaction dispatched! Your $EFOO is being confirmed on-chain!${bonusToast}`,
+      `🎉 Swap transaction dispatched! Your ${recvConf.symbol} is being confirmed on-chain!${bonusToast}`,
       8000
     );
 
@@ -4478,22 +4622,49 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Pay Token Dropdown Trigger & Selection
   const tokenTriggerBtn = document.getElementById("m-token-trigger-btn");
   const tokenMenuList = document.getElementById("m-token-menu-list");
   const tokenDropdownWrap = document.getElementById("m-swap-token-dropdown");
 
+  // Receive Token Dropdown Trigger & Selection
+  const recvTokenTriggerBtn = document.getElementById("m-recv-token-trigger-btn");
+  const recvTokenMenuList = document.getElementById("m-recv-token-menu-list");
+  const recvTokenDropdownWrap = document.getElementById("m-swap-recv-token-dropdown");
+
   tokenTriggerBtn?.addEventListener("click", (e) => {
     e.stopPropagation();
+    recvTokenMenuList?.classList.add("hidden");
+    recvTokenDropdownWrap?.classList.remove("open");
+
     const isHidden = tokenMenuList?.classList.contains("hidden");
     tokenMenuList?.classList.toggle("hidden", !isHidden);
     tokenDropdownWrap?.classList.toggle("open", isHidden);
   });
 
-  document.querySelectorAll(".token-dropdown-item").forEach((item) => {
+  document.querySelectorAll("#m-token-menu-list .token-dropdown-item").forEach((item) => {
     item.addEventListener("click", (e) => {
       e.stopPropagation();
       const val = item.getAttribute("data-token-val");
-      if (val) setMarketSwapToken(val);
+      if (val) setMarketSwapPayToken(val);
+    });
+  });
+
+  recvTokenTriggerBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    tokenMenuList?.classList.add("hidden");
+    tokenDropdownWrap?.classList.remove("open");
+
+    const isHidden = recvTokenMenuList?.classList.contains("hidden");
+    recvTokenMenuList?.classList.toggle("hidden", !isHidden);
+    recvTokenDropdownWrap?.classList.toggle("open", isHidden);
+  });
+
+  document.querySelectorAll("#m-recv-token-menu-list .token-dropdown-item").forEach((item) => {
+    item.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const val = item.getAttribute("data-recv-token-val");
+      if (val) setMarketSwapRecvToken(val);
     });
   });
 
@@ -4502,12 +4673,14 @@ document.addEventListener("DOMContentLoaded", () => {
       tokenMenuList?.classList.add("hidden");
       tokenDropdownWrap?.classList.remove("open");
     }
+    if (!recvTokenDropdownWrap?.contains(e.target)) {
+      recvTokenMenuList?.classList.add("hidden");
+      recvTokenDropdownWrap?.classList.remove("open");
+    }
   });
 
   document.getElementById("m-swap-flip-btn")?.addEventListener("click", () => {
-    const currentVal = document.getElementById("m-swap-token-select")?.value || "WEGLD";
-    const nextVal = currentVal === "EFOO" ? "WEGLD" : "EFOO";
-    setMarketSwapToken(nextVal);
+    flipMarketSwapDirection();
   });
 
   document.getElementById("m-btn-exec-swap")?.addEventListener("click", executeMarketSwap);
@@ -4850,8 +5023,16 @@ function updateMarketBonusUI(currentEstOut = null) {
   if (!row || !checkbox) return;
 
   const addr = marketWallet.address;
-  const tok = document.getElementById("m-swap-token-select")?.value || "WEGLD";
-  const isBuyingEfoo = (tok !== "EFOO");
+  const recvTok = currentMarketSwapRecvToken || document.getElementById("m-swap-recv-token-select")?.value || "EFOO";
+  const isBuyingEfoo = (recvTok === "EFOO");
+
+  if (!isBuyingEfoo) {
+    row.style.setProperty("display", "none");
+    checkbox.disabled = true;
+    checkbox.checked = false;
+    return;
+  }
+  row.style.removeProperty("display");
 
   // Determine current estimated output if not passed
   let estOut = typeof currentEstOut === "number" ? currentEstOut : 0;
@@ -4907,19 +5088,6 @@ function updateMarketBonusUI(currentEstOut = null) {
       labelText.innerHTML = `<strong>🎁 +500,000 $EFOO</strong> Starter Bonus <span class="m-bonus-badge claimed">Already Claimed</span>`;
     }
     if (statusText) statusText.textContent = "Already Claimed (Strictly 1x per address)";
-    if (linksBox) linksBox.style.display = "none";
-    return;
-  }
-
-  // 3. Selling EFOO (bonus only when buying EFOO)
-  if (!isBuyingEfoo) {
-    checkbox.disabled = true;
-    checkbox.checked = false;
-    row.className = "m-swap-bonus-row disabled";
-    if (labelText) {
-      labelText.innerHTML = `<strong>🎁 +500,000 $EFOO</strong> Starter Bonus`;
-    }
-    if (statusText) statusText.textContent = "Available only when buying $EFOO";
     if (linksBox) linksBox.style.display = "none";
     return;
   }

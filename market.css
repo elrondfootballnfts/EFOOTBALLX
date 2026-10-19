@@ -2530,6 +2530,18 @@ body {
     min-height: 48px;
     font-size: 1.2rem;
   }
+  .token-dropdown-trigger {
+    padding: 7px 10px;
+    font-size: 0.88rem;
+    gap: 6px;
+  }
+  .token-logo-img {
+    width: 20px;
+    height: 20px;
+  }
+  .token-dropdown-list {
+    width: min(280px, calc(100vw - 48px));
+  }
 
   /* Modals */
   .m-modal-card {
@@ -3436,6 +3448,11 @@ body {
   border-radius: 16px;
   padding: 16px;
   margin-bottom: 12px;
+  position: relative;
+}
+.ms-token-box.open-box,
+.ms-token-box:has(.custom-token-selector.open) {
+  z-index: 1060;
 }
 .ms-token-head {
   display: flex;

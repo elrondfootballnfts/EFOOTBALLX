@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
 
   <link rel="canonical" href="https://efoo.optibase.ro/market" />
-  <link rel="stylesheet" href="market.css?v=20261019_v30_card_layout_reorg" />
+  <link rel="stylesheet" href="market.css?v=20261019_v31_multi_token_swap" />
 
   <!-- Clean URL: Strip amateur .html extension from browser address bar -->
   <script>
@@ -352,8 +352,8 @@
       <div id="panel-swap" class="m-tab-panel hidden">
         <div class="m-tab-header">
           <span class="m-kicker">🔄 MULTIVERSX ON-CHAIN DEX ROUTER</span>
-          <h2>DIRECT $EFOO TOKEN SWAP</h2>
-          <p>Swap native <code>EGLD</code>, <code>WEGLD</code>, or <code>USDC</code> directly for <code>$EFOO</code> with instant execution through verified OneDex &amp; xExchange smart contracts.</p>
+          <h2>DEGEN MULTI-TOKEN DEX SWAP</h2>
+          <p>Instant on-chain swapping between <code>$EFOO</code>, <code>EGLD</code>, <code>USDC</code>, <code>FOXSY</code>, <code>WETH</code>, <code>WBTC</code>, and all major MultiversX tokens via verified OneDex &amp; xExchange smart contracts.</p>
         </div>
 
         <div class="market-swap-wrap">
@@ -536,12 +536,12 @@
                       <span class="td-check">✔</span>
                     </div>
 
-                    <!-- 17. EFOO (Sell for EGLD) -->
+                    <!-- 17. EFOO -->
                     <div class="token-dropdown-item" data-token-val="EFOO">
                       <img src="branding/icons/efoo-logo.png" alt="EFOO" class="token-dropdown-logo round" />
                       <div class="token-dropdown-info">
                         <span class="td-symbol">$EFOO</span>
-                        <span class="td-sub">Sell $EFOO for EGLD</span>
+                        <span class="td-sub">Sunday League Degen FC</span>
                       </div>
                       <span class="td-check">✔</span>
                     </div>
@@ -565,9 +565,187 @@
               </div>
               <div class="ms-token-row">
                 <input type="text" id="m-swap-output-amt" class="ms-input-amt" style="color:var(--neon);" value="~2,995,000" readonly />
-                <div class="token-recv-pill-box" id="m-swap-recv-token-badge">
-                  <img id="m-swap-recv-icon" src="branding/icons/efoo-logo.png" alt="EFOO" class="token-logo-img round" />
-                  <span id="m-swap-recv-ticker">$EFOO</span>
+                
+                <!-- Custom Token Selector for Receive with Official Logos -->
+                <div class="custom-token-selector" id="m-swap-recv-token-dropdown">
+                  <button type="button" class="token-dropdown-trigger" id="m-recv-token-trigger-btn">
+                    <img id="m-selected-recv-token-icon" src="branding/icons/efoo-logo.png" alt="EFOO" class="token-logo-img round" />
+                    <span id="m-selected-recv-token-name" class="token-name-text">$EFOO</span>
+                    <span class="token-chevron">▾</span>
+                  </button>
+                  <div class="token-dropdown-list hidden" id="m-recv-token-menu-list">
+                    <!-- 1. WEGLD (Displayed as EGLD) -->
+                    <div class="token-dropdown-item" data-recv-token-val="WEGLD">
+                      <img src="branding/icons/egld-logo.svg" alt="EGLD" class="token-dropdown-logo" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">EGLD</span>
+                        <span class="td-sub">Wrapped EGLD (OneDex Direct)</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+
+                    <!-- 2. USDC -->
+                    <div class="token-dropdown-item" data-recv-token-val="USDC">
+                      <img src="branding/icons/usdc-logo.svg" alt="USDC" class="token-dropdown-logo" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">USDC</span>
+                        <span class="td-sub">USD Coin (xExchange)</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+
+                    <!-- 3. FOXSY -->
+                    <div class="token-dropdown-item" data-recv-token-val="FOXSY">
+                      <img src="branding/icons/foxsy-logo.svg" alt="FOXSY" class="token-dropdown-logo round" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">FOXSY</span>
+                        <span class="td-sub">Foxsy AI</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+
+                    <!-- 4. MEX -->
+                    <div class="token-dropdown-item" data-recv-token-val="MEX">
+                      <img src="branding/icons/mex-logo.svg" alt="MEX" class="token-dropdown-logo" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">MEX</span>
+                        <span class="td-sub">xExchange Token</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+
+                    <!-- 5. WBTC -->
+                    <div class="token-dropdown-item" data-recv-token-val="WBTC">
+                      <img src="branding/icons/wbtc-logo.svg" alt="WBTC" class="token-dropdown-logo" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">WBTC</span>
+                        <span class="td-sub">Wrapped Bitcoin</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+
+                    <!-- 6. WETH -->
+                    <div class="token-dropdown-item" data-recv-token-val="WETH">
+                      <img src="branding/icons/weth-logo.svg" alt="WETH" class="token-dropdown-logo" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">WETH</span>
+                        <span class="td-sub">Wrapped Ethereum</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+
+                    <!-- 7. XOXNO -->
+                    <div class="token-dropdown-item" data-recv-token-val="XOXNO">
+                      <img src="branding/icons/xoxno-logo.svg" alt="XOXNO" class="token-dropdown-logo round" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">XOXNO</span>
+                        <span class="td-sub">XOXNO Token</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+
+                    <!-- 8. BOBER -->
+                    <div class="token-dropdown-item" data-recv-token-val="BOBER">
+                      <img src="branding/icons/bober-logo.png" alt="BOBER" class="token-dropdown-logo round" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">BOBER</span>
+                        <span class="td-sub">Bober Meme Coin</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+
+                    <!-- 9. OFE -->
+                    <div class="token-dropdown-item" data-recv-token-val="OFE">
+                      <img src="branding/icons/ofe-logo.png" alt="OFE" class="token-dropdown-logo round" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">OFE</span>
+                        <span class="td-sub">One For Earth</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+
+                    <!-- 10. JEX -->
+                    <div class="token-dropdown-item" data-recv-token-val="JEX">
+                      <img src="branding/icons/jex-logo.svg" alt="JEX" class="token-dropdown-logo round" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">JEX</span>
+                        <span class="td-sub">JEX Token</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+
+                    <!-- 11. VICTOR -->
+                    <div class="token-dropdown-item" data-recv-token-val="VICTOR">
+                      <img src="branding/icons/victor-logo.svg" alt="VICTOR" class="token-dropdown-logo round" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">VICTOR</span>
+                        <span class="td-sub">Victor Token</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+
+                    <!-- 12. WAM -->
+                    <div class="token-dropdown-item" data-recv-token-val="WAM">
+                      <img src="branding/icons/wam-logo.svg" alt="WAM" class="token-dropdown-logo round" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">WAM</span>
+                        <span class="td-sub">WAM Gaming</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+
+                    <!-- 13. RARE -->
+                    <div class="token-dropdown-item" data-recv-token-val="RARE">
+                      <img src="branding/icons/rare-logo.svg" alt="RARE" class="token-dropdown-logo round" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">RARE</span>
+                        <span class="td-sub">SuperRare Token</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+
+                    <!-- 14. JOJO -->
+                    <div class="token-dropdown-item" data-recv-token-val="JOJO">
+                      <img src="branding/icons/jojo-logo.svg" alt="JOJO" class="token-dropdown-logo round" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">JOJO</span>
+                        <span class="td-sub">JoJo Token</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+
+                    <!-- 15. SUPER -->
+                    <div class="token-dropdown-item" data-recv-token-val="SUPER">
+                      <img src="branding/icons/super-logo.svg" alt="SUPER" class="token-dropdown-logo round" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">SUPER</span>
+                        <span class="td-sub">SuperVerse</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+
+                    <!-- 16. PLATA -->
+                    <div class="token-dropdown-item" data-recv-token-val="PLATA">
+                      <img src="branding/icons/plata-logo.svg" alt="PLATA" class="token-dropdown-logo round" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">PLATA</span>
+                        <span class="td-sub">Plata Token</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+
+                    <!-- 17. EFOO -->
+                    <div class="token-dropdown-item active" data-recv-token-val="EFOO">
+                      <img src="branding/icons/efoo-logo.png" alt="EFOO" class="token-dropdown-logo round" />
+                      <div class="token-dropdown-info">
+                        <span class="td-symbol">$EFOO</span>
+                        <span class="td-sub">Sunday League Degen FC</span>
+                      </div>
+                      <span class="td-check">✔</span>
+                    </div>
+                  </div>
+                  <!-- Hidden input to store receive value -->
+                  <input type="hidden" id="m-swap-recv-token-select" value="EFOO" />
                 </div>
               </div>
             </div>
@@ -1263,6 +1441,6 @@
   <div id="m-toast" class="m-toast hidden"></div>
 
   <!-- Scripts -->
-  <script src="market.js?v=20261019_v30_card_layout_reorg"></script>
+  <script src="market.js?v=20261019_v31_multi_token_swap"></script>
 </body>
 </html>
