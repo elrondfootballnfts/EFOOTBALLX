@@ -1160,31 +1160,41 @@ function isSkillSftNft(nft) {
 }
 
 function getNftOptimizedImageUrl(nft) {
-  if (!nft) return "branding/original/EFOOTBALL-91a4eb/logo.png";
+  if (!nft) return STRIKER_FALLBACK;
   if (isUltrasPassNft(nft)) return "branding/rebranded/efoo-ultras-pass-badge.png";
 
   const isKeeper = (nft.collection === KEEPER_COLLECTION) || 
     (nft.identifier && nft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
     (nft.name && nft.name.toLowerCase().includes("goalkeeper"));
-  const fallbackImg = isKeeper ? "branding/original/GOALKEEPER-cb9e3e/logo.png" : "branding/original/EFOOTBALL-91a4eb/logo.png";
+  const fallbackImg = isKeeper ? KEEPER_FALLBACK : STRIKER_FALLBACK;
 
-  // Check if MultiversX API returned default placeholder image or timeout error
+  const rawUrl = nft.url || "";
   const isDefaultThumb = (nft.media && Array.isArray(nft.media) && nft.media.some((m) => m.url && m.url.includes("default.png"))) ||
-    (nft.url && nft.url.includes("default.png"));
+    rawUrl.includes("default.png");
   const hasMetadataTimeout = nft.metadata && nft.metadata.error && nft.metadata.error.code === "timeout";
+  const isKnownTimeoutKeeper = isKeeper && (
+    (nft.identifier && (nft.identifier.endsWith("-34") || nft.identifier.endsWith("-35"))) ||
+    rawUrl.includes("/964.png") ||
+    rawUrl.includes("/227.png")
+  );
 
   // If this is a Goalkeeper and MultiversX media CDN failed to cache it:
-  if (isKeeper && (isDefaultThumb || hasMetadataTimeout || !nft.url || nft.url.includes("default.png"))) {
-    const uris = nft.uris || [];
+  if (isKeeper && (isDefaultThumb || hasMetadataTimeout || isKnownTimeoutKeeper || !rawUrl || rawUrl.includes("default.png"))) {
     let fileMatch = "";
-    for (const u of uris) {
-      try {
-        const decoded = typeof atob === "function" ? atob(u) : "";
-        if (decoded.includes(".png")) {
-          fileMatch = decoded.split("/").pop();
-          break;
-        }
-      } catch (e) {}
+    const m = rawUrl.match(/(\d+\.png)/i);
+    if (m) {
+      fileMatch = m[1];
+    } else {
+      const uris = nft.uris || [];
+      for (const u of uris) {
+        try {
+          const decoded = typeof atob === "function" ? atob(u) : "";
+          if (decoded.includes(".png")) {
+            fileMatch = decoded.split("/").pop();
+            break;
+          }
+        } catch (e) {}
+      }
     }
     if (fileMatch) {
       return `https://wsrv.nl/?url=https://ipfs.filebase.io/ipfs/bafybeicbszzifxxcpnq3zrndfdtf45wouhyjbklwk4ffio365icb2ylgg4/${fileMatch}&w=400&output=webp`;
@@ -1192,8 +1202,8 @@ function getNftOptimizedImageUrl(nft) {
   }
 
   // If it is any NFT with a direct valid url that is not default.png
-  if (nft.url && !nft.url.includes("default.png")) {
-    return nft.url;
+  if (rawUrl && !rawUrl.includes("default.png")) {
+    return rawUrl;
   }
 
   return fallbackImg;
@@ -1405,7 +1415,10 @@ async function fetchLiveXoxnoListings() {
               currency: colConfig.currency,
               seller: "XOXNO Marketplace",
               createdAt: it.timestamp ? it.timestamp * 1000 : Date.now(),
-              attributes: it.metadata?.attributes || []
+              attributes: it.metadata?.attributes || [],
+              media: it.media || [],
+              metadata: it.metadata || null,
+              uris: it.uris || []
             });
           });
         }
