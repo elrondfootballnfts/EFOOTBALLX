@@ -4033,6 +4033,7 @@ async function fetchSwapTokenPrices() {
 
 let currentMarketSwapPayToken = "WEGLD";
 let currentMarketSwapRecvToken = "EFOO";
+let lastEditedSwapField = "pay"; // "pay" or "recv"
 
 function setMarketSwapToken(tokenVal) {
   setMarketSwapPayToken(tokenVal);
@@ -4045,7 +4046,7 @@ function setMarketSwapPayToken(tokenVal) {
   }
   currentMarketSwapPayToken = tokenVal;
   updatePayTokenUI();
-  updateMarketSwapEstimate();
+  updateMarketSwapEstimate(lastEditedSwapField);
 }
 
 function setMarketSwapRecvToken(tokenVal) {
@@ -4055,7 +4056,7 @@ function setMarketSwapRecvToken(tokenVal) {
   }
   currentMarketSwapRecvToken = tokenVal;
   updateRecvTokenUI();
-  updateMarketSwapEstimate();
+  updateMarketSwapEstimate(lastEditedSwapField);
 }
 
 function updatePayTokenUI() {
@@ -4119,7 +4120,7 @@ function flipMarketSwapDirection() {
   currentMarketSwapRecvToken = oldPay;
   updatePayTokenUI();
   updateRecvTokenUI();
-  updateMarketSwapEstimate();
+  updateMarketSwapEstimate(lastEditedSwapField);
 }
 
 let marketSwapSlippage = 1.0;
@@ -4162,18 +4163,25 @@ function applyMarketSwapMaxBalance() {
   }
 
   amtInput.value = formattedMax;
-  updateMarketSwapEstimate();
+  lastEditedSwapField = "pay";
+  updateMarketSwapEstimate("pay");
 }
 
-function updateMarketSwapEstimate() {
+function updateMarketSwapEstimate(source = null) {
+  if (source === "pay" || source === "recv") {
+    lastEditedSwapField = source;
+  } else {
+    source = lastEditedSwapField || "pay";
+  }
+
   const amtInput = document.getElementById("m-swap-input-amt");
   const outField = document.getElementById("m-swap-output-amt");
   const balHint = document.getElementById("m-swap-pay-bal");
+  const recvBalHint = document.getElementById("m-swap-recv-bal");
   const rateLbl = document.getElementById("m-swap-rate-lbl");
   const routeTag = document.getElementById("m-swap-route-tag");
   const actionBtn = document.getElementById("m-btn-exec-swap");
 
-  const amt = Math.max(0, parseFloat(amtInput?.value) || 0);
   const payTok = currentMarketSwapPayToken || "WEGLD";
   const recvTok = currentMarketSwapRecvToken || "EFOO";
 
@@ -4195,43 +4203,97 @@ function updateMarketSwapEstimate() {
     }
   }
 
+  // 2. Update Receive Balance Hint
+  if (recvBalHint) {
+    if (!marketWallet.address) {
+      recvBalHint.textContent = "Balance: —";
+    } else if (recvTok === "EFOO") {
+      recvBalHint.textContent = `Balance: ${Math.floor(marketWallet.efooBalance || 0).toLocaleString()} $EFOO`;
+    } else if (recvTok === "WEGLD") {
+      const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
+      recvBalHint.textContent = `Balance: ${wegldBal.toFixed(4)} WEGLD`;
+    } else {
+      const tBal = (marketWallet.tokens && marketWallet.tokens[recvConf.identifier]) || 0;
+      recvBalHint.textContent = `Balance: ${tBal > 0 ? (tBal < 1 ? tBal.toFixed(4) : tBal.toLocaleString()) : "0"} ${recvConf.symbol}`;
+    }
+  }
+
+  const amtIn = Math.max(0, parseFloat(amtInput?.value) || 0);
+  const amtOut = Math.max(0, parseFloat(outField?.value) || 0);
+
   let estOut = 0;
+  let estIn = 0;
   let rateStr = "";
   let routeStr = "";
 
-  // 2. Direct AMM Pool vs Universal DEX Router
+  // 3. Bidirectional AMM Pool vs Universal DEX Router
   if (payTok === "WEGLD" && recvTok === "EFOO") {
-    // Direct OneDex AMM (WEGLD -> EFOO)
-    const amtInWithFee = amt * 0.99;
-    estOut = amt > 0 ? Math.floor((marketDexState.onedexEfooReserve * amtInWithFee) / (marketDexState.onedexWegldReserve + amtInWithFee)) : 0;
+    // Direct OneDex AMM (WEGLD <-> EFOO)
     rateStr = `1 EGLD ≈ ${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO`;
     routeStr = "OneDex Direct AMM";
+
+    if (source === "pay") {
+      const amtInWithFee = amtIn * 0.99;
+      estOut = amtIn > 0 ? (marketDexState.onedexEfooReserve * amtInWithFee) / (marketDexState.onedexWegldReserve + amtInWithFee) : 0;
+    } else {
+      if (amtOut > 0 && amtOut < marketDexState.onedexEfooReserve) {
+        estIn = (amtOut * marketDexState.onedexWegldReserve) / (0.99 * (marketDexState.onedexEfooReserve - amtOut));
+      } else {
+        estIn = 0;
+      }
+    }
   } else if (payTok === "EFOO" && recvTok === "WEGLD") {
-    // Direct OneDex AMM (EFOO -> WEGLD)
-    const amtInWithFee = amt * 0.99;
-    estOut = amt > 0 ? ((marketDexState.onedexWegldReserve * amtInWithFee) / (marketDexState.onedexEfooReserve + amtInWithFee)) : 0;
+    // Direct OneDex AMM (EFOO <-> WEGLD)
     rateStr = `${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO ≈ 1 EGLD`;
     routeStr = "OneDex Direct AMM";
+
+    if (source === "pay") {
+      const amtInWithFee = amtIn * 0.99;
+      estOut = amtIn > 0 ? (marketDexState.onedexWegldReserve * amtInWithFee) / (marketDexState.onedexEfooReserve + amtInWithFee) : 0;
+    } else {
+      if (amtOut > 0 && amtOut < marketDexState.onedexWegldReserve) {
+        estIn = (amtOut * marketDexState.onedexEfooReserve) / (0.99 * (marketDexState.onedexWegldReserve - amtOut));
+      } else {
+        estIn = 0;
+      }
+    }
   } else if (payTok === "USDC" && recvTok === "EFOO") {
-    // Direct xExchange AMM (USDC -> EFOO)
-    const amtInWithFee = amt * 0.997;
-    estOut = amt > 0 ? Math.floor((marketDexState.xexEfooReserve * amtInWithFee) / (marketDexState.xexUsdcReserve + amtInWithFee)) : 0;
+    // Direct xExchange AMM (USDC <-> EFOO)
     rateStr = `1 USDC ≈ ${marketDexState.efooPerUsdc.toLocaleString("en-US")} $EFOO`;
     routeStr = "xExchange Direct AMM";
+
+    if (source === "pay") {
+      const amtInWithFee = amtIn * 0.997;
+      estOut = amtIn > 0 ? (marketDexState.xexEfooReserve * amtInWithFee) / (marketDexState.xexUsdcReserve + amtInWithFee) : 0;
+    } else {
+      if (amtOut > 0 && amtOut < marketDexState.xexEfooReserve) {
+        estIn = (amtOut * marketDexState.xexUsdcReserve) / (0.997 * (marketDexState.xexEfooReserve - amtOut));
+      } else {
+        estIn = 0;
+      }
+    }
   } else if (payTok === "EFOO" && recvTok === "USDC") {
-    // Direct xExchange AMM (EFOO -> USDC)
-    const amtInWithFee = amt * 0.997;
-    estOut = amt > 0 ? ((marketDexState.xexUsdcReserve * amtInWithFee) / (marketDexState.xexEfooReserve + amtInWithFee)) : 0;
+    // Direct xExchange AMM (EFOO <-> USDC)
     rateStr = `${marketDexState.efooPerUsdc.toLocaleString("en-US")} $EFOO ≈ 1 USDC`;
     routeStr = "xExchange Direct AMM";
+
+    if (source === "pay") {
+      const amtInWithFee = amtIn * 0.997;
+      estOut = amtIn > 0 ? (marketDexState.xexUsdcReserve * amtInWithFee) / (marketDexState.xexEfooReserve + amtInWithFee) : 0;
+    } else {
+      if (amtOut > 0 && amtOut < marketDexState.xexUsdcReserve) {
+        estIn = (amtOut * marketDexState.xexEfooReserve) / (0.997 * (marketDexState.xexUsdcReserve - amtOut));
+      } else {
+        estIn = 0;
+      }
+    }
   } else {
-    // Universal Multi-Token Router via live MultiversX DEX Oracle prices
+    // Universal Multi-Token Router via Oracle prices
     const payPrice = TOKEN_PRICES[payConf.identifier] || 0.01;
     const recvPrice = TOKEN_PRICES[recvConf.identifier] || 0.01;
     const ratio = recvPrice > 0 ? (payPrice / recvPrice) : 1;
-    estOut = amt * ratio * 0.985; // 1.5% fee + slippage buffer
+    const feeFactor = 0.985; // 1.5% routing fee + slippage buffer
 
-    // Format rate string
     if (ratio < 0.0001) {
       rateStr = `1 ${payConf.symbol} ≈ ${ratio.toFixed(8)} ${recvConf.symbol}`;
     } else if (ratio < 1) {
@@ -4247,57 +4309,87 @@ function updateMarketSwapEstimate() {
     } else {
       routeStr = `OneDex Router (${payConf.symbol} ➔ WEGLD ➔ ${recvConf.symbol})`;
     }
+
+    if (source === "pay") {
+      estOut = amtIn * ratio * feeFactor;
+    } else {
+      estIn = (ratio > 0 && feeFactor > 0) ? (amtOut / (ratio * feeFactor)) : 0;
+    }
   }
 
-  // 3. Format Output Field & Starter Bonus
+  // 4. Update the opposite field cleanly
+  if (source === "pay") {
+    if (amtIn <= 0 || isNaN(amtIn)) {
+      if (outField) outField.value = "";
+    } else {
+      let formattedOut = "";
+      if (recvTok === "EFOO") {
+        formattedOut = String(Math.floor(estOut));
+      } else if (recvTok === "WBTC") {
+        formattedOut = estOut.toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
+      } else if (recvTok === "WETH") {
+        formattedOut = estOut.toFixed(5).replace(/0+$/, "").replace(/\.$/, "");
+      } else if (recvTok === "USDC") {
+        formattedOut = estOut.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+      } else if (estOut < 0.0001) {
+        formattedOut = estOut.toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
+      } else if (estOut < 1) {
+        formattedOut = estOut.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+      } else if (estOut >= 1000) {
+        formattedOut = estOut.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+      } else {
+        formattedOut = estOut.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+      }
+      if (outField) outField.value = formattedOut;
+    }
+  } else {
+    if (amtOut <= 0 || isNaN(amtOut)) {
+      if (amtInput) amtInput.value = "";
+    } else {
+      let formattedIn = "";
+      if (payTok === "EFOO") {
+        formattedIn = String(Math.ceil(estIn));
+      } else if (payTok === "WBTC") {
+        formattedIn = estIn.toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
+      } else if (payTok === "WETH") {
+        formattedIn = estIn.toFixed(5).replace(/0+$/, "").replace(/\.$/, "");
+      } else if (payTok === "USDC") {
+        formattedIn = estIn.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+      } else if (estIn < 0.0001) {
+        formattedIn = estIn.toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
+      } else if (estIn < 1) {
+        formattedIn = estIn.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+      } else if (estIn >= 1000) {
+        formattedIn = estIn.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+      } else {
+        formattedIn = estIn.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+      }
+      if (amtInput) amtInput.value = formattedIn;
+    }
+  }
+
+  // 5. Telemetry & Action button update
+  const finalPayAmt = source === "pay" ? amtIn : estIn;
+  const finalRecvAmt = source === "pay" ? estOut : amtOut;
+
+  if (rateLbl) rateLbl.textContent = rateStr;
+  if (routeTag) routeTag.textContent = `Route: ${routeStr}`;
+
+  if (actionBtn) {
+    const formattedIn = finalPayAmt >= 1000 ? Math.floor(finalPayAmt).toLocaleString("en-US") : (finalPayAmt < 0.0001 ? finalPayAmt.toFixed(6) : (finalPayAmt < 1 ? finalPayAmt.toFixed(4) : finalPayAmt.toFixed(2)));
+    const formattedOut = finalRecvAmt >= 1000 ? Math.floor(finalRecvAmt).toLocaleString("en-US") : (finalRecvAmt < 0.0001 ? finalRecvAmt.toFixed(6) : (finalRecvAmt < 1 ? finalRecvAmt.toFixed(4) : finalRecvAmt.toFixed(2)));
+    actionBtn.textContent = `⚡ Swap ${formattedIn} ${payConf.symbol} ➔ ${formattedOut} ${recvConf.symbol} On-Chain`;
+  }
+
+  // 6. Starter Bonus update (if receiving EFOO)
   if (recvTok === "EFOO") {
-    estOut = Math.floor(estOut);
     const bonusRow = document.getElementById("m-swap-bonus-row");
     if (bonusRow) bonusRow.style.removeProperty("display");
-    updateMarketBonusUI(estOut);
-
-    const bonusCheckbox = document.getElementById("m-swap-bonus-checkbox");
-    const isBonusApplied = bonusCheckbox && bonusCheckbox.checked && !bonusCheckbox.disabled;
-
-    if (outField) {
-      if (isBonusApplied) {
-        outField.value = `~${estOut.toLocaleString("en-US")} + 500k BONUS = ~${(estOut + 500000).toLocaleString("en-US")} $EFOO 🎁`;
-      } else {
-        outField.value = `~${estOut.toLocaleString("en-US")} $EFOO`;
-      }
-    }
+    updateMarketBonusUI(finalRecvAmt);
   } else {
     const bonusRow = document.getElementById("m-swap-bonus-row");
     if (bonusRow) bonusRow.style.setProperty("display", "none");
     updateMarketBonusUI(0);
-
-    let formattedOut = "";
-    if (recvTok === "WBTC") {
-      formattedOut = `~${estOut.toFixed(6)} WBTC`;
-    } else if (recvTok === "WETH") {
-      formattedOut = `~${estOut.toFixed(5)} WETH`;
-    } else if (recvTok === "WEGLD") {
-      formattedOut = `~${estOut.toFixed(4)} EGLD`;
-    } else if (recvTok === "USDC") {
-      formattedOut = `~${estOut.toFixed(2)} USDC`;
-    } else if (estOut < 0.0001) {
-      formattedOut = `~${estOut.toFixed(6).replace(/0+$/, "")} ${recvConf.symbol}`;
-    } else if (estOut < 1) {
-      formattedOut = `~${estOut.toFixed(4)} ${recvConf.symbol}`;
-    } else if (estOut >= 1000) {
-      formattedOut = `~${Math.floor(estOut).toLocaleString("en-US")} ${recvConf.symbol}`;
-    } else {
-      formattedOut = `~${estOut.toFixed(2)} ${recvConf.symbol}`;
-    }
-
-    if (outField) outField.value = formattedOut;
-  }
-
-  if (rateLbl) rateLbl.textContent = rateStr;
-  if (routeTag) routeTag.textContent = `Route: ${routeStr}`;
-  if (actionBtn) {
-    const formattedAmt = amt >= 1000 ? Math.floor(amt).toLocaleString("en-US") : amt;
-    actionBtn.textContent = `⚡ Swap ${formattedAmt} ${payConf.symbol} ➔ ${recvConf.symbol} On-Chain`;
   }
 }
 
@@ -4608,8 +4700,15 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("m-btn-mint-keeper")?.addEventListener("click", executeMarketMintKeeper);
   document.getElementById("m-btn-mint-ultras")?.addEventListener("click", buyUltrasPassOnChain);
 
-  // DEX Swap Handlers
-  document.getElementById("m-swap-input-amt")?.addEventListener("input", updateMarketSwapEstimate);
+  // DEX Swap Handlers (Bidirectional Input on Pay & Receive)
+  document.getElementById("m-swap-input-amt")?.addEventListener("input", () => {
+    lastEditedSwapField = "pay";
+    updateMarketSwapEstimate("pay");
+  });
+  document.getElementById("m-swap-output-amt")?.addEventListener("input", () => {
+    lastEditedSwapField = "recv";
+    updateMarketSwapEstimate("recv");
+  });
   document.getElementById("m-swap-max-btn")?.addEventListener("click", applyMarketSwapMaxBalance);
   document.getElementById("m-swap-pay-bal")?.addEventListener("click", applyMarketSwapMaxBalance);
 

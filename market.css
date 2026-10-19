@@ -3477,6 +3477,12 @@ body {
   font-size: 1.6rem;
   font-weight: 700;
   outline: none;
+  -moz-appearance: textfield;
+}
+.ms-input-amt::-webkit-outer-spin-button,
+.ms-input-amt::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .ms-btn-max {
