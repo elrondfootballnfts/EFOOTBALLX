@@ -1387,12 +1387,11 @@ function getMarketplaceListings() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        // Strict filter: purge any legacy phantom mock items or unsupported SC escrow listings
+        // Strict filter: purge any legacy phantom mock items or test addresses
         const realListings = parsed.filter(
           (x) =>
             x &&
             x.seller &&
-            !x.trait?.includes("SC Escrow") &&
             !x.seller.startsWith("erd1ultra") &&
             !x.seller.startsWith("erd1degen") &&
             !x.seller.startsWith("erd1sniper") &&
@@ -1505,7 +1504,12 @@ async function fetchLiveScListings() {
             attributes: it.metadata?.attributes || []
           });
         }
-        cachedScListings = scItems;
+        // Preserve any recent locally listed items awaiting blockchain indexing (within 60s)
+        const now = Date.now();
+        const pendingLocal = getMarketplaceListings().filter(
+          (p) => p && (now - (p.createdAt || 0) < 60000) && !scItems.some((s) => s.identifier === p.identifier)
+        );
+        cachedScListings = [...pendingLocal, ...scItems];
         renderMarketplaceGrid();
         renderTelemetry();
       }
@@ -2329,9 +2333,16 @@ function renderMyLockerGrid() {
       return;
     }
 
+    const isKeeper = (nft.collection === KEEPER_COLLECTION) || 
+      (nft.identifier && nft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
+      (nft.name && nft.name.toLowerCase().includes("goalkeeper"));
+    const keeperFallback = "branding/original/GOALKEEPER-cb9e3e/logo.png";
+    const strikerFallback = "branding/original/EFOOTBALL-91a4eb/logo.png";
+    const nftImgUrl = nft.url || (isKeeper ? keeperFallback : strikerFallback);
+
     card.innerHTML = `
       <div class="mnc-media-wrap" data-locker-inspect="${nft.identifier}">
-        <img src="${nft.url || 'branding/original/EFOOTBALL-91a4eb/logo.png'}" alt="${nft.name}" class="mnc-media-img" />
+        <img src="${nftImgUrl}" alt="${nft.name}" class="mnc-media-img" />
         <div class="mnc-rank-badge" style="border-color:${tier.borderColor}; color:${tier.borderColor};">
           ${tier.tierIcon} Rank #${tier.rank} • ${tier.tierLabel}
         </div>
@@ -2345,7 +2356,7 @@ function renderMyLockerGrid() {
             ${
               isUltrasPassNft(nft)
                 ? `<span class="mnc-vip-tag" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:6px;">VIP PASS</span>`
-                : `<span class="mnc-role-tag">${nft.jersey ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`
+                : `<span class="mnc-role-tag">${isKeeper ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`
             }
           </div>
         </div>
@@ -2675,27 +2686,19 @@ async function executeBuyNft(item) {
         // buyNft@<colHex>@<nonceHex> (DIRECT SC call: function name must be plain text UTF-8!)
         const dataField = `buyNft@${colHex}@${nonceHex}`;
 
-        showMarketToast(
-          isHu
-            ? `⚡ Smart Contract vásárlás előkészítése: ${item.name} (${item.price} EGLD)...`
-            : `⚡ Preparing Smart Contract purchase: ${item.name} (${item.price} EGLD)...`
-        );
+        showMarketToast(`⚡ Preparing Smart Contract purchase: ${item.name} (${item.price} EGLD)...`);
 
         await sendMultiversxTransaction({
           receiver: STADIUM_VAULT_SC,
           value: priceAtomic.toString(),
-          gasLimit: 15000000,
+          gasLimit: 25000000,
           data: dataField
         });
       } else {
         // WEGLD listing (standard MultiversX ESDT escrow)
         if (wegldBal < requiredPrice) {
           if (egldBal >= requiredPrice + 0.005) {
-            showMarketToast(
-              isHu
-                ? `🔄 ${requiredPrice} EGLD átváltása WEGLD-re a vásárláshoz...`
-                : `🔄 Wrapping ${requiredPrice} EGLD to WEGLD for purchase...`
-            );
+            showMarketToast(`🔄 Wrapping ${requiredPrice} EGLD to WEGLD for purchase...`);
 
             const shard = marketWallet.shard !== undefined ? marketWallet.shard : 1;
             const shardWrapper = CONTRACTS.WEGLD_WRAPPERS[shard] || CONTRACTS.WEGLD_WRAPPERS[1];
@@ -2712,11 +2715,7 @@ async function executeBuyNft(item) {
             marketWallet.tokens["WEGLD-bd4d79"] = (marketWallet.tokens["WEGLD-bd4d79"] || 0) + requiredPrice;
             marketWallet.egldBalance = Math.max(0, marketWallet.egldBalance - requiredPrice);
           } else {
-            showMarketToast(
-              isHu
-                ? `⚠️ Nincs elegendő egyenleged! Ár: ${item.price} EGLD (Egyenleged: ${egldBal.toFixed(3)} EGLD / ${wegldBal.toFixed(3)} WEGLD)`
-                : `⚠️ Insufficient balance! Price: ${item.price} EGLD (Balance: ${egldBal.toFixed(3)} EGLD / ${wegldBal.toFixed(3)} WEGLD)`
-            );
+            showMarketToast(`⚠️ Insufficient balance! Price: ${item.price} EGLD (Balance: ${egldBal.toFixed(3)} EGLD / ${wegldBal.toFixed(3)} WEGLD)`);
             return;
           }
         }
@@ -2725,16 +2724,12 @@ async function executeBuyNft(item) {
         const endpointHex = stringToHex("buyNft");
         const dataField = `ESDTTransfer@${wegldHex}@${priceHex}@${endpointHex}@${colHex}@${nonceHex}`;
 
-        showMarketToast(
-          isHu
-            ? `⚡ Smart Contract vásárlás előkészítése: ${item.name} (${item.price} EGLD)...`
-            : `⚡ Preparing Smart Contract purchase: ${item.name} (${item.price} EGLD)...`
-        );
+        showMarketToast(`⚡ Preparing Smart Contract purchase: ${item.name} (${item.price} EGLD)...`);
 
         await sendMultiversxTransaction({
           receiver: STADIUM_VAULT_SC,
           value: "0",
-          gasLimit: 15000000,
+          gasLimit: 25000000,
           data: dataField
         });
       }
@@ -2769,36 +2764,20 @@ async function executeBuyNft(item) {
       const isZeroFeeTrade = sellerHasPass || buyerHasPass;
 
       if (isZeroFeeTrade) {
-        showMarketToast(
-          isHu
-            ? `🎉 Vásárlási tranzakció elküldve! 0% VIP Ultras díjkedvezmény: az eladó a vételár 100%-át megkapja! Az NFT a címedre érkezik!`
-            : `🎉 Buy transaction sent! 0% VIP Ultras fee applied: seller receives 100%! NFT incoming to your locker!`
-        );
+        showMarketToast(`🎉 Buy transaction sent! 0% VIP Ultras fee applied: seller receives 100%! NFT incoming to your locker!`);
       } else {
-        showMarketToast(
-          isHu
-            ? `🎉 Vásárlási tranzakció sikeresen kiküldve! 98% az eladónak, 2% díj az efoorewards tárcába ment. Az NFT a címedre érkezik!`
-            : `🎉 Purchase transaction sent! 98% to seller, 2% fee to efoorewards. NFT transfers directly to your wallet!`
-        );
+        showMarketToast(`🎉 Purchase transaction sent! 98% to seller, 2% fee to efoorewards. NFT transfers directly to your wallet!`);
       }
     } catch (err) {
       console.error("EGLD purchase failed:", err);
-      showMarketToast(
-        isHu
-          ? `❌ Vásárlási hiba: ${err.message || "Megszakítva"}`
-          : `❌ Purchase error: ${err.message || "Cancelled"}`
-      );
+      showMarketToast(`❌ Purchase error: ${err.message || "Cancelled"}`);
     }
     return;
   }
 
   // $EFOO Trade
   if (marketWallet.efooBalance < Number(item.price)) {
-    showMarketToast(
-      isHu
-        ? `⚠️ Nincs elegendő $EFOO egyenleged! Ár: ${Number(item.price).toLocaleString("en-US")} $EFOO (Egyenleg: ${Math.floor(marketWallet.efooBalance).toLocaleString("en-US")} $EFOO)`
-        : `⚠️ Insufficient $EFOO balance! Price: ${Number(item.price).toLocaleString("en-US")} $EFOO (Balance: ${Math.floor(marketWallet.efooBalance).toLocaleString("en-US")} $EFOO)`
-    );
+    showMarketToast(`⚠️ Insufficient $EFOO balance! Price: ${Number(item.price).toLocaleString("en-US")} $EFOO (Balance: ${Math.floor(marketWallet.efooBalance).toLocaleString("en-US")} $EFOO)`);
     return;
   }
 
@@ -2811,17 +2790,13 @@ async function executeBuyNft(item) {
   // MultiversX ESDTTransfer to SC endpoint: ESDTTransfer@<token_id_hex>@<amount_hex>@<endpoint_hex>@<colHex>@<nonceHex>
   const dataField = `ESDTTransfer@${efooTokenHex}@${priceHex}@${endpointHex}@${colHex}@${nonceHex}`;
 
-  showMarketToast(
-    isHu
-      ? `⚡ Smart Contract vásárlás előkészítése: ${item.name} (${Number(item.price).toLocaleString()} $EFOO)...`
-      : `⚡ Preparing Smart Contract purchase: ${item.name} (${Number(item.price).toLocaleString()} $EFOO)...`
-  );
+  showMarketToast(`⚡ Preparing Smart Contract purchase: ${item.name} (${Number(item.price).toLocaleString("en-US")} $EFOO)...`);
 
   try {
     await sendMultiversxTransaction({
       receiver: STADIUM_VAULT_SC,
       value: "0",
-      gasLimit: 15000000,
+      gasLimit: 25000000,
       data: dataField
     });
 
@@ -2860,25 +2835,13 @@ async function executeBuyNft(item) {
     }, 4500);
 
     if (isZeroFeeTrade) {
-      showMarketToast(
-        isHu
-          ? `🎉 Vásárlási tranzakció sikeresen kiküldve! 0% VIP Ultras díjkedvezmény: 100% az eladónak ment. Az NFT a címedre érkezik!`
-          : `🎉 Buy transaction sent! 0% VIP Ultras fee benefit applied: 100% goes to seller. NFT is incoming!`
-      );
+      showMarketToast(`🎉 Buy transaction sent! 0% VIP Ultras fee benefit applied: 100% goes to seller. NFT is incoming!`);
     } else {
-      showMarketToast(
-        isHu
-          ? `🎉 Vásárlási tranzakció sikeresen kiküldve! 95% az eladónak küldve, 2.5% elégetve 🔥, 2.5% a hétvégi Vault Reward Poolba került 🏆!`
-          : `🎉 Buy transaction sent! 95% to seller, 2.5% burned 🔥, 2.5% to Stadium Vault Reward Pool 🏆!`
-      );
+      showMarketToast(`🎉 Buy transaction sent! 95% to seller, 2.5% burned 🔥, 2.5% to Stadium Vault Reward Pool 🏆!`);
     }
   } catch (err) {
     console.error("EFOO purchase failed:", err);
-    showMarketToast(
-      isHu
-        ? `❌ Vásárlási hiba: ${err.message || "Megszakítva"}`
-        : `❌ Purchase error: ${err.message || "Cancelled"}`
-    );
+    showMarketToast(`❌ Purchase error: ${err.message || "Cancelled"}`);
   }
 }
 
@@ -2903,8 +2866,6 @@ function setListingCurrency(val) {
     }
     if (priceInput) {
       priceInput.placeholder = "e.g. 0.5";
-      priceInput.min = "0.001";
-      priceInput.step = "any";
     }
   } else {
     if (nameEl) nameEl.textContent = "$EFOO";
@@ -2913,9 +2874,7 @@ function setListingCurrency(val) {
       iconEl.classList.add("round");
     }
     if (priceInput) {
-      priceInput.placeholder = "e.g. 2,500,000";
-      priceInput.min = "1000";
-      priceInput.step = "1000";
+      priceInput.placeholder = "e.g. 2500000";
     }
   }
 
@@ -2938,68 +2897,77 @@ function updateListingFeePreview() {
   const recvLabel = document.getElementById("list-receive-label");
   const recvVal = document.getElementById("list-calc-receive");
   const ultrasHint = document.getElementById("list-ultras-hint");
+  const breakdownRow = document.getElementById("list-fee-breakdown-row");
+  const breakdownVal = document.getElementById("list-fee-breakdown-val");
   if (!currSelect || !priceInput) return;
 
   const currency = currSelect.value || "EGLD";
-  const isHu = currentMarketLang === "hu";
-  const val = parseFloat(priceInput.value) || 0;
+  const rawPriceStr = String(priceInput.value || "").replace(/,/g, "").trim();
+  const val = parseFloat(rawPriceStr) || 0;
   const isUltrasHolder = hasUltrasPass(marketWallet.address);
 
   if (isUltrasHolder) {
-    if (feeLabel) feeLabel.textContent = isHu ? "VIP Ultras Kereskedési Díj:" : "VIP Ultras Trading Fee:";
+    if (feeLabel) feeLabel.textContent = "VIP Ultras Trading Fee:";
     if (feePct) feePct.textContent = "0.0% (LIFETIME FREE)";
-    if (recvLabel) recvLabel.textContent = isHu ? "Kézhez kapott összeg (100%):" : "You Receive (100%):";
+    if (recvLabel) recvLabel.textContent = "You Receive (100%):";
+    if (breakdownRow) breakdownRow.style.display = "none";
     if (recvVal) {
       if (val > 0) {
         recvVal.textContent = currency === "EGLD" ? `${val.toFixed(4)} EGLD` : `${Math.floor(val).toLocaleString("en-US")} $EFOO`;
       } else {
-        recvVal.textContent = isHu ? "100% az eladási árból" : "100% of sale proceeds";
+        recvVal.textContent = "100% of sale proceeds";
       }
     }
     if (ultrasHint) {
-      ultrasHint.innerHTML = isHu
-        ? "👑 <strong>EFOO Ultras PASS Aktív:</strong> 0% díj eladáskor és vételkor, a bevétel 100%-át megtartod!"
-        : "👑 <strong>EFOO Ultras PASS Active:</strong> 0% trading fee forever on buy and sell, keep 100% of your earnings!";
+      ultrasHint.innerHTML = "👑 <strong>EFOO Ultras PASS Active:</strong> 0% trading fee forever on buy and sell, keep 100% of your earnings!";
       ultrasHint.style.color = "#a8ff00";
       ultrasHint.style.borderColor = "rgba(168,255,0,0.4)";
       ultrasHint.style.background = "rgba(168,255,0,0.08)";
     }
   } else if (currency === "EGLD") {
-    if (feeLabel) feeLabel.textContent = isHu ? "Kereskedési díj (2% efoorewards tárca):" : "Trading Fee (2% efoorewards wallet):";
+    if (feeLabel) feeLabel.textContent = "Trading Fee (2% efoorewards wallet):";
     if (feePct) feePct.textContent = "2.0%";
-    if (recvLabel) recvLabel.textContent = isHu ? "Kézhez kapott összeg (98%):" : "You Receive (98%):";
+    if (recvLabel) recvLabel.textContent = "You Receive (98%):";
+    if (breakdownRow) breakdownRow.style.display = "none";
     if (recvVal) {
       if (val > 0) {
         const net = val * 0.98;
         recvVal.textContent = `${net.toFixed(4)} EGLD`;
       } else {
-        recvVal.textContent = isHu ? "98% az eladási árból" : "98% of sale";
+        recvVal.textContent = "98% of sale";
       }
     }
     if (ultrasHint) {
-      ultrasHint.innerHTML = isHu
-        ? "🎟️ Birtokolj <strong>EFOO Ultras PASS</strong>-t a <strong>0%</strong>-os kereskedési díjhoz (100% a tiéd)!"
-        : "🎟️ Hold an <strong>EFOO Ultras PASS</strong> to reduce trading fee to <strong>0%</strong> (Keep 100%)!";
+      ultrasHint.innerHTML = "🎟️ Hold an <strong>EFOO Ultras PASS</strong> to reduce trading fee to <strong>0%</strong> (Keep 100%)!";
       ultrasHint.style.color = "#ffb800";
       ultrasHint.style.borderColor = "rgba(255,184,0,0.3)";
       ultrasHint.style.background = "rgba(255,184,0,0.08)";
     }
   } else {
-    if (feeLabel) feeLabel.textContent = isHu ? "Kereskedési díj (2.5% Égetés 🔥 + 2.5% Reward Pool 🏆):" : "Trading Fee (2.5% Burn 🔥 + 2.5% Reward Pool 🏆):";
+    // $EFOO Trade: 95% to seller, 2.5% burn, 2.5% Stadium Vault Reward Pool
+    if (feeLabel) feeLabel.textContent = "Trading Fee (2.5% Burn 🔥 + 2.5% Reward Pool 🏆):";
     if (feePct) feePct.textContent = "5.0%";
-    if (recvLabel) recvLabel.textContent = isHu ? "Kézhez kapott összeg (95%):" : "You Receive (95%):";
+    if (recvLabel) recvLabel.textContent = "You Receive (95%):";
+    if (breakdownRow) breakdownRow.style.display = "flex";
+    if (breakdownVal) {
+      if (val > 0) {
+        const burnAmt = Math.floor(val * 0.025).toLocaleString("en-US");
+        const vaultAmt = Math.floor(val * 0.025).toLocaleString("en-US");
+        breakdownVal.textContent = `2.5% Burn 🔥 (${burnAmt}) + 2.5% Stadium Vault 🏆 (${vaultAmt})`;
+      } else {
+        breakdownVal.textContent = "2.5% Burn 🔥 + 2.5% Stadium Vault Reward Pool 🏆";
+      }
+    }
     if (recvVal) {
       if (val > 0) {
         const net = Math.floor(val * 0.95);
         recvVal.textContent = `${net.toLocaleString("en-US")} $EFOO`;
       } else {
-        recvVal.textContent = isHu ? "95% az eladási árból" : "95% of sale";
+        recvVal.textContent = "95% of sale";
       }
     }
     if (ultrasHint) {
-      ultrasHint.innerHTML = isHu
-        ? "🎟️ Birtokolj <strong>EFOO Ultras PASS</strong>-t a <strong>0%</strong>-os kereskedési díjhoz (100% a tiéd)!"
-        : "🎟️ Hold an <strong>EFOO Ultras PASS</strong> to reduce trading fee to <strong>0%</strong> (Keep 100%)!";
+      ultrasHint.innerHTML = "🎟️ Hold an <strong>EFOO Ultras PASS</strong> to reduce trading fee to <strong>0%</strong> (Keep 100%)!";
       ultrasHint.style.color = "#ffb800";
       ultrasHint.style.borderColor = "rgba(255,184,0,0.3)";
       ultrasHint.style.background = "rgba(255,184,0,0.08)";
@@ -3016,20 +2984,23 @@ function openListNftModal(nft) {
   const rankEl = document.getElementById("list-modal-rank");
 
   const tier = getNftRarityTier(nft);
+  const isKeeper = (nft.collection === KEEPER_COLLECTION) || 
+    (nft.identifier && nft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
+    (nft.name && nft.name.toLowerCase().includes("goalkeeper"));
+  const fallbackImg = isKeeper ? "branding/original/GOALKEEPER-cb9e3e/logo.png" : "branding/original/EFOOTBALL-91a4eb/logo.png";
 
   if (titleEl) titleEl.textContent = `List ${nft.name || nft.identifier}`;
   if (nameEl) nameEl.textContent = nft.name || nft.identifier;
-  if (imgEl) imgEl.src = nft.url || "branding/original/EFOOTBALL-91a4eb/logo.png";
-  if (rankEl) rankEl.textContent = `${tier.tierIcon} Rank #${tier.rank} (${tier.tierLabel})`;
+  if (imgEl) imgEl.src = nft.url || fallbackImg;
+  if (rankEl) rankEl.textContent = `${tier.tierIcon} Rank #${tier.rank} (${tier.tierLabel}) • ${isKeeper ? "🧤 Goalkeeper" : "⚽ Striker"}`;
 
   setListingCurrency("EGLD");
   modal?.classList.remove("hidden");
 }
 
 async function executeCreateListing() {
-  const isHu = currentMarketLang === "hu";
   if (!activeModalNft || !marketWallet.address) {
-    showMarketToast(isHu ? "⚠️ Kérlek csatlakoztasd a tárcádat a hirdetéshez!" : "⚠️ Please connect your wallet first!");
+    showMarketToast("⚠️ Please connect your wallet first!");
     return;
   }
 
@@ -3037,20 +3008,26 @@ async function executeCreateListing() {
   const currSelect = document.getElementById("list-select-currency");
   const currency = currSelect?.value || "EFOO";
 
-  const priceVal = parseFloat(priceInput.value);
+  const rawPriceStr = String(priceInput?.value || "").replace(/,/g, "").trim();
+  const priceVal = parseFloat(rawPriceStr);
   if (currency === "EGLD") {
     if (isNaN(priceVal) || priceVal < 0.001) {
-      showMarketToast(isHu ? "⚠️ Kérlek adj meg legalább 0.001 EGLD árat!" : "⚠️ Please enter a price of at least 0.001 EGLD.");
+      showMarketToast("⚠️ Please enter a price of at least 0.001 EGLD.");
       return;
     }
   } else {
     if (isNaN(priceVal) || priceVal < 1000) {
-      showMarketToast(isHu ? "⚠️ Kérlek adj meg legalább 1,000 $EFOO árat!" : "⚠️ Please enter a price of at least 1,000 $EFOO.");
+      showMarketToast("⚠️ Please enter a price of at least 1,000 $EFOO.");
       return;
     }
   }
 
-  const colStr = activeModalNft.collection || (activeModalNft.identifier ? activeModalNft.identifier.split("-").slice(0, 2).join("-") : STRIKER_COLLECTION);
+  const isKeeper = (activeModalNft.collection === KEEPER_COLLECTION) || 
+    (activeModalNft.identifier && activeModalNft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
+    (activeModalNft.name && activeModalNft.name.toLowerCase().includes("goalkeeper"));
+  const fallbackImg = isKeeper ? "branding/original/GOALKEEPER-cb9e3e/logo.png" : "branding/original/EFOOTBALL-91a4eb/logo.png";
+
+  const colStr = activeModalNft.collection || (activeModalNft.identifier ? activeModalNft.identifier.split("-").slice(0, 2).join("-") : (isKeeper ? KEEPER_COLLECTION : STRIKER_COLLECTION));
   const colHex = stringToHex(colStr);
 
   let nonceNum = activeModalNft.nonce;
@@ -3072,40 +3049,28 @@ async function executeCreateListing() {
   const endpointHex = stringToHex("listNft"); // 6c6973744e6674
   const dataField = `ESDTNFTTransfer@${colHex}@${nonceHex}@01@${SC_HEX}@${endpointHex}@${paymentTokenHex}@${priceHex}`;
 
-  showMarketToast(
-    isHu
-      ? `⏳ Tranzakció előkészítése: NFT letétbe helyezése a Smart Contractban (${priceVal.toLocaleString()} $${currency})...`
-      : `⏳ Preparing transaction: Depositing NFT into Smart Contract escrow (${priceVal.toLocaleString()} $${currency})...`
-  );
+  showMarketToast(`⏳ Preparing transaction: Depositing NFT into Smart Contract escrow (${priceVal.toLocaleString("en-US")} $${currency})...`);
 
   const listBtn = document.getElementById("btn-confirm-listing");
   const origBtnText = listBtn ? listBtn.innerHTML : "";
   if (listBtn) {
     listBtn.disabled = true;
     listBtn.style.opacity = "0.7";
-    listBtn.innerHTML = `⏳ ${isHu ? "Tranzakció küldése..." : "Broadcasting..."}`;
+    listBtn.innerHTML = "⏳ Broadcasting...";
   }
 
   try {
     const txResult = await sendMultiversxTransaction({
       receiver: marketWallet.address,
       value: "0",
-      gasLimit: 15000000,
+      gasLimit: 25000000,
       data: dataField,
       onSigned: () => {
-        // AZ ELADÁSI ABLAK AZONNAL LEZÁRUL!
         document.getElementById("list-nft-modal")?.classList.add("hidden");
-        // A JOBB ALSÓ SAROKBAN MUTATJA A STÁTUSZT!
-        showMarketToast(
-          isHu
-            ? "📡 Tranzakció aláírva a tárcádban! Közvetítés a MultiversX hálózatra..."
-            : "📡 Transaction signed in wallet! Broadcasting to MultiversX network...",
-          0
-        );
+        showMarketToast("📡 Transaction signed in wallet! Broadcasting to MultiversX network...", 0);
       }
     });
 
-    // Make sure listing modal is closed
     document.getElementById("list-nft-modal")?.classList.add("hidden");
     if (priceInput) priceInput.value = "";
 
@@ -3118,8 +3083,8 @@ async function executeCreateListing() {
       name: activeModalNft.name || activeModalNft.identifier,
       rarity: tier.tierLabel,
       rank: tier.rank,
-      trait: activeModalNft.trait || "Listed by Player in SC Escrow",
-      url: activeModalNft.url || "branding/original/EFOOTBALL-91a4eb/logo.png",
+      trait: activeModalNft.trait || "Official NFooT SC Escrow Listing",
+      url: activeModalNft.url || fallbackImg,
       price: priceVal,
       currency,
       paymentToken: paymentTokenStr,
@@ -3132,12 +3097,10 @@ async function executeCreateListing() {
     listings.unshift(newListing);
     saveMarketplaceListings(listings);
 
-    // Also add to cachedScListings so it appears immediately on native listings
     if (!cachedScListings.some((x) => x.identifier === newListing.identifier)) {
       cachedScListings.unshift(newListing);
     }
 
-    // Remove from locally displayed owned locker NFTs (it is now held in the SC escrow)
     if (marketWallet.ownedNfts) {
       marketWallet.ownedNfts = marketWallet.ownedNfts.filter((x) => x.identifier !== activeModalNft.identifier && x.nonce !== activeModalNft.nonce);
     }
@@ -3200,21 +3163,13 @@ async function executeCreateListing() {
       ? ` (${txResult.hash.slice(0, 8)}...)` 
       : "";
 
-    // SIKERES STÁTUSZ A JOBB ALSÓ SAROKBAN!
     showMarketToast(
-      isHu
-        ? `✅ Sikeres tranzakció${shortHash}! ${newListing.name} eladási megbízása elküldve a Smart Contractnak (${priceVal.toLocaleString()} $${currency})!`
-        : `✅ Transaction dispatched${shortHash}! ${newListing.name} is listed in Smart Contract for ${priceVal.toLocaleString()} $${currency}!`,
+      `🎉 Listing live! ${activeModalNft.name || activeModalNft.identifier} is now listed for ${priceVal.toLocaleString("en-US")} $${currency} in Smart Contract escrow!${shortHash}`,
       7000
     );
   } catch (err) {
     console.error("Listing transaction failed:", err);
-    showMarketToast(
-      isHu
-        ? `❌ Hiba a listázási tranzakció során: ${err.message || "Megszakítva"}`
-        : `❌ Listing transaction failed: ${err.message || "Cancelled"}`,
-      5000
-    );
+    showMarketToast(`❌ Listing transaction failed: ${err.message || "Cancelled"}`, 5000);
   } finally {
     if (listBtn) {
       listBtn.disabled = false;
@@ -3241,7 +3196,7 @@ function openEditPriceModal(item) {
     } else {
       inputEl.step = "1000";
       inputEl.min = "1000";
-      inputEl.placeholder = "e.g. 2,500,000";
+      inputEl.placeholder = "e.g. 2500000";
     }
   }
   if (badgeEl) {
@@ -3255,24 +3210,26 @@ function openEditPriceModal(item) {
 
 async function executeEditPrice() {
   if (!activeModalNft || !marketWallet.address) return;
-  const isHu = currentMarketLang === "hu";
   const inputEl = document.getElementById("edit-input-price");
   const currency = activeModalNft.currency || "EFOO";
-  const newPrice = parseFloat(inputEl.value);
+  const newPrice = parseFloat(String(inputEl?.value || "").replace(/,/g, "").trim());
 
   if (currency === "EGLD") {
     if (isNaN(newPrice) || newPrice < 0.001) {
-      showMarketToast(isHu ? "⚠️ Kérlek adj meg legalább 0.001 EGLD árat!" : "⚠️ Please enter a price of at least 0.001 EGLD.");
+      showMarketToast("⚠️ Please enter a price of at least 0.001 EGLD.");
       return;
     }
   } else {
     if (isNaN(newPrice) || newPrice < 1000) {
-      showMarketToast(isHu ? "⚠️ Kérlek adj meg legalább 1,000 $EFOO árat!" : "⚠️ Please enter a price of at least 1,000 $EFOO.");
+      showMarketToast("⚠️ Please enter a price of at least 1,000 $EFOO.");
       return;
     }
   }
 
-  const colStr = activeModalNft.collection || (activeModalNft.identifier ? activeModalNft.identifier.split("-").slice(0, 2).join("-") : STRIKER_COLLECTION);
+  const isKeeper = (activeModalNft.collection === KEEPER_COLLECTION) || 
+    (activeModalNft.identifier && activeModalNft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
+    (activeModalNft.name && activeModalNft.name.toLowerCase().includes("goalkeeper"));
+  const colStr = activeModalNft.collection || (activeModalNft.identifier ? activeModalNft.identifier.split("-").slice(0, 2).join("-") : (isKeeper ? KEEPER_COLLECTION : STRIKER_COLLECTION));
   const colHex = stringToHex(colStr);
   let nonceNum = activeModalNft.nonce;
   if (nonceNum === undefined || nonceNum === null) {
@@ -3291,17 +3248,13 @@ async function executeEditPrice() {
   // updateListingPrice@<colHex>@<nonceHex>@<paymentTokenHex>@<priceHex> (DIRECT SC call: function name must be plain text UTF-8!)
   const dataField = `updateListingPrice@${colHex}@${nonceHex}@${paymentTokenHex}@${priceHex}`;
 
-  showMarketToast(
-    isHu
-      ? `⏳ Ármódosítási tranzakció előkészítése a Smart Contractban...`
-      : `⏳ Preparing price update transaction on Smart Contract...`
-  );
+  showMarketToast(`⏳ Preparing price update transaction on Smart Contract...`);
 
   try {
     await sendMultiversxTransaction({
       receiver: STADIUM_VAULT_SC,
       value: "0",
-      gasLimit: 12000000,
+      gasLimit: 20000000,
       data: dataField
     });
 
@@ -3331,26 +3284,20 @@ async function executeEditPrice() {
       }
     }, 4500);
 
-    showMarketToast(
-      isHu
-        ? `💾 Új ár sikeresen beállítva: ${newPrice.toLocaleString()} $${currency}!`
-        : `💾 Price updated to ${newPrice.toLocaleString()} $${currency}!`
-    );
+    showMarketToast(`💾 Price updated to ${newPrice.toLocaleString("en-US")} $${currency}!`);
   } catch (err) {
     console.error("Price update failed:", err);
-    showMarketToast(
-      isHu
-        ? `❌ Hiba az ármódosítás során: ${err.message || "Megszakítva"}`
-        : `❌ Price update error: ${err.message || "Cancelled"}`
-    );
+    showMarketToast(`❌ Price update error: ${err.message || "Cancelled"}`);
   }
 }
 
 async function executeDelistNft(item) {
   if (!item || !marketWallet.address) return;
-  const isHu = currentMarketLang === "hu";
 
-  const colStr = item.collection || (item.identifier ? item.identifier.split("-").slice(0, 2).join("-") : STRIKER_COLLECTION);
+  const isKeeper = (item.collection === KEEPER_COLLECTION) || 
+    (item.identifier && item.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
+    (item.name && item.name.toLowerCase().includes("goalkeeper"));
+  const colStr = item.collection || (item.identifier ? item.identifier.split("-").slice(0, 2).join("-") : (isKeeper ? KEEPER_COLLECTION : STRIKER_COLLECTION));
   const colHex = stringToHex(colStr);
   let nonceNum = item.nonce;
   if (nonceNum === undefined || nonceNum === null) {
@@ -3363,17 +3310,13 @@ async function executeDelistNft(item) {
   // delistNft@<colHex>@<nonceHex> (DIRECT SC call: function name must be plain text UTF-8!)
   const dataField = `delistNft@${colHex}@${nonceHex}`;
 
-  showMarketToast(
-    isHu
-      ? `⏳ Visszavonási tranzakció előkészítése: NFT visszakérése a Smart Contractból...`
-      : `⏳ Preparing delist transaction: Returning NFT from Smart Contract...`
-  );
+  showMarketToast(`⏳ Preparing delist transaction: Returning NFT from Smart Contract...`);
 
   try {
     const txResult = await sendMultiversxTransaction({
       receiver: STADIUM_VAULT_SC,
       value: "0",
-      gasLimit: 15000000,
+      gasLimit: 20000000,
       data: dataField
     });
 
@@ -3399,11 +3342,7 @@ async function executeDelistNft(item) {
       ? ` (${txResult.hash.slice(0, 8)}...)` 
       : "";
 
-    showMarketToast(
-      isHu
-        ? `✅ Sikeres visszavonási tranzakció${shortHash}! ${item.name || item.identifier} visszatért a tárcádba!`
-        : `✅ Successfully delisted${shortHash}! ${item.name || item.identifier} returned to your locker!`
-    );
+    showMarketToast(`✅ Successfully delisted${shortHash}! ${item.name || item.identifier} returned to your locker!`);
 
     if (txResult?.hash && txResult.hash !== "broadcasted") {
       watchMarketTransaction(
@@ -3450,11 +3389,7 @@ async function executeDelistNft(item) {
     }, 10000);
   } catch (err) {
     console.error("Delist failed:", err);
-    showMarketToast(
-      isHu
-        ? `❌ Hiba a visszavonás során: ${err.message || "Megszakítva"}`
-        : `❌ Delist error: ${err.message || "Cancelled"}`
-    );
+    showMarketToast(`❌ Delist error: ${err.message || "Cancelled"}`);
   }
 }
 
@@ -3481,24 +3416,30 @@ function openNftDetailsModal(nft) {
   const sftQty = parseInt(nft.balance || "1", 10) || 1;
   const sftFormatted = sftQty.toLocaleString("en-US");
 
-  if (imgEl) imgEl.src = nft.url || (isPass ? "branding/rebranded/efoo-ultras-pass-badge.png" : "branding/original/EFOOTBALL-91a4eb/logo.png");
+  const isKeeper = (nft.collection === KEEPER_COLLECTION) || 
+    (nft.identifier && nft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
+    (nft.name && nft.name.toLowerCase().includes("goalkeeper"));
+  const keeperFallback = "branding/original/GOALKEEPER-cb9e3e/logo.png";
+  const strikerFallback = "branding/original/EFOOTBALL-91a4eb/logo.png";
+
+  if (imgEl) imgEl.src = nft.url || (isPass ? "branding/rebranded/efoo-ultras-pass-badge.png" : (isKeeper ? keeperFallback : strikerFallback));
   if (rankPill) {
     if (isPass) {
       rankPill.textContent = `👑 VIP PASS • ${sftFormatted} SFT IN WALLET`;
       rankPill.style.borderColor = "#ffb800";
       rankPill.style.color = "#ffb800";
     } else {
-      rankPill.textContent = `${tier.tierIcon} Rank #${tier.rank} • ${tier.tierLabel}`;
+      rankPill.textContent = `${tier.tierIcon} Rank #${tier.rank} • ${tier.tierLabel} • ${isKeeper ? "🧤 Keeper" : "⚽ Striker"}`;
       rankPill.style.borderColor = tier.borderColor;
       rankPill.style.color = tier.borderColor;
     }
   }
-  if (colIdEl) colIdEl.textContent = isPass ? ULTRAS_PASS_COLLECTION : (nft.collection || STRIKER_COLLECTION);
+  if (colIdEl) colIdEl.textContent = isPass ? ULTRAS_PASS_COLLECTION : (nft.collection || (isKeeper ? KEEPER_COLLECTION : STRIKER_COLLECTION));
   if (nameEl) nameEl.textContent = nft.name || nft.identifier;
   if (traitEl) {
     traitEl.textContent = isPass
       ? "Exclusive MultiversX VIP Access SFT (0% Trading Fees for Life)"
-      : (nft.trait || "Sunday League Degen Ultra");
+      : (nft.trait || (isKeeper ? "Official Sunday League Goalkeeper" : "Sunday League Degen Ultra"));
   }
 
   // Powers
@@ -3522,7 +3463,8 @@ function openNftDetailsModal(nft) {
       : (Array.isArray(nft.attributes) && nft.attributes.length
           ? nft.attributes.filter((a) => (a.name || a.trait_type) !== "OVR")
           : [
-              { name: "Collection", value: nft.collection || STRIKER_COLLECTION },
+              { name: "Collection", value: nft.collection || (isKeeper ? KEEPER_COLLECTION : STRIKER_COLLECTION) },
+              { name: "Role", value: isKeeper ? "Goalkeeper (🧤)" : "Striker (⚽)" },
               { name: "Rarity Rank", value: `#${tier.rank}` },
               { name: "Tier", value: tier.tierLabel }
             ]);
