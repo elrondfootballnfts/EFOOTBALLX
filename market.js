@@ -24,6 +24,7 @@ const STORAGE_ULTRAS_PASS_PREFIX = "efoo_ultras_pass_";
 const CONTRACTS = {
   ONEDEX_PAIR: "erd1qqqqqqqqqqqqqpgqqz6vp9y50ep867vnr296mqf3dduh6guvmvlsu3sujc",
   XEXCHANGE_PAIR: "erd1qqqqqqqqqqqqqpgqjz0jwz73e8u7s0hu2y5qqeu8phm5d4f92jpsdu5qhw",
+  XEXCHANGE_WEGLD_USDC_PAIR: "erd1qqqqqqqqqqqqqpgqeel2kumf0r8ffyhth7pqdujjat9nx0862jpsg2pqaq",
   WEGLD_WRAPPERS: {
     0: "erd1qqqqqqqqqqqqqpgqvc7gdl0p4s97guh498wgz75k8sav6sjfjlwqh679jy",
     1: "erd1qqqqqqqqqqqqqpgqhe8t5jewej70zupmh44jurgn29psua5l2jps3ntjj3",
@@ -722,20 +723,18 @@ function watchMarketTransaction(txHash, onConfirmed = null, onFailed = null) {
       if (status === "success") {
         clearInterval(interval);
         showMarketToast(
-          isHu
-            ? "✅ Tranzakció sikeresen jóváhagyva a MultiversX blokkláncon!"
-            : "✅ Transaction successfully confirmed on MultiversX blockchain!",
-          4000
+          "✅ Transaction successfully confirmed on MultiversX blockchain!",
+          6000,
+          txHash
         );
         if (typeof onConfirmed === "function") onConfirmed(data);
       } else if (status === "fail" || status === "invalid") {
         clearInterval(interval);
         const returnMsg = data.returnMessage || (data.results && data.results[0]?.returnMessage) || "";
         showMarketToast(
-          isHu
-            ? `❌ A tranzakció meghiúsult a blokkláncon! ${returnMsg ? `(Hiba: ${returnMsg})` : ""}`
-            : `❌ Transaction failed on blockchain! ${returnMsg ? `(Error: ${returnMsg})` : ""}`,
-          6500
+          `❌ Transaction failed on blockchain! ${returnMsg ? `(${returnMsg})` : ""}`,
+          8000,
+          txHash
         );
         if (typeof onFailed === "function") onFailed(data);
       }
@@ -981,8 +980,9 @@ async function sendMultiversxTransaction({ txs = null, receiver, value = "0", da
   }
 
   // PATH C: Official MultiversX Web Wallet hook/sign (Contract call hook, zero redirects to /send!)
+  const firstTx = preparedTxs[0] || {};
   const callbackUrl = window.location.origin + window.location.pathname.replace(/\.html$/, "");
-  let walletUrl = `https://wallet.multiversx.com/hook/sign?receiver=${encodeURIComponent(receiver)}&value=${encodeURIComponent(String(value || "0"))}&gasLimit=${txObj.gasLimit}&data=${encodeURIComponent(data)}&callbackUrl=${encodeURIComponent(callbackUrl)}`;
+  let walletUrl = `https://wallet.multiversx.com/hook/sign?receiver=${encodeURIComponent(firstTx.receiver || receiver)}&value=${encodeURIComponent(String(firstTx.value || value || "0"))}&gasLimit=${firstTx.gasLimit || 15000000}&data=${encodeURIComponent(firstTx.data || data)}&callbackUrl=${encodeURIComponent(callbackUrl)}`;
   if (isGuarded && guardianAddress) {
     walletUrl += `&version=2&options=2&guardian=${encodeURIComponent(guardianAddress)}`;
   }
@@ -2525,12 +2525,17 @@ async function buySkillCharge(skill, count) {
   );
 
   try {
-    await sendMultiversxTransaction({
+    const txResult = await sendMultiversxTransaction({
       receiver: STADIUM_VAULT_SC,
       value: "0",
       gasLimit: 12000000,
       data: dataField
     });
+
+    const txHash = txResult?.hash || null;
+    if (txHash && txHash !== "broadcasted") {
+      watchMarketTransaction(txHash);
+    }
 
     marketWallet.efooBalance = Math.max(0, marketWallet.efooBalance - cost);
     updateWalletUI();
@@ -2551,7 +2556,9 @@ async function buySkillCharge(skill, count) {
     showMarketToast(
       isHu
         ? `✅ Sikeres tranzakció! +${count}x ${skill.name} megvéve és beküldve a Smart Contractba! (50% elégetve 🔥, 50% a Vaultba küldve 🏆)`
-        : `✅ Transaction dispatched! +${count}x ${skill.name} purchased & sent to Smart Contract! (50% burned 🔥, 50% to Vault 🏆)`
+        : `✅ Transaction dispatched! +${count}x ${skill.name} purchased & sent to Smart Contract! (50% burned 🔥, 50% to Vault 🏆)`,
+      10000,
+      txHash
     );
   } catch (err) {
     console.error("Skill purchase error:", err);
@@ -2698,6 +2705,7 @@ async function executeBuyNft(item) {
     }
 
     try {
+      let buyTxResult = null;
       if (isNativeEgld) {
 
         // buyNft@<colHex>@<nonceHex> (DIRECT SC call: function name must be plain text UTF-8!)
@@ -2705,7 +2713,7 @@ async function executeBuyNft(item) {
 
         showMarketToast(`⚡ Preparing Smart Contract purchase: ${item.name} (${item.price} EGLD)...`);
 
-        await sendMultiversxTransaction({
+        buyTxResult = await sendMultiversxTransaction({
           receiver: STADIUM_VAULT_SC,
           value: priceAtomic.toString(),
           gasLimit: 25000000,
@@ -2743,12 +2751,17 @@ async function executeBuyNft(item) {
 
         showMarketToast(`⚡ Preparing Smart Contract purchase: ${item.name} (${item.price} EGLD)...`);
 
-        await sendMultiversxTransaction({
+        buyTxResult = await sendMultiversxTransaction({
           receiver: STADIUM_VAULT_SC,
           value: "0",
           gasLimit: 25000000,
           data: dataField
         });
+      }
+
+      const buyTxHash = buyTxResult?.hash || null;
+      if (buyTxHash && buyTxHash !== "broadcasted") {
+        watchMarketTransaction(buyTxHash);
       }
 
       // Remove from both local cache and active SC listings
@@ -2781,9 +2794,9 @@ async function executeBuyNft(item) {
       const isZeroFeeTrade = sellerHasPass || buyerHasPass;
 
       if (isZeroFeeTrade) {
-        showMarketToast(`🎉 Buy transaction sent! 0% VIP Ultras fee applied: seller receives 100%! NFT incoming to your locker!`);
+        showMarketToast(`🎉 Buy transaction sent! 0% VIP Ultras fee applied: seller receives 100%! NFT incoming to your locker!`, 10000, buyTxHash);
       } else {
-        showMarketToast(`🎉 Purchase transaction sent! 98% to seller, 2% fee to efoorewards. NFT transfers directly to your wallet!`);
+        showMarketToast(`🎉 Purchase transaction sent! 98% to seller, 2% fee to efoorewards. NFT transfers directly to your wallet!`, 10000, buyTxHash);
       }
     } catch (err) {
       console.error("EGLD purchase failed:", err);
@@ -2810,12 +2823,17 @@ async function executeBuyNft(item) {
   showMarketToast(`⚡ Preparing Smart Contract purchase: ${item.name} (${Number(item.price).toLocaleString("en-US")} $EFOO)...`);
 
   try {
-    await sendMultiversxTransaction({
+    const efooBuyResult = await sendMultiversxTransaction({
       receiver: STADIUM_VAULT_SC,
       value: "0",
       gasLimit: 25000000,
       data: dataField
     });
+
+    const efooBuyHash = efooBuyResult?.hash || null;
+    if (efooBuyHash && efooBuyHash !== "broadcasted") {
+      watchMarketTransaction(efooBuyHash);
+    }
 
     const sellerHasPass = hasUltrasPass(item.seller);
     const buyerHasPass = hasUltrasPass(marketWallet.address);
@@ -2852,9 +2870,9 @@ async function executeBuyNft(item) {
     }, 4500);
 
     if (isZeroFeeTrade) {
-      showMarketToast(`🎉 Buy transaction sent! 0% VIP Ultras fee benefit applied: 100% goes to seller. NFT is incoming!`);
+      showMarketToast(`🎉 Buy transaction sent! 0% VIP Ultras fee benefit applied: 100% goes to seller. NFT is incoming!`, 10000, efooBuyHash);
     } else {
-      showMarketToast(`🎉 Buy transaction sent! 95% to seller, 2.5% burned 🔥, 2.5% to Stadium Vault Reward Pool 🏆!`);
+      showMarketToast(`🎉 Buy transaction sent! 95% to seller, 2.5% burned 🔥, 2.5% to Stadium Vault Reward Pool 🏆!`, 10000, efooBuyHash);
     }
   } catch (err) {
     console.error("EFOO purchase failed:", err);
@@ -3182,7 +3200,8 @@ async function executeCreateListing() {
 
     showMarketToast(
       `🎉 Listing live! ${activeModalNft.name || activeModalNft.identifier} is now listed for ${priceVal.toLocaleString("en-US")} $${currency} in Smart Contract escrow!${shortHash}`,
-      7000
+      10000,
+      txResult?.hash
     );
   } catch (err) {
     console.error("Listing transaction failed:", err);
@@ -3268,12 +3287,17 @@ async function executeEditPrice() {
   showMarketToast(`⏳ Preparing price update transaction on Smart Contract...`);
 
   try {
-    await sendMultiversxTransaction({
+    const txResult = await sendMultiversxTransaction({
       receiver: STADIUM_VAULT_SC,
       value: "0",
       gasLimit: 20000000,
       data: dataField
     });
+
+    const txHash = txResult?.hash || null;
+    if (txHash && txHash !== "broadcasted") {
+      watchMarketTransaction(txHash);
+    }
 
     const listings = getMarketplaceListings();
     const target = listings.find((x) => x.id === activeModalNft.id || x.identifier === activeModalNft.identifier);
@@ -3301,7 +3325,7 @@ async function executeEditPrice() {
       }
     }, 4500);
 
-    showMarketToast(`💾 Price updated to ${newPrice.toLocaleString("en-US")} $${currency}!`);
+    showMarketToast(`💾 Price updated to ${newPrice.toLocaleString("en-US")} $${currency}!`, 8000, txHash);
   } catch (err) {
     console.error("Price update failed:", err);
     showMarketToast(`❌ Price update error: ${err.message || "Cancelled"}`);
@@ -3359,7 +3383,7 @@ async function executeDelistNft(item) {
       ? ` (${txResult.hash.slice(0, 8)}...)` 
       : "";
 
-    showMarketToast(`✅ Successfully delisted${shortHash}! ${item.name || item.identifier} returned to your locker!`);
+    showMarketToast(`✅ Successfully delisted${shortHash}! ${item.name || item.identifier} returned to your locker!`, 8000, txResult?.hash);
 
     if (txResult?.hash && txResult.hash !== "broadcasted") {
       watchMarketTransaction(
@@ -3556,10 +3580,31 @@ function openNftDetailsModal(nft) {
 // ============================================================================
 // TOAST NOTIFICATIONS
 // ============================================================================
-function showMarketToast(msg, duration = 4000) {
+function showMarketToast(msg, duration = 4000, txHash = null) {
   const t = document.getElementById("m-toast");
   if (!t) return;
-  t.innerHTML = msg;
+
+  let explorerUrl = "";
+  if (txHash && typeof txHash === "string" && txHash !== "broadcasted" && txHash.length >= 32) {
+    explorerUrl = txHash.startsWith("http") ? txHash : `https://explorer.multiversx.com/transactions/${txHash}`;
+  } else if (!txHash && marketWallet.address) {
+    const lower = (msg || "").toLowerCase();
+    if (lower.includes("dispatched") || lower.includes("broadcast") || lower.includes("confirmed") || lower.includes("success")) {
+      explorerUrl = `https://explorer.multiversx.com/accounts/${marketWallet.address}`;
+    }
+  }
+
+  let html = `<div class="m-toast-body">${msg}</div>`;
+  if (explorerUrl) {
+    html += `
+      <a href="${explorerUrl}" target="_blank" rel="noopener noreferrer" class="m-toast-explorer-link" title="View on MultiversX Explorer">
+        <span>Explorer</span>
+        <svg class="m-toast-link-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+      </a>
+    `;
+  }
+
+  t.innerHTML = html;
   t.classList.remove("hidden");
   clearTimeout(t._timer);
   if (duration > 0) {
@@ -3677,12 +3722,17 @@ async function buyUltrasPassOnChain() {
   );
 
   try {
-    await sendMultiversxTransaction({
+    const txResult = await sendMultiversxTransaction({
       receiver: STADIUM_VAULT_SC,
       value: totalWei,
       gasLimit: 15000000,
       data: data
     });
+
+    const txHash = txResult?.hash || null;
+    if (txHash && txHash !== "broadcasted") {
+      watchMarketTransaction(txHash);
+    }
 
     localStorage.setItem(STORAGE_ULTRAS_PASS_PREFIX + marketWallet.address.toLowerCase(), "true");
     updateUltrasPassUI();
@@ -3692,7 +3742,9 @@ async function buyUltrasPassOnChain() {
     showMarketToast(
       isHu
         ? "🎉 Gratulálunk! EFOO Ultras PASS sikeresen megvásárolva! A Smart Contract átadta az SFT-t a tárcádba, az örökös 0% kereskedési díj azonnal aktív!"
-        : "🎉 Congratulations! EFOO Ultras PASS activated! The Smart Contract delivered the SFT to your wallet with lifetime 0% trading fee!"
+        : "🎉 Congratulations! EFOO Ultras PASS activated! The Smart Contract delivered the SFT to your wallet with lifetime 0% trading fee!",
+      10000,
+      txHash
     );
   } catch (err) {
     console.error("Ultras Pass purchase failed:", err);
@@ -3722,17 +3774,24 @@ async function executeMarketMintPlayer() {
   );
 
   try {
-    await sendMultiversxTransaction({
+    const txResult = await sendMultiversxTransaction({
       receiver: CONTRACTS.NFT_MINTER,
       value: "80000000000000000", // 0.08 EGLD
       gasLimit: 42000000,
       data
     });
 
+    const txHash = txResult?.hash || null;
+    if (txHash && txHash !== "broadcasted") {
+      watchMarketTransaction(txHash);
+    }
+
     showMarketToast(
       isHu
         ? `⚽ Játékos veretési tranzakció sikeresen elküldve! Az új NFT hamarosan a tárcádban lesz!`
-        : `⚽ Outfield Player mint transaction dispatched! NFT is on its way to your locker!`
+        : `⚽ Outfield Player mint transaction dispatched! NFT is on its way to your locker!`,
+      10000,
+      txHash
     );
     setTimeout(() => { if (marketWallet.address) fetchMarketWalletNfts(marketWallet.address); }, 3000);
   } catch (err) {
@@ -3763,17 +3822,24 @@ async function executeMarketMintKeeper() {
   );
 
   try {
-    await sendMultiversxTransaction({
+    const txResult = await sendMultiversxTransaction({
       receiver: CONTRACTS.NFT_MINTER,
       value: "350000000000000000", // 0.35 EGLD
       gasLimit: 42000000,
       data
     });
 
+    const txHash = txResult?.hash || null;
+    if (txHash && txHash !== "broadcasted") {
+      watchMarketTransaction(txHash);
+    }
+
     showMarketToast(
       isHu
         ? `🧤 Kapus veretési tranzakció elküldve! A legendás hálóőr hamarosan a tárcádban!`
-        : `🧤 Goalkeeper Titan mint dispatched! Your legendary keeper is incoming!`
+        : `🧤 Goalkeeper Titan mint dispatched! Your legendary keeper is incoming!`,
+      10000,
+      txHash
     );
     setTimeout(() => { if (marketWallet.address) fetchMarketWalletNfts(marketWallet.address); }, 3000);
   } catch (err) {
@@ -4287,6 +4353,30 @@ function updateMarketSwapEstimate(source = null) {
         estIn = 0;
       }
     }
+  } else if (payTok === "WEGLD" && recvTok === "USDC") {
+    // Direct xExchange AMM (WEGLD <-> USDC)
+    const egldPriceUsd = TOKEN_PRICES["WEGLD-bd4d79"] || 3.46;
+    rateStr = `1 EGLD ≈ ${egldPriceUsd.toFixed(2)} USDC`;
+    routeStr = "xExchange Direct AMM (Deep Liquidity)";
+
+    if (source === "pay") {
+      const amtInWithFee = amtIn * 0.997;
+      estOut = amtInWithFee * egldPriceUsd;
+    } else {
+      estIn = (amtOut > 0 && egldPriceUsd > 0) ? (amtOut / (egldPriceUsd * 0.997)) : 0;
+    }
+  } else if (payTok === "USDC" && recvTok === "WEGLD") {
+    // Direct xExchange AMM (USDC <-> WEGLD)
+    const egldPriceUsd = TOKEN_PRICES["WEGLD-bd4d79"] || 3.46;
+    rateStr = `1 USDC ≈ ${(1 / egldPriceUsd).toFixed(4)} EGLD`;
+    routeStr = "xExchange Direct AMM (Deep Liquidity)";
+
+    if (source === "pay") {
+      const amtInWithFee = amtIn * 0.997;
+      estOut = amtInWithFee / egldPriceUsd;
+    } else {
+      estIn = (amtOut > 0 && egldPriceUsd > 0) ? (amtOut * egldPriceUsd / 0.997) : 0;
+    }
   } else {
     // Universal Multi-Token Router via Oracle prices
     const payPrice = TOKEN_PRICES[payConf.identifier] || 0.01;
@@ -4325,6 +4415,8 @@ function updateMarketSwapEstimate(source = null) {
       let formattedOut = "";
       if (recvTok === "EFOO") {
         formattedOut = String(Math.floor(estOut));
+      } else if (recvTok === "WEGLD") {
+        formattedOut = estOut.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
       } else if (recvTok === "WBTC") {
         formattedOut = estOut.toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
       } else if (recvTok === "WETH") {
@@ -4349,6 +4441,8 @@ function updateMarketSwapEstimate(source = null) {
       let formattedIn = "";
       if (payTok === "EFOO") {
         formattedIn = String(Math.ceil(estIn));
+      } else if (payTok === "WEGLD") {
+        formattedIn = estIn.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
       } else if (payTok === "WBTC") {
         formattedIn = estIn.toFixed(6).replace(/0+$/, "").replace(/\.$/, "");
       } else if (payTok === "WETH") {
@@ -4412,90 +4506,147 @@ async function executeMarketSwap() {
   const payConf = SWAP_TOKENS[payTok] || SWAP_TOKENS.WEGLD;
   const recvConf = SWAP_TOKENS[recvTok] || SWAP_TOKENS.EFOO;
 
+  // 1. Balance validation & Auto-Wrap setup for native EGLD
+  let neededWrap = 0;
+  let wrapTx = null;
+
+  if (payTok === "WEGLD") {
+    const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
+    const egldBal = marketWallet.egldBalance || 0;
+    const totalAvail = wegldBal + egldBal;
+
+    if (totalAvail < amt) {
+      showMarketToast(`⚠️ Insufficient balance! Required: ${amt} EGLD (Balance: ${wegldBal.toFixed(4)} WEGLD + ${egldBal.toFixed(4)} EGLD)`);
+      return;
+    }
+
+    if (wegldBal < amt) {
+      neededWrap = amt - wegldBal;
+      if (egldBal < neededWrap + 0.005) {
+        showMarketToast(`⚠️ Insufficient native EGLD! You need ${neededWrap.toFixed(4)} EGLD to wrap + 0.005 EGLD for network gas fees.`);
+        return;
+      }
+      const shard = marketWallet.shard !== undefined ? marketWallet.shard : 1;
+      const shardWrapper = CONTRACTS.WEGLD_WRAPPERS[shard] || CONTRACTS.WEGLD_WRAPPERS[1];
+      const wrapWei = toAtomicUnits(neededWrap, 18).toString();
+      wrapTx = {
+        receiver: shardWrapper,
+        value: wrapWei,
+        gasLimit: 8000000,
+        data: "wrapEgld"
+      };
+    }
+  } else {
+    const userTokBal = payTok === "EFOO" ? (marketWallet.efooBalance || 0) : ((marketWallet.tokens && marketWallet.tokens[payConf.identifier]) || 0);
+    if (userTokBal < amt) {
+      showMarketToast(`⚠️ Insufficient balance! Required: ${amt} ${payConf.symbol} (Balance: ${userTokBal.toLocaleString()} ${payConf.symbol})`);
+      return;
+    }
+  }
+
   showMarketToast(`⏳ Preparing DEX Swap: ${amt} ${payConf.symbol} ➔ ${recvConf.symbol}...`);
 
   try {
     const payDec = payConf.decimals !== undefined ? payConf.decimals : 18;
     const payAmtHex = bigIntToHex(toAtomicUnits(amt, payDec));
+    let swapTx = null;
 
-    if (payTok === "EFOO" && recvTok === "WEGLD") {
+    if (payTok === "WEGLD" && recvTok === "USDC") {
+      // Direct xExchange WEGLD -> USDC swap (Deep Liquidity)
+      const wegldHex = stringToHex("WEGLD-bd4d79");
+      const funcHex = stringToHex("swapTokensFixedInput");
+      const usdcHex = stringToHex("USDC-c76f1f");
+      const data = `ESDTTransfer@${wegldHex}@${payAmtHex}@${funcHex}@${usdcHex}@01`;
+      swapTx = {
+        receiver: CONTRACTS.XEXCHANGE_WEGLD_USDC_PAIR,
+        value: "0",
+        gasLimit: 60000000,
+        data
+      };
+    } else if (payTok === "USDC" && recvTok === "WEGLD") {
+      // Direct xExchange USDC -> WEGLD swap (Deep Liquidity)
+      const usdcHex = stringToHex("USDC-c76f1f");
+      const funcHex = stringToHex("swapTokensFixedInput");
+      const wegldHex = stringToHex("WEGLD-bd4d79");
+      const data = `ESDTTransfer@${usdcHex}@${payAmtHex}@${funcHex}@${wegldHex}@01`;
+      swapTx = {
+        receiver: CONTRACTS.XEXCHANGE_WEGLD_USDC_PAIR,
+        value: "0",
+        gasLimit: 60000000,
+        data
+      };
+    } else if (payTok === "EFOO" && recvTok === "WEGLD") {
       // Selling EFOO -> WEGLD (OneDex direct)
       const efooHex = stringToHex("EFOO-8fe2d4");
       const wegldHex = stringToHex("WEGLD-bd4d79");
       const funcHex = stringToHex("swapMultiTokensFixedInput");
       const data = `ESDTTransfer@${efooHex}@${payAmtHex}@${funcHex}@01@01@${efooHex}@${wegldHex}`;
-
-      await sendMultiversxTransaction({
+      swapTx = {
         receiver: CONTRACTS.ONEDEX_PAIR,
         value: "0",
         gasLimit: 85000000,
         data
-      });
+      };
     } else if (payTok === "WEGLD" && recvTok === "EFOO") {
-      // Direct Single-Transaction WEGLD -> EFOO swap
+      // Direct Single-Transaction WEGLD -> EFOO swap (OneDex)
       const tokenHex = stringToHex("WEGLD-bd4d79");
       const funcHex = stringToHex("swapMultiTokensFixedInput");
       const efooHex = stringToHex("EFOO-8fe2d4");
       const data = `ESDTTransfer@${tokenHex}@${payAmtHex}@${funcHex}@01@@${tokenHex}@${efooHex}`;
-
-      await sendMultiversxTransaction({
+      swapTx = {
         receiver: CONTRACTS.ONEDEX_PAIR,
         value: "0",
         gasLimit: 85000000,
         data
-      });
+      };
     } else if (payTok === "USDC" && recvTok === "EFOO") {
       // xExchange USDC -> EFOO
       const usdcHex = stringToHex("USDC-c76f1f");
       const funcHex = stringToHex("swapTokensFixedInput");
       const efooHex = stringToHex("EFOO-8fe2d4");
       const data = `ESDTTransfer@${usdcHex}@${payAmtHex}@${funcHex}@${efooHex}@01`;
-
-      await sendMultiversxTransaction({
+      swapTx = {
         receiver: CONTRACTS.XEXCHANGE_PAIR,
         value: "0",
         gasLimit: 60000000,
         data
-      });
+      };
     } else if (payTok === "EFOO" && recvTok === "USDC") {
       // xExchange EFOO -> USDC
       const efooHex = stringToHex("EFOO-8fe2d4");
       const funcHex = stringToHex("swapTokensFixedInput");
       const usdcHex = stringToHex("USDC-c76f1f");
       const data = `ESDTTransfer@${efooHex}@${payAmtHex}@${funcHex}@${usdcHex}@01`;
-
-      await sendMultiversxTransaction({
+      swapTx = {
         receiver: CONTRACTS.XEXCHANGE_PAIR,
         value: "0",
         gasLimit: 60000000,
         data
-      });
+      };
     } else if (payTok === "WEGLD") {
       // Direct router WEGLD -> TokenOut on OneDex
       const wegldHex = stringToHex("WEGLD-bd4d79");
       const tokenOutHex = stringToHex(recvConf.identifier);
       const funcHex = stringToHex("swapMultiTokensFixedInput");
       const data = `ESDTTransfer@${wegldHex}@${payAmtHex}@${funcHex}@01@@${wegldHex}@${tokenOutHex}`;
-
-      await sendMultiversxTransaction({
+      swapTx = {
         receiver: CONTRACTS.ONEDEX_PAIR,
         value: "0",
         gasLimit: 85000000,
         data
-      });
+      };
     } else if (recvTok === "WEGLD") {
       // Direct router TokenIn -> WEGLD on OneDex
       const tokenInHex = stringToHex(payConf.identifier);
       const wegldHex = stringToHex("WEGLD-bd4d79");
       const funcHex = stringToHex("swapMultiTokensFixedInput");
       const data = `ESDTTransfer@${tokenInHex}@${payAmtHex}@${funcHex}@01@@${tokenInHex}@${wegldHex}`;
-
-      await sendMultiversxTransaction({
+      swapTx = {
         receiver: CONTRACTS.ONEDEX_PAIR,
         value: "0",
         gasLimit: 85000000,
         data
-      });
+      };
     } else {
       // Universal multi-hop routing on OneDex: TokenIn -> WEGLD -> TokenOut
       const tokenInHex = stringToHex(payConf.identifier);
@@ -4503,14 +4654,23 @@ async function executeMarketSwap() {
       const wegldHex = stringToHex("WEGLD-bd4d79");
       const funcHex = stringToHex("swapMultiTokensFixedInput");
       const data = `ESDTTransfer@${tokenInHex}@${payAmtHex}@${funcHex}@01@@${tokenInHex}@${wegldHex}@${tokenOutHex}`;
-
-      await sendMultiversxTransaction({
+      swapTx = {
         receiver: CONTRACTS.ONEDEX_PAIR,
         value: "0",
         gasLimit: 95000000,
         data
-      });
+      };
     }
+
+    let txResult;
+    if (wrapTx) {
+      showMarketToast(`🔄 Auto-Wrapping ${neededWrap.toFixed(4)} EGLD to WEGLD and executing swap...`);
+      txResult = await sendMultiversxTransaction({ txs: [wrapTx, swapTx] });
+    } else {
+      txResult = await sendMultiversxTransaction(swapTx);
+    }
+
+    const txHash = txResult?.hash || (Array.isArray(txResult?.hashes) ? txResult.hashes[txResult.hashes.length - 1] : null);
 
     const bonusCheckbox = document.getElementById("m-swap-bonus-checkbox");
     const isBonusChecked = bonusCheckbox && bonusCheckbox.checked && !bonusCheckbox.disabled && recvTok === "EFOO";
@@ -4523,13 +4683,23 @@ async function executeMarketSwap() {
 
     showMarketToast(
       `🎉 Swap transaction dispatched! Your ${recvConf.symbol} is being confirmed on-chain!${bonusToast}`,
-      8000
+      10000,
+      txHash
     );
+
+    if (txHash && txHash !== "broadcasted") {
+      watchMarketTransaction(txHash, () => {
+        if (marketWallet.address) fetchWalletBalances(marketWallet.address);
+      });
+    }
 
     // Refresh wallet balances
     setTimeout(() => {
       if (marketWallet.address) fetchWalletBalances(marketWallet.address);
-    }, 6000);
+    }, 4500);
+    setTimeout(() => {
+      if (marketWallet.address) fetchWalletBalances(marketWallet.address);
+    }, 10000);
   } catch (err) {
     console.error("Swap execution failed:", err);
     showMarketToast(
