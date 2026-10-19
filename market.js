@@ -1458,10 +1458,16 @@ async function fetchLiveScListings() {
           const scInfo = scListingsMap.get(it.identifier);
           const localInfo = localMap.get(it.identifier);
           const isPass = isUltrasPassNft(it);
-          let price = isPass ? ULTRAS_PASS_PRICE_EGLD : 0.05;
-          let currency = "EGLD";
-          let seller = isPass ? "Official NFooT Escrow" : "On-Chain Escrow";
 
+          // CRITICAL: Do NOT display smart contract vault reserve stock in the browse marketplace!
+          // Only show NFTs / VIP passes if an owner has genuinely listed them for sale on the SC or locally.
+          if (!scInfo && !localInfo) {
+            continue;
+          }
+
+          let price = 0.05;
+          let currency = "EGLD";
+          let seller = "On-Chain Escrow";
           let paymentToken = "EGLD";
 
           if (scInfo) {
@@ -1486,7 +1492,7 @@ async function fetchLiveScListings() {
           }
 
           scItems.push({
-            id: `sc-${it.identifier}`,
+            id: isPass ? `sc-${it.identifier}-${seller.slice(-6)}` : `sc-${it.identifier}`,
             isScListing: true,
             identifier: it.identifier,
             collection: it.collection,
@@ -1524,8 +1530,8 @@ async function fetchLiveScListings() {
 
 function getAllActiveListings() {
   const p2p = getMarketplaceListings();
-  const scIds = new Set(cachedScListings.map((x) => x.identifier));
-  const uniqueP2p = p2p.filter((x) => !scIds.has(x.identifier));
+  const scKeys = new Set(cachedScListings.map((x) => x.id || `${x.identifier}-${x.seller}`));
+  const uniqueP2p = p2p.filter((x) => !scKeys.has(x.id || `${x.identifier}-${x.seller}`));
   return [...cachedScListings, ...uniqueP2p, ...cachedXoxnoListings];
 }
 
@@ -2079,8 +2085,6 @@ function renderMarketplaceGrid() {
 
     const sellerShort = isOwner
       ? "You (Owner)"
-      : isUltrasPassNft(item)
-      ? "Official Escrow"
       : (item.seller && item.seller.startsWith("erd1") ? `${item.seller.slice(0, 6)}...${item.seller.slice(-4)}` : (item.seller || "Escrow"));
 
     card.innerHTML = `
@@ -2321,17 +2325,29 @@ function renderMyLockerGrid() {
             <div class="mnc-price-box">
               <div class="mnc-price-head">
                 <span class="mnc-price-lbl">MEMBERSHIP</span>
-                <span class="mnc-seller-lbl" style="color:#ffb800;">👑 Active VIP Pass</span>
+                <span class="mnc-seller-lbl" style="color:${isListed ? 'var(--gold)' : 'var(--neon)'};">${isListed ? '🏷️ Listed on Market' : '👑 Active VIP Pass'}</span>
               </div>
-              <div class="mnc-price-row">
-                <strong class="mnc-price-val" style="color:var(--neon); font-size:1.05rem;">Lifetime 0% Fees</strong>
-              </div>
+              ${
+                isListed
+                  ? `<div class="mnc-price-row">
+                       <strong class="mnc-price-val" style="color:var(--gold);">${isListed.currency === "EGLD" ? Number(isListed.price).toFixed(3) : Number(isListed.price).toLocaleString("en-US")}</strong>
+                       ${getCurrencyBadgeHtml(isListed.currency)}
+                     </div>`
+                  : `<div class="mnc-price-row">
+                       <strong class="mnc-price-val" style="color:var(--neon); font-size:1.05rem;">Lifetime 0% Fees</strong>
+                     </div>`
+              }
             </div>
 
             <div class="mnc-action-wrap">
-              <a href="https://xspotlight.com/nfts/${nft.identifier || 'EFOOPASS-5223a8-01'}" target="_blank" rel="noopener" class="m-btn-primary" style="background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; text-decoration:none; padding:8px 12px; font-size:0.85rem; display:flex; align-items:center; justify-content:center; gap:6px; width:100%; box-sizing:border-box;">
-                xSpotlight ↗
-              </a>
+              ${
+                isListed
+                  ? `<div class="mnc-owner-btns">
+                       <button type="button" class="mnc-btn-edit" data-locker-edit="${isListed.id}">✏️ Edit</button>
+                       <button type="button" class="mnc-btn-delist" data-locker-delist="${isListed.id}">✕ Withdraw</button>
+                     </div>`
+                  : `<button type="button" class="m-btn-primary" data-locker-list="${nft.identifier}" style="width:100%; justify-content:center; background:linear-gradient(135deg, #ffb800, #ff8c00); color:#050d08; font-weight:800;">🏷️ SELL PASS</button>`
+              }
             </div>
           </div>
         </div>
@@ -2340,6 +2356,19 @@ function renderMyLockerGrid() {
       card.querySelector(`[data-locker-inspect="${nft.identifier}"]`)?.addEventListener("click", () => {
         openNftDetailsModal(nft);
       });
+
+      if (isListed) {
+        card.querySelector(`[data-locker-edit="${isListed.id}"]`)?.addEventListener("click", () => {
+          openEditPriceModal(isListed);
+        });
+        card.querySelector(`[data-locker-delist="${isListed.id}"]`)?.addEventListener("click", () => {
+          executeDelistNft(isListed);
+        });
+      } else {
+        card.querySelector(`[data-locker-list="${nft.identifier}"]`)?.addEventListener("click", () => {
+          openListNftModal(nft);
+        });
+      }
 
       grid.appendChild(card);
       return;
@@ -2586,9 +2615,12 @@ async function executeBuyNft(item) {
 
   const isHu = currentMarketLang === "hu";
 
-  // Ultras Pass SFT purchase delegates directly to buyUltrasPassOnChain (0.5 EGLD on Smart Contract)
-  if (isUltrasPassNft(item)) {
+  // Ultras Pass: if unlisted vault reserve, delegate to direct minting
+  if (isUltrasPassNft(item) && !item.isScListing && (!item.seller || item.seller.includes("Escrow"))) {
     return buyUltrasPassOnChain();
+  }
+  if (isUltrasPassNft(item)) {
+    item.isXoxno = false; // Ultras Pass is strictly settled via our Smart Contract
   }
 
   // =========================================================================
@@ -3019,15 +3051,22 @@ function openListNftModal(nft) {
   const rankEl = document.getElementById("list-modal-rank");
 
   const tier = getNftRarityTier(nft);
+  const isPass = isUltrasPassNft(nft);
   const isKeeper = (nft.collection === KEEPER_COLLECTION) || 
     (nft.identifier && nft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
     (nft.name && nft.name.toLowerCase().includes("goalkeeper"));
-  const fallbackImg = isKeeper ? "branding/original/GOALKEEPER-cb9e3e/logo.png" : "branding/original/EFOOTBALL-91a4eb/logo.png";
+  const fallbackImg = isPass
+    ? "branding/rebranded/efoo-ultras-pass-badge.png"
+    : (isKeeper ? "branding/original/GOALKEEPER-cb9e3e/logo.png" : "branding/original/EFOOTBALL-91a4eb/logo.png");
 
-  if (titleEl) titleEl.textContent = `List ${nft.name || nft.identifier}`;
-  if (nameEl) nameEl.textContent = nft.name || nft.identifier;
+  if (titleEl) titleEl.textContent = `List ${isPass ? "EFOO Ultras PASS" : (nft.name || nft.identifier)}`;
+  if (nameEl) nameEl.textContent = isPass ? "EFOO Ultras PASS (VIP Access)" : (nft.name || nft.identifier);
   if (imgEl) imgEl.src = nft.url || fallbackImg;
-  if (rankEl) rankEl.textContent = `${tier.tierIcon} Rank #${tier.rank} (${tier.tierLabel}) • ${isKeeper ? "🧤 Goalkeeper" : "⚽ Striker"}`;
+  if (rankEl) {
+    rankEl.textContent = isPass
+      ? "👑 0% Trading Fees For Life • VIP Pass SFT"
+      : `${tier.tierIcon} Rank #${tier.rank} (${tier.tierLabel}) • ${isKeeper ? "🧤 Goalkeeper" : "⚽ Striker"}`;
+  }
 
   setListingCurrency("EGLD");
   modal?.classList.remove("hidden");
@@ -3057,12 +3096,15 @@ async function executeCreateListing() {
     }
   }
 
+  const isPass = isUltrasPassNft(activeModalNft);
   const isKeeper = (activeModalNft.collection === KEEPER_COLLECTION) || 
     (activeModalNft.identifier && activeModalNft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
     (activeModalNft.name && activeModalNft.name.toLowerCase().includes("goalkeeper"));
-  const fallbackImg = isKeeper ? "branding/original/GOALKEEPER-cb9e3e/logo.png" : "branding/original/EFOOTBALL-91a4eb/logo.png";
+  const fallbackImg = isPass
+    ? "branding/rebranded/efoo-ultras-pass-badge.png"
+    : (isKeeper ? "branding/original/GOALKEEPER-cb9e3e/logo.png" : "branding/original/EFOOTBALL-91a4eb/logo.png");
 
-  const colStr = activeModalNft.collection || (activeModalNft.identifier ? activeModalNft.identifier.split("-").slice(0, 2).join("-") : (isKeeper ? KEEPER_COLLECTION : STRIKER_COLLECTION));
+  const colStr = activeModalNft.collection || (activeModalNft.identifier ? activeModalNft.identifier.split("-").slice(0, 2).join("-") : (isPass ? ULTRAS_PASS_COLLECTION : (isKeeper ? KEEPER_COLLECTION : STRIKER_COLLECTION)));
   const colHex = stringToHex(colStr);
 
   let nonceNum = activeModalNft.nonce;
@@ -3668,7 +3710,7 @@ function updateUltrasQtyUI(qty) {
 
 async function fetchUltrasPassStock() {
   try {
-    const res = await fetch("https://api.multiversx.com/query", {
+    const res = await fetch(`${MULTIVERSX_API}/vm-values/query`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -3679,8 +3721,10 @@ async function fetchUltrasPassStock() {
     });
     if (res.ok) {
       const data = await res.json();
-      if (data?.data?.returnCode === "ok" && data?.data?.returnData?.length > 0) {
-        const b64 = data.data.returnData[0];
+      const returnData = data?.data?.data?.returnData || data?.data?.returnData || [];
+      const returnCode = data?.data?.data?.returnCode || data?.data?.returnCode || "";
+      if (returnCode === "ok" && returnData.length > 0) {
+        const b64 = returnData[0];
         const hex = atob(b64).split("").map(c => c.charCodeAt(0).toString(16).padStart(2, "0")).join("");
         const stock = hex ? Number(BigInt("0x" + hex)) : 0;
         
@@ -3712,22 +3756,51 @@ async function buyUltrasPassOnChain() {
     return;
   }
 
-  const totalWei = "500000000000000000"; // 0.5 EGLD in wei
+  // Check quantity from Ultras tab stepper if available, default 1
+  const qtyInput = document.getElementById("ultras-qty-input");
+  const qty = qtyInput ? Math.max(1, Math.min(10, parseInt(qtyInput.value, 10) || 1)) : 1;
+  const neededEgld = qty * 0.5;
+  const egldBal = marketWallet.egldBalance || 0;
+
+  if (egldBal < neededEgld) {
+    showMarketToast(
+      isHu
+        ? `⚠️ Nincs elegendő EGLD az Ultras PASS vásárlásához! Szükséges: ${neededEgld.toFixed(2)} EGLD (Egyenleg: ${egldBal.toFixed(3)} EGLD)`
+        : `⚠️ Insufficient EGLD to mint Ultras PASS! Required: ${neededEgld.toFixed(2)} EGLD (Balance: ${egldBal.toFixed(3)} EGLD)`
+    );
+    return;
+  }
+
+  const singlePassWei = "500000000000000000"; // 0.5 EGLD in wei
   const data = "buyUltrasPass";
 
   showMarketToast(
     isHu
-      ? "⏳ Ultras PASS vásárlási tranzakció előkészítése (0.50 EGLD)..."
-      : "⏳ Preparing Ultras PASS transaction (0.50 EGLD)..."
+      ? `⏳ Ultras PASS veretési tranzakció előkészítése (${neededEgld.toFixed(2)} EGLD, ${qty} db)...`
+      : `⏳ Preparing Ultras PASS mint transaction (${neededEgld.toFixed(2)} EGLD, ${qty} ${qty > 1 ? "passes" : "pass"})...`
   );
 
   try {
-    const txResult = await sendMultiversxTransaction({
-      receiver: STADIUM_VAULT_SC,
-      value: totalWei,
-      gasLimit: 15000000,
-      data: data
-    });
+    let txResult = null;
+    if (qty === 1) {
+      txResult = await sendMultiversxTransaction({
+        receiver: STADIUM_VAULT_SC,
+        value: singlePassWei,
+        gasLimit: 15000000,
+        data: data
+      });
+    } else {
+      const txs = [];
+      for (let i = 0; i < qty; i++) {
+        txs.push({
+          receiver: STADIUM_VAULT_SC,
+          value: singlePassWei,
+          gasLimit: 15000000,
+          data: data
+        });
+      }
+      txResult = await sendMultiversxTransaction({ txs });
+    }
 
     const txHash = txResult?.hash || null;
     if (txHash && txHash !== "broadcasted") {
@@ -3735,14 +3808,16 @@ async function buyUltrasPassOnChain() {
     }
 
     localStorage.setItem(STORAGE_ULTRAS_PASS_PREFIX + marketWallet.address.toLowerCase(), "true");
+    localStorage.setItem("efoo_has_ultras_pass", "true");
     updateUltrasPassUI();
     updateListingFeePreview();
     fetchUltrasPassStock();
+    setTimeout(() => { if (marketWallet.address) fetchWalletNfts(marketWallet.address); }, 3500);
 
     showMarketToast(
       isHu
         ? "🎉 Gratulálunk! EFOO Ultras PASS sikeresen megvásárolva! A Smart Contract átadta az SFT-t a tárcádba, az örökös 0% kereskedési díj azonnal aktív!"
-        : "🎉 Congratulations! EFOO Ultras PASS activated! The Smart Contract delivered the SFT to your wallet with lifetime 0% trading fee!",
+        : "🎉 Congratulations! EFOO Ultras PASS minted! The Smart Contract delivered the VIP SFT to your locker with lifetime 0% trading fee!",
       10000,
       txHash
     );
