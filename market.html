@@ -353,7 +353,7 @@
         <div class="m-tab-header">
           <span class="m-kicker">🔄 MULTIVERSX ON-CHAIN DEX ROUTER</span>
           <h2>DEGEN MULTI-TOKEN DEX SWAP</h2>
-          <p>Instant on-chain swapping between <code>$EFOO</code>, <code>EGLD</code>, <code>USDC</code>, <code>FOXSY</code>, <code>WETH</code>, <code>WBTC</code>, and all major MultiversX tokens via verified OneDex &amp; xExchange smart contracts.</p>
+          <p>Instant on-chain swapping between <code>$EFOO</code>, <code>EGLD</code>, <code>USDC</code>, <code>FOXSY</code>, <code>WETH</code>, <code>WBTC</code>, and all major MultiversX tokens with deep liquidity and direct settlement.</p>
         </div>
 
         <div class="market-swap-wrap">
@@ -391,7 +391,7 @@
                       <img src="branding/icons/usdc-logo.svg" alt="USDC" class="token-dropdown-logo" />
                       <div class="token-dropdown-info">
                         <span class="td-symbol">USDC</span>
-                        <span class="td-sub">USD Coin (xExchange)</span>
+                        <span class="td-sub">USD Coin (Stablecoin)</span>
                       </div>
                       <span class="td-check">✔</span>
                     </div>
@@ -411,7 +411,7 @@
                       <img src="branding/icons/mex-logo.svg" alt="MEX" class="token-dropdown-logo" />
                       <div class="token-dropdown-info">
                         <span class="td-symbol">MEX</span>
-                        <span class="td-sub">xExchange Token</span>
+                        <span class="td-sub">Ecosystem DEX Token</span>
                       </div>
                       <span class="td-check">✔</span>
                     </div>
@@ -563,7 +563,7 @@
                 <span id="m-swap-recv-label">YOU RECEIVE</span>
                 <div style="display:flex; gap:10px; align-items:center;">
                   <span id="m-swap-recv-bal" style="color:var(--text-sub);">Balance: —</span>
-                  <span id="m-swap-route-tag" style="color:var(--neon);">Route: OneDex AMM</span>
+                  <span id="m-swap-route-tag" style="color:var(--neon);">Route: Direct AMM Pool</span>
                 </div>
               </div>
               <div class="ms-token-row">
@@ -582,7 +582,7 @@
                       <img src="branding/icons/egld-logo.svg" alt="WEGLD" class="token-dropdown-logo" />
                       <div class="token-dropdown-info">
                         <span class="td-symbol">WEGLD</span>
-                        <span class="td-sub">Wrapped EGLD (ESDT)</span>
+                        <span class="td-sub">Wrapped & Native EGLD (Auto-Wrap)</span>
                       </div>
                       <span class="td-check">✔</span>
                     </div>
@@ -592,7 +592,7 @@
                       <img src="branding/icons/usdc-logo.svg" alt="USDC" class="token-dropdown-logo" />
                       <div class="token-dropdown-info">
                         <span class="td-symbol">USDC</span>
-                        <span class="td-sub">USD Coin (xExchange)</span>
+                        <span class="td-sub">USD Coin (Stablecoin)</span>
                       </div>
                       <span class="td-check">✔</span>
                     </div>
@@ -612,7 +612,7 @@
                       <img src="branding/icons/mex-logo.svg" alt="MEX" class="token-dropdown-logo" />
                       <div class="token-dropdown-info">
                         <span class="td-symbol">MEX</span>
-                        <span class="td-sub">xExchange Token</span>
+                        <span class="td-sub">Ecosystem DEX Token</span>
                       </div>
                       <span class="td-check">✔</span>
                     </div>
@@ -857,7 +857,7 @@
                 </div>
                 <div class="ps-item">
                   <span class="ps-lbl">DEX Protocol:</span>
-                  <strong class="ps-val">xExchange &amp; OneDex</strong>
+                  <strong class="ps-val">On-Chain DEX AMM</strong>
                 </div>
                 <div class="ps-item">
                   <span class="ps-lbl">Pool Fee Share:</span>
@@ -896,7 +896,7 @@
                 </div>
                 <div class="ps-item">
                   <span class="ps-lbl">DEX Protocol:</span>
-                  <strong class="ps-val">xExchange</strong>
+                  <strong class="ps-val">On-Chain DEX AMM</strong>
                 </div>
                 <div class="ps-item">
                   <span class="ps-lbl">Pool Fee Share:</span>
@@ -1425,7 +1425,7 @@
           </div>
           <div style="display: flex; justify-content: space-between;">
             <span style="color: var(--text-sub);">Settlement:</span>
-            <strong style="color: var(--neon);" id="m-liq-settlement-lbl">Direct OneDex AMM Pair</strong>
+            <strong style="color: var(--neon);" id="m-liq-settlement-lbl">Direct On-Chain AMM Pair</strong>
           </div>
         </div>
 
@@ -1434,7 +1434,7 @@
         </button>
 
         <div style="text-align: center; font-size: 0.78rem; color: var(--neon); background: rgba(0, 255, 136, 0.06); padding: 9px 12px; border-radius: 8px; border: 1px solid rgba(0, 255, 136, 0.2); font-family: var(--font-mono);">
-          🔒 <strong>100% In-DApp Deposit:</strong> Direct OneDex &amp; xExchange Smart Contract Deposit — Zero Redirection!
+          🔒 <strong>100% In-DApp Deposit:</strong> Direct On-Chain Smart Contract Deposit — Zero Redirection!
         </div>
       </div>
     </div>
@@ -1444,6 +1444,6 @@
   <div id="m-toast" class="m-toast hidden"></div>
 
   <!-- Scripts -->
-  <script src="market.js?v=20261019_v39_auto_wrap_swap"></script>
+  <script src="market.js?v=20261019_v40_native_branding"></script>
 </body>
 </html>

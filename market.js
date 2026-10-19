@@ -1776,10 +1776,12 @@ async function fetchWalletBalances(address) {
     if (allTokensRes.ok) {
       const allTokens = await allTokensRes.json();
       marketWallet.tokens = {};
+      marketWallet.rawTokens = {};
       if (Array.isArray(allTokens)) {
         allTokens.forEach((t) => {
           const dec = t.decimals !== undefined ? t.decimals : 18;
           marketWallet.tokens[t.identifier] = parseFloat(t.balance) / Math.pow(10, dec);
+          marketWallet.rawTokens[t.identifier] = t.balance;
         });
       }
       marketWallet.efooBalance = marketWallet.tokens[EFOO_TOKEN_ID] || 0;
@@ -4004,19 +4006,19 @@ const SWAP_TOKENS = {
     decimals: 18,
     icon: "branding/icons/egld-logo.svg",
     isRound: false,
-    route: "xExchange & OneDex AMM",
+    route: "Direct AMM Pool",
     dex: "direct"
   },
   USDC: {
     symbol: "USDC",
     realSymbol: "USDC",
     name: "USDC",
-    sub: "USD Coin (xExchange)",
+    sub: "USD Coin (Stablecoin)",
     identifier: "USDC-c76f1f",
     decimals: 6,
     icon: "branding/icons/usdc-logo.svg",
     isRound: false,
-    route: "xExchange (185.6M Pool)",
+    route: "Deep Liquidity Pool",
     dex: "xexchange"
   },
   FOXSY: {
@@ -4028,19 +4030,19 @@ const SWAP_TOKENS = {
     decimals: 18,
     icon: "branding/icons/foxsy-logo.svg",
     isRound: true,
-    route: "OneDex (FOXSY ➔ WEGLD ➔ EFOO)",
+    route: "Auto-Route (FOXSY ➔ WEGLD ➔ EFOO)",
     dex: "onedex_hop"
   },
   MEX: {
     symbol: "MEX",
     realSymbol: "MEX",
     name: "MEX",
-    sub: "xExchange Token",
+    sub: "Ecosystem DEX Token",
     identifier: "MEX-455c57",
     decimals: 18,
     icon: "branding/icons/mex-logo.svg",
     isRound: false,
-    route: "OneDex (MEX ➔ WEGLD ➔ EFOO)",
+    route: "Auto-Route (MEX ➔ WEGLD ➔ EFOO)",
     dex: "onedex_hop"
   },
   WBTC: {
@@ -4052,7 +4054,7 @@ const SWAP_TOKENS = {
     decimals: 8,
     icon: "branding/icons/wbtc-logo.svg",
     isRound: false,
-    route: "OneDex (WBTC ➔ WEGLD ➔ EFOO)",
+    route: "Auto-Route (WBTC ➔ WEGLD ➔ EFOO)",
     dex: "onedex_hop"
   },
   WETH: {
@@ -4064,7 +4066,7 @@ const SWAP_TOKENS = {
     decimals: 18,
     icon: "branding/icons/weth-logo.svg",
     isRound: false,
-    route: "OneDex (WETH ➔ WEGLD ➔ EFOO)",
+    route: "Auto-Route (WETH ➔ WEGLD ➔ EFOO)",
     dex: "onedex_hop"
   },
   XOXNO: {
@@ -4076,7 +4078,7 @@ const SWAP_TOKENS = {
     decimals: 18,
     icon: "branding/icons/xoxno-logo.svg",
     isRound: true,
-    route: "OneDex (XOXNO ➔ WEGLD ➔ EFOO)",
+    route: "Auto-Route (XOXNO ➔ WEGLD ➔ EFOO)",
     dex: "onedex_hop"
   },
   BOBER: {
@@ -4088,7 +4090,7 @@ const SWAP_TOKENS = {
     decimals: 18,
     icon: "branding/icons/bober-logo.svg",
     isRound: true,
-    route: "OneDex (BOBER ➔ WEGLD ➔ EFOO)",
+    route: "Auto-Route (BOBER ➔ WEGLD ➔ EFOO)",
     dex: "onedex_hop"
   },
   OFE: {
@@ -4100,7 +4102,7 @@ const SWAP_TOKENS = {
     decimals: 4,
     icon: "branding/icons/ofe-logo.svg",
     isRound: true,
-    route: "OneDex Router (OFE ➔ WEGLD ➔ EFOO)",
+    route: "Auto-Route (OFE ➔ WEGLD ➔ EFOO)",
     dex: "onedex_hop"
   },
   JEX: {
@@ -4112,7 +4114,7 @@ const SWAP_TOKENS = {
     decimals: 18,
     icon: "branding/icons/jex-logo.svg",
     isRound: true,
-    route: "OneDex (JEX ➔ WEGLD ➔ EFOO)",
+    route: "Auto-Route (JEX ➔ WEGLD ➔ EFOO)",
     dex: "onedex_hop"
   },
   VICTOR: {
@@ -4124,7 +4126,7 @@ const SWAP_TOKENS = {
     decimals: 18,
     icon: "branding/icons/victor-logo.svg",
     isRound: true,
-    route: "OneDex (VICTOR ➔ WEGLD ➔ EFOO)",
+    route: "Auto-Route (VICTOR ➔ WEGLD ➔ EFOO)",
     dex: "onedex_hop"
   },
   WAM: {
@@ -4136,7 +4138,7 @@ const SWAP_TOKENS = {
     decimals: 18,
     icon: "branding/icons/wam-logo.svg",
     isRound: true,
-    route: "OneDex Router (WAM ➔ WEGLD ➔ EFOO)",
+    route: "Auto-Route (WAM ➔ WEGLD ➔ EFOO)",
     dex: "onedex_hop"
   },
   RARE: {
@@ -4148,7 +4150,7 @@ const SWAP_TOKENS = {
     decimals: 18,
     icon: "branding/icons/rare-logo.svg",
     isRound: true,
-    route: "OneDex (RARE ➔ WEGLD ➔ EFOO)",
+    route: "Auto-Route (RARE ➔ WEGLD ➔ EFOO)",
     dex: "onedex_hop"
   },
   JOJO: {
@@ -4160,7 +4162,7 @@ const SWAP_TOKENS = {
     decimals: 18,
     icon: "branding/icons/jojo-logo.svg",
     isRound: true,
-    route: "OneDex (JOJO ➔ WEGLD ➔ EFOO)",
+    route: "Auto-Route (JOJO ➔ WEGLD ➔ EFOO)",
     dex: "onedex_hop"
   },
   SUPER: {
@@ -4172,7 +4174,7 @@ const SWAP_TOKENS = {
     decimals: 18,
     icon: "branding/icons/super-logo.svg",
     isRound: true,
-    route: "OneDex Router (SUPER ➔ WEGLD ➔ EFOO)",
+    route: "Auto-Route (SUPER ➔ WEGLD ➔ EFOO)",
     dex: "onedex_hop"
   },
   PLATA: {
@@ -4184,7 +4186,7 @@ const SWAP_TOKENS = {
     decimals: 8,
     icon: "branding/icons/plata-logo.svg",
     isRound: true,
-    route: "OneDex (PLATA ➔ WEGLD ➔ EFOO)",
+    route: "Auto-Route (PLATA ➔ WEGLD ➔ EFOO)",
     dex: "onedex_hop"
   },
   EFOO: {
@@ -4196,7 +4198,7 @@ const SWAP_TOKENS = {
     decimals: 18,
     icon: "branding/icons/efoo-logo.png",
     isRound: true,
-    route: "OneDex AMM (Sell to WEGLD)",
+    route: "Direct AMM (Sell to WEGLD)",
     dex: "sell_efoo"
   }
 };
@@ -4438,9 +4440,9 @@ function updateMarketSwapEstimate(source = null) {
 
   // 3. Bidirectional AMM Pool vs Universal DEX Router
   if (payTok === "WEGLD" && recvTok === "EFOO") {
-    // Direct OneDex AMM (WEGLD <-> EFOO)
+    // Direct AMM (WEGLD <-> EFOO)
     rateStr = `1 WEGLD ≈ ${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO`;
-    routeStr = "OneDex Direct AMM";
+    routeStr = "Direct On-Chain AMM";
 
     if (source === "pay") {
       const amtInWithFee = amtIn * 0.99;
@@ -4453,9 +4455,9 @@ function updateMarketSwapEstimate(source = null) {
       }
     }
   } else if (payTok === "EFOO" && recvTok === "WEGLD") {
-    // Direct OneDex AMM (EFOO <-> WEGLD)
+    // Direct AMM (EFOO <-> WEGLD)
     rateStr = `${marketDexState.efooPerWegld.toLocaleString("en-US")} $EFOO ≈ 1 WEGLD`;
-    routeStr = "OneDex Direct AMM";
+    routeStr = "Direct On-Chain AMM";
 
     if (source === "pay") {
       const amtInWithFee = amtIn * 0.99;
@@ -4468,9 +4470,9 @@ function updateMarketSwapEstimate(source = null) {
       }
     }
   } else if (payTok === "USDC" && recvTok === "EFOO") {
-    // Direct xExchange AMM (USDC <-> EFOO)
+    // Direct AMM (USDC <-> EFOO)
     rateStr = `1 USDC ≈ ${marketDexState.efooPerUsdc.toLocaleString("en-US")} $EFOO`;
-    routeStr = "xExchange Direct AMM";
+    routeStr = "Direct Liquidity Pool";
 
     if (source === "pay") {
       const amtInWithFee = amtIn * 0.997;
@@ -4483,9 +4485,9 @@ function updateMarketSwapEstimate(source = null) {
       }
     }
   } else if (payTok === "EFOO" && recvTok === "USDC") {
-    // Direct xExchange AMM (EFOO <-> USDC)
+    // Direct AMM (EFOO <-> USDC)
     rateStr = `${marketDexState.efooPerUsdc.toLocaleString("en-US")} $EFOO ≈ 1 USDC`;
-    routeStr = "xExchange Direct AMM";
+    routeStr = "Direct Liquidity Pool";
 
     if (source === "pay") {
       const amtInWithFee = amtIn * 0.997;
@@ -4498,10 +4500,10 @@ function updateMarketSwapEstimate(source = null) {
       }
     }
   } else if (payTok === "WEGLD" && recvTok === "USDC") {
-    // Direct xExchange AMM (WEGLD <-> USDC)
+    // Direct AMM (WEGLD <-> USDC)
     const egldPriceUsd = TOKEN_PRICES["WEGLD-bd4d79"] || 3.46;
     rateStr = `1 WEGLD ≈ ${egldPriceUsd.toFixed(2)} USDC`;
-    routeStr = "xExchange Direct AMM (Deep Liquidity)";
+    routeStr = "Direct High-Liquidity Route";
 
     if (source === "pay") {
       const amtInWithFee = amtIn * 0.997;
@@ -4510,10 +4512,10 @@ function updateMarketSwapEstimate(source = null) {
       estIn = (amtOut > 0 && egldPriceUsd > 0) ? (amtOut / (egldPriceUsd * 0.997)) : 0;
     }
   } else if (payTok === "USDC" && recvTok === "WEGLD") {
-    // Direct xExchange AMM (USDC <-> WEGLD)
+    // Direct AMM (USDC <-> WEGLD)
     const egldPriceUsd = TOKEN_PRICES["WEGLD-bd4d79"] || 3.46;
     rateStr = `1 USDC ≈ ${(1 / egldPriceUsd).toFixed(4)} WEGLD`;
-    routeStr = "xExchange Direct AMM (Deep Liquidity)";
+    routeStr = "Direct High-Liquidity Route";
 
     if (source === "pay") {
       const amtInWithFee = amtIn * 0.997;
@@ -4539,9 +4541,9 @@ function updateMarketSwapEstimate(source = null) {
     }
 
     if (payTok === "WEGLD" || recvTok === "WEGLD") {
-      routeStr = `OneDex (${payConf.symbol} ➔ ${recvConf.symbol})`;
+      routeStr = `Direct Route (${payConf.symbol} ➔ ${recvConf.symbol})`;
     } else {
-      routeStr = `OneDex Router (${payConf.symbol} ➔ WEGLD ➔ ${recvConf.symbol})`;
+      routeStr = `Auto-Route (${payConf.symbol} ➔ WEGLD ➔ ${recvConf.symbol})`;
     }
 
     if (source === "pay") {
@@ -4672,26 +4674,43 @@ async function executeMarketSwap() {
 
   try {
     const payDec = payConf.decimals !== undefined ? payConf.decimals : 18;
-    const payAmtHex = bigIntToHex(toAtomicUnits(amt, payDec));
+    let payAmtBigInt = toAtomicUnits(amt, payDec);
     let swapTx = null;
     const txsToSend = [];
 
-    // Auto-wrap EGLD to WEGLD if paying in WEGLD and current WEGLD balance is lower than needed amount
-    if (payTok === "WEGLD" && amt > wegldBal) {
-      const neededWrap = amt - wegldBal;
-      const shard = marketWallet.shard !== undefined ? marketWallet.shard : 1;
-      const shardWrapper = CONTRACTS.WEGLD_WRAPPERS[shard] || CONTRACTS.WEGLD_WRAPPERS[1];
-      const wrapWei = toAtomicUnits(neededWrap, 18).toString();
+    // Exact BigInt calculation to avoid 1-wei rounding errors
+    const rawBal = marketWallet.rawTokens && marketWallet.rawTokens[payConf.identifier];
+    if (payTok === "WEGLD") {
+      const wegldRaw = (marketWallet.rawTokens && marketWallet.rawTokens["WEGLD-bd4d79"]) || "0";
+      const wegldBigInt = BigInt(wegldRaw);
 
-      showMarketToast(`⚡ Auto-Wrapping ${neededWrap.toFixed(4)} EGLD ➔ WEGLD & executing swap...`);
+      if (payAmtBigInt > wegldBigInt) {
+        // Auto-wrap exact deficit: zero rounding error down to 1 wei
+        const wrapWeiBigInt = payAmtBigInt - wegldBigInt;
+        const shard = marketWallet.shard !== undefined ? marketWallet.shard : 1;
+        const shardWrapper = CONTRACTS.WEGLD_WRAPPERS[shard] || CONTRACTS.WEGLD_WRAPPERS[1];
+        const wrapWeiFloat = Number(wrapWeiBigInt) / 1e18;
 
-      txsToSend.push({
-        receiver: shardWrapper,
-        value: wrapWei,
-        gasLimit: 8000000,
-        data: "wrapEgld"
-      });
+        showMarketToast(`⚡ Auto-Wrapping ${wrapWeiFloat.toFixed(4)} EGLD ➔ WEGLD & executing swap...`);
+
+        txsToSend.push({
+          receiver: shardWrapper,
+          value: wrapWeiBigInt.toString(),
+          gasLimit: 8000000,
+          data: "wrapEgld"
+        });
+      } else if (wegldBigInt > 0n && payAmtBigInt > wegldBigInt) {
+        payAmtBigInt = wegldBigInt;
+      }
+    } else if (rawBal) {
+      const rawBigInt = BigInt(rawBal);
+      // If user is swapping close to max balance, clamp to rawBigInt so float precision doesn't overshoot
+      if (payAmtBigInt > rawBigInt && (Number(payAmtBigInt - rawBigInt) / Math.pow(10, payDec)) < 0.0001) {
+        payAmtBigInt = rawBigInt;
+      }
     }
+
+    const payAmtHex = bigIntToHex(payAmtBigInt);
 
     if (payTok === "WEGLD" && recvTok === "USDC") {
       // Direct xExchange WEGLD -> USDC swap (Deep Liquidity)
@@ -5595,7 +5614,7 @@ function openAddLiquidityModal(poolKey) {
     if (sym) sym.textContent = "WEGLD";
     if (icon) icon.src = "branding/icons/wegld-logo.svg";
     if (rateLbl) rateLbl.textContent = "1 WEGLD / EGLD ≈ 30,004,200 $EFOO";
-    if (settlLbl) settlLbl.textContent = "Direct OneDex AMM Pair";
+    if (settlLbl) settlLbl.textContent = "Direct On-Chain AMM Pair";
     if (inputA) inputA.value = "0.05";
     if (inputB) inputB.value = String(Math.floor(0.05 * 30004200));
 
@@ -5610,13 +5629,13 @@ function openAddLiquidityModal(poolKey) {
     if (sym) sym.textContent = "USDC";
     if (icon) icon.src = "branding/icons/usdc-logo.svg";
     if (rateLbl) rateLbl.textContent = "1 USDC ≈ 1,180,000 $EFOO";
-    if (settlLbl) settlLbl.textContent = "Direct xExchange Pair";
+    if (settlLbl) settlLbl.textContent = "Direct On-Chain Pair";
     if (inputA) inputA.value = "5";
     if (inputB) inputB.value = String(Math.floor(5 * 1180000));
 
     const usdcBal = (marketWallet.tokens && marketWallet.tokens["USDC-c76f1f"]) || 0;
     if (balA) balA.textContent = `Balance: ${usdcBal.toFixed(2)} USDC`;
-    if (subDesc) subDesc.textContent = "Direct xExchange AMM Pair";
+    if (subDesc) subDesc.textContent = "Direct On-Chain AMM Pair";
     if (autoWrapNote) autoWrapNote.textContent = "🔒 100% In-DApp";
   }
 
@@ -5716,7 +5735,7 @@ async function executeAddLiquidityOnChain() {
 
     let txsToSend = [];
     if (wegldBal >= aVal) {
-      showMarketToast("⏳ Preparing direct OneDex Liquidity Deposit (100% In-DApp)...");
+      showMarketToast("⏳ Preparing direct Liquidity Deposit (100% In-DApp)...");
       txsToSend.push({
         receiver: marketWallet.address,
         value: "0",
@@ -5729,7 +5748,7 @@ async function executeAddLiquidityOnChain() {
       const shardWrapper = CONTRACTS.WEGLD_WRAPPERS[shard] || CONTRACTS.WEGLD_WRAPPERS[1];
       const wrapWei = toAtomicUnits(neededWrap, 18).toString();
 
-      showMarketToast(`⚡ In-DApp Auto-Wrap & Deposit: Wrapping ${neededWrap.toFixed(4)} EGLD & depositing into OneDex (Zero Redirect)...`);
+      showMarketToast(`⚡ In-DApp Auto-Wrap & Deposit: Wrapping ${neededWrap.toFixed(4)} EGLD & depositing (Zero Redirect)...`);
 
       txsToSend.push({
         receiver: shardWrapper,
@@ -5772,7 +5791,7 @@ async function executeAddLiquidityOnChain() {
       return;
     }
 
-    showMarketToast("⏳ Preparing USDC & $EFOO xExchange Liquidity Deposit (100% In-DApp)...");
+    showMarketToast("⏳ Preparing USDC & $EFOO Liquidity Deposit (100% In-DApp)...");
 
     try {
       const txResult = await sendMultiversxTransaction({
@@ -5784,7 +5803,7 @@ async function executeAddLiquidityOnChain() {
       document.getElementById("m-add-liquidity-modal")?.classList.add("hidden");
 
       const shortHash = txResult?.hash && txResult.hash !== "broadcasted" ? ` (${txResult.hash.slice(0, 8)}...)` : "";
-      showMarketToast(`🎉 Liquidity deposit submitted${shortHash}! Direct in-dApp deposit to xExchange!`, 8000);
+      showMarketToast(`🎉 Liquidity deposit submitted${shortHash}! Direct in-dApp deposit!`, 8000);
 
       if (txResult?.hash && txResult.hash !== "broadcasted") {
         watchMarketTransaction(txResult.hash, async () => {
