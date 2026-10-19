@@ -1157,6 +1157,46 @@ function isSkillSftNft(nft) {
   return col.includes("efooskill") || id.includes("efooskill");
 }
 
+function getNftOptimizedImageUrl(nft) {
+  if (!nft) return "branding/original/EFOOTBALL-91a4eb/logo.png";
+  if (isUltrasPassNft(nft)) return "branding/rebranded/efoo-ultras-pass-badge.png";
+
+  const isKeeper = (nft.collection === KEEPER_COLLECTION) || 
+    (nft.identifier && nft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
+    (nft.name && nft.name.toLowerCase().includes("goalkeeper"));
+  const fallbackImg = isKeeper ? "branding/original/GOALKEEPER-cb9e3e/logo.png" : "branding/original/EFOOTBALL-91a4eb/logo.png";
+
+  // Check if MultiversX API returned default placeholder image or timeout error
+  const isDefaultThumb = (nft.media && Array.isArray(nft.media) && nft.media.some((m) => m.url && m.url.includes("default.png"))) ||
+    (nft.url && nft.url.includes("default.png"));
+  const hasMetadataTimeout = nft.metadata && nft.metadata.error && nft.metadata.error.code === "timeout";
+
+  // If this is a Goalkeeper and MultiversX media CDN failed to cache it:
+  if (isKeeper && (isDefaultThumb || hasMetadataTimeout || !nft.url || nft.url.includes("default.png"))) {
+    const uris = nft.uris || [];
+    let fileMatch = "";
+    for (const u of uris) {
+      try {
+        const decoded = typeof atob === "function" ? atob(u) : "";
+        if (decoded.includes(".png")) {
+          fileMatch = decoded.split("/").pop();
+          break;
+        }
+      } catch (e) {}
+    }
+    if (fileMatch) {
+      return `https://wsrv.nl/?url=https://ipfs.filebase.io/ipfs/bafybeicbszzifxxcpnq3zrndfdtf45wouhyjbklwk4ffio365icb2ylgg4/${fileMatch}&w=400&output=webp`;
+    }
+  }
+
+  // If it is any NFT with a direct valid url that is not default.png
+  if (nft.url && !nft.url.includes("default.png")) {
+    return nft.url;
+  }
+
+  return fallbackImg;
+}
+
 function getNftRarityTier(nft) {
   if (!nft || nft.identifier === "ROOKIE-STRIKER" || nft.identifier === "ROOKIE-KEEPER") {
     return {
@@ -2075,8 +2115,7 @@ function renderMarketplaceGrid() {
       (item.identifier && item.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
       (item.name && item.name.toLowerCase().includes("goalkeeper"));
     const keeperFallback = "branding/original/GOALKEEPER-cb9e3e/logo.png";
-    const strikerFallback = "branding/original/EFOOTBALL-91a4eb/logo.png";
-    const cardImgUrl = item.url || (isKeeper ? keeperFallback : strikerFallback);
+    const cardImgUrl = getNftOptimizedImageUrl(item);
 
     const isEgld = item.currency === "EGLD" || item.currency === "WEGLD";
     const formattedPrice = isEgld
@@ -2104,7 +2143,7 @@ function renderMarketplaceGrid() {
           : ""
       }
       <div class="mnc-media-wrap" data-inspect="${item.id}">
-        <img src="${cardImgUrl}" alt="${item.name}" class="mnc-media-img" loading="lazy" />
+        <img src="${cardImgUrl}" alt="${item.name}" class="mnc-media-img" loading="lazy" onerror="this.onerror=null; this.src='${isKeeper ? keeperFallback : strikerFallback}';" />
         <div class="mnc-rank-badge" style="border-color:${tier.borderColor}; color:${tier.borderColor};">
           ${tier.tierIcon} Rank #${tier.rank} • ${tier.tierLabel}
         </div>
@@ -2378,12 +2417,11 @@ function renderMyLockerGrid() {
       (nft.identifier && nft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
       (nft.name && nft.name.toLowerCase().includes("goalkeeper"));
     const keeperFallback = "branding/original/GOALKEEPER-cb9e3e/logo.png";
-    const strikerFallback = "branding/original/EFOOTBALL-91a4eb/logo.png";
-    const nftImgUrl = nft.url || (isKeeper ? keeperFallback : strikerFallback);
+    const nftImgUrl = getNftOptimizedImageUrl(nft);
 
     card.innerHTML = `
       <div class="mnc-media-wrap" data-locker-inspect="${nft.identifier}">
-        <img src="${nftImgUrl}" alt="${nft.name}" class="mnc-media-img" />
+        <img src="${nftImgUrl}" alt="${nft.name}" class="mnc-media-img" onerror="this.onerror=null; this.src='${isKeeper ? keeperFallback : strikerFallback}';" />
         <div class="mnc-rank-badge" style="border-color:${tier.borderColor}; color:${tier.borderColor};">
           ${tier.tierIcon} Rank #${tier.rank} • ${tier.tierLabel}
         </div>
@@ -3505,7 +3543,11 @@ function openNftDetailsModal(nft) {
   const keeperFallback = "branding/original/GOALKEEPER-cb9e3e/logo.png";
   const strikerFallback = "branding/original/EFOOTBALL-91a4eb/logo.png";
 
-  if (imgEl) imgEl.src = nft.url || (isPass ? "branding/rebranded/efoo-ultras-pass-badge.png" : (isKeeper ? keeperFallback : strikerFallback));
+  const detailImgUrl = getNftOptimizedImageUrl(nft);
+  if (imgEl) {
+    imgEl.src = detailImgUrl;
+    imgEl.onerror = () => { imgEl.onerror = null; imgEl.src = isKeeper ? keeperFallback : strikerFallback; };
+  }
   if (rankPill) {
     if (isPass) {
       rankPill.textContent = `👑 VIP PASS • ${sftFormatted} SFT IN WALLET`;
