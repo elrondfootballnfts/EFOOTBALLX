@@ -9,6 +9,8 @@ const XOXNO_MARKETPLACE_SC = "erd1qqqqqqqqqqqqqpgq6wegs2xkypfpync8mn2sa5cmpqjlvr
 const EFOO_TOKEN_ID = "EFOO-8fe2d4";
 const STRIKER_COLLECTION = "EFOOTBALL-91a4eb";
 const KEEPER_COLLECTION = "GOALKEEPER-cb9e3e";
+const STRIKER_FALLBACK = "branding/original/EFOOTBALL-91a4eb/logo.png";
+const KEEPER_FALLBACK = "branding/original/GOALKEEPER-cb9e3e/logo.png";
 const STADIUM_VAULT_SC = "erd1qqqqqqqqqqqqqpgqwdrgl4k7gfa26wp0xcje8qn9gucq87yx55hs39eend";
 const SC_HEX = "0000000000000000050073468fd6de427aad382f3625938265473003f886a52f";
 const EFOOREWARDS_WALLET = "erd1p5hfnx87q4pddwsyz23e5pqv8550rsfat902j6g4ckdh070055hshct4my";
@@ -2094,142 +2096,149 @@ function renderMarketplaceGrid() {
   const hasNativeItems = pageItems.some((x) => !x.isXoxno);
 
   pageItems.forEach((item) => {
-    const tier = getNftRarityTier(item);
-    const isOwner = curAddr && item.seller && item.seller.toLowerCase() === curAddr;
-    const isNative = !item.isXoxno;
+    try {
+      const tier = getNftRarityTier(item);
+      const isOwner = curAddr && item.seller && item.seller.toLowerCase() === curAddr;
+      const isNative = !item.isXoxno;
 
-    const card = document.createElement("div");
-    card.className = `m-nft-card tier-${tier.tierKey} ${isNative ? "is-nfoot-native" : "is-xoxno-card"}`;
+      const card = document.createElement("div");
+      card.className = `m-nft-card tier-${tier.tierKey} ${isNative ? "is-nfoot-native" : "is-xoxno-card"}`;
 
-    // Separate our marketplace NFTs: only the very first XOXNO card starts a new row,
-    // all subsequent XOXNO cards stay together in standard grid flow (e.g. 4 per row)
-    if (!isNative && hasNativeItems && isFirstXoxno) {
-      card.style.gridColumnStart = "1";
-      isFirstXoxno = false;
-    }
-
-    card.style.setProperty("--tier-color", tier.borderColor);
-    card.style.setProperty("--tier-glow", `${tier.borderColor}66`);
-
-    const isKeeper = (item.collection === KEEPER_COLLECTION) || 
-      (item.identifier && item.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
-      (item.name && item.name.toLowerCase().includes("goalkeeper"));
-    const keeperFallback = "branding/original/GOALKEEPER-cb9e3e/logo.png";
-    const cardImgUrl = getNftOptimizedImageUrl(item);
-
-    const isEgld = item.currency === "EGLD" || item.currency === "WEGLD";
-    const formattedPrice = isEgld
-      ? (Number(item.price) === 0.5 ? "0.50" : (Number(item.price) < 0.1 ? Number(item.price).toFixed(3) : Number(item.price).toFixed(2)))
-      : (typeof item.price === "number" ? item.price.toLocaleString("en-US") : item.price);
-
-    const sellerShort = isOwner
-      ? "You (Owner)"
-      : (item.seller && item.seller.startsWith("erd1") ? `${item.seller.slice(0, 6)}...${item.seller.slice(-4)}` : (item.seller || "Escrow"));
-
-    card.innerHTML = `
-      ${
-        isNative
-          ? `<div class="mnc-circuit-frame" aria-hidden="true">
-               <div class="circuit-top-bar"></div>
-               <div class="circuit-bot-bar"></div>
-               <svg class="circuit-corner tl" viewBox="0 0 54 54"><path d="M 0,36 L 0,12 Q 0,0 12,0 L 36,0" class="cc-outer"/><path d="M 8,24 L 18,14 L 38,14" class="cc-inner"/><circle cx="38" cy="14" r="3" class="cc-node"/><circle cx="0" cy="36" r="2.5" class="cc-node"/></svg>
-               <svg class="circuit-corner tr" viewBox="0 0 54 54"><path d="M 54,36 L 54,12 Q 54,0 42,0 L 18,0" class="cc-outer"/><path d="M 46,24 L 36,14 L 16,14" class="cc-inner"/><circle cx="16" cy="14" r="3" class="cc-node"/><circle cx="54" cy="36" r="2.5" class="cc-node"/></svg>
-               <svg class="circuit-corner bl" viewBox="0 0 54 54"><path d="M 0,18 L 0,42 Q 0,54 12,54 L 36,54" class="cc-outer"/><path d="M 8,30 L 18,40 L 38,40" class="cc-inner"/><circle cx="38" cy="40" r="3" class="cc-node"/><circle cx="0" cy="18" r="2.5" class="cc-node"/></svg>
-               <svg class="circuit-corner br" viewBox="0 0 54 54"><path d="M 54,18 L 54,42 Q 54,54 42,54 L 18,54" class="cc-outer"/><path d="M 46,30 L 36,40 L 16,40" class="cc-inner"/><circle cx="16" cy="40" r="3" class="cc-node"/><circle cx="54" cy="18" r="2.5" class="cc-node"/></svg>
-               <div class="circuit-bus-l"></div>
-               <div class="circuit-bus-r"></div>
-               <div class="circuit-frame-badge"><span class="cfb-dot"></span>NFOOT ESCROW</div>
-             </div>`
-          : ""
+      // Separate our marketplace NFTs: only the very first XOXNO card starts a new row,
+      // all subsequent XOXNO cards stay together in standard grid flow (e.g. 4 per row)
+      if (!isNative && hasNativeItems && isFirstXoxno) {
+        card.style.gridColumnStart = "1";
+        isFirstXoxno = false;
       }
-      <div class="mnc-media-wrap" data-inspect="${item.id}">
-        <img src="${cardImgUrl}" alt="${item.name}" class="mnc-media-img" loading="lazy" onerror="this.onerror=null; this.src='${isKeeper ? keeperFallback : strikerFallback}';" />
-        <div class="mnc-rank-badge" style="border-color:${tier.borderColor}; color:${tier.borderColor};">
-          ${tier.tierIcon} Rank #${tier.rank} • ${tier.tierLabel}
-        </div>
+
+      card.style.setProperty("--tier-color", tier.borderColor || "#00ff88");
+      card.style.setProperty("--tier-glow", `${tier.borderColor || "#00ff88"}66`);
+
+      const isKeeper = (item.collection === KEEPER_COLLECTION) || 
+        (item.identifier && item.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
+        (item.name && item.name.toLowerCase().includes("goalkeeper"));
+      const keeperFallback = KEEPER_FALLBACK;
+      const strikerFallback = STRIKER_FALLBACK;
+      const cardImgUrl = getNftOptimizedImageUrl(item);
+
+      const isEgld = item.currency === "EGLD" || item.currency === "WEGLD";
+      const formattedPrice = isEgld
+        ? (Number(item.price) === 0.5 ? "0.50" : (Number(item.price) < 0.1 ? Number(item.price).toFixed(3) : Number(item.price).toFixed(2)))
+        : (typeof item.price === "number" ? item.price.toLocaleString("en-US") : item.price);
+
+      const sellerShort = isOwner
+        ? "You (Owner)"
+        : (item.seller && item.seller.startsWith("erd1") ? `${item.seller.slice(0, 6)}...${item.seller.slice(-4)}` : (item.seller || "Escrow"));
+
+      const itemPowers = Array.isArray(tier.powers) ? tier.powers : [];
+
+      card.innerHTML = `
         ${
-          item.isXoxno
-            ? `<div class="mnc-xoxno-badge" title="Verified listing on XOXNO Marketplace">
-                 <img src="branding/rebranded/xoxno-logo.svg" alt="XOXNO" class="mnc-xoxno-logo-img" />
-                 <span class="mnc-xoxno-text">XOXNO</span>
+          isNative
+            ? `<div class="mnc-circuit-frame" aria-hidden="true">
+                 <div class="circuit-top-bar"></div>
+                 <div class="circuit-bot-bar"></div>
+                 <svg class="circuit-corner tl" viewBox="0 0 54 54"><path d="M 0,36 L 0,12 Q 0,0 12,0 L 36,0" class="cc-outer"/><path d="M 8,24 L 18,14 L 38,14" class="cc-inner"/><circle cx="38" cy="14" r="3" class="cc-node"/><circle cx="0" cy="36" r="2.5" class="cc-node"/></svg>
+                 <svg class="circuit-corner tr" viewBox="0 0 54 54"><path d="M 54,36 L 54,12 Q 54,0 42,0 L 18,0" class="cc-outer"/><path d="M 46,24 L 36,14 L 16,14" class="cc-inner"/><circle cx="16" cy="14" r="3" class="cc-node"/><circle cx="54" cy="36" r="2.5" class="cc-node"/></svg>
+                 <svg class="circuit-corner bl" viewBox="0 0 54 54"><path d="M 0,18 L 0,42 Q 0,54 12,54 L 36,54" class="cc-outer"/><path d="M 8,30 L 18,40 L 38,40" class="cc-inner"/><circle cx="38" cy="40" r="3" class="cc-node"/><circle cx="0" cy="18" r="2.5" class="cc-node"/></svg>
+                 <svg class="circuit-corner br" viewBox="0 0 54 54"><path d="M 54,18 L 54,42 Q 54,54 42,54 L 18,54" class="cc-outer"/><path d="M 46,30 L 36,40 L 16,40" class="cc-inner"/><circle cx="16" cy="40" r="3" class="cc-node"/><circle cx="54" cy="18" r="2.5" class="cc-node"/></svg>
+                 <div class="circuit-bus-l"></div>
+                 <div class="circuit-bus-r"></div>
+                 <div class="circuit-frame-badge"><span class="cfb-dot"></span>NFOOT ESCROW</div>
                </div>`
-            : `<div class="mnc-nfoot-badge" title="Official NFooT Marketplace Listing">
-                 <img src="branding/rebranded/nfoot-icon-128x128.png" alt="NFooT Marketplace" class="mnc-nfoot-logo-img" />
-                 <span class="mnc-nfoot-text">NFooT</span>
-               </div>`
+            : ""
         }
-      </div>
-
-      <div class="mnc-body">
-        <div class="mnc-title-row">
-          <strong class="mnc-title">${item.name}</strong>
-          <div class="mnc-title-tags">
-            ${
-              isUltrasPassNft(item)
-                ? `<span class="mnc-vip-tag">VIP PASS</span>`
-                : `<span class="mnc-role-tag">${isKeeper ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`
-            }
+        <div class="mnc-media-wrap" data-inspect="${item.id}">
+          <img src="${cardImgUrl}" alt="${item.name || item.id}" class="mnc-media-img" loading="lazy" onerror="this.onerror=null; this.src='${isKeeper ? keeperFallback : strikerFallback}';" />
+          <div class="mnc-rank-badge" style="border-color:${tier.borderColor || '#00ff88'}; color:${tier.borderColor || '#00ff88'};">
+            ${tier.tierIcon || '⚽'} Rank #${tier.rank || 'N/A'} • ${tier.tierLabel || 'COMMON'}
           </div>
+          ${
+            item.isXoxno
+              ? `<div class="mnc-xoxno-badge" title="Verified listing on XOXNO Marketplace">
+                   <img src="branding/rebranded/xoxno-logo.svg" alt="XOXNO" class="mnc-xoxno-logo-img" />
+                   <span class="mnc-xoxno-text">XOXNO</span>
+                 </div>`
+              : `<div class="mnc-nfoot-badge" title="Official NFooT Marketplace Listing">
+                   <img src="branding/rebranded/nfoot-icon-128x128.png" alt="NFooT Marketplace" class="mnc-nfoot-logo-img" />
+                   <span class="mnc-nfoot-text">NFooT</span>
+                 </div>`
+          }
         </div>
 
-        <p class="mnc-trait-desc">${isUltrasPassNft(item) ? "Lifetime 0% marketplace trading fee • Match Booster" : (item.trait || (item.isXoxno ? "Listed on XOXNO Marketplace" : "Sunday League Degen Ultra"))}</p>
-
-        <div class="mnc-powers-row">
-          ${tier.powers.slice(0, 3).map((p) => `<span class="mnc-power-pill">${p}</span>`).join("")}
-        </div>
-
-        <div class="mnc-footer">
-          <div class="mnc-price-box">
-            <div class="mnc-price-head">
-              <span class="mnc-price-lbl">ASKING PRICE</span>
-              <span class="mnc-seller-lbl">${item.isXoxno ? "⚡ XOXNO Listing" : `Seller: ${sellerShort}${hasUltrasPass(item.seller) ? ' <span class="mnc-seller-vip-crown" title="0% Fee VIP Ultras Seller">👑 VIP</span>' : ''}`}</span>
-            </div>
-            <div class="mnc-price-row">
-              <strong class="mnc-price-val">${formattedPrice}</strong>
-              ${getCurrencyBadgeHtml(item.currency)}
+        <div class="mnc-body">
+          <div class="mnc-title-row">
+            <strong class="mnc-title">${item.name || item.id}</strong>
+            <div class="mnc-title-tags">
+              ${
+                isUltrasPassNft(item)
+                  ? `<span class="mnc-vip-tag">VIP PASS</span>`
+                  : `<span class="mnc-role-tag">${isKeeper ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`
+              }
             </div>
           </div>
 
-          <div class="mnc-action-wrap">
-            ${
-              isOwner
-                ? `<div class="mnc-owner-btns">
-                     <button type="button" class="mnc-btn-edit" data-edit="${item.id}">✏️ Edit</button>
-                     <button type="button" class="mnc-btn-delist" data-delist="${item.id}">✕ Delist</button>
-                   </div>`
-                : `<button type="button" class="mnc-btn-buy" data-buy="${item.id}">
-                     ${item.isXoxno ? "⚡ BUY (XOXNO)" : "⚡ BUY"}
-                   </button>`
-            }
+          <p class="mnc-trait-desc">${isUltrasPassNft(item) ? "Lifetime 0% marketplace trading fee • Match Booster" : (item.trait || (item.isXoxno ? "Listed on XOXNO Marketplace" : "Sunday League Degen Ultra"))}</p>
+
+          <div class="mnc-powers-row">
+            ${itemPowers.slice(0, 3).map((p) => `<span class="mnc-power-pill">${p}</span>`).join("")}
+          </div>
+
+          <div class="mnc-footer">
+            <div class="mnc-price-box">
+              <div class="mnc-price-head">
+                <span class="mnc-price-lbl">ASKING PRICE</span>
+                <span class="mnc-seller-lbl">${item.isXoxno ? "⚡ XOXNO Listing" : `Seller: ${sellerShort}${hasUltrasPass(item.seller) ? ' <span class="mnc-seller-vip-crown" title="0% Fee VIP Ultras Seller">👑 VIP</span>' : ''}`}</span>
+              </div>
+              <div class="mnc-price-row">
+                <strong class="mnc-price-val">${formattedPrice}</strong>
+                ${getCurrencyBadgeHtml(item.currency)}
+              </div>
+            </div>
+
+            <div class="mnc-action-wrap">
+              ${
+                isOwner
+                  ? `<div class="mnc-owner-btns">
+                       <button type="button" class="mnc-btn-edit" data-edit="${item.id}">✏️ Edit</button>
+                       <button type="button" class="mnc-btn-delist" data-delist="${item.id}">✕ Delist</button>
+                     </div>`
+                  : `<button type="button" class="mnc-btn-buy" data-buy="${item.id}">
+                       ${item.isXoxno ? "⚡ BUY (XOXNO)" : "⚡ BUY"}
+                     </button>`
+              }
+            </div>
           </div>
         </div>
-      </div>
-    `;
+      `;
 
-    // Click on media to open detailed inspection popup
-    card.querySelector(`[data-inspect="${item.id}"]`)?.addEventListener("click", () => {
-      openNftDetailsModal(item);
-    });
+      // Click on media to open detailed inspection popup
+      card.querySelector(`[data-inspect="${item.id}"]`)?.addEventListener("click", () => {
+        openNftDetailsModal(item);
+      });
 
-    // Buy Action (Direct XOXNO Smart Contract or P2P)
-    card.querySelector(`[data-buy="${item.id}"]`)?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      executeBuyNft(item);
-    });
+      // Buy Action (Direct XOXNO Smart Contract or P2P)
+      card.querySelector(`[data-buy="${item.id}"]`)?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        executeBuyNft(item);
+      });
 
-    // Edit Price Action
-    card.querySelector(`[data-edit="${item.id}"]`)?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      openEditPriceModal(item);
-    });
+      // Edit Price Action
+      card.querySelector(`[data-edit="${item.id}"]`)?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openEditPriceModal(item);
+      });
 
-    // Delist Action
-    card.querySelector(`[data-delist="${item.id}"]`)?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      executeDelistNft(item);
-    });
+      // Delist Action
+      card.querySelector(`[data-delist="${item.id}"]`)?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        executeDelistNft(item);
+      });
 
-    grid.appendChild(card);
+      grid.appendChild(card);
+    } catch (itemErr) {
+      console.error("Error rendering marketplace card for item:", item, itemErr);
+    }
   });
 }
 
@@ -2416,14 +2425,16 @@ function renderMyLockerGrid() {
     const isKeeper = (nft.collection === KEEPER_COLLECTION) || 
       (nft.identifier && nft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
       (nft.name && nft.name.toLowerCase().includes("goalkeeper"));
-    const keeperFallback = "branding/original/GOALKEEPER-cb9e3e/logo.png";
+    const keeperFallback = KEEPER_FALLBACK;
+    const strikerFallback = STRIKER_FALLBACK;
     const nftImgUrl = getNftOptimizedImageUrl(nft);
+    const nftPowers = Array.isArray(tier.powers) ? tier.powers : [];
 
     card.innerHTML = `
       <div class="mnc-media-wrap" data-locker-inspect="${nft.identifier}">
-        <img src="${nftImgUrl}" alt="${nft.name}" class="mnc-media-img" onerror="this.onerror=null; this.src='${isKeeper ? keeperFallback : strikerFallback}';" />
-        <div class="mnc-rank-badge" style="border-color:${tier.borderColor}; color:${tier.borderColor};">
-          ${tier.tierIcon} Rank #${tier.rank} • ${tier.tierLabel}
+        <img src="${nftImgUrl}" alt="${nft.name || nft.identifier}" class="mnc-media-img" onerror="this.onerror=null; this.src='${isKeeper ? keeperFallback : strikerFallback}';" />
+        <div class="mnc-rank-badge" style="border-color:${tier.borderColor || '#00ff88'}; color:${tier.borderColor || '#00ff88'};">
+          ${tier.tierIcon || '⚽'} Rank #${tier.rank || 'N/A'} • ${tier.tierLabel || 'COMMON'}
         </div>
         <div class="mnc-col-tag">${isListed ? "🏷️ LISTED" : "🎒 IN LOCKER"}</div>
       </div>
@@ -2443,7 +2454,7 @@ function renderMyLockerGrid() {
         <p class="mnc-trait-desc">${nft.trait || "Equipped for 120' Shootout Arena"}</p>
 
         <div class="mnc-powers-row">
-          ${tier.powers.slice(0, 3).map((p) => `<span class="mnc-power-pill">${p}</span>`).join("")}
+          ${nftPowers.slice(0, 3).map((p) => `<span class="mnc-power-pill">${p}</span>`).join("")}
         </div>
 
         <div class="mnc-footer">
@@ -3540,8 +3551,8 @@ function openNftDetailsModal(nft) {
   const isKeeper = (nft.collection === KEEPER_COLLECTION) || 
     (nft.identifier && nft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
     (nft.name && nft.name.toLowerCase().includes("goalkeeper"));
-  const keeperFallback = "branding/original/GOALKEEPER-cb9e3e/logo.png";
-  const strikerFallback = "branding/original/EFOOTBALL-91a4eb/logo.png";
+  const keeperFallback = KEEPER_FALLBACK;
+  const strikerFallback = STRIKER_FALLBACK;
 
   const detailImgUrl = getNftOptimizedImageUrl(nft);
   if (imgEl) {
@@ -4590,11 +4601,11 @@ function updateMarketSwapEstimate(source = null) {
   // 6. Starter Bonus update (if receiving EFOO)
   if (recvTok === "EFOO") {
     const bonusRow = document.getElementById("m-swap-bonus-row");
-    if (bonusRow) bonusRow.style.removeProperty("display");
+    if (bonusRow) bonusRow.style.display = "";
     updateMarketBonusUI(finalRecvAmt);
   } else {
     const bonusRow = document.getElementById("m-swap-bonus-row");
-    if (bonusRow) bonusRow.style.setProperty("display", "none");
+    if (bonusRow) bonusRow.style.display = "none";
     updateMarketBonusUI(0);
   }
 }
@@ -4827,27 +4838,7 @@ async function fetchLiveMinterCounts() {
   }
 }
 
-// ============================================================================
-// EVENT LISTENERS & INITIALIZATION
-// ============================================================================
-document.addEventListener("DOMContentLoaded", () => {
-  // Cleanse any legacy phantom non-escrowed listings from local storage
-  try {
-    saveMarketplaceListings(getMarketplaceListings());
-  } catch (e) {}
-
-  initMarketWallet();
-  updateExtensionBadge();
-  setTimeout(updateExtensionBadge, 500);
-  refreshOnChainVaultStats();
-  renderMarketplaceGrid();
-  renderSkillsStore();
-  fetchLiveXoxnoListings();
-  fetchLiveScListings();
-  fetchLiveMinterCounts();
-  fetchSwapTokenPrices();
-
-  // 7 Tabs: Browse, My Locker & Sell, Recruit & Mint, DEX Swap, Pools, Skills, Ultras PASS
+function initMarketTabs() {
   const tabBrowse = document.getElementById("tab-btn-browse");
   const tabMyNfts = document.getElementById("tab-btn-my-nfts");
   const tabMint = document.getElementById("tab-btn-mint");
@@ -4888,16 +4879,20 @@ document.addEventListener("DOMContentLoaded", () => {
       history.replaceState(null, "", url.toString());
     } catch (e) {}
 
-    if (tab === "browse") renderMarketplaceGrid();
-    if (tab === "my_nfts") renderMyLockerGrid();
-    if (tab === "skills") renderSkillsStore();
-    if (tab === "ultras") updateUltrasPassUI();
-    if (tab === "swap") {
-      fetchSwapTokenPrices();
-      updateMarketSwapEstimate();
-      updateMarketBonusUI();
+    try {
+      if (tab === "browse") renderMarketplaceGrid();
+      if (tab === "my_nfts") renderMyLockerGrid();
+      if (tab === "skills") renderSkillsStore();
+      if (tab === "ultras") updateUltrasPassUI();
+      if (tab === "swap") {
+        fetchSwapTokenPrices();
+        updateMarketSwapEstimate();
+        updateMarketBonusUI();
+      }
+      if (tab === "pools") updateLpCalculator();
+    } catch (tabErr) {
+      console.error("Error executing tab content update:", tab, tabErr);
     }
-    if (tab === "pools") updateLpCalculator();
   };
   window.switchMarketTab = switchTab;
 
@@ -4928,6 +4923,53 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (h === "skills-store" || h === "skill") switchTab("skills");
     else if (h === "locker") switchTab("my_nfts");
   });
+}
+
+// ============================================================================
+// EVENT LISTENERS & INITIALIZATION
+// ============================================================================
+document.addEventListener("DOMContentLoaded", () => {
+  // 1. Initialize Tabs FIRST so UI navigation is 100% responsive immediately
+  try {
+    initMarketTabs();
+  } catch (e) {
+    console.error("Tab initialization error:", e);
+  }
+
+  // 2. Cleanse legacy phantom listings
+  try {
+    saveMarketplaceListings(getMarketplaceListings());
+  } catch (e) {}
+
+  // 3. Initialize wallet session
+  try {
+    initMarketWallet();
+    updateExtensionBadge();
+    setTimeout(updateExtensionBadge, 500);
+  } catch (e) {
+    console.error("Wallet initialization error:", e);
+  }
+
+  // 4. Render initial marketplace and skills grid
+  try {
+    refreshOnChainVaultStats();
+  } catch (e) {}
+  try {
+    renderMarketplaceGrid();
+  } catch (e) {
+    console.error("Marketplace grid render error:", e);
+  }
+  try {
+    renderSkillsStore();
+  } catch (e) {
+    console.error("Skills store render error:", e);
+  }
+
+  // 5. Fetch live listings & market telemetry asynchronously in background
+  try { fetchLiveXoxnoListings(); } catch (e) {}
+  try { fetchLiveScListings(); } catch (e) {}
+  try { fetchLiveMinterCounts(); } catch (e) {}
+  try { fetchSwapTokenPrices(); } catch (e) {}
 
   // Ultras PASS Stepper & Slider
   document.getElementById("ultras-minus-btn")?.addEventListener("click", () => {
@@ -5374,12 +5416,12 @@ function updateMarketBonusUI(currentEstOut = null) {
   const isBuyingEfoo = (recvTok === "EFOO");
 
   if (!isBuyingEfoo) {
-    row.style.setProperty("display", "none");
+    row.style.display = "none";
     checkbox.disabled = true;
     checkbox.checked = false;
     return;
   }
-  row.style.removeProperty("display");
+  row.style.display = "";
 
   // Determine current estimated output if not passed
   let estOut = typeof currentEstOut === "number" ? currentEstOut : 0;
