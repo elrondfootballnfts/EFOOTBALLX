@@ -1768,6 +1768,7 @@ async function fetchWalletBalances(address) {
     if (accRes.ok) {
       const acc = await accRes.json();
       marketWallet.egldBalance = parseFloat(acc.balance) / 1e18;
+      marketWallet.shard = acc.shard !== undefined ? acc.shard : 1;
     }
 
     // Fetch All User ESDT Tokens (WEGLD, EFOO, USDC, FOXSY, etc.)
@@ -3998,7 +3999,7 @@ const SWAP_TOKENS = {
     symbol: "WEGLD",
     realSymbol: "WEGLD",
     name: "WEGLD",
-    sub: "Wrapped EGLD (ESDT)",
+    sub: "Wrapped & Native EGLD (Auto-Wrap)",
     identifier: "WEGLD-bd4d79",
     decimals: 18,
     icon: "branding/icons/egld-logo.svg",
@@ -4343,7 +4344,9 @@ function applyMarketSwapMaxBalance() {
   if (tok === "EFOO") {
     maxBal = marketWallet.efooBalance || 0;
   } else if (tok === "WEGLD") {
-    maxBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
+    const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
+    const egldBal = marketWallet.egldBalance || 0;
+    maxBal = wegldBal + Math.max(0, egldBal - 0.005);
   } else {
     maxBal = (marketWallet.tokens && marketWallet.tokens[tConf.identifier]) || 0;
   }
@@ -4398,7 +4401,12 @@ function updateMarketSwapEstimate(source = null) {
       balHint.textContent = `Balance: ${Math.floor(marketWallet.efooBalance || 0).toLocaleString()} $EFOO`;
     } else if (payTok === "WEGLD") {
       const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
-      balHint.textContent = `Balance: ${wegldBal.toFixed(4)} WEGLD`;
+      const egldBal = marketWallet.egldBalance || 0;
+      if (egldBal > 0.005) {
+        balHint.textContent = `Balance: ${wegldBal.toFixed(4)} WEGLD (+${Math.max(0, egldBal - 0.005).toFixed(4)} EGLD Avail)`;
+      } else {
+        balHint.textContent = `Balance: ${wegldBal.toFixed(4)} WEGLD`;
+      }
     } else {
       const tBal = (marketWallet.tokens && marketWallet.tokens[payConf.identifier]) || 0;
       balHint.textContent = `Balance: ${tBal > 0 ? (tBal < 1 ? tBal.toFixed(4) : tBal.toLocaleString()) : "0"} ${payConf.symbol}`;
@@ -4642,13 +4650,21 @@ async function executeMarketSwap() {
   const payConf = SWAP_TOKENS[payTok] || SWAP_TOKENS.WEGLD;
   const recvConf = SWAP_TOKENS[recvTok] || SWAP_TOKENS.EFOO;
 
-  // 1. Balance validation for WEGLD and other tokens
+  // 1. Balance validation for WEGLD (including EGLD auto-wrap) and other tokens
+  const wegldBal = (marketWallet.tokens && marketWallet.tokens["WEGLD-bd4d79"]) || 0;
+  const egldBal = marketWallet.egldBalance || 0;
+  const totalWegldAvail = wegldBal + Math.max(0, egldBal - 0.005);
+
   const userTokBal = payTok === "EFOO"
     ? (marketWallet.efooBalance || 0)
-    : ((marketWallet.tokens && marketWallet.tokens[payConf.identifier]) || 0);
+    : (payTok === "WEGLD" ? totalWegldAvail : ((marketWallet.tokens && marketWallet.tokens[payConf.identifier]) || 0));
 
   if (userTokBal < amt) {
-    showMarketToast(`⚠️ Insufficient ${payConf.symbol} balance! Required: ${amt} ${payConf.symbol} (Your balance: ${userTokBal > 0 ? (userTokBal < 1 ? userTokBal.toFixed(4) : userTokBal.toLocaleString()) : "0"} ${payConf.symbol})`);
+    if (payTok === "WEGLD") {
+      showMarketToast(`⚠️ Insufficient balance! Required: ${amt} WEGLD (You have: ${wegldBal.toFixed(4)} WEGLD / ${egldBal.toFixed(4)} EGLD)`);
+    } else {
+      showMarketToast(`⚠️ Insufficient ${payConf.symbol} balance! Required: ${amt} ${payConf.symbol} (Your balance: ${userTokBal > 0 ? (userTokBal < 1 ? userTokBal.toFixed(4) : userTokBal.toLocaleString()) : "0"} ${payConf.symbol})`);
+    }
     return;
   }
 
@@ -4658,6 +4674,24 @@ async function executeMarketSwap() {
     const payDec = payConf.decimals !== undefined ? payConf.decimals : 18;
     const payAmtHex = bigIntToHex(toAtomicUnits(amt, payDec));
     let swapTx = null;
+    const txsToSend = [];
+
+    // Auto-wrap EGLD to WEGLD if paying in WEGLD and current WEGLD balance is lower than needed amount
+    if (payTok === "WEGLD" && amt > wegldBal) {
+      const neededWrap = amt - wegldBal;
+      const shard = marketWallet.shard !== undefined ? marketWallet.shard : 1;
+      const shardWrapper = CONTRACTS.WEGLD_WRAPPERS[shard] || CONTRACTS.WEGLD_WRAPPERS[1];
+      const wrapWei = toAtomicUnits(neededWrap, 18).toString();
+
+      showMarketToast(`⚡ Auto-Wrapping ${neededWrap.toFixed(4)} EGLD ➔ WEGLD & executing swap...`);
+
+      txsToSend.push({
+        receiver: shardWrapper,
+        value: wrapWei,
+        gasLimit: 8000000,
+        data: "wrapEgld"
+      });
+    }
 
     if (payTok === "WEGLD" && recvTok === "USDC") {
       // Direct xExchange WEGLD -> USDC swap (Deep Liquidity)
@@ -4700,7 +4734,7 @@ async function executeMarketSwap() {
       const tokenHex = stringToHex("WEGLD-bd4d79");
       const funcHex = stringToHex("swapMultiTokensFixedInput");
       const efooHex = stringToHex("EFOO-8fe2d4");
-      const data = `ESDTTransfer@${tokenHex}@${payAmtHex}@${funcHex}@01@@${tokenHex}@${efooHex}`;
+      const data = `ESDTTransfer@${tokenHex}@${payAmtHex}@${funcHex}@01@01@${tokenHex}@${efooHex}`;
       swapTx = {
         receiver: CONTRACTS.ONEDEX_PAIR,
         value: "0",
@@ -4736,7 +4770,7 @@ async function executeMarketSwap() {
       const wegldHex = stringToHex("WEGLD-bd4d79");
       const tokenOutHex = stringToHex(recvConf.identifier);
       const funcHex = stringToHex("swapMultiTokensFixedInput");
-      const data = `ESDTTransfer@${wegldHex}@${payAmtHex}@${funcHex}@01@@${wegldHex}@${tokenOutHex}`;
+      const data = `ESDTTransfer@${wegldHex}@${payAmtHex}@${funcHex}@01@01@${wegldHex}@${tokenOutHex}`;
       swapTx = {
         receiver: CONTRACTS.ONEDEX_PAIR,
         value: "0",
@@ -4748,7 +4782,7 @@ async function executeMarketSwap() {
       const tokenInHex = stringToHex(payConf.identifier);
       const wegldHex = stringToHex("WEGLD-bd4d79");
       const funcHex = stringToHex("swapMultiTokensFixedInput");
-      const data = `ESDTTransfer@${tokenInHex}@${payAmtHex}@${funcHex}@01@@${tokenInHex}@${wegldHex}`;
+      const data = `ESDTTransfer@${tokenInHex}@${payAmtHex}@${funcHex}@01@01@${tokenInHex}@${wegldHex}`;
       swapTx = {
         receiver: CONTRACTS.ONEDEX_PAIR,
         value: "0",
@@ -4761,7 +4795,7 @@ async function executeMarketSwap() {
       const tokenOutHex = stringToHex(recvConf.identifier);
       const wegldHex = stringToHex("WEGLD-bd4d79");
       const funcHex = stringToHex("swapMultiTokensFixedInput");
-      const data = `ESDTTransfer@${tokenInHex}@${payAmtHex}@${funcHex}@01@@${tokenInHex}@${wegldHex}@${tokenOutHex}`;
+      const data = `ESDTTransfer@${tokenInHex}@${payAmtHex}@${funcHex}@01@02@${tokenInHex}@${wegldHex}@${tokenOutHex}`;
       swapTx = {
         receiver: CONTRACTS.ONEDEX_PAIR,
         value: "0",
@@ -4770,7 +4804,11 @@ async function executeMarketSwap() {
       };
     }
 
-    const txResult = await sendMultiversxTransaction(swapTx);
+    txsToSend.push(swapTx);
+
+    const txResult = txsToSend.length === 1
+      ? await sendMultiversxTransaction(txsToSend[0])
+      : await sendMultiversxTransaction({ txs: txsToSend });
 
     const txHash = txResult?.hash || (Array.isArray(txResult?.hashes) ? txResult.hashes[txResult.hashes.length - 1] : null);
 
