@@ -3309,6 +3309,32 @@ function initFullscreenStadiumCanvas() {
     };
   }
 
+  function mapPointerToGoalkeeperTarget(pos, g, pointerType) {
+    // Horizontal mapping:
+    // With (g.goalW * 0.55), moving thumb sideways comfortably reaches the goal posts
+    const tapNx = clampNum((pos.x - g.cx) / (g.goalW * 0.55), -1.15, 1.15);
+
+    let tapNy = 0;
+    // Lower touch zone extends from just below the goal line to near the bottom of screen
+    const lowerZoneTop = g.goalBottom + 10;
+    const lowerZoneBottom = H - 35;
+
+    if (pos.y >= lowerZoneTop) {
+      // Touch/drag is in the lower half of the screen:
+      // Player's hand/thumb never covers the goal mouth, keeper, or incoming ball trajectory!
+      const span = Math.max(100, lowerZoneBottom - lowerZoneTop);
+      const norm = (lowerZoneBottom - pos.y) / (span * 0.85);
+      tapNy = clampNum(norm, 0.0, 1.15);
+    } else {
+      // Touch is directly on/near the goal mouth: apply a touch lift offset so the glove stays visible above finger
+      const touchLift = (pointerType === "touch" || !pointerType) ? 45 : 0;
+      tapNy = clampNum((g.goalBottom - (pos.y - touchLift)) / g.goalH, 0.0, 1.15);
+    }
+
+    const targetAngle = (tapNx > 0.12 ? 0.42 : (tapNx < -0.12 ? -0.42 : 0));
+    return { tapNx, tapNy, targetAngle };
+  }
+
   function onPointerDown(e) {
     if (!canPlayMatch()) return;
     if (e.pointerType === "mouse" && e.button !== 0) return;
@@ -3317,12 +3343,12 @@ function initFullscreenStadiumCanvas() {
     if (game.shootoutTurn === "defend") {
       const pos = getCanvasPos(e);
       const g = getStageGeom();
-      const tapNx = clampNum((pos.x - g.cx) / (g.goalW * 0.5), -1.1, 1.1);
-      const tapNy = clampNum((g.goalBottom - pos.y) / g.goalH, 0.0, 1.1);
-      game.keeper.targetNx = tapNx;
-      game.keeper.targetNy = tapNy;
-      game.keeper.targetAngle = (tapNx > 0.1 ? 0.45 : (tapNx < -0.1 ? -0.45 : 0));
+      const mapped = mapPointerToGoalkeeperTarget(pos, g, e.pointerType);
+      game.keeper.targetNx = mapped.tapNx;
+      game.keeper.targetNy = mapped.tapNy;
+      game.keeper.targetAngle = mapped.targetAngle;
       game.keeper.armReach = 0.85;
+      game.defendTouch = { active: true, x: pos.x, y: pos.y, pointerId: e.pointerId };
       spawnSparks(pos.x, pos.y, "#38bdf8", 16);
       return;
     }
@@ -3350,11 +3376,14 @@ function initFullscreenStadiumCanvas() {
 
     if (game.shootoutTurn === "defend" && (game.phase === "defend_ready" || game.phase === "defend_aim" || game.phase === "defend_flight")) {
       const g = getStageGeom();
-      const tapNx = clampNum((pos.x - g.cx) / (g.goalW * 0.5), -1.1, 1.1);
-      const tapNy = clampNum((g.goalBottom - pos.y) / g.goalH, 0.0, 1.1);
-      game.keeper.targetNx = tapNx;
-      game.keeper.targetNy = tapNy;
-      game.keeper.targetAngle = (tapNx > 0.1 ? 0.35 : (tapNx < -0.1 ? -0.35 : 0));
+      const mapped = mapPointerToGoalkeeperTarget(pos, g, e.pointerType);
+      game.keeper.targetNx = mapped.tapNx;
+      game.keeper.targetNy = mapped.tapNy;
+      game.keeper.targetAngle = mapped.targetAngle;
+      if (game.defendTouch && game.defendTouch.pointerId === e.pointerId) {
+        game.defendTouch.x = pos.x;
+        game.defendTouch.y = pos.y;
+      }
       return;
     }
 
@@ -3394,6 +3423,11 @@ function initFullscreenStadiumCanvas() {
 
   function onPointerUp(e) {
     if (!canPlayMatch()) return;
+    if (game.shootoutTurn === "defend") {
+      if (game.defendTouch && game.defendTouch.pointerId === e.pointerId) {
+        game.defendTouch.active = false;
+      }
+    }
     if (!game.swipe || !game.swipe.active || game.swipe.pointerId !== e.pointerId) return;
 
     if (canvas.releasePointerCapture) {
@@ -3472,6 +3506,9 @@ function initFullscreenStadiumCanvas() {
     if (game.swipe && game.swipe.pointerId === e.pointerId) {
       game.swipe.active = false;
       game.swipe.points = [];
+    }
+    if (game.defendTouch && game.defendTouch.pointerId === e.pointerId) {
+      game.defendTouch.active = false;
     }
   }
 
@@ -3911,6 +3948,41 @@ function initFullscreenStadiumCanvas() {
     const ky = g.goalBottom - 44 - game.keeper.ny * (g.goalH * 0.62);
     drawArticulatedGoalkeeper(ctx, kx, ky, game.keeper.bodyAngle, game.keeper.armReach, isKeeperFrozen);
 
+    // 6B. GOALKEEPER DEFEND TOUCH ZONE RETICLE (WHEN TOUCHING BELOW GOAL ON MOBILE / PC)
+    if (game.shootoutTurn === "defend" && game.defendTouch && game.defendTouch.active) {
+      ctx.save();
+      const tx = game.defendTouch.x;
+      const ty = game.defendTouch.y;
+
+      // Connecting energy beam between finger touch pad and goalkeeper in goal
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.35)";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(tx, ty);
+      ctx.lineTo(kx, ky);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Glowing cyber reticle under finger
+      ctx.strokeStyle = "#38bdf8";
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = "#38bdf8";
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.arc(tx, ty, 20, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(56, 189, 248, 0.22)";
+      ctx.fill();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "800 10px 'JetBrains Mono', monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("🧤", tx, ty + 3.5);
+      ctx.restore();
+    }
+
     // 7B. LIVE SWIPE-TO-SHOOT TRAIL RIBBON (Drawn by player's finger or mouse)
     if (game.phase === "aim" && game.swipe && game.swipe.active && game.swipe.points && game.swipe.points.length >= 2) {
       const pts = game.swipe.points;
@@ -4068,18 +4140,25 @@ function initFullscreenStadiumCanvas() {
             ctx.fillText(hintTxt, g.spotX, pillY + 18);
           }
         } else if (game.shootoutTurn === "defend" && game.phase === "defend_aim") {
-          const tgtX = g.cx + game.aiTargetNx * (g.goalW * 0.5);
-          const tgtY = g.goalBottom - game.aiTargetNy * g.goalH;
+          const lowerZoneY = Math.min(H - 70, g.spotY + 20);
+          const diveDemoX = g.cx + (Math.sin(now * 0.004) > 0 ? 1 : -1) * (g.goalW * 0.35);
           const pulse = 0.5 + 0.5 * Math.sin(now * 0.008);
 
           ctx.globalAlpha = 0.92;
           if (isTouch) {
-            drawTutorialFinger(ctx, tgtX, tgtY + 14, pulse > 0.5);
+            drawTutorialFinger(ctx, diveDemoX, lowerZoneY, pulse > 0.5);
           } else {
-            drawTutorialMouse(ctx, tgtX, tgtY + 18, pulse > 0.5);
+            drawTutorialMouse(ctx, diveDemoX, lowerZoneY, pulse > 0.5);
           }
 
-          const defTxt = isTouch ? "🧤 TAP GOAL TO DIVE & SAVE!" : "🖱️ CLICK GOAL TO DIVE & SAVE!";
+          const isHu = currentLang === "hu";
+          const isRo = currentLang === "ro";
+          const defTxt = isHu
+            ? (isTouch ? "🧤 HÚZD AZ UJJAD LENT A VÉDÉSHEZ!" : "🖱️ MOZGASD A KAPUST LENTRŐL IS A VÉDÉSHEZ!")
+            : isRo
+            ? (isTouch ? "🧤 TRAGE JOS PENTRU A APĂRA!" : "🖱️ MIȘCĂ PORTARUL DE JOS PENTRU A APĂRA!")
+            : (isTouch ? "🧤 DRAG BELOW TO DIVE & SAVE!" : "🖱️ MOVE OR CLICK BELOW TO DEFEND!");
+
           ctx.font = "800 12px 'JetBrains Mono', monospace";
           ctx.textAlign = "center";
           const pillW = ctx.measureText(defTxt).width + 36;
@@ -6547,12 +6626,14 @@ function getLeaderboard() {
     }
   } catch (e) {}
 
-  // Filter out any mock dummy entries, guests, & invalid/truncated addresses
+  // Filter out any mock dummy entries & invalid/truncated addresses, while preserving real wallets and active guest player
+  const localGuestId = (typeof localStorage !== "undefined" && localStorage.getItem("efoo_local_guest_id")) || "guest_player";
   list = list.filter((row) => {
     if (!row || !row.address) return false;
-    if (row.isGuest || row.isSimulated || row.address.startsWith("guest_")) return false;
+    if (row.isSimulated) return false;
     const addr = row.address.trim().toLowerCase();
     if (addr.includes("...")) return false; // Purge old truncated entries
+    if (addr === localGuestId.toLowerCase() || addr === "guest_player") return true;
     if (!addr.startsWith("erd1") || addr.length !== 62) return false; // Must be strictly 62 chars
     if (KNOWN_MOCK_ADDRESSES.has(addr)) return false;
     if (row.herotag && MOCK_HEROTAGS_TO_PURGE.has(row.herotag.toLowerCase())) return false;
@@ -6599,18 +6680,30 @@ function getLeaderboard() {
 
 function recordMatchToLeaderboard(score, goals, level) {
   if (score <= 0) return null;
-  // STRICT RULE: Guests are NEVER recorded to the real leaderboard!
-  if (!connectedAddress || !connectedAddress.startsWith("erd1") || connectedAddress.length !== 62) {
-    return null;
+
+  let playerAddr = connectedAddress;
+  let isGuest = false;
+  if (!playerAddr || !playerAddr.startsWith("erd1") || playerAddr.length !== 62) {
+    let guestId = localStorage.getItem("efoo_local_guest_id");
+    if (!guestId) {
+      guestId = "guest_player";
+      localStorage.setItem("efoo_local_guest_id", guestId);
+    }
+    playerAddr = guestId;
+    isGuest = true;
   }
 
   const list = getLeaderboard();
-  let playerAddr = connectedAddress;
 
-  let hero = walletState.herotag || walletState.username || getHerotagForAddress(playerAddr);
-  if (hero) {
-    hero = hero.replace(/\.elrond$/, "").replace(/^@/, "");
-    hero = `@${hero}`;
+  let hero = "";
+  if (!isGuest) {
+    hero = walletState.herotag || walletState.username || getHerotagForAddress(playerAddr);
+    if (hero) {
+      hero = hero.replace(/\.elrond$/, "").replace(/^@/, "");
+      hero = `@${hero}`;
+    }
+  } else {
+    hero = currentLang === "hu" ? "🎮 Vendég Játékos" : (currentLang === "ro" ? "🎮 Jucător Oaspete" : "🎮 Guest (You)");
   }
 
   // Check if playerAddr already exists in the leaderboard
@@ -6618,7 +6711,7 @@ function recordMatchToLeaderboard(score, goals, level) {
     (x) => x.address && x.address.toLowerCase() === playerAddr.toLowerCase()
   );
 
-  const isUltras = hasUltrasPass(playerAddr);
+  const isUltras = !isGuest && hasUltrasPass(playerAddr);
 
   if (existingIdx !== -1) {
     // Only update if new score is higher than their previous personal best!
@@ -6636,13 +6729,13 @@ function recordMatchToLeaderboard(score, goals, level) {
       }
     }
   } else {
-    // New verified player entry
+    // New player entry
     list.push({
       rank: 0,
       address: playerAddr,
       herotag: hero || "",
-      nickname: hero ? "" : getDeterministicFootballNickname(playerAddr),
-      isGuest: false,
+      nickname: isGuest ? "Guest Striker" : (hero ? "" : getDeterministicFootballNickname(playerAddr)),
+      isGuest,
       isUltras,
       level,
       goals,
@@ -7132,6 +7225,30 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("summary-screen-overlay")?.classList.add("hidden");
     if (game.level < MAX_LEVEL) game.level += 1;
     launchMatchWithIntro();
+  });
+
+  // Match summary MAIN MENU button: Saves match score to leaderboard, then redirects cleanly to /game
+  document.getElementById("btn-sum-exit")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (game.score > 0) {
+      recordMatchToLeaderboard(game.score, game.userGoals, game.level);
+    }
+    window.location.href = "game";
+  });
+
+  // In-game HUD EXIT button: Prompts confirmation that score will NOT be saved, then redirects to /game
+  document.getElementById("hud-exit-btn")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    const isHu = currentLang === "hu";
+    const isRo = currentLang === "ro";
+    const msg = isHu
+      ? "Biztosan ki akarsz lépni? A mérkőzés megszakításával a megszerzett pontjaid nem kerülnek mentésre!"
+      : isRo
+      ? "Sigur vrei să ieși? Punctele acumulate în meci nu vor fi salvate!"
+      : "Are you sure you want to exit? Your current match points will not be saved!";
+    if (window.confirm(msg)) {
+      window.location.href = "game";
+    }
   });
 
   // Defeat Streak Rescue Handlers (50k Revive & Advance / 25k Retry Round / Free Restart)
