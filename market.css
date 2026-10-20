@@ -4619,3 +4619,193 @@ body {
   background: #000;
   border: 1px solid rgba(56, 189, 248, 0.35);
 }
+
+
+/* ============================================================================
+   XOXNO-INSPIRED MINT CAPSULE COMPONENT
+   ============================================================================ */
+.xoxno-mint-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 6px 6px 14px;
+  border-radius: 9999px;
+  background: #111116;
+  position: relative;
+  box-sizing: border-box;
+  min-height: 52px;
+  transition: all 0.25s ease;
+
+  /* Premium gradient border (purple to pink to orange) */
+  border: 1.5px solid transparent;
+  background-image: linear-gradient(#111116, #111116), linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f59e0b 100%);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45), 0 0 16px rgba(236, 72, 153, 0.12);
+}
+
+.xoxno-mint-bar:hover {
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6), 0 0 24px rgba(236, 72, 153, 0.24);
+}
+
+/* Inactive variant for Qatar / Sold Out */
+.xoxno-mint-bar.inactive {
+  background-image: linear-gradient(#0e0e12, #0e0e12), linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+  box-shadow: none;
+  opacity: 0.85;
+}
+
+.xmb-status-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.xmb-icon-box {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.xmb-icon-box.inactive {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.xmb-flame-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.xmb-lock-icon {
+  width: 16px;
+  height: 16px;
+  color: #94a3b8;
+  display: block;
+}
+
+.xmb-status-lbl {
+  font-family: var(--font-inter, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #f8fafc;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.xmb-status-lbl.inactive {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Action Mint Button */
+.xmb-mint-btn {
+  background: linear-gradient(90deg, #ff9f1c 0%, #ff3880 100%);
+  color: #ffffff;
+  font-family: var(--font-inter, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  border: none;
+  border-radius: 9999px;
+  padding: 10px 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(255, 56, 128, 0.35);
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.xmb-mint-btn:hover:not(:disabled) {
+  transform: scale(1.03);
+  filter: brightness(1.1);
+  box-shadow: 0 6px 22px rgba(255, 56, 128, 0.55);
+}
+
+.xmb-mint-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Inactive Sold Out Button */
+.xmb-mint-btn.inactive,
+.xmb-mint-btn:disabled {
+  background: rgba(255, 255, 255, 0.08);
+  color: #64748b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Secondary Link Button (XOXNO / VIP) */
+.xmb-sec-link {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  font-family: var(--font-inter, 'Inter', sans-serif);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.16s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.xmb-sec-link img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.xmb-sec-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.mm-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.mm-qatar-sec-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.mm-qatar-sec-row > * {
+  flex: 1;
+}
+
+@media (max-width: 480px) {
+  .xoxno-mint-bar {
+    padding: 5px 5px 5px 12px;
+    min-height: 48px;
+  }
+  .xmb-status-lbl {
+    font-size: 0.86rem;
+  }
+  .xmb-mint-btn {
+    padding: 8px 18px;
+    font-size: 0.86rem;
+  }
+}
