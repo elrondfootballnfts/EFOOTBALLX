@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
 
   <link rel="canonical" href="https://efoo.optibase.ro/market" />
-  <link rel="stylesheet" href="market.css?v=20261020_v43_mobile_nav_opt" />
+  <link rel="stylesheet" href="market.css?v=20261020_v44_video_nft" />
 
   <!-- Clean URL: Strip amateur .html extension from browser address bar -->
   <script>
@@ -1136,6 +1136,39 @@
   <!-- =====================================================================
        MODAL 1: NFT DETAILS & ATTRIBUTES POPUP
        ===================================================================== -->
+  <!-- =====================================================================
+       MODAL 0: CINEMA VIDEO NFT PLAYER LIGHTBOX
+       ===================================================================== -->
+  <div id="video-nft-modal" class="m-modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="m-modal-card video-cinema-card">
+      <button type="button" class="m-modal-close" id="close-video-modal-btn">✕</button>
+      
+      <div class="video-cinema-head">
+        <span class="vch-tag">🎬 HIGHLIGHT VIDEO NFT</span>
+        <h3 id="video-cinema-title" class="vch-title">HighLightDEMO</h3>
+        <span id="video-cinema-col" class="vch-col">FOOTBALL-64e58f • Nonce #3</span>
+      </div>
+
+      <div class="video-cinema-player-wrap">
+        <video id="video-cinema-element" controls autoplay playsinline loop poster="">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      <div class="video-cinema-footer">
+        <div class="vcf-meta">
+          <span class="vcf-badge">⚡ MULTIVERSX ON-CHAIN HIGHLIGHT VIDEO</span>
+          <span class="vcf-dim">1080p MP4 • Audio/Video Stream</span>
+        </div>
+        <div class="vcf-actions">
+          <a id="video-cinema-explorer-link" href="#" target="_blank" rel="noopener noreferrer" class="m-btn-secondary" style="height:36px; padding:0 14px; font-size:0.75rem; text-decoration:none; display:inline-flex; align-items:center;">
+            MultiversX Explorer ↗
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="nft-details-modal" class="m-modal-backdrop hidden" role="dialog" aria-modal="true">
     <div class="m-modal-card details-card">
       <button type="button" class="m-modal-close" id="close-details-modal-btn">✕</button>
@@ -1144,6 +1177,7 @@
         <!-- Left: Image & Badge -->
         <div class="m-detail-media">
           <img id="detail-nft-img" src="" alt="NFT Image" />
+          <video id="detail-nft-video" class="hidden" controls autoplay playsinline loop></video>
           <div class="m-detail-rank-pill" id="detail-rank-pill">👑 Rank #3 • MYTHIC</div>
         </div>
 
@@ -1475,6 +1509,6 @@
   <div id="m-toast" class="m-toast hidden"></div>
 
   <!-- Scripts -->
-  <script src="market.js?v=20261020_v42_qatar_card_fit"></script>
+  <script src="market.js?v=20261020_v44_video_nft"></script>
 </body>
 </html>

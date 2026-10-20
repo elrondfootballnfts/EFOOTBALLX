@@ -1197,6 +1197,83 @@ function isQatarNft(nft) {
          name.includes("premium cards");
 }
 
+
+function isVideoNft(nft) {
+  if (!nft) return false;
+  const id = (nft.identifier || "").toUpperCase();
+  const name = (nft.name || "").toLowerCase();
+  const col = (nft.collection || "").toUpperCase();
+  if (id === "FOOTBALL-64E58F-03" || id === "FOOTBALL-64E58F-04") return true;
+  if (col === "FOOTBALL-64E58F" && (id.endsWith("-03") || id.endsWith("-04") || name.includes("highlight"))) return true;
+  if (nft.media && Array.isArray(nft.media) && nft.media.some((m) => m.fileType && m.fileType.startsWith("video/"))) return true;
+  if (nft.tags && (nft.tags.includes("video") || nft.tags.includes("highlight"))) return true;
+  if (name.includes("highlight")) return true;
+  if (nft.url && (nft.url.endsWith(".mp4") || nft.url.endsWith(".webm") || nft.url.endsWith(".mov"))) return true;
+  return false;
+}
+
+function getNftVideoUrl(nft) {
+  if (!nft) return "";
+  const id = (nft.identifier || "").toUpperCase();
+  if (id === "FOOTBALL-64E58F-03") {
+    return "https://media.multiversx.com/nfts/asset/QmTGLx9ePsQE7QPY6dRzvht6xGEGMJFhxPq6H4NJVbWTFW";
+  }
+  if (id === "FOOTBALL-64E58F-04") {
+    return "https://media.multiversx.com/nfts/asset/QmahWVSoJBUQW8eNzfsgMo3PbfjsT3pRwnPDvkgGD8Nos4";
+  }
+  if (nft.media && Array.isArray(nft.media)) {
+    const v = nft.media.find((m) => m.fileType && m.fileType.startsWith("video/"));
+    if (v && v.url) return v.url;
+    if (v && v.originalUrl) return v.originalUrl;
+  }
+  if (nft.url && (nft.url.endsWith(".mp4") || nft.url.endsWith(".webm") || nft.url.endsWith(".mov"))) {
+    return nft.url;
+  }
+  return "";
+}
+
+function openVideoCinemaModal(nft) {
+  if (!nft) return;
+  const modal = document.getElementById("video-nft-modal");
+  const videoEl = document.getElementById("video-cinema-element");
+  const titleEl = document.getElementById("video-cinema-title");
+  const colEl = document.getElementById("video-cinema-col");
+  const expLink = document.getElementById("video-cinema-explorer-link");
+
+  const videoUrl = getNftVideoUrl(nft);
+  const posterUrl = getNftOptimizedImageUrl(nft);
+
+  if (titleEl) titleEl.textContent = nft.name || nft.identifier || "Highlight Video NFT";
+  if (colEl) colEl.textContent = `${nft.collection || "FOOTBALL-64e58f"} • Nonce #${nft.nonce || 0}`;
+  if (expLink) expLink.href = `https://explorer.multiversx.com/nfts/${nft.identifier}`;
+
+  if (videoEl) {
+    videoEl.poster = posterUrl;
+    videoEl.src = videoUrl;
+    videoEl.load();
+    const playPromise = videoEl.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {});
+    }
+  }
+
+  if (modal) {
+    modal.classList.remove("hidden");
+  }
+}
+
+function closeVideoCinemaModal() {
+  const modal = document.getElementById("video-nft-modal");
+  const videoEl = document.getElementById("video-cinema-element");
+  if (videoEl) {
+    videoEl.pause();
+    videoEl.src = "";
+  }
+  if (modal) {
+    modal.classList.add("hidden");
+  }
+}
+
 function getNftOptimizedImageUrl(nft) {
   if (!nft) return STRIKER_FALLBACK;
   if (isUltrasPassNft(nft)) return "branding/rebranded/efoo-ultras-pass-badge.png";
@@ -1204,6 +1281,21 @@ function getNftOptimizedImageUrl(nft) {
     if (nft.url && !nft.url.includes("default.png")) return nft.url;
     if (nft.media && Array.isArray(nft.media) && nft.media[0] && nft.media[0].url) return nft.media[0].url;
     return QATAR_FALLBACK;
+  }
+  if (isVideoNft(nft)) {
+    const id = (nft.identifier || "").toUpperCase();
+    if (id === "FOOTBALL-64E58F-03") {
+      return "branding/rebranded/highlight-demo-thumb.jpg";
+    }
+    if (id === "FOOTBALL-64E58F-04") {
+      return "branding/rebranded/highlight-video-thumb.jpg";
+    }
+    if (nft.thumbnailUrl && !nft.thumbnailUrl.includes("default.png")) return nft.thumbnailUrl;
+    if (nft.media && Array.isArray(nft.media)) {
+      const thumb = nft.media.find((m) => m.thumbnailUrl && !m.thumbnailUrl.includes("default.png"));
+      if (thumb && thumb.thumbnailUrl) return thumb.thumbnailUrl;
+    }
+    return "branding/rebranded/highlight-demo-thumb.jpg";
   }
 
   const isKeeper = (nft.collection === KEEPER_COLLECTION) || 
@@ -1263,6 +1355,22 @@ function getNftRarityTier(nft) {
       scoreMult: 1.0,
       slots: 0,
       powers: ["1.0x Score Multiplier", "0 Skill Slots"]
+    };
+  }
+
+  // Highlight Video NFTs
+  if (isVideoNft(nft)) {
+    const id = (nft.identifier || "").toUpperCase();
+    const rankNum = id.endsWith("-03") ? 3 : 4;
+    return {
+      tierKey: "video",
+      tierLabel: "VIDEO NFT",
+      tierIcon: "🎬",
+      rank: rankNum,
+      borderColor: "#38bdf8",
+      scoreMult: 1.0,
+      slots: 0,
+      powers: ["🎬 High-Definition Video NFT", "⚽ Football Match Highlights"]
     };
   }
 
@@ -1443,7 +1551,8 @@ async function fetchLiveXoxnoListings() {
   const collections = [
     { id: STRIKER_COLLECTION, floor: 0.08, currency: "EGLD", fallbackImg: "branding/original/EFOOTBALL-91a4eb/logo.png" },
     { id: KEEPER_COLLECTION, floor: 0.48, currency: "EGLD", fallbackImg: "branding/original/GOALKEEPER-cb9e3e/logo.png" },
-    { id: QATAR_COLLECTION, floor: 0.15, currency: "EGLD", fallbackImg: "branding/original/QATAR2022-d90c01/logo.png" }
+    { id: QATAR_COLLECTION, floor: 0.15, currency: "EGLD", fallbackImg: "branding/original/QATAR2022-d90c01/logo.png" },
+    { id: "FOOTBALL-64e58f", floor: 0.10, currency: "EGLD", fallbackImg: "branding/rebranded/highlight-demo-thumb.jpg" }
   ];
 
   for (const colConfig of collections) {
@@ -2176,12 +2285,13 @@ function renderMarketplaceGrid() {
   pageItems.forEach((item) => {
     try {
       const isQatar = isQatarNft(item);
+      const isVideo = isVideoNft(item);
       const tier = getNftRarityTier(item);
       const isOwner = curAddr && item.seller && item.seller.toLowerCase() === curAddr;
       const isNative = !item.isXoxno;
 
       const card = document.createElement("div");
-      card.className = `m-nft-card tier-${tier.tierKey} ${isNative ? "is-nfoot-native" : "is-xoxno-card"}${isQatar ? " card-qatar" : ""}`;
+      card.className = `m-nft-card tier-${tier.tierKey} ${isNative ? "is-nfoot-native" : "is-xoxno-card"}${isQatar ? " card-qatar" : ""}${isVideo ? " card-video" : ""}`;
 
       // Separate our marketplace NFTs: only the very first XOXNO card starts a new row,
       // all subsequent XOXNO cards stay together in standard grid flow (e.g. 4 per row)
@@ -2231,8 +2341,16 @@ function renderMarketplaceGrid() {
         <div class="mnc-media-wrap" data-inspect="${item.id}">
           <img src="${cardImgUrl}" alt="${item.name || item.id}" class="mnc-media-img" loading="lazy" onerror="this.onerror=null; this.src='${cardFallback}';" />
           <div class="mnc-rank-badge" style="border-color:${tier.borderColor || '#00ff88'}; color:${tier.borderColor || '#00ff88'};">
-            ${isQatar ? `🏆 Rank #${tier.rank || 'N/A'}` : `${tier.tierIcon || '⚽'} Rank #${tier.rank || 'N/A'} • ${tier.tierLabel || 'COMMON'}`}
+            ${isQatar ? `🏆 Rank #${tier.rank || 'N/A'}` : (isVideo ? `🎬 Video NFT #${item.nonce || tier.rank}` : `${tier.tierIcon || '⚽'} Rank #${tier.rank || 'N/A'} • ${tier.tierLabel || 'COMMON'}`)}
           </div>
+          ${
+            isVideo
+              ? `<div class="mnc-video-play-overlay" title="Play Highlight Video">
+                   <div class="mnc-video-play-btn">▶</div>
+                   <span class="mnc-video-play-lbl">WATCH VIDEO</span>
+                 </div>`
+              : ""
+          }
           ${
             item.isXoxno
               ? `<div class="mnc-xoxno-badge" title="Verified listing on XOXNO Marketplace">
@@ -2255,7 +2373,9 @@ function renderMarketplaceGrid() {
                   ? `<span class="mnc-vip-tag">VIP PASS</span>`
                   : (isQatar
                       ? `<span class="mnc-role-tag" style="background:rgba(180,20,50,0.25); border-color:#e63946; color:#ff6b6b;">🏆 QATAR 2022</span>`
-                      : `<span class="mnc-role-tag">${isKeeper ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`)
+                      : (isVideo
+                          ? `<span class="mnc-role-tag" style="background:rgba(56,189,248,0.2); border-color:#38bdf8; color:#38bdf8;">🎬 VIDEO NFT</span>`
+                          : `<span class="mnc-role-tag">${isKeeper ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`))
               }
             </div>
           </div>
@@ -2306,9 +2426,13 @@ function renderMarketplaceGrid() {
         </div>
       `;
 
-      // Click on media to open detailed inspection popup
+      // Click on media to open detailed inspection popup or video cinema player
       card.querySelector(`[data-inspect="${item.id}"]`)?.addEventListener("click", () => {
-        openNftDetailsModal(item);
+        if (isVideo) {
+          openVideoCinemaModal(item);
+        } else {
+          openNftDetailsModal(item);
+        }
       });
 
       // Buy Action (Direct XOXNO Smart Contract or P2P)
@@ -2520,10 +2644,13 @@ function renderMyLockerGrid() {
       (nft.identifier && nft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
       (nft.name && nft.name.toLowerCase().includes("goalkeeper"));
     const isQatar = isQatarNft(nft);
+    const isVideo = isVideoNft(nft);
     if (isQatar) card.classList.add("card-qatar");
+    if (isVideo) card.classList.add("card-video");
     const keeperFallback = KEEPER_FALLBACK;
     const strikerFallback = STRIKER_FALLBACK;
-    const cardFallback = isQatar ? QATAR_FALLBACK : (isKeeper ? keeperFallback : strikerFallback);
+    const videoFallback = "branding/rebranded/highlight-demo-thumb.jpg";
+    const cardFallback = isVideo ? videoFallback : (isQatar ? QATAR_FALLBACK : (isKeeper ? keeperFallback : strikerFallback));
     const nftImgUrl = getNftOptimizedImageUrl(nft);
     const nftPowers = Array.isArray(tier.powers) ? tier.powers : [];
 
@@ -2531,9 +2658,17 @@ function renderMyLockerGrid() {
       <div class="mnc-media-wrap" data-locker-inspect="${nft.identifier}">
         <img src="${nftImgUrl}" alt="${nft.name || nft.identifier}" class="mnc-media-img" onerror="this.onerror=null; this.src='${cardFallback}';" />
         <div class="mnc-rank-badge" style="border-color:${tier.borderColor || '#00ff88'}; color:${tier.borderColor || '#00ff88'};">
-          ${isQatar ? `🏆 Rank #${tier.rank || 'N/A'}` : `${tier.tierIcon || '⚽'} Rank #${tier.rank || 'N/A'} • ${tier.tierLabel || 'COMMON'}`}
+          ${isQatar ? `🏆 Rank #${tier.rank || 'N/A'}` : (isVideo ? `🎬 Video NFT #${nft.nonce || tier.rank}` : `${tier.tierIcon || '⚽'} Rank #${tier.rank || 'N/A'} • ${tier.tierLabel || 'COMMON'}`)}
         </div>
         <div class="mnc-col-tag">${isListed ? "🏷️ LISTED" : "🎒 IN LOCKER"}</div>
+        ${
+          isVideo
+            ? `<div class="mnc-video-play-overlay" title="Play Highlight Video">
+                 <div class="mnc-video-play-btn">▶</div>
+                 <span class="mnc-video-play-lbl">WATCH VIDEO</span>
+               </div>`
+            : ""
+        }
       </div>
 
       <div class="mnc-body">
@@ -2545,12 +2680,14 @@ function renderMyLockerGrid() {
                 ? `<span class="mnc-vip-tag">VIP PASS</span>`
                 : (isQatar
                     ? `<span class="mnc-role-tag" style="background:rgba(180,20,50,0.25); border-color:#e63946; color:#ff6b6b;">🏆 QATAR 2022</span>`
-                    : `<span class="mnc-role-tag">${isKeeper ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`)
+                    : (isVideo
+                        ? `<span class="mnc-role-tag" style="background:rgba(56,189,248,0.2); border-color:#38bdf8; color:#38bdf8;">🎬 VIDEO NFT</span>`
+                        : `<span class="mnc-role-tag">${isKeeper ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`))
             }
           </div>
         </div>
 
-        <p class="mnc-trait-desc">${isQatar ? "FIFA World Cup Qatar 2022 Collectible Trading Card" : (nft.trait || "Equipped for 120' Shootout Arena")}</p>
+        <p class="mnc-trait-desc">${isQatar ? "FIFA World Cup Qatar 2022 Collectible Trading Card" : (isVideo ? "Official Match Highlight Video NFT • FOOTBALL-64e58f" : (nft.trait || "Equipped for 120' Shootout Arena"))}</p>
 
         ${
           isQatar
@@ -2563,9 +2700,14 @@ function renderMyLockerGrid() {
                   ${!qTraits.nation && !qTraits.series ? `<span class="qatar-trait-pill">🏆 Collectible Card</span>` : ""}
                 </div>`;
               })()
-            : `<div class="mnc-powers-row">
-                 ${nftPowers.slice(0, 3).map((p) => `<span class="mnc-power-pill">${p}</span>`).join("")}
-               </div>`
+            : (isVideo
+                ? `<div class="mnc-powers-row">
+                     <span class="mnc-power-pill" style="border-color:rgba(56,189,248,0.35); color:#38bdf8;">🎬 1080p Video</span>
+                     <span class="mnc-power-pill" style="border-color:rgba(56,189,248,0.35); color:#38bdf8;">⚽ Match Action</span>
+                   </div>`
+                : `<div class="mnc-powers-row">
+                     ${nftPowers.slice(0, 3).map((p) => `<span class="mnc-power-pill">${p}</span>`).join("")}
+                   </div>`)
         }
 
         <div class="mnc-footer">
@@ -2601,7 +2743,11 @@ function renderMyLockerGrid() {
     `;
 
     card.querySelector(`[data-locker-inspect="${nft.identifier}"]`)?.addEventListener("click", () => {
-      openNftDetailsModal(nft);
+      if (isVideo) {
+        openVideoCinemaModal(nft);
+      } else {
+        openNftDetailsModal(nft);
+      }
     });
 
     if (isListed) {
@@ -3669,10 +3815,30 @@ function openNftDetailsModal(nft) {
   const strikerFallback = STRIKER_FALLBACK;
   const cardFallback = isQatar ? QATAR_FALLBACK : (isKeeper ? keeperFallback : strikerFallback);
 
+  const isVideo = isVideoNft(nft);
   const detailImgUrl = getNftOptimizedImageUrl(nft);
+  const videoEl = document.getElementById("detail-nft-video");
+
+  if (isVideo) {
+    const videoUrl = getNftVideoUrl(nft);
+    if (imgEl) imgEl.classList.add("hidden");
+    if (videoEl) {
+      videoEl.classList.remove("hidden");
+      videoEl.poster = detailImgUrl;
+      videoEl.src = videoUrl;
+      videoEl.load();
+    }
+  } else {
+    if (videoEl) {
+      videoEl.classList.add("hidden");
+      videoEl.pause();
+      videoEl.src = "";
+    }
     if (imgEl) {
-    imgEl.src = detailImgUrl;
-    imgEl.onerror = () => { imgEl.onerror = null; imgEl.src = cardFallback; };
+      imgEl.classList.remove("hidden");
+      imgEl.src = detailImgUrl;
+      imgEl.onerror = () => { imgEl.onerror = null; imgEl.src = cardFallback; };
+    }
   }
   if (imgEl && imgEl.parentElement) {
     if (isQatar) {
@@ -5426,7 +5592,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Close Modals
   document.getElementById("close-details-modal-btn")?.addEventListener("click", () => {
+    const vid = document.getElementById("detail-nft-video");
+    if (vid) { vid.pause(); vid.src = ""; }
     document.getElementById("nft-details-modal")?.classList.add("hidden");
+  });
+  document.getElementById("close-video-modal-btn")?.addEventListener("click", closeVideoCinemaModal);
+  document.getElementById("video-nft-modal")?.addEventListener("click", (e) => {
+    if (e.target && e.target.id === "video-nft-modal") closeVideoCinemaModal();
+  });
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeVideoCinemaModal();
   });
   document.getElementById("close-list-modal-btn")?.addEventListener("click", () => {
     document.getElementById("list-nft-modal")?.classList.add("hidden");
