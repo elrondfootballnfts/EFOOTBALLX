@@ -1216,7 +1216,7 @@ function scrollToHeroAct(targetAct) {
   const trackTopAbs = window.scrollY + rect.top;
   const scrollableDist = track.offsetHeight - window.innerHeight;
 
-  if (scrollableDist > 120) {
+  if (scrollableDist > 120 && window.innerWidth > 960) {
     window.scrollTo({
       top: trackTopAbs + scrollableDist * targetP,
       behavior: "smooth"
@@ -1429,6 +1429,10 @@ function initHeroScrollytelling() {
   let smoothP = 0;
 
   function computeRawScrollProgress() {
+    if (window.innerWidth <= 960) {
+      // On mobile screens, do not hijack acts via vertical page scroll - chapters are cleanly selected via tabs!
+      return targetHeroProgress;
+    }
     const rect = track.getBoundingClientRect();
     const scrollable = track.offsetHeight - window.innerHeight;
     if (scrollable <= 60) return targetHeroProgress;
