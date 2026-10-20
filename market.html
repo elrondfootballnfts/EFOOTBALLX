@@ -113,7 +113,7 @@
             <span class="msb-lbl" data-i18n="stat_listings">ACTIVE LISTINGS</span>
           </div>
           <strong class="msb-val" id="tele-listings-count">8 NFTs</strong>
-          <small class="msb-sub">Strikers &amp; Goalkeepers Listed</small>
+          <small class="msb-sub">Strikers, Keepers &amp; Qatar 2022</small>
         </div>
 
         <div class="m-stat-box neon">
@@ -168,6 +168,7 @@
             <button type="button" class="m-filter-pill active" data-filter-col="all">All</button>
             <button type="button" class="m-filter-pill" data-filter-col="striker">⚽ Strikers</button>
             <button type="button" class="m-filter-pill" data-filter-col="keeper">🧤 Goalkeepers</button>
+            <button type="button" class="m-filter-pill" data-filter-col="qatar">🏆 Qatar 2022</button>
           </div>
 
           <div class="m-filter-group">
@@ -341,6 +342,36 @@
               <button type="button" class="pool-btn sec" onclick="switchMarketTab('ultras')">
                 VIP Info ➔
               </button>
+            </div>
+          </div>
+
+          <!-- Qatar 2022 World Cup Card -->
+          <div class="mm-card" style="border-color: rgba(230, 57, 70, 0.4);">
+            <div class="mm-head">
+              <img src="branding/original/QATAR2022-d90c01/logo.png" alt="Qatar 2022 Premium Cards" class="mm-thumb" style="border-color: #e63946;" />
+              <div class="mm-title-col">
+                <h3>🏆 Qatar 2022 Cards</h3>
+                <span class="mm-coll-code" style="color:#ff6b6b;">QATAR2022-d90c01</span>
+              </div>
+            </div>
+            <p class="mm-desc">
+              Exclusive FIFA World Cup Qatar 2022 Premium Betting &amp; Tournament Cards. Rare heritage collectibles with verified on-chain traits!
+            </p>
+            <div class="mm-meta-row">
+              <span>Marketplace:</span>
+              <strong class="mm-price-tag" style="color:#ff6b6b;">Secondary P2P</strong>
+            </div>
+            <div class="mm-meta-row">
+              <span>Supply:</span>
+              <strong style="color:#00ff88;">309 Minted (Completed)</strong>
+            </div>
+            <div class="mm-actions">
+              <button type="button" class="mm-mint-btn" style="background: linear-gradient(135deg, #e63946, #b5179e); color: #fff;" onclick="switchMarketTab('browse'); document.querySelector('[data-filter-col=\'qatar\']')?.click();">
+                🏆 Browse Qatar Cards
+              </button>
+              <a href="https://xoxno.com/collection/QATAR2022-d90c01" target="_blank" rel="noopener noreferrer" class="pool-btn sec">
+                XOXNO ↗
+              </a>
             </div>
           </div>
         </div>
@@ -1444,6 +1475,6 @@
   <div id="m-toast" class="m-toast hidden"></div>
 
   <!-- Scripts -->
-  <script src="market.js?v=20261019_v40_native_branding"></script>
+  <script src="market.js?v=20261020_v41_qatar2022"></script>
 </body>
 </html>

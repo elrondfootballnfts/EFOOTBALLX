@@ -9,8 +9,10 @@ const XOXNO_MARKETPLACE_SC = "erd1qqqqqqqqqqqqqpgq6wegs2xkypfpync8mn2sa5cmpqjlvr
 const EFOO_TOKEN_ID = "EFOO-8fe2d4";
 const STRIKER_COLLECTION = "EFOOTBALL-91a4eb";
 const KEEPER_COLLECTION = "GOALKEEPER-cb9e3e";
+const QATAR_COLLECTION = "QATAR2022-d90c01";
 const STRIKER_FALLBACK = "branding/original/EFOOTBALL-91a4eb/logo.png";
 const KEEPER_FALLBACK = "branding/original/GOALKEEPER-cb9e3e/logo.png";
+const QATAR_FALLBACK = "branding/original/QATAR2022-d90c01/logo.png";
 const STADIUM_VAULT_SC = "erd1qqqqqqqqqqqqqpgqwdrgl4k7gfa26wp0xcje8qn9gucq87yx55hs39eend";
 const SC_HEX = "0000000000000000050073468fd6de427aad382f3625938265473003f886a52f";
 const EFOOREWARDS_WALLET = "erd1p5hfnx87q4pddwsyz23e5pqv8550rsfat902j6g4ckdh070055hshct4my";
@@ -1036,7 +1038,7 @@ let activeModalNft = null;
 const MARKET_I18N = {
   en: {
     nav_market_sub: "NFT & SKILL MARKETPLACE",
-    hero_sub: "Trade official <strong>EFOOTBALL-91a4eb</strong> Strikers and <strong>GOALKEEPER-cb9e3e</strong> Keepers directly with players. Every trade burns <strong>$EFOO</strong> and fuels the weekend Stadium Vault Jackpot!",
+    hero_sub: "Trade official <strong>EFOOTBALL-91a4eb</strong> Strikers, <strong>GOALKEEPER-cb9e3e</strong> Keepers, and <strong>QATAR2022-d90c01</strong> Cards directly with players. Every trade burns <strong>$EFOO</strong> and fuels the weekend Stadium Vault Jackpot!",
     stat_vault: "STADIUM VAULT JACKPOT",
     stat_vault_rule: "Weekend Payout: 65% (1st) • 25% (2nd) • 10% (3rd)",
     stat_burned: "TOTAL BURNED IN GAMES",
@@ -1065,7 +1067,7 @@ const MARKET_I18N = {
   },
   hu: {
     nav_market_sub: "NFT ÉS KÉPESSÉG PIAC",
-    hero_sub: "Kereskedj hivatalos <strong>EFOOTBALL-91a4eb</strong> Csatár és <strong>GOALKEEPER-cb9e3e</strong> Kapus NFT-kkel közvetlenül a játékosokkal. Minden eladás <strong>$EFOO-t éget</strong> és a hétvégi Stadium Vault Jackpotot gyarapítja!",
+    hero_sub: "Kereskedj hivatalos <strong>EFOOTBALL-91a4eb</strong> Csatár, <strong>GOALKEEPER-cb9e3e</strong> Kapus és <strong>QATAR2022-d90c01</strong> Kártya NFT-kkel közvetlenül a játékosokkal. Minden eladás <strong>$EFOO-t éget</strong> és a hétvégi Stadium Vault Jackpotot gyarapítja!",
     stat_vault: "STADIUM VAULT JACKPOT",
     stat_vault_rule: "Hétvégi Kiosztás: 65% (1.) • 25% (2.) • 10% (3.)",
     stat_burned: "ÖSSZESEN ELÉGETVE JÁTÉKOKBAN",
@@ -1094,7 +1096,7 @@ const MARKET_I18N = {
   },
   ro: {
     nav_market_sub: "PIAȚĂ NFT ȘI ABILITĂȚI",
-    hero_sub: "Tranzacționează Atacanți <strong>EFOOTBALL-91a4eb</strong> și Portari <strong>GOALKEEPER-cb9e3e</strong> direct între jucători. Fiecare schimb arde <strong>$EFOO</strong> și finanțează Seiful Stadionului!",
+    hero_sub: "Tranzacționează Atacanți <strong>EFOOTBALL-91a4eb</strong>, Portari <strong>GOALKEEPER-cb9e3e</strong> și Carduri <strong>QATAR2022-d90c01</strong> direct între jucători. Fiecare schimb arde <strong>$EFOO</strong> și finanțează Seiful Stadionului!",
     stat_vault: "SEIF STADION JACKPOT",
     stat_vault_rule: "Premii Weekend: 65% (1) • 25% (2) • 10% (3)",
     stat_burned: "TOTAL ARS ÎN JOCURI",
@@ -1159,9 +1161,27 @@ function isSkillSftNft(nft) {
   return col.includes("efooskill") || id.includes("efooskill");
 }
 
+function isQatarNft(nft) {
+  if (!nft) return false;
+  const col = (nft.collection || "").toLowerCase();
+  const id = (nft.identifier || "").toLowerCase();
+  const name = (nft.name || "").toLowerCase();
+  return col === QATAR_COLLECTION.toLowerCase() ||
+         col === "qatar2002-d90c01" ||
+         id.includes("qatar2022") ||
+         id.includes("qatar2002") ||
+         name.includes("qatar") ||
+         name.includes("premium cards");
+}
+
 function getNftOptimizedImageUrl(nft) {
   if (!nft) return STRIKER_FALLBACK;
   if (isUltrasPassNft(nft)) return "branding/rebranded/efoo-ultras-pass-badge.png";
+  if (isQatarNft(nft)) {
+    if (nft.url && !nft.url.includes("default.png")) return nft.url;
+    if (nft.media && Array.isArray(nft.media) && nft.media[0] && nft.media[0].url) return nft.media[0].url;
+    return QATAR_FALLBACK;
+  }
 
   const isKeeper = (nft.collection === KEEPER_COLLECTION) || 
     (nft.identifier && nft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
@@ -1384,7 +1404,8 @@ async function fetchLiveXoxnoListings() {
   const results = [];
   const collections = [
     { id: STRIKER_COLLECTION, floor: 0.08, currency: "EGLD", fallbackImg: "branding/original/EFOOTBALL-91a4eb/logo.png" },
-    { id: KEEPER_COLLECTION, floor: 0.48, currency: "EGLD", fallbackImg: "branding/original/GOALKEEPER-cb9e3e/logo.png" }
+    { id: KEEPER_COLLECTION, floor: 0.48, currency: "EGLD", fallbackImg: "branding/original/GOALKEEPER-cb9e3e/logo.png" },
+    { id: QATAR_COLLECTION, floor: 0.15, currency: "EGLD", fallbackImg: "branding/original/QATAR2022-d90c01/logo.png" }
   ];
 
   for (const colConfig of collections) {
@@ -1804,8 +1825,8 @@ async function fetchWalletBalances(address) {
 
 async function fetchWalletNfts(address) {
   try {
-    // Fetch all official team collections (EFOOTBALL-91a4eb, GOALKEEPER-cb9e3e, EFOOPASS-5223a8, FOOTBALL-64e58f)
-    const res = await fetch(`${MULTIVERSX_API}/accounts/${address}/nfts?collections=${STRIKER_COLLECTION},${KEEPER_COLLECTION},${ULTRAS_PASS_COLLECTION},FOOTBALL-64e58f&size=100`);
+    // Fetch all official team collections (EFOOTBALL-91a4eb, GOALKEEPER-cb9e3e, EFOOPASS-5223a8, QATAR2022-d90c01, FOOTBALL-64e58f)
+    const res = await fetch(`${MULTIVERSX_API}/accounts/${address}/nfts?collections=${STRIKER_COLLECTION},${KEEPER_COLLECTION},${ULTRAS_PASS_COLLECTION},${QATAR_COLLECTION},FOOTBALL-64e58f&size=100`);
     if (res.ok) {
       const nfts = await res.json();
       if (Array.isArray(nfts)) {
@@ -2048,6 +2069,9 @@ function renderMarketplaceGrid() {
     if (filterCollection === "keeper") {
       return item.collection === KEEPER_COLLECTION || (item.identifier && item.identifier.includes("GOALKEEPER")) || !!item.jersey;
     }
+    if (filterCollection === "qatar") {
+      return isQatarNft(item);
+    }
     return true;
   });
 
@@ -2133,8 +2157,10 @@ function renderMarketplaceGrid() {
       const isKeeper = (item.collection === KEEPER_COLLECTION) || 
         (item.identifier && item.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
         (item.name && item.name.toLowerCase().includes("goalkeeper"));
+      const isQatar = isQatarNft(item);
       const keeperFallback = KEEPER_FALLBACK;
       const strikerFallback = STRIKER_FALLBACK;
+      const cardFallback = isQatar ? QATAR_FALLBACK : (isKeeper ? keeperFallback : strikerFallback);
       const cardImgUrl = getNftOptimizedImageUrl(item);
 
       const isEgld = item.currency === "EGLD" || item.currency === "WEGLD";
@@ -2165,7 +2191,7 @@ function renderMarketplaceGrid() {
             : ""
         }
         <div class="mnc-media-wrap" data-inspect="${item.id}">
-          <img src="${cardImgUrl}" alt="${item.name || item.id}" class="mnc-media-img" loading="lazy" onerror="this.onerror=null; this.src='${isKeeper ? keeperFallback : strikerFallback}';" />
+          <img src="${cardImgUrl}" alt="${item.name || item.id}" class="mnc-media-img" loading="lazy" onerror="this.onerror=null; this.src='${cardFallback}';" />
           <div class="mnc-rank-badge" style="border-color:${tier.borderColor || '#00ff88'}; color:${tier.borderColor || '#00ff88'};">
             ${tier.tierIcon || '⚽'} Rank #${tier.rank || 'N/A'} • ${tier.tierLabel || 'COMMON'}
           </div>
@@ -2189,7 +2215,9 @@ function renderMarketplaceGrid() {
               ${
                 isUltrasPassNft(item)
                   ? `<span class="mnc-vip-tag">VIP PASS</span>`
-                  : `<span class="mnc-role-tag">${isKeeper ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`
+                  : (isQatar
+                      ? `<span class="mnc-role-tag" style="background:rgba(180,20,50,0.25); border-color:#e63946; color:#ff6b6b;">🏆 QATAR 2022</span>`
+                      : `<span class="mnc-role-tag">${isKeeper ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`)
               }
             </div>
           </div>
@@ -2441,14 +2469,16 @@ function renderMyLockerGrid() {
     const isKeeper = (nft.collection === KEEPER_COLLECTION) || 
       (nft.identifier && nft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
       (nft.name && nft.name.toLowerCase().includes("goalkeeper"));
+    const isQatar = isQatarNft(nft);
     const keeperFallback = KEEPER_FALLBACK;
     const strikerFallback = STRIKER_FALLBACK;
+    const cardFallback = isQatar ? QATAR_FALLBACK : (isKeeper ? keeperFallback : strikerFallback);
     const nftImgUrl = getNftOptimizedImageUrl(nft);
     const nftPowers = Array.isArray(tier.powers) ? tier.powers : [];
 
     card.innerHTML = `
       <div class="mnc-media-wrap" data-locker-inspect="${nft.identifier}">
-        <img src="${nftImgUrl}" alt="${nft.name || nft.identifier}" class="mnc-media-img" onerror="this.onerror=null; this.src='${isKeeper ? keeperFallback : strikerFallback}';" />
+        <img src="${nftImgUrl}" alt="${nft.name || nft.identifier}" class="mnc-media-img" onerror="this.onerror=null; this.src='${cardFallback}';" />
         <div class="mnc-rank-badge" style="border-color:${tier.borderColor || '#00ff88'}; color:${tier.borderColor || '#00ff88'};">
           ${tier.tierIcon || '⚽'} Rank #${tier.rank || 'N/A'} • ${tier.tierLabel || 'COMMON'}
         </div>
@@ -2462,7 +2492,9 @@ function renderMyLockerGrid() {
             ${
               isUltrasPassNft(nft)
                 ? `<span class="mnc-vip-tag">VIP PASS</span>`
-                : `<span class="mnc-role-tag">${isKeeper ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`
+                : (isQatar
+                    ? `<span class="mnc-role-tag" style="background:rgba(180,20,50,0.25); border-color:#e63946; color:#ff6b6b;">🏆 QATAR 2022</span>`
+                    : `<span class="mnc-role-tag">${isKeeper ? "🧤 KEEPER" : "⚽ STRIKER"}</span>`)
             }
           </div>
         </div>
@@ -3120,9 +3152,10 @@ function openListNftModal(nft) {
   const isKeeper = (nft.collection === KEEPER_COLLECTION) || 
     (nft.identifier && nft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
     (nft.name && nft.name.toLowerCase().includes("goalkeeper"));
+  const isQatar = isQatarNft(nft);
   const fallbackImg = isPass
     ? "branding/rebranded/efoo-ultras-pass-badge.png"
-    : (isKeeper ? "branding/original/GOALKEEPER-cb9e3e/logo.png" : "branding/original/EFOOTBALL-91a4eb/logo.png");
+    : (isQatar ? QATAR_FALLBACK : (isKeeper ? KEEPER_FALLBACK : STRIKER_FALLBACK));
 
   if (titleEl) titleEl.textContent = `List ${isPass ? "EFOO Ultras PASS" : (nft.name || nft.identifier)}`;
   if (nameEl) nameEl.textContent = isPass ? "EFOO Ultras PASS (VIP Access)" : (nft.name || nft.identifier);
@@ -3130,7 +3163,7 @@ function openListNftModal(nft) {
   if (rankEl) {
     rankEl.textContent = isPass
       ? "👑 0% Trading Fees For Life • VIP Pass SFT"
-      : `${tier.tierIcon} Rank #${tier.rank} (${tier.tierLabel}) • ${isKeeper ? "🧤 Goalkeeper" : "⚽ Striker"}`;
+      : `${tier.tierIcon} Rank #${tier.rank} (${tier.tierLabel}) • ${isQatar ? "🏆 Qatar 2022" : (isKeeper ? "🧤 Goalkeeper" : "⚽ Striker")}`;
   }
 
   setListingCurrency("EGLD");
@@ -3165,11 +3198,12 @@ async function executeCreateListing() {
   const isKeeper = (activeModalNft.collection === KEEPER_COLLECTION) || 
     (activeModalNft.identifier && activeModalNft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
     (activeModalNft.name && activeModalNft.name.toLowerCase().includes("goalkeeper"));
+  const isQatar = isQatarNft(activeModalNft);
   const fallbackImg = isPass
     ? "branding/rebranded/efoo-ultras-pass-badge.png"
-    : (isKeeper ? "branding/original/GOALKEEPER-cb9e3e/logo.png" : "branding/original/EFOOTBALL-91a4eb/logo.png");
+    : (isQatar ? QATAR_FALLBACK : (isKeeper ? KEEPER_FALLBACK : STRIKER_FALLBACK));
 
-  const colStr = activeModalNft.collection || (activeModalNft.identifier ? activeModalNft.identifier.split("-").slice(0, 2).join("-") : (isPass ? ULTRAS_PASS_COLLECTION : (isKeeper ? KEEPER_COLLECTION : STRIKER_COLLECTION)));
+  const colStr = activeModalNft.collection || (activeModalNft.identifier ? activeModalNft.identifier.split("-").slice(0, 2).join("-") : (isPass ? ULTRAS_PASS_COLLECTION : (isQatar ? QATAR_COLLECTION : (isKeeper ? KEEPER_COLLECTION : STRIKER_COLLECTION))));
   const colHex = stringToHex(colStr);
 
   let nonceNum = activeModalNft.nonce;
@@ -3567,13 +3601,15 @@ function openNftDetailsModal(nft) {
   const isKeeper = (nft.collection === KEEPER_COLLECTION) || 
     (nft.identifier && nft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
     (nft.name && nft.name.toLowerCase().includes("goalkeeper"));
+  const isQatar = isQatarNft(nft);
   const keeperFallback = KEEPER_FALLBACK;
   const strikerFallback = STRIKER_FALLBACK;
+  const cardFallback = isQatar ? QATAR_FALLBACK : (isKeeper ? keeperFallback : strikerFallback);
 
   const detailImgUrl = getNftOptimizedImageUrl(nft);
   if (imgEl) {
     imgEl.src = detailImgUrl;
-    imgEl.onerror = () => { imgEl.onerror = null; imgEl.src = isKeeper ? keeperFallback : strikerFallback; };
+    imgEl.onerror = () => { imgEl.onerror = null; imgEl.src = cardFallback; };
   }
   if (rankPill) {
     if (isPass) {
@@ -3581,17 +3617,17 @@ function openNftDetailsModal(nft) {
       rankPill.style.borderColor = "#ffb800";
       rankPill.style.color = "#ffb800";
     } else {
-      rankPill.textContent = `${tier.tierIcon} Rank #${tier.rank} • ${tier.tierLabel} • ${isKeeper ? "🧤 Keeper" : "⚽ Striker"}`;
-      rankPill.style.borderColor = tier.borderColor;
-      rankPill.style.color = tier.borderColor;
+      rankPill.textContent = `${tier.tierIcon} Rank #${tier.rank} • ${tier.tierLabel} • ${isQatar ? "🏆 Qatar 2022" : (isKeeper ? "🧤 Keeper" : "⚽ Striker")}`;
+      rankPill.style.borderColor = isQatar ? "#e63946" : tier.borderColor;
+      rankPill.style.color = isQatar ? "#ff6b6b" : tier.borderColor;
     }
   }
-  if (colIdEl) colIdEl.textContent = isPass ? ULTRAS_PASS_COLLECTION : (nft.collection || (isKeeper ? KEEPER_COLLECTION : STRIKER_COLLECTION));
+  if (colIdEl) colIdEl.textContent = isPass ? ULTRAS_PASS_COLLECTION : (nft.collection || (isQatar ? QATAR_COLLECTION : (isKeeper ? KEEPER_COLLECTION : STRIKER_COLLECTION)));
   if (nameEl) nameEl.textContent = nft.name || nft.identifier;
   if (traitEl) {
     traitEl.textContent = isPass
       ? "Exclusive MultiversX VIP Access SFT (0% Trading Fees for Life)"
-      : (nft.trait || (isKeeper ? "Official Sunday League Goalkeeper" : "Sunday League Degen Ultra"));
+      : (nft.trait || (isQatar ? "FIFA World Cup Qatar 2022 Premium Betting Card" : (isKeeper ? "Official Sunday League Goalkeeper" : "Sunday League Degen Ultra")));
   }
 
   // Powers
@@ -3615,8 +3651,8 @@ function openNftDetailsModal(nft) {
       : (Array.isArray(nft.attributes) && nft.attributes.length
           ? nft.attributes.filter((a) => (a.name || a.trait_type) !== "OVR")
           : [
-              { name: "Collection", value: nft.collection || (isKeeper ? KEEPER_COLLECTION : STRIKER_COLLECTION) },
-              { name: "Role", value: isKeeper ? "Goalkeeper (🧤)" : "Striker (⚽)" },
+              { name: "Collection", value: nft.collection || (isQatar ? QATAR_COLLECTION : (isKeeper ? KEEPER_COLLECTION : STRIKER_COLLECTION)) },
+              { name: "Role", value: isQatar ? "Qatar 2022 World Cup Card (🏆)" : (isKeeper ? "Goalkeeper (🧤)" : "Striker (⚽)") },
               { name: "Rarity Rank", value: `#${tier.rank}` },
               { name: "Tier", value: tier.tierLabel }
             ]);
