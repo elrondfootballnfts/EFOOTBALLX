@@ -1161,6 +1161,29 @@ function isSkillSftNft(nft) {
   return col.includes("efooskill") || id.includes("efooskill");
 }
 
+function getQatarCardTraits(nft) {
+  if (!nft) return { nation: "", series: "", number: "" };
+  let attrs = [];
+  if (nft.metadata && Array.isArray(nft.metadata.attributes)) {
+    attrs = nft.metadata.attributes;
+  } else if (Array.isArray(nft.attributes)) {
+    attrs = nft.attributes;
+  }
+  const findVal = (key) => {
+    const found = attrs.find((a) => (a.trait_type || a.name || "").trim().toLowerCase() === key.toLowerCase());
+    if (!found || !found.value) return "";
+    return String(found.value).trim().replace(/_/g, " ");
+  };
+  let nation = findVal("Nations") || findVal("Nation") || "";
+  let series = findVal("Series") || "";
+  let number = findVal("Numbers") || findVal("Number") || "";
+  if (!nation && nft.name) {
+    const nMatch = nft.name.match(/#(\d+)/);
+    if (nMatch && !number) number = "#" + nMatch[1];
+  }
+  return { nation, series, number };
+}
+
 function isQatarNft(nft) {
   if (!nft) return false;
   const col = (nft.collection || "").toLowerCase();
@@ -1240,6 +1263,21 @@ function getNftRarityTier(nft) {
       scoreMult: 1.0,
       slots: 0,
       powers: ["1.0x Score Multiplier", "0 Skill Slots"]
+    };
+  }
+
+  // FIFA World Cup Qatar 2022 Collectible Cards (No in-game skills)
+  if (isQatarNft(nft)) {
+    const rankNum = nft.rank || (nft.metadata && nft.metadata.rank) || (nft.rarities && nft.rarities.openRarity && nft.rarities.openRarity.rank) || null;
+    return {
+      tierKey: "qatar",
+      tierLabel: "QATAR 2022",
+      tierIcon: "🏆",
+      rank: rankNum || 39,
+      borderColor: "#e63946",
+      scoreMult: 1.0,
+      slots: 0,
+      powers: [] // Strictly empty: no in-game skills!
     };
   }
 
@@ -2137,12 +2175,13 @@ function renderMarketplaceGrid() {
 
   pageItems.forEach((item) => {
     try {
+      const isQatar = isQatarNft(item);
       const tier = getNftRarityTier(item);
       const isOwner = curAddr && item.seller && item.seller.toLowerCase() === curAddr;
       const isNative = !item.isXoxno;
 
       const card = document.createElement("div");
-      card.className = `m-nft-card tier-${tier.tierKey} ${isNative ? "is-nfoot-native" : "is-xoxno-card"}`;
+      card.className = `m-nft-card tier-${tier.tierKey} ${isNative ? "is-nfoot-native" : "is-xoxno-card"}${isQatar ? " card-qatar" : ""}`;
 
       // Separate our marketplace NFTs: only the very first XOXNO card starts a new row,
       // all subsequent XOXNO cards stay together in standard grid flow (e.g. 4 per row)
@@ -2157,7 +2196,6 @@ function renderMarketplaceGrid() {
       const isKeeper = (item.collection === KEEPER_COLLECTION) || 
         (item.identifier && item.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
         (item.name && item.name.toLowerCase().includes("goalkeeper"));
-      const isQatar = isQatarNft(item);
       const keeperFallback = KEEPER_FALLBACK;
       const strikerFallback = STRIKER_FALLBACK;
       const cardFallback = isQatar ? QATAR_FALLBACK : (isKeeper ? keeperFallback : strikerFallback);
@@ -2193,7 +2231,7 @@ function renderMarketplaceGrid() {
         <div class="mnc-media-wrap" data-inspect="${item.id}">
           <img src="${cardImgUrl}" alt="${item.name || item.id}" class="mnc-media-img" loading="lazy" onerror="this.onerror=null; this.src='${cardFallback}';" />
           <div class="mnc-rank-badge" style="border-color:${tier.borderColor || '#00ff88'}; color:${tier.borderColor || '#00ff88'};">
-            ${tier.tierIcon || '⚽'} Rank #${tier.rank || 'N/A'} • ${tier.tierLabel || 'COMMON'}
+            ${isQatar ? `🏆 Rank #${tier.rank || 'N/A'}` : `${tier.tierIcon || '⚽'} Rank #${tier.rank || 'N/A'} • ${tier.tierLabel || 'COMMON'}`}
           </div>
           ${
             item.isXoxno
@@ -2222,11 +2260,23 @@ function renderMarketplaceGrid() {
             </div>
           </div>
 
-          <p class="mnc-trait-desc">${isUltrasPassNft(item) ? "Lifetime 0% marketplace trading fee • Match Booster" : (item.trait || (item.isXoxno ? "Listed on XOXNO Marketplace" : "Sunday League Degen Ultra"))}</p>
+          <p class="mnc-trait-desc">${isUltrasPassNft(item) ? "Lifetime 0% marketplace trading fee • Match Booster" : (isQatar ? "FIFA World Cup Qatar 2022 Collectible Trading Card" : (item.trait || (item.isXoxno ? "Listed on XOXNO Marketplace" : "Sunday League Degen Ultra")))}</p>
 
-          <div class="mnc-powers-row">
-            ${itemPowers.slice(0, 3).map((p) => `<span class="mnc-power-pill">${p}</span>`).join("")}
-          </div>
+          ${
+            isQatar
+              ? (() => {
+                  const qTraits = getQatarCardTraits(item);
+                  return `<div class="qatar-traits-row">
+                    ${qTraits.nation ? `<span class="qatar-trait-pill">🌍 ${qTraits.nation}</span>` : ""}
+                    ${qTraits.series ? `<span class="qatar-trait-pill">🎴 ${qTraits.series}</span>` : ""}
+                    ${qTraits.number ? `<span class="qatar-trait-pill">🔢 ${qTraits.number}</span>` : ""}
+                    ${!qTraits.nation && !qTraits.series ? `<span class="qatar-trait-pill">🏆 Collectible Card</span>` : ""}
+                  </div>`;
+                })()
+              : `<div class="mnc-powers-row">
+                   ${itemPowers.slice(0, 3).map((p) => `<span class="mnc-power-pill">${p}</span>`).join("")}
+                 </div>`
+          }
 
           <div class="mnc-footer">
             <div class="mnc-price-box">
@@ -2470,6 +2520,7 @@ function renderMyLockerGrid() {
       (nft.identifier && nft.identifier.toUpperCase().startsWith("GOALKEEPER")) || 
       (nft.name && nft.name.toLowerCase().includes("goalkeeper"));
     const isQatar = isQatarNft(nft);
+    if (isQatar) card.classList.add("card-qatar");
     const keeperFallback = KEEPER_FALLBACK;
     const strikerFallback = STRIKER_FALLBACK;
     const cardFallback = isQatar ? QATAR_FALLBACK : (isKeeper ? keeperFallback : strikerFallback);
@@ -2480,7 +2531,7 @@ function renderMyLockerGrid() {
       <div class="mnc-media-wrap" data-locker-inspect="${nft.identifier}">
         <img src="${nftImgUrl}" alt="${nft.name || nft.identifier}" class="mnc-media-img" onerror="this.onerror=null; this.src='${cardFallback}';" />
         <div class="mnc-rank-badge" style="border-color:${tier.borderColor || '#00ff88'}; color:${tier.borderColor || '#00ff88'};">
-          ${tier.tierIcon || '⚽'} Rank #${tier.rank || 'N/A'} • ${tier.tierLabel || 'COMMON'}
+          ${isQatar ? `🏆 Rank #${tier.rank || 'N/A'}` : `${tier.tierIcon || '⚽'} Rank #${tier.rank || 'N/A'} • ${tier.tierLabel || 'COMMON'}`}
         </div>
         <div class="mnc-col-tag">${isListed ? "🏷️ LISTED" : "🎒 IN LOCKER"}</div>
       </div>
@@ -2499,11 +2550,23 @@ function renderMyLockerGrid() {
           </div>
         </div>
 
-        <p class="mnc-trait-desc">${nft.trait || "Equipped for 120' Shootout Arena"}</p>
+        <p class="mnc-trait-desc">${isQatar ? "FIFA World Cup Qatar 2022 Collectible Trading Card" : (nft.trait || "Equipped for 120' Shootout Arena")}</p>
 
-        <div class="mnc-powers-row">
-          ${nftPowers.slice(0, 3).map((p) => `<span class="mnc-power-pill">${p}</span>`).join("")}
-        </div>
+        ${
+          isQatar
+            ? (() => {
+                const qTraits = getQatarCardTraits(nft);
+                return `<div class="qatar-traits-row">
+                  ${qTraits.nation ? `<span class="qatar-trait-pill">🌍 ${qTraits.nation}</span>` : ""}
+                  ${qTraits.series ? `<span class="qatar-trait-pill">🎴 ${qTraits.series}</span>` : ""}
+                  ${qTraits.number ? `<span class="qatar-trait-pill">🔢 ${qTraits.number}</span>` : ""}
+                  ${!qTraits.nation && !qTraits.series ? `<span class="qatar-trait-pill">🏆 Collectible Card</span>` : ""}
+                </div>`;
+              })()
+            : `<div class="mnc-powers-row">
+                 ${nftPowers.slice(0, 3).map((p) => `<span class="mnc-power-pill">${p}</span>`).join("")}
+               </div>`
+        }
 
         <div class="mnc-footer">
           <div class="mnc-price-box">
@@ -3163,7 +3226,7 @@ function openListNftModal(nft) {
   if (rankEl) {
     rankEl.textContent = isPass
       ? "👑 0% Trading Fees For Life • VIP Pass SFT"
-      : `${tier.tierIcon} Rank #${tier.rank} (${tier.tierLabel}) • ${isQatar ? "🏆 Qatar 2022" : (isKeeper ? "🧤 Goalkeeper" : "⚽ Striker")}`;
+      : (isQatar ? `🏆 Rank #${tier.rank} • Qatar 2022 Collectible` : `${tier.tierIcon} Rank #${tier.rank} (${tier.tierLabel}) • ${isKeeper ? "🧤 Goalkeeper" : "⚽ Striker"}`);
   }
 
   setListingCurrency("EGLD");
@@ -3607,9 +3670,16 @@ function openNftDetailsModal(nft) {
   const cardFallback = isQatar ? QATAR_FALLBACK : (isKeeper ? keeperFallback : strikerFallback);
 
   const detailImgUrl = getNftOptimizedImageUrl(nft);
-  if (imgEl) {
+    if (imgEl) {
     imgEl.src = detailImgUrl;
     imgEl.onerror = () => { imgEl.onerror = null; imgEl.src = cardFallback; };
+  }
+  if (imgEl && imgEl.parentElement) {
+    if (isQatar) {
+      imgEl.parentElement.classList.add("is-qatar");
+    } else {
+      imgEl.parentElement.classList.remove("is-qatar");
+    }
   }
   if (rankPill) {
     if (isPass) {
@@ -3617,7 +3687,7 @@ function openNftDetailsModal(nft) {
       rankPill.style.borderColor = "#ffb800";
       rankPill.style.color = "#ffb800";
     } else {
-      rankPill.textContent = `${tier.tierIcon} Rank #${tier.rank} • ${tier.tierLabel} • ${isQatar ? "🏆 Qatar 2022" : (isKeeper ? "🧤 Keeper" : "⚽ Striker")}`;
+      rankPill.textContent = isQatar ? `🏆 FIFA WORLD CUP 2022 • RANK #${tier.rank || "N/A"}` : `${tier.tierIcon} Rank #${tier.rank} • ${tier.tierLabel} • ${isKeeper ? "🧤 Keeper" : "⚽ Striker"}`;
       rankPill.style.borderColor = isQatar ? "#e63946" : tier.borderColor;
       rankPill.style.color = isQatar ? "#ff6b6b" : tier.borderColor;
     }
@@ -3632,30 +3702,49 @@ function openNftDetailsModal(nft) {
 
   // Powers
   if (powersList) {
-    powersList.innerHTML = tier.powers
-      .map((p) => `<span class="m-power-badge" style="${isPass ? 'border-color:#ffb800; color:#ffb800;' : ''}">${p}</span>`)
-      .join("");
+    if (isQatar) {
+      powersList.innerHTML = `<span class="qatar-collectible-notice">🏆 FIFA World Cup 2022 Official Collectible Card (Pure Collectible • No in-game skills)</span>`;
+    } else {
+      powersList.innerHTML = tier.powers
+        .map((p) => `<span class="m-power-badge" style="${isPass ? 'border-color:#ffb800; color:#ffb800;' : ''}">${p}</span>`)
+        .join("");
+    }
   }
 
   // Attributes table
   if (traitsTable) {
-    const rawAttrs = isPass
-      ? [
-          { name: "Type", value: "VIP Membership SFT" },
-          { name: "Wallet Balance", value: `${sftFormatted} SFT (VIP Active)` },
-          { name: "Trading Fee", value: "0% (Zero Fees for Life)" },
-          { name: "Match Booster", value: "+1.5x Multiplier & +1 Shield" },
-          { name: "Max Supply", value: "300 SFT" },
-          { name: "Collection", value: ULTRAS_PASS_COLLECTION }
-        ]
-      : (Array.isArray(nft.attributes) && nft.attributes.length
-          ? nft.attributes.filter((a) => (a.name || a.trait_type) !== "OVR")
-          : [
-              { name: "Collection", value: nft.collection || (isQatar ? QATAR_COLLECTION : (isKeeper ? KEEPER_COLLECTION : STRIKER_COLLECTION)) },
-              { name: "Role", value: isQatar ? "Qatar 2022 World Cup Card (🏆)" : (isKeeper ? "Goalkeeper (🧤)" : "Striker (⚽)") },
-              { name: "Rarity Rank", value: `#${tier.rank}` },
-              { name: "Tier", value: tier.tierLabel }
-            ]);
+    let rawAttrs;
+    if (isPass) {
+      rawAttrs = [
+        { name: "Type", value: "VIP Membership SFT" },
+        { name: "Wallet Balance", value: `${sftFormatted} SFT (VIP Active)` },
+        { name: "Trading Fee", value: "0% (Zero Fees for Life)" },
+        { name: "Match Booster", value: "+1.5x Multiplier & +1 Shield" },
+        { name: "Max Supply", value: "300 SFT" },
+        { name: "Collection", value: ULTRAS_PASS_COLLECTION }
+      ];
+    } else if (isQatar) {
+      const qTraits = getQatarCardTraits(nft);
+      rawAttrs = [
+        { name: "Collection", value: QATAR_COLLECTION },
+        { name: "Event", value: "FIFA World Cup Qatar 2022" },
+        { name: "Type", value: "Collectible Trading Card" },
+        { name: "Nation", value: qTraits.nation || "World Cup Team" },
+        { name: "Series", value: qTraits.series || "Series D" },
+        { name: "Card #", value: qTraits.number || ("#" + (nft.nonce || "")) },
+        { name: "Rarity Rank", value: "#" + (tier.rank || "N/A") },
+        { name: "Game Role", value: "Collectible (No in-game skills)" }
+      ];
+    } else {
+      rawAttrs = Array.isArray(nft.attributes) && nft.attributes.length
+        ? nft.attributes.filter((a) => (a.name || a.trait_type) !== "OVR")
+        : [
+            { name: "Collection", value: nft.collection || (isKeeper ? KEEPER_COLLECTION : STRIKER_COLLECTION) },
+            { name: "Role", value: isKeeper ? "Goalkeeper (🧤)" : "Striker (⚽)" },
+            { name: "Rarity Rank", value: `#${tier.rank}` },
+            { name: "Tier", value: tier.tierLabel }
+          ];
+    }
     traitsTable.innerHTML = rawAttrs
       .map((a) => `
         <div class="m-trait-cell">
