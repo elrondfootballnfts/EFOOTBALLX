@@ -210,31 +210,7 @@ body {
   box-shadow: 0 0 8px rgba(35, 247, 221, 0.45);
 }
 
-@media (max-width: 768px) {
-  .nav-inner {
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .nav-left-cluster {
-    width: 100%;
-    justify-content: space-between;
-    gap: 14px;
-    flex-wrap: wrap;
-  }
-  .nav-links-krogan {
-    gap: 14px;
-    overflow-x: auto;
-    max-width: 100%;
-    padding-bottom: 2px;
-  }
-  .nav-item-krogan {
-    font-size: 0.82rem;
-  }
-  .nav-actions {
-    width: 100%;
-    justify-content: flex-end;
-  }
-}
+/* Mobile navbar styling consolidated in responsive section below */
 
 .nav-links {
   display: flex;
@@ -4606,45 +4582,106 @@ body {
   .reborn-squad-showcase .fan-card {
     display: none !important;
   }
-  /* Show immediate mobile game quick access card & sticky bottom bar */
+  /* Show immediate mobile game quick access card ONLY */
   .mobile-hero-game-card {
     display: flex;
   }
+  /* Remove excessive floating bottom bar on mobile - eliminates duplicate PLAY NOW and frees up 66px of screen */
   .mobile-sticky-game-bar {
-    display: flex;
+    display: none !important;
   }
-  /* Reserve clearance for bottom sticky bar so footer content isn't covered */
   body {
-    padding-bottom: 66px;
+    padding-bottom: 0 !important;
   }
 
-  /* Responsive Navbar & Wallet Header */
+  /* In hero CTA row on mobile, hide duplicate game launch button since mobile-hero-game-card is already prominently displayed */
+  .hero-cta-group a[href*="game"] {
+    display: none !important;
+  }
+
+  /* Responsive Navbar: Place login / logout button at the very top of the page on mobile */
   .navbar {
-    padding: 10px 0;
+    padding: 8px 0 !important;
   }
   .nav-inner {
-    gap: 8px;
-    padding: 0 12px;
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    grid-template-areas:
+      "brand . wallet"
+      "links links links" !important;
+    row-gap: 6px !important;
+    column-gap: 8px !important;
+    align-items: center !important;
+    width: 100% !important;
+    padding: 0 12px !important;
+  }
+  .nav-left-cluster {
+    display: contents !important;
   }
   .brand {
-    gap: 8px;
-    flex-shrink: 0;
+    grid-area: brand !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
   }
   .brand-logo {
-    width: 34px;
-    height: 34px;
+    width: 32px !important;
+    height: 32px !important;
   }
   .brand-title {
-    font-size: 1.45rem;
+    font-size: 1.35rem !important;
   }
   .brand-sub {
     display: none !important;
   }
   .nav-actions {
-    gap: 5px;
-    flex-shrink: 1;
-    min-width: 0;
-    justify-content: flex-end;
+    grid-area: wallet !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    margin: 0 !important;
+    width: auto !important;
+    gap: 5px !important;
+  }
+  .nav-wallet-group {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    margin: 0 !important;
+  }
+  .krogan-btn-connect {
+    padding: 6px 12px !important;
+    font-size: 0.74rem !important;
+    white-space: nowrap !important;
+    gap: 6px !important;
+  }
+  .btn-disconnect-nav {
+    padding: 5px 8px !important;
+    font-size: 0.74rem !important;
+  }
+  .btn-disconnect-nav .ndb-text {
+    display: none !important;
+  }
+  .nav-links-krogan {
+    grid-area: links !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    width: 100% !important;
+    padding: 4px 0 2px 0 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+  .nav-links-krogan::-webkit-scrollbar {
+    display: none !important;
+  }
+  .nav-item-krogan {
+    font-size: 0.8rem !important;
+    white-space: nowrap !important;
   }
   .nav-game-pill {
     padding: 5px 8px;
@@ -4659,11 +4696,6 @@ body {
   .lang-btn {
     padding: 4px 6px;
     font-size: 0.7rem;
-  }
-  .nav-wallet-group {
-    gap: 4px;
-    min-width: 0;
-    flex-shrink: 1;
   }
   .nav-wallet-btn {
     max-width: 120px;
