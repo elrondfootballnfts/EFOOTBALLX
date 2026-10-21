@@ -139,7 +139,8 @@ const STORAGE_ULTRAS_PASS_PREFIX = "efoo_ultras_pass_";
 
 // Verified on-chain holders of EFOOPASS-5223a8-01 (Pre-seeded with live MultiversX blockchain state)
 const onchainUltrasHolders = new Set([
-  "erd14zpeqacvvtctcyl5djvk3wml048d5gfescdaw0ufwnmnt6jwg0vqjlx6pj"
+  "erd14zpeqacvvtctcyl5djvk3wml048d5gfescdaw0ufwnmnt6jwg0vqjlx6pj",
+  "erd1mpg8tw0y8jx2eh5ek7qs48y7xp4skkp6z2xee2aej52uacz2uues6zf0d8"
 ]);
 let isFetchingUltrasHolders = false;
 
