@@ -1435,11 +1435,11 @@ function getNftRarityTier(nft) {
       tierIcon: "👑",
       rank: "VIP",
       borderColor: "#ffb800",
-      scoreMult: 1.5,
+      scoreMult: 1.25,
       slots: 0,
       powers: [
         "0% Market Fees for Life",
-        "+1.5x Match Multiplier",
+        "+25% Match Score Booster",
         "+1 VIP Shield in Shootout",
         "300 Max Supply SFT"
       ]
@@ -2429,7 +2429,7 @@ function renderMarketplaceGrid() {
             </div>
           </div>
 
-          <p class="mnc-trait-desc">${isUltrasPassNft(item) ? "Lifetime 0% marketplace trading fee • Match Booster" : (isQatar ? "FIFA World Cup Qatar 2022 Collectible Trading Card" : (item.trait || (item.isXoxno ? "Listed on XOXNO Marketplace" : "Sunday League Degen Ultra")))}</p>
+          <p class="mnc-trait-desc">${isUltrasPassNft(item) ? "Lifetime 0% marketplace trading fee • +25% Match Score Booster" : (isQatar ? "FIFA World Cup Qatar 2022 Collectible Trading Card" : (item.trait || (item.isXoxno ? "Listed on XOXNO Marketplace" : "Sunday League Degen Ultra")))}</p>
 
           ${
             isQatar
@@ -3934,7 +3934,7 @@ function openNftDetailsModal(nft) {
         { name: "Type", value: "VIP Membership SFT" },
         { name: "Wallet Balance", value: `${sftFormatted} SFT (VIP Active)` },
         { name: "Trading Fee", value: "0% (Zero Fees for Life)" },
-        { name: "Match Booster", value: "+1.5x Multiplier & +1 Shield" },
+        { name: "Match Booster", value: "+25% Score Boost & +1 Shield" },
         { name: "Max Supply", value: "300 SFT" },
         { name: "Collection", value: ULTRAS_PASS_COLLECTION }
       ];

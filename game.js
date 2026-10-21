@@ -1690,7 +1690,7 @@ function getPowers() {
   const hasRocket = efoo >= MIN_EFOO_REQUIRED;
   const rocketPts = efoo >= 10000000 ? 3000 : hasRocket ? 1000 : 0;
   const isUltras = hasUltrasPass(connectedAddress);
-  if (isUltras) mult += 1.5;
+  if (isUltras) mult += 0.25;
 
   const baseShields = keeperRarity.slots >= 5 ? 3 : (keeperRarity.slots >= 3 ? 2 : (keeperRarity.slots >= 1 ? 1 : 0));
   const maxShields = isUltras ? Math.max(1, baseShields + 1) : baseShields;
@@ -1707,7 +1707,7 @@ function getPowers() {
     swayMul,
     sweetBonus: strikerRarity.id === "mythic" ? 0.12 : (strikerRarity.id === "legendary" ? 0.08 : (strikerRarity.id === "epic" ? 0.05 : 0.02)),
     keeperSigmaMul: 1.15,
-    totalMult: mult + (keeperMult - 1.0),
+    totalMult: Number((mult + (keeperMult - 1.0)).toFixed(2)),
     maxShields,
     hasCurve: strikerSlots >= 1,
     hasRadar: strikerSlots >= 3 || keeperSlots >= 3,
@@ -2223,10 +2223,10 @@ function updateEntryGateUI() {
       : (currentLang === "hu" ? "✅ TÁRCA CSATLAKOZTATVA — CSAPAT KÉSZEN ÁLL!" : "✅ WALLET CONNECTED — SQUAD READY!");
   }
 
-  const ultrasBadgeText = isUltras ? " • 👑 <strong>ULTRAS VIP (0% Fees + 2x Vault)</strong>" : "";
+  const ultrasBadgeText = isUltras ? " • 👑 <strong>ULTRAS VIP (0% Fees + 25% Score Boost)</strong>" : "";
   walletLine.innerHTML = isRo
-    ? `Portofel: <strong>${shortErd(connectedAddress)}</strong> • Sold: <strong>${balFormatted} $EFOO</strong> • NFT: <strong>${walletState.playersCount}⚽ ${walletState.keepersCount}🧤 (${p.totalMult.toFixed(1)}x Boost)</strong>${ultrasBadgeText}`
-    : `Wallet: <strong>${shortErd(connectedAddress)}</strong> • Balance: <strong>${balFormatted} $EFOO</strong> • Squad: <strong>${walletState.playersCount}⚽ ${walletState.keepersCount}🧤 (${p.totalMult.toFixed(1)}x Boost)</strong>${ultrasBadgeText}`;
+    ? `Portofel: <strong>${shortErd(connectedAddress)}</strong> • Sold: <strong>${balFormatted} $EFOO</strong> • NFT: <strong>${walletState.playersCount}⚽ ${walletState.keepersCount}🧤 (${Number(p.totalMult.toFixed(2))}x Boost)</strong>${ultrasBadgeText}`
+    : `Wallet: <strong>${shortErd(connectedAddress)}</strong> • Balance: <strong>${balFormatted} $EFOO</strong> • Squad: <strong>${walletState.playersCount}⚽ ${walletState.keepersCount}🧤 (${Number(p.totalMult.toFixed(2))}x Boost)</strong>${ultrasBadgeText}`;
 
   startBtn.classList.remove("locked");
   startBtn.innerHTML = `⚽ <span>START 120' PENALTY SHOOTOUT</span>`;
@@ -2238,7 +2238,7 @@ function refreshHudUI() {
   const isHu = currentLang === "hu";
   const isRo = currentLang === "ro";
 
-  document.getElementById("hud-mult-val").textContent = `${p.totalMult.toFixed(1)}x`;
+  document.getElementById("hud-mult-val").textContent = `${Number(p.totalMult.toFixed(2))}x`;
   document.getElementById("hud-score-val").textContent = game.score.toLocaleString("en-US");
 
   const isShootingTurn = game.shootoutTurn === "shoot";
@@ -2463,10 +2463,10 @@ function launchMatchWithIntro() {
       perkEl.textContent = currentLang === "hu" ? "🔒 VENDÉG MÓD • ALAP FELSZERELÉS (0 KÉPESSÉG)" : "🔒 GUEST MODE • BASE KIT (0 SKILLS)";
       perkEl.style.color = "#94a3b8";
     } else if (p.isUltrasPass) {
-      perkEl.textContent = `👑 ${p.totalMult.toFixed(1)}x BOOST • ULTRAS VIP (+1.5x MULT & VIP SHIELD)`;
+      perkEl.textContent = `👑 ${Number(p.totalMult.toFixed(2))}x BOOST • ULTRAS VIP (+25% SCORE & VIP SHIELD)`;
       perkEl.style.color = "#ffb800";
     } else {
-      perkEl.textContent = `⚡ ${p.totalMult.toFixed(1)}x BOOST • ${p.strikerRarity.name} STRIKER & ${p.keeperRarity.name} GK`;
+      perkEl.textContent = `⚡ ${Number(p.totalMult.toFixed(2))}x BOOST • ${p.strikerRarity.name} STRIKER & ${p.keeperRarity.name} GK`;
       perkEl.style.color = "#a8ff00";
     }
   }
@@ -7332,7 +7332,7 @@ function renderLeaderboardModal(options = {}) {
     const isHero = !!(herotag && herotag.trim().length > 0);
     const shortAddr = row.isGuest ? (row.isSimulated ? "Unsaved" : "Guest") : shortErd(row.address);
     const isRowUltras = !row.isGuest && hasUltrasPass(row.address);
-    const vipCrown = isRowUltras ? `<span class="ultras-vip-crown" title="👑 EFOO Ultras VIP Pass Active (0% Fees & 2x Jackpot Boost)">👑 VIP</span> ` : "";
+    const vipCrown = isRowUltras ? `<span class="ultras-vip-crown" title="👑 EFOO Ultras VIP Pass Active (0% Fees & +25% Score Boost)">👑 VIP</span> ` : "";
     const displayName = row.isSimulated
       ? `<strong style="color:#ffffff; font-size:0.92rem;">👤 ${escapeHtml(row.nickname)}</strong>`
       : isHero
@@ -7410,7 +7410,7 @@ function renderStartScreenLeaderboard() {
     const isHero = !!(herotag && herotag.trim().length > 0);
     const shortAddr = row.isGuest ? "Guest" : shortErd(row.address);
     const isRowUltras = !row.isGuest && hasUltrasPass(row.address);
-    const vipCrown = isRowUltras ? `<span class="ultras-vip-crown" title="👑 EFOO Ultras VIP Pass Active (0% Fees & 2x Jackpot Boost)">👑 VIP</span> ` : "";
+    const vipCrown = isRowUltras ? `<span class="ultras-vip-crown" title="👑 EFOO Ultras VIP Pass Active (0% Fees & +25% Score Boost)">👑 VIP</span> ` : "";
     const displayName = isHero
       ? `<strong class="herotag-name" style="color:#a8ff00; font-weight:800; font-size:0.86rem; text-shadow:0 0 10px rgba(168,255,0,0.5);">${vipCrown}⚡ ${escapeHtml(herotag)}</strong>`
       : `<span class="generated-nickname" style="color:#e2e8f0; font-weight:600; font-size:0.82rem;">${vipCrown}${escapeHtml(row.nickname || row.name || (row.isGuest ? "Guest Player" : getDeterministicFootballNickname(row.address)))}</span>`;
