@@ -120,16 +120,18 @@ const I18N = {
     var_new_4: "✅ Web3 Locker Room, On-Site Swap/Mint & EFOO FOMO Shootout",
     locker_kicker: "👕 THE LOCKER ROOM (LIVE ON-CHAIN STUDIO)",
     locker_title: "CREATE YOUR SUNDAY LEAGUE $EFOO MEME",
-    locker_desc: "Pull any minted <strong>EFOOTBALL-91a4eb</strong> or <strong>GOALKEEPER-cb9e3e</strong> NFT live from the MultiversX blockchain (or pick directly from your connected wallet!), slap a degen caption on it, and download the PNG!",
+    locker_desc: "Pull any minted <strong>EFOOTBALL-91a4eb</strong>, <strong>GOALKEEPER-cb9e3e</strong>, or <strong>QATAR2022-d90c01</strong> World Cup collectible NFT live from the MultiversX blockchain (or pick directly from your connected wallet!), create authentic memes or historic 2022 World Cup collectible cards, and download the PNG!",
     ctrl_collection: "1. Select Squad Collection & Jersey Number",
     opt_players: "⚽ Outfield Players (628+ Minted)",
     opt_keepers: "🧤 Goalkeepers (51+ Minted)",
+    opt_qatar: "🏆 Qatar 2022 Collectibles (309 Minted)",
     btn_load_nft: "Load NFT",
     btn_random_nft: "🎲 Random",
     ctrl_presets: "2. 💬 Meme Captions & Presets",
     btn_ai_meme: "⚡ AI Banter Bot",
     btn_copy_meme: "Copy Image",
     mood_all: "🎲 All Themes",
+    mood_qatar: "🏆 Qatar 2022 World Cup",
     mood_degen: "🔥 Degen / Trading",
     mood_sunday: "🍺 Sunday League",
     mood_var: "🟥 VAR & Ref",
@@ -301,16 +303,18 @@ const I18N = {
     var_new_4: "✅ Vestiar Web3, Swap/Mint pe site & Jocul EFOO FOMO",
     locker_kicker: "👕 VESTIARUL DEGEN (STUDIO ON-CHAIN LIVE)",
     locker_title: "CREEAZĂ-ȚI PROPRIUL MEME $EFOO",
-    locker_desc: "Încarcă orice NFT mintat <strong>EFOOTBALL-91a4eb</strong> sau <strong>GOALKEEPER-cb9e3e</strong> direct de pe MultiversX (sau din portofelul tău!), pune-i o dumă de vestiar și descarcă PNG-ul!",
+    locker_desc: "Încarcă orice NFT mintat <strong>EFOOTBALL-91a4eb</strong>, <strong>GOALKEEPER-cb9e3e</strong> sau <strong>QATAR2022-d90c01</strong> direct de pe MultiversX (sau din portofelul tău!), creează meme de vestiar sau carduri comemorative Cupa Mondială 2022 și descarcă PNG-ul!",
     ctrl_collection: "1. Alege Colecția și Numărul Tricoului",
     opt_players: "⚽ Jucători de Câmp (628+ Mintați)",
     opt_keepers: "🧤 Portari (51+ Mintați)",
+    opt_qatar: "🏆 Carduri Colecție Qatar 2022 (309 Mintați)",
     btn_load_nft: "Încarcă NFT",
     btn_random_nft: "🎲 Aleatoriu",
     ctrl_presets: "2. 💬 Texte & Sabloane Meme",
     btn_ai_meme: "⚡ Generator Glume AI",
     btn_copy_meme: "Copiază Imaginea",
     mood_all: "🎲 Toate Temele",
+    mood_qatar: "🏆 Amintiri Qatar 2022",
     mood_degen: "🔥 Degen / Trading",
     mood_sunday: "🍺 Liga de Duminică",
     mood_var: "🟥 Arbitru & VAR",
@@ -462,16 +466,18 @@ const I18N = {
     var_new_4: "✅ Web3 Öltöző, azonnali Swap/Mint és EFOO FOMO büntetőpárbaj",
     locker_kicker: "👕 AZ ÖLTÖZŐ (ÉLŐ ON-CHAIN MEME STÚDIÓ)",
     locker_title: "KÉSZÍTS SAJÁT SUNDAY LEAGUE $EFOO MEMÉT",
-    locker_desc: "Tölts be bármelyik veretett <strong>EFOOTBALL-91a4eb</strong> vagy <strong>GOALKEEPER-cb9e3e</strong> NFT-t közvetlenül a blockchainről (vagy a tárcádból!), dobj rá egy kíméletlen öltözői dumát és töltsd le a képet!",
+    locker_desc: "Tölts be bármelyik veretett <strong>EFOOTBALL-91a4eb</strong>, <strong>GOALKEEPER-cb9e3e</strong> vagy <strong>QATAR2022-d90c01</strong> VB gyűjtői NFT-t közvetlenül a blockchainről (vagy a tárcádból!), készíts öltözői memét vagy tiszteletbeli 2022-es világbajnoki emlékkártyát, és töltsd le a képet!",
     ctrl_collection: "1. Válassz Gyűjteményt és Mezszámot",
     opt_players: "⚽ Mezőnyjátékosok (628+ Veretve)",
     opt_keepers: "🧤 Kapusok (51+ Veretve)",
+    opt_qatar: "🏆 Qatar 2022 Gyűjtői Kártyák (309 Veretett)",
     btn_load_nft: "NFT Betöltése",
     btn_random_nft: "🎲 Véletlenszerű",
     ctrl_presets: "2. 💬 Meme Szövegek & Sablonok",
     btn_ai_meme: "⚡ AI Dumagenerátor",
     btn_copy_meme: "Kép Másolása",
     mood_all: "🎲 Összes Téma",
+    mood_qatar: "🏆 Katar 2022 VB Emlékek",
     mood_degen: "🔥 Degen / Kriptó",
     mood_sunday: "🍺 Kocsmaliga / Pálya",
     mood_var: "🟥 Bíró & VAR",
@@ -545,6 +551,11 @@ const MEME_PRESETS = {
       label: "🏖️ Beach Ball Degen",
       top: "CHAMPIONS LEAGUE BUDGET: $0",
       bottom: "SUNDAY LEAGUE $EFOO VIBES: PRICELESS"
+    },
+    {
+      label: "🏆 Qatar 2022 World Cup",
+      top: "FIFA WORLD CUP QATAR 2022 • HISTORIC MEMORY",
+      bottom: "THE GREATEST FINAL IN FOOTBALL HISTORY PRESERVED ON-CHAIN"
     }
   ],
   hu: [
@@ -567,6 +578,11 @@ const MEME_PRESETS = {
       label: "🏖️ Kocsmaliga Legendák",
       top: "BAJNOKOK LIGÁJA KÖLTSÉGVETÉS: $0",
       bottom: "SUNDAY LEAGUE $EFOO ÉLETÉRZÉS: MEGFIZETHETETLEN"
+    },
+    {
+      label: "🏆 Katar 2022 VB Emlék",
+      top: "KATARI VILÁGBAJNOKSÁG 2022 • ÖRÖK EMLÉK",
+      bottom: "A FUTBALLTÖRTÉNELEM LEGNAGYOBB DÖNTŐJE A BLOCKCHAINEN"
     }
   ],
   ro: [
@@ -589,6 +605,11 @@ const MEME_PRESETS = {
       label: "🧤 Portarul la Staking",
       top: "MINGEA INTRĂ ÎN VINCLU",
       bottom: "PORTARUL SE UITA PE DEX LA $EFOO"
+    },
+    {
+      label: "🏆 Qatar 2022 Mondial",
+      top: "CUPA MONDIALĂ QATAR 2022 • AMINTIRE ETERNĂ",
+      bottom: "CEA MAI MARE FINALĂ DIN ISTORIE PĂSTRATĂ PE MULTIVERSX"
     }
   ]
 };
@@ -719,6 +740,46 @@ const AI_MEME_CATALOG = {
       { top: "STRIGĂ 'A MEA, A MEA!'", bottom: "ȘI SE UITĂ CU ADMIRAȚIE CUM INTRĂ ÎN VINCLU" },
       { top: "MĂNUȘI CU GAURĂ ÎN PALMĂ", bottom: "DAR PE BLOCKCHAIN ARE PARADĂ GARANTATĂ" }
     ]
+  },
+  qatar: {
+    en: [
+      { top: "ETERNAL MEMORY OF THE 2022 WORLD CUP", bottom: "THE GREATEST FINAL IN FOOTBALL HISTORY PRESERVED ON-CHAIN" },
+      { top: "FIFA WORLD CUP QATAR 2022 COLLECTIBLE", bottom: "THE MAGIC OF LUSAIL STADIUM WILL NEVER FADE" },
+      { top: "3-3 IN THE FINAL • PURE DRAMA & PASSION", bottom: "A TIMELESS FOOTBALL HEIRLOOM ON MULTIVERSX" },
+      { top: "A PIECE OF WORLD CUP HISTORY IN MY WALLET", bottom: "PREMIUM CARDS • FIFA WORLD CUP QATAR 2022" },
+      { top: "WINTER IN DOHA, GLORY UNDER THE DESERT SKY", bottom: "DIGITAL HERITAGE PRESERVED FOREVER ON-CHAIN" },
+      { top: "MESSI VS MBAPPÉ • MATCH OF THE CENTURY", bottom: "WHERE FOOTBALL IMMORTALITY WAS CROWNED IN 2022" },
+      { top: "NOT JUST AN NFT • A TIMELESS WORLD CUP SOUVENIR", bottom: "FOR TRUE COLLECTORS WHO REMEMBER THE PASSION" },
+      { top: "QATAR 2022 PREMIUM TRADING CARD", bottom: "PROOF OF ATTENDANCE IN FOOTBALL'S GREATEST ERA" },
+      { top: "DOHA 2022 • GOLDEN GLOVE & GOLDEN BOOT", bottom: "FOOTBALL ROYALTY FROZEN IN TIME ON MULTIVERSX" },
+      { top: "HISTORIC 2022 WORLD CUP RELIC", bottom: "BECAUSE TRUE FOOTBALL MEMORIES ARE SACRED" },
+      { top: "THE DRAMA OF PENALTY SHOOTOUTS IN QATAR", bottom: "HEARTS RACING, TEARS FALLING, LEGENDS RISING" },
+      { top: "FROM DOHA NIGHTS TO ON-CHAIN ETERNITY", bottom: "FIFA WORLD CUP 2022 COLLECTOR'S EDITION" }
+    ],
+    hu: [
+      { top: "2022-ES VILÁGBAJNOKSÁG ÖRÖK EMLÉKE", bottom: "A TÖRTÉNELEM LEGNAGYOBB DÖNTŐJE A BLOCKCHAINEN ŐRIZVE" },
+      { top: "KATARI VB 2022 • GYŰJTŐI KÁRTYA", bottom: "A LUSAIL STADION CSODÁJA SOHA NEM ÉR VÉGET" },
+      { top: "3-3 A DÖNTŐBEN, TIZENEGYESEK, DRÁMA", bottom: "EGY ÉLETEN ÁT TARTÓ VB EMLÉK A MULTIVERSX-EN" },
+      { top: "EGY DARABKA FUTBALLTÖRTÉNELEM A TÁRCÁMBAN", bottom: "FIFA WORLD CUP QATAR 2022 • PURE COLLECTIBLE" },
+      { top: "SIVATAGI TÉLI VILÁGBAJNOKSÁG", bottom: "DIGITÁLIS EREKLYE A FUTBALL LEGNAGYOBB KORSZAKÁBÓL" },
+      { top: "PREMIUM QATAR 2022 GYŰJTŐI KÁRTYA", bottom: "AMIKOR A VILÁG EGYETLEN HÓNAPRA LÉLEGEZNI IS ELFELEJTETT" },
+      { top: "NEM CSAK EGY NFT, HANEM EMLÉK 2022-BŐL", bottom: "A FUTBALL LEGVARÁZSLATOSABB TORNÁJÁRÓL" },
+      { top: "MESSI ÉS MBAPPÉ DÖNTŐJE", bottom: "AZ ÉVSZÁZAD MECCSE ÖRÖKRE A BLOCKCHAINRE ÉGETVE" },
+      { top: "RITKA 2022-ES VB GYŰJTEMÉNY", bottom: "A SZURKOLÓI SZÍV NEM FELEJT • MULTIVERSX FOOTBALL HERITAGE" },
+      { top: "QATAR 2022 PREMIUM CARDS", bottom: "A LEGENDÁS KATARI ÉJSZAKÁK EMLÉKE SOHA NEM FAKUL" },
+      { top: "ARANYLABDA, VILÁGBAJNOKI CÍM, KATAR 2022", bottom: "EZ A KÁRTYA TÖBB MINT EGY KÉP: TÖRTÉNELEM" },
+      { top: "A 2022-ES DÖNTŐ UTOLSÓ PERCEI", bottom: "A PILLANAT, AMIKOR A FUTBALL ISTENI SZINTRE EMELKEDETT" }
+    ],
+    ro: [
+      { top: "AMINTIRE ETERNĂ DE LA MONDIALUL DIN 2022", bottom: "CEA MAI MARE FINALĂ DIN ISTORIE PĂSTRATĂ PE BLOCKCHAIN" },
+      { top: "CARD DE COLECȚIE FIFA QATAR 2022", bottom: "MAGIA DIN LUSAIL NU SE VA STINGE NICIODATĂ" },
+      { top: "3-3 ÎN FINALĂ, PENALTY-URI ȘI DRAGOSTE DE FOTBAL", bottom: "O RELICVĂ PENTRU COLECȚIONARI PE MULTIVERSX" },
+      { top: "O BUCATĂ DE ISTORIE ÎN PORTOFELUL TĂU", bottom: "PREMIUM CARDS • CUPA MONDIALĂ QATAR 2022" },
+      { top: "MESSI ȘI MBAPPÉ • MECIUL SECOLULUI", bottom: "NOAPTEA ÎN CARE FOTBALUL A ATINS PERFECȚIUNEA" },
+      { top: "NU E DOAR UN NFT, E O AMINTIRE DIN 2022", bottom: "PENTRU ADEVĂRAȚII PASIONAȚI DE FOTBAL" },
+      { top: "NOAPTEA DE LA DOHA • DECEMBRIE 2022", bottom: "FINALĂ DE NEUITAT PE MULTIVERSX" },
+      { top: "CARD PREMIUM CUPA MONDIALĂ QATAR 2022", bottom: "EDIȚIE RARĂ PENTRU COLECȚIONARI AUTENTICI" }
+    ]
   }
 };
 
@@ -784,7 +845,62 @@ const BANTER_TEMPLATES = {
       top: (name) => `92.9% TOKENI ARȘI PE BLOCKCHAIN`,
       bottom: (name) => `DAR ${name.toUpperCase()} MAI ARE SUFLET DOAR PENTRU O BERE LA PAUZĂ`
     }
-  ]
+  ],
+  qatar: {
+    hu: [
+      {
+        top: (meta) => {
+          const nat = meta.nation ? `${meta.nation.trim().toUpperCase()} • ` : "";
+          return `${nat}QATAR 2022 GYŰJTŐI KÁRTYA`;
+        },
+        bottom: () => "A 2022-ES VILÁGBAJNOKSÁG TÖRTÉNELMI EMLÉKE A BLOCKCHAINEN"
+      },
+      {
+        top: (meta) => `FIFA WORLD CUP QATAR 2022 • ${meta.name ? meta.name.toUpperCase() : "PREMIUM CARD"}`,
+        bottom: () => "A FUTBALL LEGENDÁS DÖNTŐJE ÉS A DOHAI ÉJSZAKÁK ÖRÖKRE VELÜNK MARADNAK"
+      },
+      {
+        top: (meta) => {
+          const ser = meta.series ? `${meta.series.trim().toUpperCase()} • ` : "";
+          return `${ser}2022-ES VILÁGBAJNOKI GYŰJTEMÉNY`;
+        },
+        bottom: () => "MINT CONDITION EMLÉKKÁRTYA • MULTIVERSX FOOTBALL HERITAGE"
+      }
+    ],
+    en: [
+      {
+        top: (meta) => {
+          const nat = meta.nation ? `${meta.nation.trim().toUpperCase()} • ` : "";
+          return `${nat}QATAR 2022 COLLECTIBLE CARD`;
+        },
+        bottom: () => "HISTORIC 2022 WORLD CUP MEMORY PRESERVED ON MULTIVERSX"
+      },
+      {
+        top: (meta) => `FIFA WORLD CUP QATAR 2022 • ${meta.name ? meta.name.toUpperCase() : "PREMIUM CARD"}`,
+        bottom: () => "TIMELESS DOHA NIGHTS & THE GREATEST FINAL IN FOOTBALL HISTORY"
+      },
+      {
+        top: (meta) => {
+          const ser = meta.series ? `${meta.series.trim().toUpperCase()} • ` : "";
+          return `${ser}2022 WORLD CUP TRADING CARD`;
+        },
+        bottom: () => "MINT CONDITION DIGITAL COLLECTIBLE • PRESERVED FOREVER ON-CHAIN"
+      }
+    ],
+    ro: [
+      {
+        top: (meta) => {
+          const nat = meta.nation ? `${meta.nation.trim().toUpperCase()} • ` : "";
+          return `${nat}CARD COLECȚIE QATAR 2022`;
+        },
+        bottom: () => "AMINTIRE ETERNĂ DE LA MONDIALUL DIN 2022 PE MULTIVERSX"
+      },
+      {
+        top: (meta) => `CUPA MONDIALĂ QATAR 2022 • ${meta.name ? meta.name.toUpperCase() : "CARD PREMIUM"}`,
+        bottom: () => "NOAPTEA MAGICĂ DIN DOHA ȘI CEA MAI MARE FINALĂ DIN ISTORIE"
+      }
+    ]
+  }
 };
 
 // On-Chain Smart Contract Constants (Verified on MultiversX Mainnet)
@@ -879,6 +995,40 @@ let currentNftMeta = {
 let currentMemeMood = "all";
 let mintedPlayersCount = 628;
 let mintedKeepersCount = 51;
+const QATAR_COLLECTION = "QATAR2022-d90c01";
+const QATAR_FALLBACK = "branding/original/QATAR2022-d90c01/logo.png";
+let mintedQatarCount = 309;
+
+function isQatarNft(nft) {
+  if (!nft) return false;
+  const col = (nft.collection || "").toLowerCase();
+  const id = (nft.identifier || "").toLowerCase();
+  const name = (nft.name || "").toLowerCase();
+  return col === QATAR_COLLECTION.toLowerCase() ||
+         col === "qatar2002-d90c01" ||
+         id.includes("qatar2022") ||
+         id.includes("qatar2002") ||
+         name.includes("qatar") ||
+         name.includes("premium cards");
+}
+
+function getQatarCardTraits(nft) {
+  const meta = nft?.metadata || {};
+  const attrs = meta.attributes || nft?.attributes || [];
+  let nation = "";
+  let series = "";
+  let number = "";
+
+  attrs.forEach((a) => {
+    const t = (a.trait_type || "").trim();
+    const v = String(a.value || "").trim();
+    if (t === "Nations") nation = v;
+    else if (t === "Series") series = v.replace("Seria_", "Series ");
+    else if (t === "Numbers") number = v.replace("Number_", "#");
+  });
+
+  return { nation, series, number };
+}
 
 // EFOO FOMO Game State
 let gameState = {
@@ -2791,11 +2941,23 @@ async function openNftDetailsModal(nft) {
       currentNftMeta = {
         name: nft.name || nft.identifier,
         identifier: nft.identifier,
+        collection: nft.collection,
         url: rawImg,
-        attributes: (nft.metadata && nft.metadata.attributes) || []
+        attributes: (nft.metadata && nft.metadata.attributes) || [],
+        metadata: nft.metadata || {}
       };
       renderNftTraits(currentNftMeta);
       loadImageForCanvas(rawImg);
+      if (isQatarNft(currentNftMeta)) {
+        document.querySelectorAll(".mood-chip").forEach((c) => {
+          c.classList.toggle("active", c.dataset.mood === "qatar");
+        });
+        currentMemeMood = "qatar";
+        const colSelect = document.getElementById("nft-collection-select");
+        if (colSelect) colSelect.value = "QATAR2022-d90c01";
+        const nonceInput = document.getElementById("nft-nonce-input");
+        if (nonceInput) nonceInput.value = nft.nonce || 1;
+      }
       document.getElementById("meme-locker")?.scrollIntoView({ behavior: "smooth" });
     };
   }
@@ -3708,11 +3870,26 @@ const recentMemeHistory = [];
 
 function getProceduralOrCatalogMeme(category, lang, nftMeta) {
   const chosenLang = ["hu", "ro", "en"].includes(lang) ? lang : "en";
-  const nftName = nftMeta?.name || (category === "keeper" ? "Goalkeeper Titan" : "Mythic Striker #356");
+  const isQatar = isQatarNft(nftMeta) || category === "qatar";
+  const nftName = nftMeta?.name || (isQatar ? "Qatar 2022 Collectible Card" : (category === "keeper" ? "Goalkeeper Titan" : "Mythic Striker #356"));
+
+  // Check Qatar procedural templates first
+  if (isQatar && BANTER_TEMPLATES.qatar && BANTER_TEMPLATES.qatar[chosenLang]) {
+    const qTemplates = BANTER_TEMPLATES.qatar[chosenLang];
+    const qTraits = getQatarCardTraits(nftMeta);
+    const tpl = qTemplates[Math.floor(Math.random() * qTemplates.length)];
+    const top = tpl.top({ name: nftName, ...qTraits });
+    const bottom = tpl.bottom({ name: nftName, ...qTraits });
+    if (!recentMemeHistory.includes(top)) {
+      recentMemeHistory.push(top);
+      if (recentMemeHistory.length > 12) recentMemeHistory.shift();
+      return { top, bottom, source: "procedural_qatar" };
+    }
+  }
 
   // 35% chance to generate a procedural template meme using the loaded NFT name
   const templates = BANTER_TEMPLATES[chosenLang] || BANTER_TEMPLATES.en;
-  if (templates && templates.length > 0 && Math.random() < 0.38) {
+  if (!isQatar && templates && templates.length > 0 && Math.random() < 0.38) {
     const tpl = templates[Math.floor(Math.random() * templates.length)];
     const top = tpl.top(nftName);
     const bottom = tpl.bottom(nftName);
@@ -3723,12 +3900,13 @@ function getProceduralOrCatalogMeme(category, lang, nftMeta) {
     }
   }
 
-  // Fallback / standard selection from expanded comedic catalog
-  const catalogList = (AI_MEME_CATALOG[category] && (AI_MEME_CATALOG[category][chosenLang] || AI_MEME_CATALOG[category].en)) || [];
+  // Fallback / standard selection from expanded comedic or collectible catalog
+  const effectiveCategory = isQatar ? "qatar" : category;
+  const catalogList = (AI_MEME_CATALOG[effectiveCategory] && (AI_MEME_CATALOG[effectiveCategory][chosenLang] || AI_MEME_CATALOG[effectiveCategory].en)) || [];
   if (catalogList.length === 0) {
     return {
-      top: "SUNDAY LEAGUE DEGEN FC",
-      bottom: "92.9% BURNED ON MULTIVERSX",
+      top: isQatar ? "FIFA WORLD CUP QATAR 2022" : "SUNDAY LEAGUE DEGEN FC",
+      bottom: isQatar ? "ETERNAL COLLECTIBLE ON MULTIVERSX" : "92.9% BURNED ON MULTIVERSX",
       source: "fallback"
     };
   }
@@ -3747,22 +3925,26 @@ function getProceduralOrCatalogMeme(category, lang, nftMeta) {
 async function generateAiMeme() {
   const aiBtn = document.getElementById("ai-generate-meme-btn");
   const canvasFrame = document.querySelector(".canvas-frame");
+  const isQatarCard = isQatarNft(currentNftMeta) || currentMemeMood === "qatar";
 
   // Show live thinking status on the button
   if (aiBtn) {
     const loadingText = currentLang === "hu"
-      ? "🧠 Edzőbá taktikát főz..."
+      ? (isQatarCard ? "🏆 2022-es VB emlék generálása..." : "🧠 Edzőbá taktikát főz...")
       : currentLang === "ro"
-        ? "🧠 Nea Gică analizează duma..."
-        : "🧠 Coach is Cooking Banter...";
+        ? (isQatarCard ? "🏆 Generăm amintire Cupa Mondială 2022..." : "🧠 Nea Gică analizează duma...")
+        : (isQatarCard ? "🏆 Crafting 2022 World Cup Memory..." : "🧠 Coach is Cooking Banter...");
     aiBtn.innerHTML = `⚡ <span>${loadingText}</span>`;
     aiBtn.disabled = true;
   }
 
-  // Determine category & keeper bias
+  // Determine category & keeper / Qatar bias
   let category = currentMemeMood;
   const isKeeperNft = currentNftMeta?.identifier?.startsWith("GOALKEEPER") || currentNftMeta?.collection === "GOALKEEPER-cb9e3e";
-  if (!category || category === "all") {
+
+  if (isQatarCard) {
+    category = "qatar";
+  } else if (!category || category === "all") {
     if (isKeeperNft && Math.random() < 0.45) {
       category = "keeper";
     } else {
@@ -3775,14 +3957,30 @@ async function generateAiMeme() {
 
   // 1. Attempt ultra-fast live AI request (2200ms timeout)
   try {
-    const nftName = currentNftMeta?.name || (isKeeperNft ? "Goalkeeper Titan" : "Mythic Striker #356");
+    const nftName = currentNftMeta?.name || (isQatarCard ? "Qatar 2022 Collectible" : (isKeeperNft ? "Goalkeeper Titan" : "Mythic Striker #356"));
     const langLabel = currentLang === "hu" ? "Hungarian" : currentLang === "ro" ? "Romanian" : "English";
-    const prompt = `Sunday League Degen FC ($EFOO on MultiversX) football meme.
+
+    let prompt;
+    if (isQatarCard) {
+      const qTraits = getQatarCardTraits(currentNftMeta);
+      const nationInfo = qTraits.nation ? `Nation: ${qTraits.nation}. ` : "";
+      const seriesInfo = qTraits.series ? `Series: ${qTraits.series}. ` : "";
+      prompt = `FIFA World Cup Qatar 2022 Official Collectible Trading Card on MultiversX blockchain.
+Card: ${nftName}. ${nationInfo}${seriesInfo}Topic: Historic memories of the 2022 Qatar FIFA World Cup, memorable moments, Lusail stadium, Messi vs Mbappé final, pure collector trading card legacy.
+Language: ${langLabel}.
+Tone: Nostalgic, prestigious, passionate World Cup memory, authentic collector card legacy. (NOT Sunday league jokes or drunkenness; this is a proud tribute to the unforgettable 2022 World Cup!).
+Format STRICTLY as:
+TOP: <line 1 in ALL CAPS>
+BOTTOM: <line 2 in ALL CAPS>
+No markdown, no quotes, no extra text.`;
+    } else {
+      prompt = `Sunday League Degen FC ($EFOO on MultiversX) football meme.
 Theme: ${category}. Player: ${nftName}. Language: ${langLabel}.
 Format STRICTLY as:
 TOP: <line 1 in ALL CAPS>
-BOTTOM: <punchline in ALL CAPS>
+BOTTOM: <line 2 punchline in ALL CAPS>
 No markdown, no quotes, no extra text.`;
+    }
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 2200);
@@ -3857,7 +4055,9 @@ async function loadNftFromChain(collection, nonce) {
   const loadingOverlay = document.getElementById("canvas-loading");
   if (loadingOverlay) loadingOverlay.classList.remove("hidden");
 
-  const maxNonce = collection === "GOALKEEPER-cb9e3e" ? mintedKeepersCount : mintedPlayersCount;
+  const isQatar = collection === "QATAR2022-d90c01";
+  const isKeeper = collection === "GOALKEEPER-cb9e3e";
+  const maxNonce = isKeeper ? mintedKeepersCount : (isQatar ? mintedQatarCount : mintedPlayersCount);
   const clampedNonce = Math.max(1, Math.min(maxNonce, Number(nonce) || 1));
   const nonceInput = document.getElementById("nft-nonce-input");
   if (nonceInput) {
@@ -3878,18 +4078,48 @@ async function loadNftFromChain(collection, nonce) {
     currentNftMeta = {
       name: data.name || `${collection} #${clampedNonce}`,
       identifier: data.identifier || nftId,
+      collection: data.collection || collection,
       url: rawImageUrl,
-      attributes: (data.metadata && data.metadata.attributes) || []
+      attributes: (data.metadata && data.metadata.attributes) || [],
+      metadata: data.metadata || {}
     };
 
     renderNftTraits(currentNftMeta);
     await loadImageForCanvas(rawImageUrl);
+
+    // If Qatar card was loaded, automatically select Qatar mood chip and update captions
+    if (isQatar) {
+      document.querySelectorAll(".mood-chip").forEach((c) => {
+        c.classList.toggle("active", c.dataset.mood === "qatar");
+      });
+      currentMemeMood = "qatar";
+      const qPreset = (MEME_PRESETS[currentLang] || MEME_PRESETS.en).find(p => p.label.includes("Qatar") || p.label.includes("Katar"));
+      const topInput = document.getElementById("meme-top-input");
+      const bottomInput = document.getElementById("meme-bottom-input");
+      if (qPreset && topInput && bottomInput) {
+        topInput.value = qPreset.top;
+        bottomInput.value = qPreset.bottom;
+        drawMemeCanvas();
+        updateTweetShareLink();
+      }
+    }
   } catch (err) {
     console.warn("Fallback to local collection emblem:", err);
     const fallbackLocal =
-      collection === "GOALKEEPER-cb9e3e"
+      isKeeper
         ? "branding/original/GOALKEEPER-cb9e3e/logo.png"
-        : "branding/original/EFOOTBALL-91a4eb/logo.png";
+        : (isQatar
+            ? "branding/original/QATAR2022-d90c01/logo.png"
+            : "branding/original/EFOOTBALL-91a4eb/logo.png");
+    currentNftMeta = {
+      name: `${collection} #${clampedNonce}`,
+      identifier: nftId,
+      collection: collection,
+      url: fallbackLocal,
+      attributes: [],
+      metadata: {}
+    };
+    renderNftTraits(currentNftMeta);
     await loadImageForCanvas(fallbackLocal);
   }
 }
@@ -3904,6 +4134,26 @@ function renderNftTraits(meta) {
   if (!chipsEl) return;
 
   chipsEl.innerHTML = "";
+  const isQatar = isQatarNft(meta);
+  if (isQatar) {
+    const qTraits = getQatarCardTraits(meta);
+    const qList = [
+      { label: "🏆 EVENT", value: "FIFA World Cup Qatar 2022" },
+      qTraits.nation ? { label: "🌍 NATION", value: qTraits.nation } : null,
+      qTraits.series ? { label: "🎴 SERIES", value: qTraits.series } : null,
+      qTraits.number ? { label: "🔢 NUMBER", value: qTraits.number } : null,
+      { label: "💎 TYPE", value: "Pure Collectible Card" }
+    ].filter(Boolean);
+
+    qList.forEach(t => {
+      const chip = document.createElement("div");
+      chip.className = "trait-chip qatar-trait-chip";
+      chip.innerHTML = `<span>${t.label}:</span> <strong style="color:#ff6b6b;">${t.value}</strong>`;
+      chipsEl.appendChild(chip);
+    });
+    return;
+  }
+
   const shownTraits = (meta.attributes || []).filter(
     (t) => t.trait_type && t.value && t.trait_type !== "BASEPLAYER" && t.trait_type !== "BASE_PLAYER"
   );
@@ -4015,26 +4265,28 @@ function drawMemeCanvas() {
     });
   }
 
+  const isQatar = isQatarNft(currentNftMeta);
+
   if (bottomText) {
     const botLines = wrapCanvasText(ctx, bottomText, W - 50);
     const startY = H - 48 - (botLines.length - 1) * 46;
     botLines.forEach((line, index) => {
       const y = startY + index * 46;
       ctx.strokeText(line, W / 2, y);
-      ctx.fillStyle = "#a8ff00";
+      ctx.fillStyle = isQatar ? "#ffd700" : "#a8ff00";
       ctx.fillText(line, W / 2, y);
     });
   }
 
-  // 3D Stadium Glass Watermark Pill Badge with Official $EFOO Token Logo
-  const badgeW = 295;
+  // 3D Stadium Glass Watermark Pill Badge (Official $EFOO or Qatar 2022 World Cup)
+  const badgeW = isQatar ? 350 : 295;
   const badgeH = 26;
   const badgeX = W - badgeW - 14;
   const badgeY = H - badgeH - 12;
 
   ctx.save();
-  ctx.fillStyle = "rgba(6, 14, 10, 0.88)";
-  ctx.strokeStyle = "rgba(168, 255, 0, 0.4)";
+  ctx.fillStyle = isQatar ? "rgba(42, 10, 22, 0.92)" : "rgba(6, 14, 10, 0.88)";
+  ctx.strokeStyle = isQatar ? "rgba(255, 215, 0, 0.55)" : "rgba(168, 255, 0, 0.4)";
   ctx.lineWidth = 1;
   ctx.beginPath();
   if (typeof ctx.roundRect === "function") {
@@ -4049,7 +4301,7 @@ function drawMemeCanvas() {
   const logoSize = 18;
   const logoX = badgeX + 6;
   const logoY = badgeY + (badgeH - logoSize) / 2;
-  if (efooWatermarkLogo.complete && efooWatermarkLogo.naturalWidth > 0) {
+  if (!isQatar && efooWatermarkLogo.complete && efooWatermarkLogo.naturalWidth > 0) {
     ctx.save();
     ctx.beginPath();
     ctx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
@@ -4058,10 +4310,15 @@ function drawMemeCanvas() {
     ctx.restore();
   }
 
-  ctx.font = "800 13px 'JetBrains Mono', monospace";
+  ctx.font = "800 12px 'JetBrains Mono', monospace";
   ctx.textAlign = "left";
-  ctx.fillStyle = "#a8ff00";
-  ctx.fillText("$EFOO • SUNDAY LEAGUE DEGEN FC", logoX + logoSize + 8, badgeY + 17);
+  if (isQatar) {
+    ctx.fillStyle = "#ffd700";
+    ctx.fillText("🏆 FIFA WORLD CUP QATAR 2022 • MULTIVERSX", badgeX + 12, badgeY + 17);
+  } else {
+    ctx.fillStyle = "#a8ff00";
+    ctx.fillText("$EFOO • SUNDAY LEAGUE DEGEN FC", logoX + logoSize + 8, badgeY + 17);
+  }
   ctx.restore();
 }
 
@@ -4148,11 +4405,19 @@ function updateTweetShareLink() {
     : `"Sunday League Degen FC — 92.9% Burned on MultiversX!"`;
 
   const nftTitle = currentNftMeta?.name || "EFOOTBALL NFT";
+  const isQatar = isQatarNft(currentNftMeta);
 
-  const text =
-    currentLang === "ro"
-      ? `⚽ ${quote} 🍺\n\nSunday League Degen FC ($EFOO) • 92.9% Arși pe @MultiversX 🔥\n👕 ${nftTitle}\n🌐 https://efoo.optibase.ro/\n\n#EFOO #MultiversX #EGLD #Fotbal`
-      : `⚽ ${quote} 🍺\n\nSunday League Degen FC ($EFOO) • 92.9% Burned on @MultiversX 🔥\n👕 ${nftTitle}\n🌐 https://efoo.optibase.ro/\n\n#EFOO #MultiversX #EGLD #Web3Gaming`;
+  const text = isQatar
+    ? (currentLang === "hu"
+        ? `🏆 ${quote} ⚽\n\nFIFA World Cup Qatar 2022 • Premium Collectible Card on @MultiversX\n🎴 ${nftTitle}\n🌐 https://efoo.optibase.ro/\n\n#Qatar2022 #WorldCup #MultiversX #EGLD #EFOO`
+        : (currentLang === "ro"
+            ? `🏆 ${quote} ⚽\n\nCupa Mondială Qatar 2022 • Card de Colecție pe @MultiversX\n🎴 ${nftTitle}\n🌐 https://efoo.optibase.ro/\n\n#Qatar2022 #WorldCup #MultiversX #EGLD #EFOO`
+            : `🏆 ${quote} ⚽\n\nFIFA World Cup Qatar 2022 • Premium Collectible Card on @MultiversX\n🎴 ${nftTitle}\n🌐 https://efoo.optibase.ro/\n\n#Qatar2022 #WorldCup #MultiversX #EGLD #EFOO`))
+    : (currentLang === "hu"
+        ? `⚽ ${quote} 🍺\n\nSunday League Degen FC ($EFOO) • 92.9% Elégetve @MultiversX-en 🔥\n👕 ${nftTitle}\n🌐 https://efoo.optibase.ro/\n\n#EFOO #MultiversX #EGLD #SundayLeague`
+        : (currentLang === "ro"
+            ? `⚽ ${quote} 🍺\n\nSunday League Degen FC ($EFOO) • 92.9% Arși pe @MultiversX 🔥\n👕 ${nftTitle}\n🌐 https://efoo.optibase.ro/\n\n#EFOO #MultiversX #EGLD #Fotbal`
+            : `⚽ ${quote} 🍺\n\nSunday League Degen FC ($EFOO) • 92.9% Burned on @MultiversX 🔥\n👕 ${nftTitle}\n🌐 https://efoo.optibase.ro/\n\n#EFOO #MultiversX #EGLD #Web3Gaming`));
 
   tweetBtn.href = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}`;
 }
@@ -4467,9 +4732,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   colSelect?.addEventListener("change", () => {
     const isKeeper = colSelect.value === "GOALKEEPER-cb9e3e";
-    const maxVal = isKeeper ? mintedKeepersCount : mintedPlayersCount;
+    const isQatar = colSelect.value === "QATAR2022-d90c01";
+    const maxVal = isKeeper ? mintedKeepersCount : (isQatar ? mintedQatarCount : mintedPlayersCount);
     nonceInput.max = maxVal;
-    nonceInput.value = isKeeper ? Math.min(51, maxVal) : Math.min(356, maxVal);
+    nonceInput.value = isKeeper ? Math.min(51, maxVal) : (isQatar ? Math.min(135, maxVal) : Math.min(356, maxVal));
     loadNftFromChain(colSelect.value, nonceInput.value);
   });
 
@@ -4479,7 +4745,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("random-nft-btn")?.addEventListener("click", () => {
     const isKeeper = colSelect.value === "GOALKEEPER-cb9e3e";
-    const maxVal = isKeeper ? mintedKeepersCount : mintedPlayersCount;
+    const isQatar = colSelect.value === "QATAR2022-d90c01";
+    const maxVal = isKeeper ? mintedKeepersCount : (isQatar ? mintedQatarCount : mintedPlayersCount);
     const randNonce = Math.floor(Math.random() * maxVal) + 1;
     nonceInput.value = randNonce;
     loadNftFromChain(colSelect.value, randNonce);

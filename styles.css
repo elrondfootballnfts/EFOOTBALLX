@@ -1877,6 +1877,18 @@ body {
   box-shadow: 0 0 10px rgba(168, 255, 0, 0.25);
 }
 
+.mood-chip[data-mood="qatar"].active {
+  background: rgba(180, 20, 50, 0.3) !important;
+  border-color: #e63946 !important;
+  color: #ff6b6b !important;
+  box-shadow: 0 0 12px rgba(230, 57, 70, 0.4) !important;
+}
+
+.qatar-trait-chip {
+  border-color: rgba(230, 57, 70, 0.45) !important;
+  background: rgba(180, 20, 50, 0.18) !important;
+}
+
 .tweet-btn-highlight {
   border-color: rgba(29, 155, 240, 0.6) !important;
   color: #1d9bf0 !important;
