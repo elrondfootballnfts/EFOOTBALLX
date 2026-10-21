@@ -1046,7 +1046,7 @@ let gameState = {
 function toCorsImageUrl(rawUrl, size = 700) {
   if (!rawUrl) return "branding/original/EFOOTBALL-91a4eb/logo.png";
   if (rawUrl.startsWith("branding/") || rawUrl.startsWith("data:")) return rawUrl;
-  return `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}&w=${size}&h=${size}&fit=cover&output=png`;
+  return `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}&w=${size}&fit=inside&output=png`;
 }
 
 // Helper: Format address erd1abc...xyz
@@ -2919,7 +2919,7 @@ async function openNftDetailsModal(nft) {
 
   if (imgEl) imgEl.src = safeImg;
   if (imgWrap) {
-    imgWrap.className = `nft-modal-img-wrap tier-${tierInfo.tierKey}`;
+    imgWrap.className = `nft-modal-img-wrap tier-${tierInfo.tierKey}${isQatarNft(nft) ? " is-qatar" : ""}`;
   }
   if (badgeEl) {
     badgeEl.textContent = `${tierInfo.tierIcon} ${tierInfo.tierLabel}`;
@@ -3111,7 +3111,7 @@ function renderOwnedNftsGallery() {
     const tierInfo = getNftRarityTier(nft);
 
     const card = document.createElement("div");
-    card.className = `squad-nft-card tier-${tierInfo.tierKey}`;
+    card.className = `squad-nft-card tier-${tierInfo.tierKey}${isQatarNft(nft) ? " is-qatar" : ""}`;
     card.title = `Click to inspect attributes & in-game superpowers (${tierInfo.tierLabel})`;
     card.innerHTML = `
       <span class="squad-nft-rank-tag ${tierInfo.tierKey}">${tierInfo.tierIcon} ${tierInfo.tierLabel} #${tierInfo.rank}</span>
@@ -4174,6 +4174,12 @@ function loadImageForCanvas(rawUrl) {
 
     img.onload = () => {
       currentNftImage = img;
+      const canvas = document.getElementById("meme-canvas");
+      if (canvas && img.naturalWidth && img.naturalHeight) {
+        const aspect = img.naturalHeight / img.naturalWidth;
+        canvas.width = 700;
+        canvas.height = Math.round(700 * aspect);
+      }
       if (loadingOverlay) loadingOverlay.classList.add("hidden");
       drawMemeCanvas();
       resolve();
@@ -4184,6 +4190,11 @@ function loadImageForCanvas(rawUrl) {
       const fallbackImg = new Image();
       fallbackImg.onload = () => {
         currentNftImage = fallbackImg;
+        const canvas = document.getElementById("meme-canvas");
+        if (canvas) {
+          canvas.width = 700;
+          canvas.height = 700;
+        }
         if (loadingOverlay) loadingOverlay.classList.add("hidden");
         drawMemeCanvas();
         resolve();
@@ -4223,6 +4234,15 @@ efooWatermarkLogo.onload = () => {
 function drawMemeCanvas() {
   const canvas = document.getElementById("meme-canvas");
   if (!canvas) return;
+
+  if (currentNftImage && currentNftImage.naturalWidth && currentNftImage.naturalHeight) {
+    const targetHeight = Math.round(700 * (currentNftImage.naturalHeight / currentNftImage.naturalWidth));
+    if (canvas.width !== 700 || canvas.height !== targetHeight) {
+      canvas.width = 700;
+      canvas.height = targetHeight;
+    }
+  }
+
   const ctx = canvas.getContext("2d");
   const W = canvas.width;
   const H = canvas.height;
@@ -4234,17 +4254,19 @@ function drawMemeCanvas() {
     ctx.drawImage(currentNftImage, 0, 0, W, H);
   }
 
-  const topGrad = ctx.createLinearGradient(0, 0, 0, 175);
-  topGrad.addColorStop(0, "rgba(0,0,0,0.75)");
+  const gradTopH = Math.max(175, Math.round(H * 0.18));
+  const topGrad = ctx.createLinearGradient(0, 0, 0, gradTopH);
+  topGrad.addColorStop(0, "rgba(0,0,0,0.78)");
   topGrad.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = topGrad;
-  ctx.fillRect(0, 0, W, 175);
+  ctx.fillRect(0, 0, W, gradTopH);
 
-  const botGrad = ctx.createLinearGradient(0, H - 195, 0, H);
+  const gradBotH = Math.max(195, Math.round(H * 0.20));
+  const botGrad = ctx.createLinearGradient(0, H - gradBotH, 0, H);
   botGrad.addColorStop(0, "rgba(0,0,0,0)");
-  botGrad.addColorStop(1, "rgba(0,0,0,0.82)");
+  botGrad.addColorStop(1, "rgba(0,0,0,0.85)");
   ctx.fillStyle = botGrad;
-  ctx.fillRect(0, H - 195, W, 195);
+  ctx.fillRect(0, H - gradBotH, W, gradBotH);
 
   const topText = (document.getElementById("meme-top-input")?.value || "").trim();
   const bottomText = (document.getElementById("meme-bottom-input")?.value || "").trim();
@@ -4258,8 +4280,9 @@ function drawMemeCanvas() {
 
   if (topText) {
     const topLines = wrapCanvasText(ctx, topText, W - 50);
+    const startTopY = Math.max(56, Math.round(H * 0.07));
     topLines.forEach((line, index) => {
-      const y = 56 + index * 46;
+      const y = startTopY + index * 46;
       ctx.strokeText(line, W / 2, y);
       ctx.fillText(line, W / 2, y);
     });
@@ -4269,7 +4292,7 @@ function drawMemeCanvas() {
 
   if (bottomText) {
     const botLines = wrapCanvasText(ctx, bottomText, W - 50);
-    const startY = H - 48 - (botLines.length - 1) * 46;
+    const startY = H - 54 - (botLines.length - 1) * 46;
     botLines.forEach((line, index) => {
       const y = startY + index * 46;
       ctx.strokeText(line, W / 2, y);

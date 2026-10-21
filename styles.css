@@ -3473,6 +3473,13 @@ body {
   background: #08120c;
 }
 
+.squad-nft-card.is-qatar img {
+  aspect-ratio: 2 / 3;
+  object-fit: contain;
+  padding: 6px;
+  background: radial-gradient(circle at 50% 25%, #2a0b17 0%, #080205 100%);
+}
+
 .squad-nft-body {
   padding: 12px;
   display: flex;
@@ -3672,10 +3679,16 @@ body {
   box-shadow: none;
 }
 
+.nft-modal-img-wrap.is-qatar {
+  aspect-ratio: 2 / 3;
+  max-height: 480px;
+  margin: 0 auto;
+}
+
 .nft-modal-img-wrap img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .nft-modal-tier-badge {
