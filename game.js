@@ -1235,6 +1235,84 @@ class ModernStadiumAudio {
     o.start(now);
     o.stop(now + 0.15);
   }
+
+  // Euphoric Golden 2X Multiplier Target Impact Chime & Rising Fanfare Arpeggio
+  playMultiplier2xHit() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+
+    // 1. Heavy visceral sub-bass punch impact
+    const punch = this.ctx.createOscillator();
+    const punchG = this.ctx.createGain();
+    punch.type = "sine";
+    punch.frequency.setValueAtTime(175, now);
+    punch.frequency.exponentialRampToValueAtTime(40, now + 0.19);
+    punchG.gain.setValueAtTime(0.48, now);
+    punchG.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+    punch.connect(punchG);
+    punchG.connect(this.ctx.destination);
+    punch.start(now);
+    punch.stop(now + 0.24);
+
+    // 2. Ascending 6-note crystal gold arpeggio with shimmer bell harmonics
+    const notes = [587.33, 739.99, 880.0, 1174.66, 1479.98, 1760.0]; // D-maj crystal arpeggio
+    notes.forEach((freq, i) => {
+      const t = now + i * 0.045;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, t);
+
+      // Bell sparkle harmonics
+      const shimmer = this.ctx.createOscillator();
+      const shimmerG = this.ctx.createGain();
+      shimmer.type = "sine";
+      shimmer.frequency.setValueAtTime(freq * 2, t);
+
+      gain.gain.setValueAtTime(0.001, t);
+      gain.gain.linearRampToValueAtTime(0.26, t + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.46);
+
+      shimmerG.gain.setValueAtTime(0.001, t);
+      shimmerG.gain.linearRampToValueAtTime(0.14, t + 0.01);
+      shimmerG.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      shimmer.connect(shimmerG);
+      shimmerG.connect(this.ctx.destination);
+
+      osc.start(t);
+      osc.stop(t + 0.48);
+      shimmer.start(t);
+      shimmer.stop(t + 0.35);
+    });
+
+    // 3. Sci-fi multiplier energy shimmer bandpass sweep
+    const sweep = this.ctx.createOscillator();
+    const filter = this.ctx.createBiquadFilter();
+    const sweepG = this.ctx.createGain();
+    sweep.type = "sawtooth";
+    sweep.frequency.setValueAtTime(420, now);
+    sweep.frequency.exponentialRampToValueAtTime(1860, now + 0.4);
+
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(750, now);
+    filter.frequency.linearRampToValueAtTime(2450, now + 0.4);
+    filter.Q.setValueAtTime(3.8, now);
+
+    sweepG.gain.setValueAtTime(0.001, now);
+    sweepG.gain.linearRampToValueAtTime(0.2, now + 0.06);
+    sweepG.gain.exponentialRampToValueAtTime(0.001, now + 0.44);
+
+    sweep.connect(filter);
+    filter.connect(sweepG);
+    sweepG.connect(this.ctx.destination);
+    sweep.start(now);
+    sweep.stop(now + 0.46);
+  }
 }
 
 const audio = new ModernStadiumAudio();
@@ -1701,7 +1779,12 @@ const game = {
   bigBanner: "",
   bigBannerColor: "#a8ff00",
   particles: [],
-  crowdLights: []
+  crowdLights: [],
+  // 2x Multiplier Golden FX State
+  goldFlash: 0,
+  bullseyeHitAnim: 0,
+  multiplierShockwaves: [],
+  goldFloatingBanner: null
 };
 
 function getAvailableStrikers() {
@@ -2721,9 +2804,18 @@ function onBallReachGoal(endScreenX, endScreenY) {
       : `⚽ GOAL! +${pts}`;
     game.bigBannerColor = fx.power || p.hasRocket ? "#ff3b00" : (shieldTriggered || b.hitBullseye || fx.gold || b.keeperWrongFooted ? "#ffb800" : "#a8ff00");
 
-    audio.playGoalCheer();
-    audio.playApplause();
-    spawnSparks(endScreenX, endScreenY, "#a8ff00", 55);
+    if (b.hitBullseye) {
+      triggerBullseye2xImpact(endScreenX, endScreenY);
+      if (typeof audio.playMultiplier2xHit === "function") {
+        audio.playMultiplier2xHit();
+      }
+      audio.playGoalCheer();
+      audio.playApplause();
+    } else {
+      audio.playGoalCheer();
+      audio.playApplause();
+      spawnSparks(endScreenX, endScreenY, "#a8ff00", 55);
+    }
   } else {
     game.streak = 0;
     game.userShotHistory.push("miss");
@@ -3232,6 +3324,73 @@ function spawnSparks(x, y, color, count = 35) {
       alpha: 1
     });
   }
+}
+
+function spawnGoldMultiplierBurst(x, y) {
+  // 1. High-velocity radiant golden sparks & stardust
+  const goldColors = ["#ffffff", "#fff59d", "#ffd700", "#ffb800", "#ff9100"];
+  for (let i = 0; i < 55; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const speed = 3.5 + Math.random() * 11.0;
+    game.particles.push({
+      x,
+      y,
+      vx: Math.cos(a) * speed,
+      vy: Math.sin(a) * speed - 2.8,
+      r: 3 + Math.random() * 5.5,
+      color: goldColors[Math.floor(Math.random() * goldColors.length)],
+      alpha: 1.0,
+      decay: 0.016 + Math.random() * 0.016
+    });
+  }
+
+  // 2. Flying celebration glyphs (stars, 2X, sparkles, coins, trophy)
+  const glyphs = ["⭐", "2X", "✨", "💰", "⭐", "2X", "⚡", "🌟"];
+  for (let i = 0; i < 16; i++) {
+    const a = (i / 16) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+    const speed = 2.8 + Math.random() * 6.5;
+    game.particles.push({
+      x,
+      y,
+      vx: Math.cos(a) * speed,
+      vy: Math.sin(a) * speed - 3.2,
+      glyph: glyphs[i % glyphs.length],
+      size: 16 + Math.floor(Math.random() * 12),
+      rot: Math.random() * Math.PI * 2,
+      vRot: (Math.random() - 0.5) * 0.15,
+      alpha: 1.0,
+      decay: 0.013 + Math.random() * 0.012
+    });
+  }
+}
+
+function triggerBullseye2xImpact(x, y) {
+  game.bullseyeHitAnim = 1.0;
+  game.goldFlash = 1.0;
+  game.shake = Math.max(game.shake, 28);
+
+  if (!game.multiplierShockwaves) game.multiplierShockwaves = [];
+  game.multiplierShockwaves.push(
+    { x, y, r: 12, maxR: 130, speed: 7.2, alpha: 1.0, color: "#fff59d", width: 6 },
+    { x, y, r: 6, maxR: 200, speed: 9.8, alpha: 0.92, color: "#ffb800", width: 4.5 },
+    { x, y, r: 2, maxR: 270, speed: 12.5, alpha: 0.8, color: "#ff9100", width: 3 }
+  );
+
+  game.goldFloatingBanner = {
+    x,
+    y: Math.max(80, y - 35),
+    text: "⭐ 2X MULTIPLIER! ⭐",
+    subtext: "+100% SCORE BONUS",
+    alpha: 1.0,
+    scale: 0.35
+  };
+
+  spawnGoldMultiplierBurst(x, y);
+}
+
+if (typeof window !== "undefined") {
+  window.triggerBullseye2xImpact = triggerBullseye2xImpact;
+  window.playMultiplier2xHit = () => audio.playMultiplier2xHit();
 }
 
 function initFullscreenStadiumCanvas() {
@@ -3906,22 +4065,73 @@ function initFullscreenStadiumCanvas() {
     // 4. MOVING 2x GOLDEN BULLSEYE TARGET RING IN GOAL
     const bx = g.cx + game.bullseyeNx * (g.goalW * 0.5);
     const by = g.goalBottom - game.bullseyeNy * g.goalH;
+    const isBullseyeHit = (game.bullseyeHitAnim || 0) > 0.02;
+    if (game.bullseyeHitAnim > 0) game.bullseyeHitAnim = Math.max(0, game.bullseyeHitAnim - 0.022);
+
     ctx.save();
     ctx.translate(bx, by);
-    ctx.strokeStyle = "#ffb800";
-    ctx.lineWidth = 3;
-    ctx.shadowColor = "#ffb800";
-    ctx.shadowBlur = 14;
+
+    const hitScale = isBullseyeHit ? 1 + game.bullseyeHitAnim * 0.65 : 1 + Math.sin(Date.now() * 0.007) * 0.06;
+    ctx.scale(hitScale, hitScale);
+
+    // If hit, draw rotating sunburst rays behind
+    if (isBullseyeHit) {
+      ctx.save();
+      ctx.rotate(Date.now() * 0.012);
+      ctx.strokeStyle = `rgba(255, 215, 0, ${game.bullseyeHitAnim * 0.7})`;
+      ctx.lineWidth = 2.5;
+      for (let r = 0; r < 8; r++) {
+        const rayA = (r / 8) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(rayA) * 32, Math.sin(rayA) * 32);
+        ctx.lineTo(Math.cos(rayA) * (48 + game.bullseyeHitAnim * 28), Math.sin(rayA) * (48 + game.bullseyeHitAnim * 28));
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // Outer orbiting targeting reticle dashes
+    ctx.save();
+    ctx.rotate(-Date.now() * 0.003);
+    ctx.strokeStyle = isBullseyeHit ? "#ffffff" : "rgba(255, 184, 0, 0.45)";
+    ctx.setLineDash([6, 6]);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, 34, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+
+    // Main Golden Bullseye Ring
+    ctx.strokeStyle = isBullseyeHit ? "#ffffff" : "#ffb800";
+    ctx.lineWidth = isBullseyeHit ? 4.5 : 3;
+    ctx.shadowColor = isBullseyeHit ? "#ffffff" : "#ffb800";
+    ctx.shadowBlur = isBullseyeHit ? 28 : 16;
     ctx.beginPath();
     ctx.arc(0, 0, 26, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.fillStyle = "rgba(255, 184, 0, 0.22)";
+
+    ctx.fillStyle = isBullseyeHit ? `rgba(255, 235, 59, ${0.4 + game.bullseyeHitAnim * 0.4})` : "rgba(255, 184, 0, 0.22)";
     ctx.fill();
     ctx.shadowBlur = 0;
-    ctx.fillStyle = "#ffb800";
-    ctx.font = "800 11px 'JetBrains Mono', monospace";
+
+    // Crosshairs
+    ctx.strokeStyle = isBullseyeHit ? "rgba(255,255,255,0.75)" : "rgba(255, 184, 0, 0.35)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(-16, 0); ctx.lineTo(-6, 0);
+    ctx.moveTo(6, 0); ctx.lineTo(16, 0);
+    ctx.moveTo(0, -16); ctx.lineTo(0, -6);
+    ctx.moveTo(0, 6); ctx.lineTo(0, 16);
+    ctx.stroke();
+
+    // Label
+    ctx.fillStyle = isBullseyeHit ? "#ffffff" : "#ffb800";
+    ctx.font = isBullseyeHit ? "900 12px 'JetBrains Mono', monospace" : "800 11px 'JetBrains Mono', monospace";
     ctx.textAlign = "center";
-    ctx.fillText("⭐ 2x", 0, 4);
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = "#ffb800";
+    ctx.shadowBlur = isBullseyeHit ? 14 : 0;
+    ctx.fillText(isBullseyeHit ? "💥 2x" : "⭐ 2x", 0, 1);
     ctx.restore();
 
     // 5. SUBTLE INTUITION READ & ACTIVE EFFECT AURAS (No cheat target circles!)
@@ -4371,18 +4581,123 @@ function initFullscreenStadiumCanvas() {
       const pt = game.particles[i];
       pt.x += pt.vx;
       pt.y += pt.vy;
-      pt.alpha -= 0.03;
+      if (pt.glyph) {
+        pt.vy += 0.08;
+        pt.rot = (pt.rot || 0) + (pt.vRot || 0.05);
+      } else {
+        pt.vy += 0.14; // soft stadium gravity
+        pt.vx *= 0.98; // soft air drag
+      }
+      pt.alpha -= pt.decay || 0.026;
       if (pt.alpha <= 0) {
         game.particles.splice(i, 1);
         continue;
       }
-      ctx.globalAlpha = pt.alpha;
-      ctx.fillStyle = pt.color;
-      ctx.beginPath();
-      ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, pt.alpha);
+      if (pt.glyph) {
+        ctx.translate(pt.x, pt.y);
+        ctx.rotate(pt.rot || 0);
+        ctx.font = `bold ${pt.size || 18}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.shadowColor = "#ffb800";
+        ctx.shadowBlur = 12;
+        ctx.fillText(pt.glyph, 0, 0);
+      } else {
+        ctx.fillStyle = pt.color;
+        ctx.shadowColor = pt.color;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, Math.max(0.5, pt.r), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
     }
     ctx.globalAlpha = 1;
+
+    // 10b. RENDER MULTIPLIER 2X SHOCKWAVES
+    if (game.multiplierShockwaves && game.multiplierShockwaves.length > 0) {
+      for (let i = game.multiplierShockwaves.length - 1; i >= 0; i--) {
+        const sw = game.multiplierShockwaves[i];
+        sw.r += sw.speed;
+        sw.alpha -= 0.026;
+        if (sw.alpha <= 0 || sw.r >= sw.maxR) {
+          game.multiplierShockwaves.splice(i, 1);
+          continue;
+        }
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, sw.alpha);
+        ctx.strokeStyle = sw.color;
+        ctx.lineWidth = sw.width * (sw.r / sw.maxR * 0.5 + 0.5);
+        ctx.shadowColor = sw.color;
+        ctx.shadowBlur = 20;
+        ctx.beginPath();
+        ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    // 10c. FULLSCREEN GOLD MULTIPLIER FLASH VIGNETTE
+    if (game.goldFlash > 0.01) {
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, game.goldFlash);
+      const flashGrad = ctx.createRadialGradient(W / 2, H / 2, H * 0.15, W / 2, H / 2, H * 0.9);
+      flashGrad.addColorStop(0, "rgba(255, 235, 59, 0)");
+      flashGrad.addColorStop(0.65, "rgba(255, 184, 0, 0.26)");
+      flashGrad.addColorStop(1, "rgba(255, 140, 0, 0.52)");
+      ctx.fillStyle = flashGrad;
+      ctx.fillRect(0, 0, W, H);
+      ctx.restore();
+      game.goldFlash = Math.max(0, game.goldFlash - 0.024);
+    }
+
+    // 10d. FLOATING 2X MULTIPLIER HIT BADGE
+    if (game.goldFloatingBanner && game.goldFloatingBanner.alpha > 0.01) {
+      const fb = game.goldFloatingBanner;
+      fb.y -= 1.1;
+      fb.scale = Math.min(1.0, fb.scale + 0.08);
+      fb.alpha -= 0.016;
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, fb.alpha);
+      ctx.translate(fb.x, fb.y);
+      ctx.scale(fb.scale, fb.scale);
+
+      const bW = 210;
+      const bH = 50;
+      const bGrad = ctx.createLinearGradient(-bW / 2, -bH / 2, bW / 2, bH / 2);
+      bGrad.addColorStop(0, "rgba(25, 20, 5, 0.94)");
+      bGrad.addColorStop(0.5, "rgba(50, 40, 8, 0.96)");
+      bGrad.addColorStop(1, "rgba(25, 20, 5, 0.94)");
+
+      ctx.fillStyle = bGrad;
+      ctx.strokeStyle = "#ffb800";
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = "#ffb800";
+      ctx.shadowBlur = 22;
+      ctx.beginPath();
+      ctx.roundRect(-bW / 2, -bH / 2, bW, bH, 25);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = "#ffe066";
+      ctx.font = "900 15px 'JetBrains Mono', monospace";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(fb.text, 0, -8);
+
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "#ffb800";
+      ctx.font = "800 10px 'JetBrains Mono', monospace";
+      ctx.fillText(fb.subtext, 0, 12);
+
+      ctx.restore();
+
+      if (fb.alpha <= 0.01) game.goldFloatingBanner = null;
+    }
 
     // 11. DRAW SUPER SKILL ACTIVATION FLASH
     if (game.skillFlash && game.skillFlash.alpha > 0.05) {
