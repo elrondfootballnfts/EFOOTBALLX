@@ -2702,8 +2702,8 @@ async function fetchConnectedWalletData(address) {
         rankEl.textContent = "👑 ULTRAS VIP PASS HOLDER";
         rankEl.style.color = "#ffd700";
       } else if (walletState.keepersCount >= 1 || walletState.playersCount >= 3) {
-        rankEl.textContent = "🏆 VIP BOARD MEMBER";
-        rankEl.style.color = "#ffd700";
+        rankEl.textContent = "🏆 CLUB BOARD MEMBER";
+        rankEl.style.color = "#a8ff00";
       } else if (walletState.playersCount >= 1 || walletState.efooBalance > 0) {
         rankEl.textContent = "⚽ FIRST TEAM ULTRAS";
         rankEl.style.color = "#a8ff00";

@@ -47,12 +47,49 @@ let marketDexState = {
   xexUsdcReserve: 22.909
 };
 
+// Verified on-chain holders of EFOOPASS-5223a8-01 (Pre-seeded with live MultiversX blockchain state)
+const onchainUltrasHolders = new Set([
+  "erd14zpeqacvvtctcyl5djvk3wml048d5gfescdaw0ufwnmnt6jwg0vqjlx6pj"
+]);
+let isFetchingUltrasHolders = false;
+
+async function syncOnchainUltrasHolders() {
+  if (isFetchingUltrasHolders) return onchainUltrasHolders;
+  isFetchingUltrasHolders = true;
+  try {
+    const res = await fetch(`${MULTIVERSX_API}/nfts/${ULTRAS_PASS_IDENTIFIER}/accounts?size=100`);
+    if (res.ok) {
+      const accounts = await res.json();
+      if (Array.isArray(accounts)) {
+        onchainUltrasHolders.clear();
+        accounts.forEach((acc) => {
+          if (acc && acc.address && Number(acc.balance) > 0) {
+            const a = String(acc.address).trim().toLowerCase();
+            // Exclude smart contracts (e.g. sale/vault SC)
+            if (!a.startsWith("erd1qqqqqqqqqqqqqpgq")) {
+              onchainUltrasHolders.add(a);
+            }
+          }
+        });
+      }
+    }
+  } catch (err) {
+    console.warn("[syncOnchainUltrasHolders] Error fetching on-chain pass holders:", err);
+  } finally {
+    isFetchingUltrasHolders = false;
+  }
+  return onchainUltrasHolders;
+}
+
 function hasUltrasPass(address) {
   if (!address || typeof address !== "string") return false;
   const cleanAddr = address.trim().toLowerCase();
   if (!cleanAddr.startsWith("erd1") || cleanAddr.length !== 62) return false;
 
-  // Active connected wallet verification
+  // 1. Strictly verified on-chain SFT holders from MultiversX blockchain
+  if (onchainUltrasHolders.has(cleanAddr)) return true;
+
+  // 2. Active connected wallet verification (only if checking the currently connected wallet)
   if (marketWallet && cleanAddr === (marketWallet.address || "").toLowerCase()) {
     if (typeof marketWallet.ultrasPassCount === "number" && marketWallet.ultrasPassCount > 0) {
       return true;
@@ -66,7 +103,7 @@ function hasUltrasPass(address) {
     }
   }
 
-  return localStorage.getItem(STORAGE_ULTRAS_PASS_PREFIX + cleanAddr) === "true";
+  return false;
 }
 
 let marketWcSignClient = null;
@@ -1979,10 +2016,21 @@ async function fetchWalletNfts(address) {
       const nfts = await res.json();
       if (Array.isArray(nfts)) {
         marketWallet.ownedNfts = nfts;
-        if (hasUltrasPass(address)) {
+        const ownsPass = nfts.some(x => {
+          const id = ((x.identifier || "") + " " + (x.name || "") + " " + (x.collection || "")).toLowerCase();
+          return id.includes("efoopass-5223a8") || (x.collection && x.collection.toLowerCase() === ULTRAS_PASS_COLLECTION.toLowerCase());
+        });
+        marketWallet.ultrasPassCount = ownsPass ? 1 : 0;
+        if (ownsPass) {
+          onchainUltrasHolders.add(address.toLowerCase());
           try {
             localStorage.setItem(STORAGE_ULTRAS_PASS_PREFIX + address.toLowerCase(), "true");
-            localStorage.setItem("efoo_has_ultras_pass", "true");
+          } catch (e) {}
+        } else {
+          onchainUltrasHolders.delete(address.toLowerCase());
+          try {
+            localStorage.removeItem(STORAGE_ULTRAS_PASS_PREFIX + address.toLowerCase());
+            localStorage.removeItem("efoo_has_ultras_pass");
           } catch (e) {}
         }
         renderMyLockerGrid();
@@ -2016,7 +2064,7 @@ function updateWalletUI() {
     const a = marketWallet.address;
     if (shortAddr) shortAddr.textContent = `${a.slice(0, 6)}...${a.slice(-4)}`;
     if (balEl) balEl.textContent = `${Math.floor(marketWallet.efooBalance).toLocaleString("en-US")} $EFOO`;
-    const isVip = hasUltrasPass(a) || (marketWallet.ownedNfts && marketWallet.ownedNfts.length > 0);
+    const isVip = hasUltrasPass(a);
     if (vipBadge) {
       vipBadge.classList.toggle("hidden", !isVip);
     }
@@ -4168,8 +4216,10 @@ async function buyUltrasPassOnChain() {
       watchMarketTransaction(txHash);
     }
 
+    marketWallet.ultrasPassCount = 1;
+    onchainUltrasHolders.add(marketWallet.address.toLowerCase());
     localStorage.setItem(STORAGE_ULTRAS_PASS_PREFIX + marketWallet.address.toLowerCase(), "true");
-    localStorage.setItem("efoo_has_ultras_pass", "true");
+    updateWalletUI();
     updateUltrasPassUI();
     updateListingFeePreview();
     fetchUltrasPassStock();
@@ -5695,6 +5745,13 @@ document.addEventListener("DOMContentLoaded", () => {
     inputB.value = String(Math.floor(efooBal));
     const rate = activeLiqPool === "WEGLD" ? 30004200 : 1180000;
     inputA.value = (efooBal / rate).toFixed(4);
+  });
+
+  // Sync verified on-chain Ultras Pass holders at startup
+  syncOnchainUltrasHolders().then(() => {
+    updateWalletUI();
+    updateUltrasPassUI();
+    renderMarketplaceGrid();
   });
 });
 
