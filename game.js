@@ -6840,7 +6840,7 @@ function renderLeaderboardModal(options = {}) {
     if (!isGuest) {
       // Verified connected player
       const userRank = list.findIndex(x => x.address && x.address.toLowerCase() === connectedAddress.toLowerCase()) + 1;
-      const rankPill = userRank === 1 ? "🥇 1. HELY (65% JACKPOT DÍJ)" : userRank === 2 ? "🥈 2. HELY (25% JACKPOT DÍJ)" : userRank === 3 ? "🥉 3. HELY (10% JACKPOT DÍJ)" : `#${userRank}. HELY`;
+      const rankPill = userRank === 1 ? "🥇 1ST PLACE (65% JACKPOT)" : userRank === 2 ? "🥈 2ND PLACE (25% JACKPOT)" : userRank === 3 ? "🥉 3RD PLACE (10% JACKPOT)" : `#${userRank} RANK`;
       postMatchBanner.innerHTML = `
         <div class="verified-winner-banner">
           <div class="gjs-head">
