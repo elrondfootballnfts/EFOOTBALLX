@@ -48,24 +48,25 @@ let marketDexState = {
 };
 
 function hasUltrasPass(address) {
-  if (!address) return false;
-  const cleanAddr = address.toLowerCase();
-  if (cleanAddr === EFOOREWARDS_WALLET.toLowerCase()) return true;
-  if (localStorage.getItem(STORAGE_ULTRAS_PASS_PREFIX + cleanAddr) === "true") return true;
-  if (localStorage.getItem("efoo_has_ultras_pass") === "true") return true;
-  if (marketWallet && marketWallet.ownedNfts && Array.isArray(marketWallet.ownedNfts)) {
-    if (marketWallet.ownedNfts.some(x => {
-      const id = ((x.identifier || "") + " " + (x.name || "") + " " + (x.collection || "")).toLowerCase();
-      return id.includes("efoopass-5223a8") || id.includes("efoopass") || id.includes("ultras pass") || (x.collection && x.collection.toLowerCase() === ULTRAS_PASS_COLLECTION.toLowerCase());
-    })) {
-      try {
-        localStorage.setItem(STORAGE_ULTRAS_PASS_PREFIX + cleanAddr, "true");
-        localStorage.setItem("efoo_has_ultras_pass", "true");
-      } catch (e) {}
+  if (!address || typeof address !== "string") return false;
+  const cleanAddr = address.trim().toLowerCase();
+  if (!cleanAddr.startsWith("erd1") || cleanAddr.length !== 62) return false;
+
+  // Active connected wallet verification
+  if (marketWallet && cleanAddr === (marketWallet.address || "").toLowerCase()) {
+    if (typeof marketWallet.ultrasPassCount === "number" && marketWallet.ultrasPassCount > 0) {
       return true;
     }
+    if (Array.isArray(marketWallet.ownedNfts)) {
+      const owns = marketWallet.ownedNfts.some(x => {
+        const id = ((x.identifier || "") + " " + (x.name || "") + " " + (x.collection || "")).toLowerCase();
+        return id.includes("efoopass-5223a8") || (x.collection && x.collection.toLowerCase() === ULTRAS_PASS_COLLECTION.toLowerCase());
+      });
+      if (owns) return true;
+    }
   }
-  return false;
+
+  return localStorage.getItem(STORAGE_ULTRAS_PASS_PREFIX + cleanAddr) === "true";
 }
 
 let marketWcSignClient = null;

@@ -2688,7 +2688,11 @@ async function fetchConnectedWalletData(address) {
     if (hasPass) {
       try {
         localStorage.setItem("efoo_ultras_pass_" + address.toLowerCase(), "true");
-        localStorage.setItem("efoo_has_ultras_pass", "true");
+      } catch (e) {}
+    } else {
+      try {
+        localStorage.removeItem("efoo_ultras_pass_" + address.toLowerCase());
+        localStorage.removeItem("efoo_has_ultras_pass");
       } catch (e) {}
     }
 

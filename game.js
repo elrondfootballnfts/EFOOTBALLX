@@ -136,26 +136,63 @@ const CONTRACTS = {
 const ULTRAS_PASS_IDENTIFIER = "EFOOPASS-5223a8-01";
 const ULTRAS_PASS_COLLECTION = "EFOOPASS-5223a8";
 const STORAGE_ULTRAS_PASS_PREFIX = "efoo_ultras_pass_";
-const EFOOREWARDS_WALLET = "erd1p5hfnx87q4pddwsyz23e5pqv8550rsfat902j6g4ckdh070055hshct4my";
+
+// Verified on-chain holders of EFOOPASS-5223a8-01 (Pre-seeded with live MultiversX blockchain state)
+const onchainUltrasHolders = new Set([
+  "erd14zpeqacvvtctcyl5djvk3wml048d5gfescdaw0ufwnmnt6jwg0vqjlx6pj"
+]);
+let isFetchingUltrasHolders = false;
+
+async function syncOnchainUltrasHolders() {
+  if (isFetchingUltrasHolders) return onchainUltrasHolders;
+  isFetchingUltrasHolders = true;
+  try {
+    const res = await fetch(`https://api.multiversx.com/nfts/${ULTRAS_PASS_IDENTIFIER}/accounts?size=100`);
+    if (res.ok) {
+      const accounts = await res.json();
+      if (Array.isArray(accounts)) {
+        onchainUltrasHolders.clear();
+        accounts.forEach((acc) => {
+          if (acc && acc.address && Number(acc.balance) > 0) {
+            const a = String(acc.address).trim().toLowerCase();
+            // Exclude smart contracts (e.g. sale/vault SC)
+            if (!a.startsWith("erd1qqqqqqqqqqqqqpgq")) {
+              onchainUltrasHolders.add(a);
+            }
+          }
+        });
+      }
+    }
+  } catch (err) {
+    console.warn("[syncOnchainUltrasHolders] Error fetching on-chain pass holders:", err);
+  } finally {
+    isFetchingUltrasHolders = false;
+  }
+  return onchainUltrasHolders;
+}
 
 function hasUltrasPass(address) {
-  if (!address) return false;
-  const cleanAddr = address.toLowerCase();
-  if (cleanAddr === EFOOREWARDS_WALLET.toLowerCase()) return true;
-  if (localStorage.getItem(STORAGE_ULTRAS_PASS_PREFIX + cleanAddr) === "true") return true;
-  if (localStorage.getItem("efoo_has_ultras_pass") === "true") return true;
-  if (walletState && walletState.ownedNfts && Array.isArray(walletState.ownedNfts)) {
-    if (walletState.ownedNfts.some(x => {
-      const id = ((x.identifier || "") + " " + (x.name || "") + " " + (x.collection || "")).toLowerCase();
-      return id.includes("efoopass-5223a8") || id.includes("efoopass") || id.includes("ultras pass") || (x.collection && x.collection.toLowerCase() === ULTRAS_PASS_COLLECTION.toLowerCase());
-    })) {
-      try {
-        localStorage.setItem(STORAGE_ULTRAS_PASS_PREFIX + cleanAddr, "true");
-        localStorage.setItem("efoo_has_ultras_pass", "true");
-      } catch (e) {}
+  if (!address || typeof address !== "string") return false;
+  const cleanAddr = address.trim().toLowerCase();
+  if (!cleanAddr.startsWith("erd1") || cleanAddr.length !== 62) return false;
+
+  // 1. Strictly verified on-chain SFT holders from MultiversX blockchain
+  if (onchainUltrasHolders.has(cleanAddr)) return true;
+
+  // 2. Active connected wallet verification (only if checking the currently connected wallet)
+  if (connectedAddress && cleanAddr === connectedAddress.toLowerCase()) {
+    if (walletState && typeof walletState.ultrasCount === "number" && walletState.ultrasCount > 0) {
       return true;
     }
+    if (walletState && Array.isArray(walletState.ownedNfts)) {
+      const owns = walletState.ownedNfts.some(x => {
+        const id = ((x.identifier || "") + " " + (x.name || "") + " " + (x.collection || "")).toLowerCase();
+        return id.includes("efoopass-5223a8") || (x.collection && x.collection.toLowerCase() === ULTRAS_PASS_COLLECTION.toLowerCase());
+      });
+      if (owns) return true;
+    }
   }
+
   return false;
 }
 
@@ -5809,10 +5846,21 @@ async function fetchWalletNftsAndBalance(address) {
     walletState.ultrasCount = ultrasRes.ok ? Number(await ultrasRes.text()) || 0 : 0;
     walletState.ownedNfts = nftsRes.ok ? await nftsRes.json() : [];
 
-    if (hasUltrasPass(address)) {
+    const isConnectedUltras = walletState.ultrasCount > 0 || (walletState.ownedNfts && walletState.ownedNfts.some(x => {
+      const id = ((x.identifier || "") + " " + (x.name || "") + " " + (x.collection || "")).toLowerCase();
+      return id.includes("efoopass-5223a8") || (x.collection && x.collection.toLowerCase() === ULTRAS_PASS_COLLECTION.toLowerCase());
+    }));
+
+    if (isConnectedUltras) {
+      onchainUltrasHolders.add(address.toLowerCase());
       try {
         localStorage.setItem(STORAGE_ULTRAS_PASS_PREFIX + address.toLowerCase(), "true");
-        localStorage.setItem("efoo_has_ultras_pass", "true");
+      } catch (e) {}
+    } else {
+      onchainUltrasHolders.delete(address.toLowerCase());
+      try {
+        localStorage.removeItem(STORAGE_ULTRAS_PASS_PREFIX + address.toLowerCase());
+        localStorage.removeItem("efoo_has_ultras_pass");
       } catch (e) {}
     }
 
@@ -7283,7 +7331,7 @@ function renderLeaderboardModal(options = {}) {
 
     const isHero = !!(herotag && herotag.trim().length > 0);
     const shortAddr = row.isGuest ? (row.isSimulated ? "Unsaved" : "Guest") : shortErd(row.address);
-    const isRowUltras = !row.isGuest && (row.isUltras || hasUltrasPass(row.address));
+    const isRowUltras = !row.isGuest && hasUltrasPass(row.address);
     const vipCrown = isRowUltras ? `<span class="ultras-vip-crown" title="👑 EFOO Ultras VIP Pass Active (0% Fees & 2x Jackpot Boost)">👑 VIP</span> ` : "";
     const displayName = row.isSimulated
       ? `<strong style="color:#ffffff; font-size:0.92rem;">👤 ${escapeHtml(row.nickname)}</strong>`
@@ -7361,8 +7409,8 @@ function renderStartScreenLeaderboard() {
 
     const isHero = !!(herotag && herotag.trim().length > 0);
     const shortAddr = row.isGuest ? "Guest" : shortErd(row.address);
-    const isRowUltras = !row.isGuest && (row.isUltras || hasUltrasPass(row.address));
-    const vipCrown = isRowUltras ? `<span class="ultras-vip-crown" title="👑 EFOO Ultras VIP Pass Active">👑 VIP</span> ` : "";
+    const isRowUltras = !row.isGuest && hasUltrasPass(row.address);
+    const vipCrown = isRowUltras ? `<span class="ultras-vip-crown" title="👑 EFOO Ultras VIP Pass Active (0% Fees & 2x Jackpot Boost)">👑 VIP</span> ` : "";
     const displayName = isHero
       ? `<strong class="herotag-name" style="color:#a8ff00; font-weight:800; font-size:0.86rem; text-shadow:0 0 10px rgba(168,255,0,0.5);">${vipCrown}⚡ ${escapeHtml(herotag)}</strong>`
       : `<span class="generated-nickname" style="color:#e2e8f0; font-weight:600; font-size:0.82rem;">${vipCrown}${escapeHtml(row.nickname || row.name || (row.isGuest ? "Guest Player" : getDeterministicFootballNickname(row.address)))}</span>`;
@@ -8005,18 +8053,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Hub Leaderboard refresh & details
   document.getElementById("btn-refresh-hub-lb")?.addEventListener("click", () => {
-    if (typeof window !== "undefined" && window.EfooLeaderboard) {
-      window.EfooLeaderboard.fetchLeaderboard().then(() => {
+    syncOnchainUltrasHolders().then(() => {
+      if (typeof window !== "undefined" && window.EfooLeaderboard) {
+        window.EfooLeaderboard.fetchLeaderboard().then(() => {
+          renderStartScreenLeaderboard();
+          showToast(currentLang === "hu" ? "🔄 Élő ranglista frissítve a felhőből!" : "🔄 Live leaderboard updated from cloud!");
+        });
+      } else {
         renderStartScreenLeaderboard();
-        showToast(currentLang === "hu" ? "🔄 Élő ranglista frissítve a felhőből!" : "🔄 Live leaderboard updated from cloud!");
-      });
-    } else {
-      renderStartScreenLeaderboard();
-      showToast(currentLang === "hu" ? "🔄 Ranglista frissítve!" : "🔄 Leaderboard refreshed!");
-    }
+        showToast(currentLang === "hu" ? "🔄 Ranglista frissítve!" : "🔄 Leaderboard refreshed!");
+      }
+    });
   });
   document.getElementById("open-full-ranks-modal")?.addEventListener("click", openLeaderboard);
   document.querySelector(".hub-pot-badge")?.addEventListener("click", openLeaderboard);
+
+  // Sync verified on-chain Ultras Pass holders & Global Leaderboard at startup
+  syncOnchainUltrasHolders().then(() => {
+    renderStartScreenLeaderboard();
+  });
 
   // Real-time Global Leaderboard Live Listener (Firebase)
   if (typeof window !== "undefined" && window.EfooLeaderboard) {

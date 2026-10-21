@@ -231,12 +231,12 @@
         if (existing && typeof existing.score === "number" && existing.score >= score) {
           // Existing record is already higher or equal - DO NOT OVERWRITE!
           console.log(`[EfooLeaderboard] Preserving existing personal best (${existing.score} pts >= ${score} pts) for ${rawAddr}`);
-          // Just update herotag or ultras badge if missing
-          if ((isUltras && !existing.isUltras) || (herotag && !existing.herotag)) {
+          // Sync herotag or ultras status if changed
+          if ((typeof isUltras === "boolean" && isUltras !== existing.isUltras) || (herotag && !existing.herotag)) {
             await fetch(singleUrl, {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ isUltras: true, herotag: herotag || existing.herotag })
+              body: JSON.stringify({ isUltras: !!isUltras, herotag: herotag || existing.herotag })
             });
           }
           await fetchLeaderboard();
