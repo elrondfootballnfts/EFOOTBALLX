@@ -6615,6 +6615,13 @@ const MOCK_HEROTAGS_TO_PURGE = new Set([
 ]);
 
 function getLeaderboard() {
+  if (typeof window !== "undefined" && window.EfooLeaderboard) {
+    const remoteList = window.EfooLeaderboard.getLeaderboardSync();
+    if (Array.isArray(remoteList) && remoteList.length > 0) {
+      return remoteList;
+    }
+  }
+
   let list = [];
   try {
     const raw = localStorage.getItem(STORAGE_LEADERBOARD);
@@ -6693,8 +6700,6 @@ function recordMatchToLeaderboard(score, goals, level) {
     isGuest = true;
   }
 
-  const list = getLeaderboard();
-
   let hero = "";
   if (!isGuest) {
     hero = walletState.herotag || walletState.username || getHerotagForAddress(playerAddr);
@@ -6706,12 +6711,29 @@ function recordMatchToLeaderboard(score, goals, level) {
     hero = currentLang === "hu" ? "🎮 Vendég Játékos" : (currentLang === "ro" ? "🎮 Jucător Oaspete" : "🎮 Guest (You)");
   }
 
+  const isUltras = !isGuest && hasUltrasPass(playerAddr);
+  const nickname = isGuest ? "Guest Striker" : (hero ? "" : getDeterministicFootballNickname(playerAddr));
+
+  // Forward to Global Firebase Realtime Leaderboard service
+  if (typeof window !== "undefined" && window.EfooLeaderboard) {
+    window.EfooLeaderboard.recordScore({
+      address: playerAddr,
+      score: score,
+      goals: goals,
+      level: level,
+      herotag: hero,
+      nickname: nickname,
+      isUltras: isUltras,
+      isGuest: isGuest
+    }).catch(err => console.warn("[recordMatchToLeaderboard] async sync warning:", err));
+  }
+
+  const list = getLeaderboard();
+
   // Check if playerAddr already exists in the leaderboard
   const existingIdx = list.findIndex(
     (x) => x.address && x.address.toLowerCase() === playerAddr.toLowerCase()
   );
-
-  const isUltras = !isGuest && hasUltrasPass(playerAddr);
 
   if (existingIdx !== -1) {
     // Only update if new score is higher than their previous personal best!
@@ -6734,7 +6756,7 @@ function recordMatchToLeaderboard(score, goals, level) {
       rank: 0,
       address: playerAddr,
       herotag: hero || "",
-      nickname: isGuest ? "Guest Striker" : (hero ? "" : getDeterministicFootballNickname(playerAddr)),
+      nickname: nickname,
       isGuest,
       isUltras,
       level,
@@ -7668,11 +7690,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Hub Leaderboard refresh & details
   document.getElementById("btn-refresh-hub-lb")?.addEventListener("click", () => {
-    renderStartScreenLeaderboard();
-    showToast(currentLang === "hu" ? "🔄 Ranglista frissítve!" : "🔄 Leaderboard refreshed!");
+    if (typeof window !== "undefined" && window.EfooLeaderboard) {
+      window.EfooLeaderboard.fetchLeaderboard().then(() => {
+        renderStartScreenLeaderboard();
+        showToast(currentLang === "hu" ? "🔄 Élő ranglista frissítve a felhőből!" : "🔄 Live leaderboard updated from cloud!");
+      });
+    } else {
+      renderStartScreenLeaderboard();
+      showToast(currentLang === "hu" ? "🔄 Ranglista frissítve!" : "🔄 Leaderboard refreshed!");
+    }
   });
   document.getElementById("open-full-ranks-modal")?.addEventListener("click", openLeaderboard);
   document.querySelector(".hub-pot-badge")?.addEventListener("click", openLeaderboard);
+
+  // Real-time Global Leaderboard Live Listener (Firebase)
+  if (typeof window !== "undefined" && window.EfooLeaderboard) {
+    window.EfooLeaderboard.onUpdate(() => {
+      renderStartScreenLeaderboard();
+      const modal = document.getElementById("leaderboard-modal-overlay");
+      if (modal && !modal.classList.contains("hidden")) {
+        renderLeaderboardModal({ isPostMatch: isPostMatchLeaderboardActive });
+      }
+    });
+    window.EfooLeaderboard.fetchLeaderboard().then(() => {
+      renderStartScreenLeaderboard();
+    }).catch(() => {});
+  }
 
   // First user interaction gesture to unlock Web Audio API background music
   const unlockBgmGesture = () => {

@@ -885,8 +885,39 @@
         <!-- CARD 4: VALÓS RANGLISTA KEZELŐ (LEADERBOARD MANAGER) -->
         <div class="admin-card" style="grid-column: 1 / -1;">
           <div class="admin-card-header">
-            <h3 class="admin-card-title">📊 Valós Játékos Ranglista &amp; Csalásvédelem</h3>
+            <div>
+              <h3 class="admin-card-title">📊 Valós Játékos Ranglista &amp; Csalásvédelem</h3>
+              <p style="margin:4px 0 0; font-size:0.78rem; color:#98aba0;">
+                A világ minden tájáról érkező játékosok eredményei ide futnak be valós időben a központi Google Firebase adatbázisból.
+              </p>
+            </div>
             <span style="font-family:'JetBrains Mono'; font-size:0.75rem; color:#98aba0;" id="adm-lb-count">0 valós játékos</span>
+          </div>
+
+          <!-- Firebase Realtime Database Status & Configuration Box -->
+          <div style="background: rgba(255, 184, 0, 0.07); border: 1px solid rgba(255, 184, 0, 0.28); border-radius: 12px; padding: 14px 18px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.25rem;">🔥</span>
+                <div>
+                  <strong style="color: #ffb800; font-size: 0.92rem; display: block;">Központi Google Firebase Realtime Database</strong>
+                  <span style="font-size: 0.76rem; color: #cbd5e1;">Azonnali globális élő szinkronizáció – minden meccs végeredménye automatikusan ide mentődik.</span>
+                </div>
+              </div>
+              <span id="adm-firebase-status-badge" style="background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #22c55e; padding: 3px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; font-family:'JetBrains Mono';">
+                🟢 ONLINE
+              </span>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; align-items: center;">
+              <input type="text" id="adm-firebase-url-input" class="admin-input" placeholder="https://your-project-default-rtdb.firebaseio.com" style="flex: 1; min-width: 280px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; padding: 8px 12px;" />
+              <button type="button" id="adm-firebase-save-btn" class="admin-btn admin-btn-gold" style="width: auto; padding: 8px 16px; margin: 0; font-size: 0.82rem;">
+                💾 URL Mentése
+              </button>
+              <button type="button" id="adm-firebase-test-btn" class="admin-btn admin-btn-outline" style="width: auto; padding: 8px 16px; margin: 0; font-size: 0.82rem; border-color: var(--admin-cyan); color: var(--admin-cyan);">
+                ⚡ Élő Szinkronizáció &amp; Frissítés
+              </button>
+            </div>
           </div>
 
           <div style="overflow-x: auto;">
@@ -958,6 +989,7 @@
     </div>
   </div>
 
+  <script src="leaderboard-service.js?v=20261021_v1"></script>
   <script>
     // =========================================================================
     // STRICT OWNER SECURITY DEFINITION
@@ -1783,6 +1815,11 @@
     ]);
 
     function getAdminLeaderboardList() {
+      if (typeof window !== "undefined" && window.EfooLeaderboard) {
+        const globalList = window.EfooLeaderboard.getLeaderboardSync();
+        if (Array.isArray(globalList) && globalList.length > 0) return globalList;
+      }
+
       let rawList = [];
       try {
         const raw1 = localStorage.getItem("efoo_leaderboard_v2");
@@ -2798,6 +2835,19 @@
         return;
       }
 
+      if (window.EfooLeaderboard) {
+        window.EfooLeaderboard.recordScore({
+          address: addr,
+          score: score,
+          goals: goals,
+          level: level,
+          herotag: name.startsWith("@") ? name : `@${name}`,
+          nickname: name,
+          isUltras: false,
+          isGuest: false
+        });
+      }
+
       const list = getAdminLeaderboardList();
       list.push({
         rank: 0,
@@ -2829,7 +2879,7 @@
         countEl.textContent = `${list.length} valós játékos`;
 
         if (list.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8" style="padding: 24px; text-align: center; color: #98aba0;">Nincs még rögzített játékos ebben a böngészőben.<br><span style="font-size:0.78rem; color:#6b7280; display:block; margin-top:6px;">A játékosok meccsei az eszközeiken tárolódnak. A <strong>"➕ Játékos Manuális Rögzítése"</strong> gombbal vagy a fenti Jackpot mezőkbe közvetlenül beírva tudsz nyerteseket beállítani!</span></td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8" style="padding: 24px; text-align: center; color: #98aba0;">Nincs még rögzített játékos a központi adatbázisban.<br><span style="font-size:0.78rem; color:#6b7280; display:block; margin-top:6px;">A játékosok meccsei a Firebase felhőbe szinkronizálódnak. A <strong>"➕ Játékos Manuális Rögzítése"</strong> gombbal vagy a fenti Jackpot mezőkbe közvetlenül beírva tudsz nyerteseket beállítani!</span></td></tr>';
           return;
         }
 
@@ -2861,6 +2911,10 @@
       if (!confirm("Biztosan törölni akarod ezt a bejegyzést?")) return;
       try {
         const list = getAdminLeaderboardList();
+        const item = list[index];
+        if (item && item.address && window.EfooLeaderboard) {
+          window.EfooLeaderboard.deletePlayer(item.address);
+        }
         list.splice(index, 1);
         saveAdminLeaderboardList(list);
         renderLeaderboardTable();
@@ -2872,11 +2926,67 @@
 
     document.getElementById("btn-reset-weekly-lb").addEventListener("click", () => {
       if (!confirm("⚠️ BIZTOSAN TÖRÖLNI AKAROD A TELJES HETI RANGLISTÁT? Ezzel új heti forduló indul!")) return;
+      if (window.EfooLeaderboard) {
+        window.EfooLeaderboard.clearAll();
+      }
       localStorage.removeItem("efoo_leaderboard_v2");
       localStorage.removeItem("efoo_real_leaderboard_v2");
       renderLeaderboardTable();
-      showToast("✨ A heti ranglista sikeresen nullázva!");
+      showToast("✨ A heti ranglista sikeresen nullázva a felhőben és helyben is!");
     });
+
+    // Firebase Realtime DB Admin Controls Binding
+    function initAdminFirebaseControls() {
+      const urlInput = document.getElementById("adm-firebase-url-input");
+      const saveBtn = document.getElementById("adm-firebase-save-btn");
+      const testBtn = document.getElementById("adm-firebase-test-btn");
+      const badge = document.getElementById("adm-firebase-status-badge");
+
+      if (window.EfooLeaderboard && urlInput) {
+        urlInput.value = window.EfooLeaderboard.getBaseUrl();
+      }
+
+      saveBtn?.addEventListener("click", () => {
+        const val = urlInput.value.trim();
+        if (!val || !val.startsWith("http")) {
+          alert("⚠️ Kérlek adj meg egy érvényes Firebase URL-t (pl. https://projekt-default-rtdb.firebaseio.com)!");
+          return;
+        }
+        if (window.EfooLeaderboard) {
+          window.EfooLeaderboard.setBaseUrl(val);
+          showToast("💾 Firebase URL sikeresen mentve!");
+        }
+      });
+
+      testBtn?.addEventListener("click", async () => {
+        if (!window.EfooLeaderboard) return;
+        badge.textContent = "⏳ KAPCSOLÓDÁS...";
+        badge.style.color = "#ffb800";
+        badge.style.borderColor = "#ffb800";
+        badge.style.background = "rgba(255, 184, 0, 0.2)";
+
+        try {
+          const fresh = await window.EfooLeaderboard.fetchLeaderboard();
+          badge.textContent = "🟢 ONLINE";
+          badge.style.color = "#22c55e";
+          badge.style.borderColor = "#22c55e";
+          badge.style.background = "rgba(34, 197, 94, 0.2)";
+          renderLeaderboardTable();
+          showToast(`⚡ Firebase kapcsolat sikeres! ${fresh.length} játékos szinkronizálva.`);
+        } catch (err) {
+          badge.textContent = "🔴 HIBA";
+          badge.style.color = "#ef4444";
+          badge.style.borderColor = "#ef4444";
+          badge.style.background = "rgba(239, 68, 68, 0.2)";
+          showToast("❌ Nem sikerült kapcsolódni a megadott Firebase adatbázishoz.");
+        }
+      });
+
+      if (window.EfooLeaderboard) {
+        window.EfooLeaderboard.onUpdate(() => renderLeaderboardTable());
+        window.EfooLeaderboard.fetchLeaderboard().then(() => renderLeaderboardTable()).catch(() => {});
+      }
+    }
 
     // Auto-run check on load
     document.addEventListener("DOMContentLoaded", () => {
@@ -2884,6 +2994,8 @@
       checkUrlCallbacks();
       fetchEfooPrice();
       updateDepositPreview();
+      initAdminFirebaseControls();
+      renderLeaderboardTable();
 
       // Clean up any old truncated addresses in input fields
       const in1 = document.getElementById("jackpot-addr-1");
