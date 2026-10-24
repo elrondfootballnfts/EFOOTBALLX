@@ -7299,7 +7299,7 @@ function renderLeaderboardModal(options = {}) {
   if (displayRows.length === 0) {
     const emptyTr = document.createElement("tr");
     emptyTr.innerHTML = `
-      <td colspan="6" style="text-align:center; padding:38px 16px; color:#94a3b8;">
+      <td colspan="5" style="text-align:center; padding:38px 16px; color:#94a3b8;">
         <div style="font-size:2.2rem; margin-bottom:8px;">🏟️ ⚽</div>
         <strong style="color:#fff; font-size:1.05rem; letter-spacing:0.04em;">NO RECORDED SCORES THIS WEEK YET</strong><br>
         <span style="font-size:0.82rem; color:#64748b; margin-top:4px; display:inline-block;">Play a match, score goals, and claim the #1 spot for the Sunday Jackpot!</span>
@@ -7354,8 +7354,7 @@ function renderLeaderboardModal(options = {}) {
         ${displayName}
         <small style="color:${row.isSimulated ? '#fef08a' : '#64748b'}; font-size:0.68rem; margin-left:6px; font-family:'JetBrains Mono',monospace;">(${shortAddr})</small>
       </td>
-      <td><span style="color:#38bdf8; font-weight:800;">LVL ${row.level || 1}</span></td>
-      <td>⚽ ${row.goals}/5</td>
+      <td><span style="color:#38bdf8; font-weight:800; white-space:nowrap;">LVL ${row.level || 1}</span></td>
       <td><strong style="color:#a8ff00; font-family:'JetBrains Mono',monospace;">${row.score.toLocaleString("en-US")}</strong></td>
       <td style="color:${row.isSimulated ? '#fef08a' : '#94a3b8'}; font-size:0.7rem; font-weight:${row.isSimulated ? '800' : '400'};">${row.date || "Just now"}</td>
     `;
