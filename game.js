@@ -5608,6 +5608,39 @@ async function connectDefiExtension() {
   }
 }
 
+function syncPendingGuestScoreOnConnect() {
+  try {
+    let score = 0;
+    let goals = 0;
+    let level = 1;
+    let hasPending = false;
+
+    const raw = sessionStorage.getItem("efoo_pending_guest_score");
+    if (raw) {
+      sessionStorage.removeItem("efoo_pending_guest_score");
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.score > 0 && Date.now() - (parsed.ts || 0) < 15 * 60 * 1000) {
+        score = parsed.score;
+        goals = parsed.goals || 0;
+        level = parsed.level || 1;
+        hasPending = true;
+      }
+    } else if (isPostMatchLeaderboardActive && game && game.score > 0) {
+      score = game.score;
+      goals = game.userGoals || 0;
+      level = game.level || 1;
+      hasPending = true;
+    }
+
+    if (hasPending && connectedAddress && connectedAddress.startsWith("erd1")) {
+      recordMatchToLeaderboard(score, goals, level);
+      isPostMatchLeaderboardActive = true;
+      renderLeaderboardModal({ isPostMatch: true, score, goals, level });
+      document.getElementById("leaderboard-modal-overlay")?.classList.remove("hidden");
+    }
+  } catch (e) {}
+}
+
 function connectWithAddress(address, provider = "webwallet") {
   const clean = (address || "").trim();
   if (!clean.startsWith("erd1") || clean.length < 40) return;
@@ -5630,6 +5663,7 @@ function connectWithAddress(address, provider = "webwallet") {
   document.getElementById("nav-wallet-label").textContent = shortErd(clean);
   updateOwnerAdminVisibility(clean);
   fetchWalletNftsAndBalance(clean);
+  syncPendingGuestScoreOnConnect();
 }
 
 function updateOwnerAdminVisibility(addr) {
@@ -7260,7 +7294,14 @@ function renderLeaderboardModal(options = {}) {
       `;
 
       document.getElementById("btn-gjs-connect-wallet")?.addEventListener("click", () => {
-        closeLeaderboard();
+        try {
+          sessionStorage.setItem("efoo_pending_guest_score", JSON.stringify({
+            score: currentScore,
+            goals: currentGoals,
+            level: currentLevel,
+            ts: Date.now()
+          }));
+        } catch (e) {}
         document.getElementById("wallet-modal-backdrop")?.classList.remove("hidden");
       });
     }
@@ -7994,6 +8035,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("wallet-modal-backdrop")?.classList.add("hidden");
     document.getElementById("nav-wallet-label").textContent = shortErd(connectedAddress);
     fetchWalletNftsAndBalance(connectedAddress);
+    syncPendingGuestScoreOnConnect();
     showToast(`✅ Connected wallet ${shortErd(connectedAddress)}!`);
   };
 
