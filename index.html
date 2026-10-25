@@ -68,9 +68,11 @@
         </a>
 
         <nav class="nav-links-krogan">
-          <a href="market" class="nav-item-krogan">NFooT Marketplace</a>
-          <a href="game" class="nav-item-krogan">Play Game</a>
-          <a href="#meme-locker" class="nav-item-krogan">Meme Studio</a>
+          <a href="game" class="nav-item-krogan" style="color:var(--neon); font-weight:800;">⚽ Play Game</a>
+          <a href="#scoreboard" class="nav-item-krogan">🪙 Token &amp; Supply</a>
+          <a href="market" class="nav-item-krogan">🃏 Marketplace</a>
+          <a href="#meme-locker" class="nav-item-krogan">🎨 Meme Studio</a>
+          <a href="#community" class="nav-item-krogan">💬 Community</a>
         </nav>
       </div>
 
@@ -178,21 +180,29 @@
 
           <!-- Token ID & Action CTAs -->
           <div class="hero-controls-bar">
-            <div class="contract-box">
-              <span class="contract-label" data-i18n="token_id_label">ESDT ID:</span>
-              <code id="token-id-code">EFOO-8fe2d4</code>
-              <button type="button" id="copy-token-btn" class="copy-btn" data-i18n="copy_btn">📋 Copy</button>
+            <div class="contract-box" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+              <div style="display:inline-flex; align-items:center; gap:6px;">
+                <span class="contract-label" style="color:#23f7dd; font-weight:800;">⚡ MVX ESDT:</span>
+                <code id="token-id-code">EFOO-8fe2d4</code>
+                <button type="button" id="copy-token-btn" class="copy-btn" data-i18n="copy_btn">📋 Copy</button>
+              </div>
+              <span style="color:#64748b;">|</span>
+              <div style="display:inline-flex; align-items:center; gap:6px;">
+                <span class="contract-label" style="color:#ab9ff2; font-weight:800;">🟣 SOL SPL:</span>
+                <code>EB5Zr9...ztFs2K</code>
+                <button type="button" id="copy-sol-token-btn" class="copy-btn" style="border-color:#ab9ff2; color:#ab9ff2;">📋 Copy</button>
+              </div>
             </div>
 
             <div class="hero-cta-group">
-              <a href="game?v=20261016_v8" class="btn btn-primary" style="box-shadow:0 0 25px rgba(168,255,0,0.5);">
-                ⚽ <span data-i18n="cta_play_fomo">Play EFOO FOMO Arena ↗</span>
+              <a href="game?v=20261016_v8" class="btn btn-primary" style="box-shadow:0 0 25px rgba(168,255,0,0.5); font-weight:800;">
+                ⚽ <span data-i18n="cta_play_fomo">Play Now (Free F2P) ↗</span>
               </a>
-              <a href="#wallet-hub" class="btn btn-secondary">
-                ⚡ <span data-i18n="cta_connect_buy">Connect • Buy $EFOO &amp; Mint</span>
+              <a href="#scoreboard" class="btn btn-secondary">
+                🪙 <span>Explore $EFOO &amp; Supply</span>
               </a>
-              <a href="#meme-locker" class="btn btn-outline">
-                🎨 <span data-i18n="cta_meme_studio">Meme Studio</span>
+              <a href="market" class="btn btn-outline" style="border-color:#ab9ff2; color:#fff;">
+                🃏 <span>NFT Marketplace</span>
               </a>
             </div>
           </div>
@@ -377,7 +387,7 @@
   </section>
 
   <!-- Live On-Chain Scoreboard -->
-  <section class="scoreboard-section">
+  <section id="scoreboard" class="scoreboard-section">
     <div class="container">
       <div class="scoreboard">
         <div class="score-header">
@@ -1018,10 +1028,10 @@
   </section>
 
   <!-- Verified Ecosystem Links Hub -->
-  <section class="section section-alt">
+  <section id="community" class="section section-alt">
     <div class="container">
       <div class="section-header">
-        <span class="section-kicker" data-i18n="links_kicker">🔗 OFFICIAL VERIFIED LINKS</span>
+        <span class="section-kicker" data-i18n="links_kicker">🔗 OFFICIAL VERIFIED LINKS &amp; COMMUNITY</span>
         <h2 class="section-title" data-i18n="links_title">ENTER THE STADIUM</h2>
       </div>
 

@@ -4762,6 +4762,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Copy Solana SPL Token ID
+  const copySolBtn = document.getElementById("copy-sol-token-btn");
+  if (copySolBtn) {
+    copySolBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText("EB5Zr98z8iGcd7tsP4YXLpPqfwa46FmsqFcop2ztFs2K");
+      copySolBtn.textContent = "✔ Copied!";
+      setTimeout(() => {
+        copySolBtn.textContent = "📋 Copy";
+      }, 2000);
+    });
+  }
+
   // Wallet Modal Open/Close
   document.getElementById("open-wallet-modal-btn")?.addEventListener("click", openWalletModal);
   document.getElementById("ws-connect-btn")?.addEventListener("click", openWalletModal);

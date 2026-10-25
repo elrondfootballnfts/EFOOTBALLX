@@ -4791,9 +4791,9 @@ body {
     padding-bottom: 0 !important;
   }
 
-  /* In hero CTA row on mobile, hide duplicate game launch button since mobile-hero-game-card is already prominently displayed */
+  /* Keep hero CTA buttons visible and touch-friendly on mobile */
   .hero-cta-group a[href*="game"] {
-    display: none !important;
+    display: inline-flex !important;
   }
 
   /* Responsive Navbar: Place login / logout button at the very top of the page on mobile */
