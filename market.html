@@ -1423,6 +1423,19 @@
       </div>
 
       <div class="m-wallet-providers-list">
+        <!-- 0. Phantom Wallet (Solana Devnet) -->
+        <button type="button" class="m-prov-btn" id="m-login-phantom" style="border:1.5px solid #ab9ff2; background:rgba(171,159,242,0.12); margin-bottom:8px;">
+          <span class="mp-icon" style="font-size:1.4rem;">🟣</span>
+          <div class="mp-info">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <strong style="color:#ab9ff2;">Phantom Wallet</strong>
+              <span class="m-prov-tag" style="background:rgba(171,159,242,0.25); color:#fff; font-size:0.68rem; font-weight:800; padding:2px 6px; border-radius:4px; border:1px solid #ab9ff2;">⚡ SOLANA DEVNET</span>
+            </div>
+            <small style="color:#cbd5e1;">Connect Phantom to use $EFOO SPL &amp; Ultras VIP Pass on Solana Devnet</small>
+          </div>
+          <span style="margin-left:auto; color:#ab9ff2; font-size:1.1rem;">→</span>
+        </button>
+
         <button type="button" class="m-prov-btn" id="m-login-xportal">
           <span class="mp-icon">📱</span>
           <div class="mp-info">
@@ -1567,6 +1580,7 @@
   <div id="m-toast" class="m-toast hidden"></div>
 
   <!-- Scripts -->
+  <script src="solana-adapter.js?v=20261025_v1"></script>
   <script src="market.js?v=20261020_v45_xoxno_mint"></script>
 </body>
 </html>

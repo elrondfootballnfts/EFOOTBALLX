@@ -1,3 +1,21 @@
+
+async function fetchSolanaWalletBalances(address) {
+  if (typeof SolanaAdapter === "undefined") return;
+  try {
+    const data = await SolanaAdapter.fetchAccountData(address);
+    marketWallet.efooBalance = data.efooBalance;
+    marketWallet.egldBalance = data.solBalance;
+    marketWallet.isSolana = true;
+    marketWallet.hasUltrasPass = data.hasUltrasPass;
+    if (data.hasUltrasPass) {
+      onchainUltrasHolders.add(address.toLowerCase());
+    }
+    updateWalletUI();
+  } catch (e) {
+    console.warn("Solana market fetch error:", e);
+  }
+}
+
 // ============================================================================
 // $EFOO OFFICIAL P2P NFT & SKILL MARKETPLACE
 // Sunday League Degen FC on MultiversX
@@ -85,6 +103,9 @@ async function syncOnchainUltrasHolders() {
 function hasUltrasPass(address) {
   if (!address || typeof address !== "string") return false;
   const cleanAddr = address.trim().toLowerCase();
+  if (typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(cleanAddr)) {
+    return onchainUltrasHolders.has(cleanAddr);
+  }
   if (!cleanAddr.startsWith("erd1") || cleanAddr.length !== 62) return false;
 
   // 1. Strictly verified on-chain SFT holders from MultiversX blockchain
@@ -1947,7 +1968,14 @@ function initMarketWallet() {
       localStorage.removeItem("efoo_connected_address");
     }
     const savedProv = localStorage.getItem("efoo_wallet_provider") || localStorage.getItem("multiversx_provider") || sessionStorage.getItem("efoo_wallet_provider") || sessionStorage.getItem("multiversx_provider") || "webwallet";
-    if (savedAddr && savedAddr.startsWith("erd1")) {
+    const isSol = typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(savedAddr);
+    if (savedAddr && (savedAddr.startsWith("erd1") || isSol)) {
+      if (isSol) {
+        marketWallet.address = savedAddr;
+        marketWallet.provider = "phantom";
+        marketWallet.isSolana = true;
+        fetchSolanaWalletBalances(savedAddr);
+      } else {
       marketWallet.address = savedAddr;
       marketWallet.provider = savedProv;
       try {
@@ -1959,6 +1987,7 @@ function initMarketWallet() {
       } catch (e) {}
       fetchWalletBalances(savedAddr);
       fetchWalletNfts(savedAddr);
+      }
     } else {
       marketWallet.address = null;
       marketWallet.provider = null;
@@ -5616,6 +5645,29 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Providers: xPortal Mobile App (WalletConnect v2)
+  
+  // Phantom Wallet Login on Solana Devnet
+  document.getElementById("m-login-phantom")?.addEventListener("click", async () => {
+    try {
+      if (typeof SolanaAdapter === "undefined") {
+        alert("Solana Adapter loading...");
+        return;
+      }
+      const pubkey = await SolanaAdapter.connectPhantom();
+      marketWallet.address = pubkey;
+      marketWallet.provider = "phantom";
+      marketWallet.isSolana = true;
+      document.getElementById("m-wallet-modal")?.classList.add("hidden");
+      await fetchSolanaWalletBalances(pubkey);
+      updateWalletUI();
+      showToast(currentLang === "hu" ? "✅ Phantom tárca csatlakoztatva (Solana Devnet)!" : "✅ Phantom wallet connected on Solana Devnet!");
+    } catch (err) {
+      if (err && err.message !== "PHANTOM_NOT_INSTALLED") {
+        console.warn("Market Phantom notice:", err);
+      }
+    }
+  });
+
   document.getElementById("m-login-xportal")?.addEventListener("click", () => {
     initMarketXPortalWalletConnect();
   });

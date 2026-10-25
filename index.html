@@ -1121,6 +1121,19 @@
       </div>
 
       <div class="wallet-provider-list">
+        <!-- 0. Phantom / Solana Wallet (Devnet) -->
+        <button type="button" id="login-phantom-btn" class="provider-btn highlight-provider" style="border:1.5px solid #ab9ff2; background:rgba(171,159,242,0.12);">
+          <span class="prov-icon" style="font-size:1.4rem;">🟣</span>
+          <div class="prov-text">
+            <div class="prov-title-row">
+              <strong style="color:#ab9ff2;">Phantom Wallet</strong>
+              <span class="prov-tag" style="background:rgba(171,159,242,0.25); color:#fff; font-size:0.68rem; font-weight:800; border:1px solid #ab9ff2;">⚡ SOLANA DEVNET</span>
+            </div>
+            <small>Connect Phantom to use $EFOO SPL &amp; Ultras VIP Pass on Solana Devnet</small>
+          </div>
+          <span class="prov-arrow" style="color:#ab9ff2;">→</span>
+        </button>
+
         <!-- 1. xPortal Mobile App (WalletConnect v2) -->
         <button type="button" id="login-xportal-btn" class="provider-btn highlight-provider">
           <span class="prov-icon">📱</span>
@@ -1267,6 +1280,7 @@
     </a>
   </div>
 
+  <script src="solana-adapter.js?v=20261025_v1"></script>
   <script src="leaderboard-service.js?v=20261021_v1"></script>
   <script src="app.js?v=20261018_v8_wallet_fix"></script>
 </body>

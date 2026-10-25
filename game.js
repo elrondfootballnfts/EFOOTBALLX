@@ -3,7 +3,7 @@
 // ============================================================================
 
 const MIN_EFOO_REQUIRED = 1000000; // Minimum 1,000,000 $EFOO required to play
-const VALID_WALLET_PROVIDERS = ["xportal", "extension", "webwallet", "inspector"];
+const VALID_WALLET_PROVIDERS = ["xportal", "extension", "webwallet", "inspector", "phantom", "solana"];
 
 const I18N_GAME = {
   en: {
@@ -175,6 +175,10 @@ async function syncOnchainUltrasHolders() {
 function hasUltrasPass(address) {
   if (!address || typeof address !== "string") return false;
   const cleanAddr = address.trim().toLowerCase();
+  if (typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(cleanAddr)) {
+    if (onchainUltrasHolders.has(cleanAddr)) return true;
+    if (connectedAddress && cleanAddr === connectedAddress.toLowerCase() && walletState && walletState.hasUltrasPass) return true;
+  }
   if (!cleanAddr.startsWith("erd1") || cleanAddr.length !== 62) return false;
 
   // 1. Strictly verified on-chain SFT holders from MultiversX blockchain
@@ -2148,7 +2152,8 @@ function updateEntryGateUI() {
   }
 
   if (connectedAddress && VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
-    document.getElementById("nav-wallet-label").textContent = shortErd(connectedAddress);
+    const isSol = typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(connectedAddress);
+    document.getElementById("nav-wallet-label").textContent = (isSol ? "🟣 " : "") + shortErd(connectedAddress);
     disconnectBtn?.classList.remove("hidden");
     if (hubWalletLbl) hubWalletLbl.textContent = shortErd(connectedAddress);
     if (hubDisconnectBtn) hubDisconnectBtn.classList.remove("hidden");
@@ -5643,7 +5648,8 @@ function syncPendingGuestScoreOnConnect() {
 
 function connectWithAddress(address, provider = "webwallet") {
   const clean = (address || "").trim();
-  if (!clean.startsWith("erd1") || clean.length < 40) return;
+  const isSol = typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(clean);
+  if (!isSol && (!clean.startsWith("erd1") || clean.length < 40)) return;
   if (!VALID_WALLET_PROVIDERS.includes(provider)) return;
 
   if (provider === "webwallet" && typeof window !== "undefined" && getDefiExtension()) {
@@ -5708,6 +5714,7 @@ async function terminateWalletConnectSessions(client, topic) {
 }
 
 async function disconnectWallet() {
+  if (typeof SolanaAdapter !== "undefined") SolanaAdapter.disconnectPhantom();
   const topicToDisconnect = wcSessionTopic || localStorage.getItem("efoo_wc_topic") || "";
 
   connectedAddress = "";
@@ -7876,6 +7883,24 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("close-wallet-modal-btn")?.addEventListener("click", () => {
     document.getElementById("wallet-modal-backdrop")?.classList.add("hidden");
   });
+  
+  // Solana Devnet Phantom Login in Game
+  document.getElementById("login-phantom-btn")?.addEventListener("click", async () => {
+    try {
+      if (typeof SolanaAdapter === "undefined") {
+        alert("Solana Adapter loading...");
+        return;
+      }
+      const pubkey = await SolanaAdapter.connectPhantom();
+      connectWithAddress(pubkey, "phantom");
+      showToast(currentLang === "hu" ? "✅ Phantom tárca csatlakoztatva (Solana Devnet)!" : "✅ Phantom wallet connected on Solana Devnet!");
+    } catch (err) {
+      if (err && err.message !== "PHANTOM_NOT_INSTALLED") {
+        console.warn("Phantom game connect notice:", err);
+      }
+    }
+  });
+
   document.getElementById("login-xportal-btn")?.addEventListener("click", initXPortalWalletConnect);
   document.getElementById("login-extension-btn")?.addEventListener("click", connectDefiExtension);
   document.getElementById("login-webwallet-btn")?.addEventListener("click", () => {
@@ -8024,7 +8049,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const handleGameManualConnect = () => {
     const input = document.getElementById("game-manual-erd-input");
     const addr = (input ? input.value : "").trim();
-    if (!addr.startsWith("erd1") || addr.length < 58) {
+    const isSolAddr = typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(addr);
+    if (!isSolAddr && (!addr.startsWith("erd1") || addr.length < 58)) {
       showToast("⚠️ Please enter a valid MultiversX address starting with erd1...");
       return;
     }

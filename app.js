@@ -2406,6 +2406,7 @@ async function terminateWalletConnectSessions(client, topic) {
 }
 
 async function disconnectWallet() {
+  if (typeof SolanaAdapter !== "undefined") SolanaAdapter.disconnectPhantom();
   const topicToDisconnect = wcSessionTopic || localStorage.getItem("efoo_wc_topic") || "";
 
   connectedAddress = "";
@@ -2532,7 +2533,8 @@ function updateWalletStatusUI() {
   };
 
   if (connectedAddress) {
-    if (navLabel) navLabel.textContent = shortErd(connectedAddress);
+    const isSol = typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(connectedAddress);
+    if (navLabel) navLabel.textContent = (isSol ? "🟣 " : "") + shortErd(connectedAddress);
     if (navDisconnectBtn) navDisconnectBtn.classList.remove("hidden");
     if (modalConnStatus) modalConnStatus.classList.remove("hidden");
     if (modalConnAddr) modalConnAddr.textContent = shortErd(connectedAddress);
@@ -2609,6 +2611,36 @@ function updateWalletStatusUI() {
 
 async function fetchConnectedWalletData(address) {
   try {
+
+  // Solana Devnet Check
+  if (typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(address)) {
+    try {
+      const solData = await SolanaAdapter.fetchAccountData(address);
+      walletState.efooBalance = solData.efooBalance;
+      walletState.egldBalance = solData.solBalance;
+      walletState.isSolana = true;
+      walletState.hasUltrasPass = solData.hasUltrasPass;
+      const egldBalEl = document.getElementById("wallet-egld-bal");
+      if (egldBalEl) egldBalEl.textContent = `${solData.solBalance.toFixed(3)} SOL`;
+      const efooBalEl = document.getElementById("wallet-efoo-bal");
+      if (efooBalEl) efooBalEl.textContent = `${Math.floor(solData.efooBalance).toLocaleString("en-US")} $EFOO`;
+      const wsProvPill = document.getElementById("ws-provider-pill");
+      if (wsProvPill) {
+        wsProvPill.textContent = "🟣 Solana Devnet";
+        wsProvPill.classList.remove("hidden");
+      }
+      const wsShardPill = document.getElementById("ws-shard-pill");
+      if (wsShardPill) {
+        wsShardPill.textContent = solData.hasUltrasPass ? "👑 Ultras VIP" : "Devnet Cluster";
+        wsShardPill.classList.remove("hidden");
+      }
+      updateWalletStatusUI();
+      return;
+    } catch (e) {
+      console.warn("Solana wallet fetch error:", e);
+    }
+  }
+
     // 1. Account EGLD balance, nonce & shard
     const accRes = await fetch(`https://api.multiversx.com/accounts/${address}`);
     if (accRes.ok) {
@@ -4617,6 +4649,24 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // 1. xPortal Mobile App (WalletConnect v2 Pairing QR + Deep Link)
+  
+  // Solana Devnet Phantom Login
+  document.getElementById("login-phantom-btn")?.addEventListener("click", async () => {
+    try {
+      if (typeof SolanaAdapter === "undefined") {
+        alert("Solana Adapter loading...");
+        return;
+      }
+      const pubkey = await SolanaAdapter.connectPhantom();
+      connectWithAddress(pubkey, "phantom");
+      showToast(currentLang === "hu" ? "✅ Phantom tárca sikeresen csatlakoztatva (Solana Devnet)!" : "✅ Phantom wallet connected on Solana Devnet!");
+    } catch (err) {
+      if (err && err.message !== "PHANTOM_NOT_INSTALLED") {
+        console.warn("Phantom connect notice:", err);
+      }
+    }
+  });
+
   document.getElementById("login-xportal-btn")?.addEventListener("click", () => {
     initXPortalWalletConnect();
   });
