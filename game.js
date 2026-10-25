@@ -8081,30 +8081,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderSkillsDeckUI();
   });
 
-  // Game Instant Wallet Explorer Form
-  const handleGameManualConnect = () => {
-    const input = document.getElementById("game-manual-erd-input");
-    const addr = (input ? input.value : "").trim();
-    const isSolAddr = typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(addr);
-    if (!isSolAddr && (!addr.startsWith("erd1") || addr.length < 58)) {
-      showToast("⚠️ Please enter a valid MultiversX address starting with erd1...");
-      return;
-    }
-    connectedAddress = addr;
-    connectedProvider = "inspector";
-    localStorage.setItem("efoo_wallet_address", connectedAddress);
-    localStorage.setItem("efoo_wallet_provider", "inspector");
-    document.getElementById("wallet-modal-backdrop")?.classList.add("hidden");
-    document.getElementById("nav-wallet-label").textContent = shortErd(connectedAddress);
-    fetchWalletNftsAndBalance(connectedAddress);
-    syncPendingGuestScoreOnConnect();
-    showToast(`✅ Connected wallet ${shortErd(connectedAddress)}!`);
-  };
-
-  document.getElementById("game-btn-load-wallet")?.addEventListener("click", handleGameManualConnect);
-  document.getElementById("game-manual-erd-input")?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") handleGameManualConnect();
-  });
 
   // =========================================================================
   // EA SPORTS HUB / START SCREEN MAIN MENU EVENT LISTENERS

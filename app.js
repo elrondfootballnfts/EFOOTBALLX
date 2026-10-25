@@ -4829,11 +4829,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = getMultiversXLoginHookUrl();
   });
 
-  // 4. Direct erd1 Address Inspector
-  document.getElementById("login-manual-btn")?.addEventListener("click", () => {
-    const val = document.getElementById("manual-erd-input")?.value || "";
-    connectWithWalletAddress(val, "inspector");
-  });
 
   document.getElementById("ws-refresh-btn")?.addEventListener("click", () => {
     if (connectedAddress) fetchConnectedWalletData(connectedAddress);

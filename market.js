@@ -5655,16 +5655,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   document.getElementById("m-btn-disconnect")?.addEventListener("click", disconnectWallet);
 
-  // Manual Address Explorer
-  document.getElementById("m-btn-load-manual-erd")?.addEventListener("click", () => {
-    const input = document.getElementById("m-manual-erd-input");
-    connectManualAddress(input?.value);
-  });
-  document.getElementById("m-manual-erd-input")?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      connectManualAddress(e.target.value);
-    }
-  });
 
   // Providers: xPortal Mobile App (WalletConnect v2)
   
