@@ -1,0 +1,34 @@
+{
+  "name": "EFOO Ultras VIP Pass",
+  "symbol": "EFOOPASS",
+  "description": "Official EFOO Ultras VIP Pass on Solana. Grants lifetime 0% marketplace trading fees, golden VIP locker priority, and +25% match score booster in the Sunday League Degen Arena. Strictly capped to 300 passes.",
+  "image": "https://efoo.optibase.ro/branding/rebranded/efoo-ultras-pass-badge.png",
+  "external_url": "https://efoo.optibase.ro/market?tab=ultras",
+  "attributes": [
+    {
+      "trait_type": "Pass Type",
+      "value": "VIP Founder Pass"
+    },
+    {
+      "trait_type": "Marketplace Fee",
+      "value": "0% Lifetime"
+    },
+    {
+      "trait_type": "Arena Score Booster",
+      "value": "+25%"
+    },
+    {
+      "trait_type": "Max Supply",
+      "value": "300"
+    }
+  ],
+  "properties": {
+    "category": "image",
+    "files": [
+      {
+        "uri": "https://efoo.optibase.ro/branding/rebranded/efoo-ultras-pass-badge.png",
+        "type": "image/png"
+      }
+    ]
+  }
+}
