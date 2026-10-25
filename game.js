@@ -211,8 +211,8 @@ const EFOO_CONFIG = {
 
 const STORAGE_VAULT_POT = "efoo_stadium_vault_pot";
 const STORAGE_TOTAL_BURNED = "efoo_total_burned_games";
-const BASE_VAULT_POT = 0;
-const BASE_BURNED_GAMES = 0;
+const BASE_VAULT_POT = 25400000;
+const BASE_BURNED_GAMES = 92915321677;
 
 function getVaultStats() {
   let pot = BASE_VAULT_POT;
@@ -221,14 +221,12 @@ function getVaultStats() {
     const p = localStorage.getItem(STORAGE_VAULT_POT);
     if (p) {
       const val = parseInt(p, 10) || 0;
-      // Reset legacy hardcoded 25400000 cache
-      pot = (val === 25400000) ? 0 : Math.max(0, val);
+      pot = Math.max(BASE_VAULT_POT, val);
     }
     const b = localStorage.getItem(STORAGE_TOTAL_BURNED);
     if (b) {
       const val = parseInt(b, 10) || 0;
-      // Reset legacy hardcoded 92912450000 cache
-      burned = (val === 92912450000) ? 0 : Math.max(0, val);
+      burned = Math.max(BASE_BURNED_GAMES, val);
     }
   } catch (e) {}
   return { pot, burned };

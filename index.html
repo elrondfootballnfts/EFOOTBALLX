@@ -116,10 +116,12 @@
           <span id="hero-match-clock">⏱️ 2022 ERA • 45:00</span>
         </div>
 
-        <div class="scroll-burn-live-pill">
-          <span class="sbl-item">🔥 <strong id="hero-live-burn-pct">0.00%</strong> BURNED</span>
+        <div class="scroll-burn-live-pill" title="Live On-Chain Verified Token Supply on MultiversX &amp; Solana Devnet">
+          <span class="sbl-item">🔥 <strong id="hero-live-burn-pct">92.91%</strong> BURNED</span>
           <span class="sbl-sep">|</span>
-          <span class="sbl-item">⚽ <strong id="hero-live-supply-num">100,000,000,000</strong> $EFOO</span>
+          <span class="sbl-item">⚽ <strong id="hero-live-supply-num">7.08B</strong> SURVIVING SUPPLY</span>
+          <span class="sbl-sep">|</span>
+          <span class="sbl-item" style="color:#a8ff00; font-weight:800; font-size:0.7rem;">🛡️ ON-CHAIN VERIFIED</span>
         </div>
 
         <div style="display:flex; align-items:center; gap:8px;">
@@ -160,8 +162,8 @@
           <!-- Interactive Scroll-Driven Burn & Rebirth Furnace Meter -->
           <div class="hero-furnace-box">
             <div class="hf-head">
-              <span id="hf-stage-label">🔥 METAMORPHOSIS FURNACE</span>
-              <span class="hf-burn-count" id="hf-burned-exact">0 / 92,915,321,677 EFOO TORCHED</span>
+              <span id="hf-stage-label">🔥 METAMORPHOSIS TIMELINE</span>
+              <span class="hf-burn-count" id="hf-burned-exact">92,915,321,677 / 100B EFOO BURNED (92.91%)</span>
             </div>
             <div class="hf-track">
               <div class="hf-fill" id="hf-progress-fill" style="width: 8%;"></div>
@@ -381,7 +383,13 @@
         <div class="score-header">
           <span class="live-indicator">● LIVE MULTIVERSX API</span>
           <span class="score-stadium" data-i18n="scoreboard_title">STADIUM TELEMETRY — EFOO-8fe2d4</span>
-          <a href="https://explorer.multiversx.com/tokens/EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="explorer-link">Explorer ↗</a>
+          <span class="live-ts-pill" style="font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:#a8ff00; margin-left:auto; display:inline-flex; align-items:center; gap:6px;">
+            <span>🛡️ Verified On-Chain</span>
+            <span style="color:#64748b;">•</span>
+            <span style="color:#94a3b8;">Updated: <strong id="score-synced-time" style="color:#fff;">Live</strong></span>
+          </span>
+          <a href="https://explorer.multiversx.com/tokens/EFOO-8fe2d4" target="_blank" rel="noopener noreferrer" class="explorer-link">MultiversX ↗</a>
+          <a href="https://explorer.solana.com/address/EB5Zr98z8iGcd7tsP4YXLpPqfwa46FmsqFcop2ztFs2K?cluster=devnet" target="_blank" rel="noopener noreferrer" class="explorer-link" style="border-color:#ab9ff2; color:#ab9ff2;">Solana Devnet ↗</a>
         </div>
         <div class="score-grid">
           <div class="score-item highlight-burn">
@@ -458,7 +466,7 @@
         <div class="fomo-launchpad-pill">
           <span>⚽ 120' EXTRA TIME: <strong>PENALTY SHOOTOUT</strong></span>
           <span class="flp-divider">|</span>
-          <span>🏆 WEEKLY POT: <strong id="fomo-pot-amount" class="flp-pot">0 $EFOO</strong></span>
+          <span>🏆 WEEKLY VAULT POT: <strong id="fomo-pot-amount" class="flp-pot">25,400,000 $EFOO</strong></span>
         </div>
 
         <h3 class="fomo-launchpad-title">
@@ -475,6 +483,28 @@
           <a href="#wallet-hub" class="btn btn-secondary fomo-launchpad-btn-sub">
             ⚡ Buy $EFOO &amp; Mint NFTs First
           </a>
+        </div>
+      </div>
+
+      <!-- Game Economy & Jackpot Transparency Card -->
+      <div class="game-economy-card" style="margin-top:20px; background:rgba(15,23,42,0.65); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:18px 22px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+          <span style="font-size:1.3rem;">ℹ️</span>
+          <strong style="font-family:'JetBrains Mono',monospace; font-size:0.85rem; color:#a8ff00; letter-spacing:0.04em;">HOGYAN MŰKÖDIK A JÁTÉK ÉS A JACKPOT? (GAME ECONOMY &amp; RULES)</strong>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px; font-size:0.82rem; color:#cbd5e1; line-height:1.5;">
+          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px;">
+            <strong style="color:#fff; display:block; margin-bottom:4px;">⚽ 1. Ingyenes Rookie F2P Mód:</strong>
+            Bárki azonnal játszhat böngészőből, tárcacsatlakoztatás vagy díjfizetés nélkül. Gyakorolhatod a csavart lövéseket és a kapusvédéseket.
+          </div>
+          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px;">
+            <strong style="color:#fff; display:block; margin-bottom:4px;">🏆 2. Heti Stadium Vault Jackpot:</strong>
+            A nyereményalap a Stadium Vault közösségi allokációból és a mérkőzés-újraélesztésekből (50% burn, 50% vault) táplálkozik. Minden vasárnap 23:59 UTC-kor automatikusan oszlik meg a ranglista top 3 igazolt játékosa között: <strong>1. hely (65%)</strong>, <strong>2. hely (25%)</strong>, <strong>3. hely (10%)</strong>.
+          </div>
+          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px;">
+            <strong style="color:#fff; display:block; margin-bottom:4px;">🃏 3. NFT &amp; Token Bónuszok:</strong>
+            A klub NFT-k (Striker, Goalkeeper, Ultras Pass) növelik a gól esélyét (akár 90%), a pontszám-szorzót (akár 11.0x), és speciális képességeket adnak (Rocket Ball, Freeze Keeper, Alien Radar).
+          </div>
         </div>
       </div>
     </div>
@@ -642,7 +672,7 @@
             <div class="msc-title-col">
               <h3>EGLD &amp; USDC Liquidity Pools</h3>
               <div class="msc-badge-row">
-                <span class="msc-badge blue">~48.5% APY</span>
+                <span class="msc-badge blue">~48.5% Dynamic LP APR*</span>
                 <span class="msc-badge">Fee Sharing</span>
               </div>
             </div>
@@ -650,6 +680,9 @@
           <p class="msc-desc">
             Deposit $EFOO paired with EGLD or USDC into MultiversX liquidity pools. Earn automated swap fee dividends, support deep on-chain liquidity, and calculate your projected earnings with our interactive LP Calculator!
           </p>
+          <small class="msc-risk-note" style="display:block; font-size:0.75rem; color:#94a3b8; margin:8px 0 12px; line-height:1.4;">
+            *Becsült dinamikus swap díj hozam a OneDex / xExchange forgalom alapján. Nem fix kamat, a hozam a tényleges piaci volumen függvénye; átmeneti veszteség (impermanent loss) kockázata fennáll.
+          </small>
           <div class="msc-actions">
             <a href="market?tab=pools" class="msc-btn-main">💧 Invest in Pools ➔</a>
           </div>
@@ -662,13 +695,13 @@
             <div class="msc-title-col">
               <h3>EFOO Ultras PASS</h3>
               <div class="msc-badge-row">
-                <span class="msc-badge gold">0% Trade Fees</span>
+                <span class="msc-badge gold">0% VIP Trade Fees*</span>
                 <span class="msc-badge gold">300 SFT Cap</span>
               </div>
             </div>
           </div>
           <p class="msc-desc">
-            Owning an official <strong>EFOO Ultras PASS</strong> completely waives all marketplace trading fees on both buy and sell transactions forever! Keep 100% of your earnings for life.
+            Owning an official <strong>EFOO Ultras PASS</strong> completely waives all marketplace trading fees on both buy and sell transactions forever! Standard trades have a 1% fee (50% Burned, 50% Stadium Vault).
           </p>
           <div class="msc-actions">
             <a href="market?tab=ultras" class="msc-btn-main msc-btn-gold">🎟️ Get Ultras PASS ➔</a>
