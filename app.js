@@ -938,7 +938,7 @@ if (connectedAddress && connectedAddress.startsWith("erd1qyu5wthldz")) {
   localStorage.removeItem("efoo_wallet_address");
   localStorage.removeItem("multiversx_address");
 }
-if (connectedAddress && typeof window !== "undefined" && (window.multiversxWallet || window.elrondWallet || window.multiversx || window.elrond) && connectedProvider !== "xportal" && connectedProvider !== "inspector") {
+if (connectedAddress && typeof window !== "undefined" && (window.multiversxWallet || window.elrondWallet || window.multiversx || window.elrond) && connectedProvider !== "xportal" && connectedProvider !== "inspector" && connectedProvider !== "phantom") {
   connectedProvider = "extension";
 }
 if (connectedAddress && connectedAddress.startsWith("erd1")) {
@@ -2350,32 +2350,45 @@ async function checkUrlCallbacks() {
 }
 
 async function connectWithWalletAddress(address, providerType = "inspector") {
-  if (!address || !address.trim().startsWith("erd1") || address.trim().length < 58) {
+  const clean = (address || "").trim();
+  const isSol = typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(clean);
+  if (!isSol && (!clean.startsWith("erd1") || clean.length < 40)) {
     alert(
       currentLang === "ro"
-        ? "Te rugăm să introduci o adresă MultiversX validă care începe cu erd1..."
-        : "Please enter a valid MultiversX address starting with erd1..."
+        ? "Te rugăm să introduci o adresă MultiversX (erd1...) sau Solana validă..."
+        : (currentLang === "hu"
+          ? "Kérjük, adj meg egy érvényes MultiversX (erd1...) vagy Solana címet!"
+          : "Please enter a valid MultiversX (erd1...) or Solana address...")
     );
     return;
   }
 
-  if (providerType === "webwallet" && typeof window !== "undefined" && getDefiExtension()) {
+  if (providerType === "webwallet" && typeof window !== "undefined" && getDefiExtension() && !isSol) {
     providerType = "extension";
   }
 
-  connectedAddress = address.trim();
+  connectedAddress = clean;
   connectedProvider = providerType;
   try {
     localStorage.setItem("efoo_wallet_address", connectedAddress);
     localStorage.setItem("efoo_wallet_provider", connectedProvider);
-    localStorage.setItem("multiversx_address", connectedAddress);
-    localStorage.setItem("multiversx_provider", connectedProvider);
+    if (!isSol) {
+      localStorage.setItem("multiversx_address", connectedAddress);
+      localStorage.setItem("multiversx_provider", connectedProvider);
+    } else {
+      localStorage.removeItem("multiversx_address");
+      localStorage.removeItem("multiversx_provider");
+    }
     localStorage.setItem("efoo_connected_address", connectedAddress);
   } catch (e) {}
   closeWalletModal();
   updateWalletStatusUI();
   updateSwapEstimate();
   await fetchConnectedWalletData(connectedAddress);
+}
+
+function connectWithAddress(address, providerType = "phantom") {
+  return connectWithWalletAddress(address, providerType);
 }
 
 async function terminateWalletConnectSessions(client, topic) {
@@ -4658,7 +4671,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       const pubkey = await SolanaAdapter.connectPhantom();
-      connectWithAddress(pubkey, "phantom");
+      await connectWithWalletAddress(pubkey, "phantom");
+      closeWalletModal();
       showToast(currentLang === "hu" ? "✅ Phantom tárca sikeresen csatlakoztatva (Solana Devnet)!" : "✅ Phantom wallet connected on Solana Devnet!");
     } catch (err) {
       if (err && err.message !== "PHANTOM_NOT_INSTALLED") {

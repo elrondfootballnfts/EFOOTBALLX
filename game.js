@@ -1403,7 +1403,7 @@ function isMobileScreen() {
 }
 
 // If wallet address is present and DeFi extension is available, prefer extension to avoid webwallet redirects
-if (connectedAddress && typeof window !== "undefined" && (window.multiversxWallet || window.elrondWallet || window.multiversx || window.elrond) && connectedProvider !== "xportal" && connectedProvider !== "inspector") {
+if (connectedAddress && typeof window !== "undefined" && (window.multiversxWallet || window.elrondWallet || window.multiversx || window.elrond) && connectedProvider !== "xportal" && connectedProvider !== "inspector" && connectedProvider !== "phantom") {
   connectedProvider = "extension";
   localStorage.setItem("efoo_wallet_provider", "extension");
   localStorage.setItem("multiversx_provider", "extension");
@@ -7575,7 +7575,7 @@ function metaOnMatchEnd({ level, score, goals, cleared, perfect }) {
 // INIT & BINDINGS
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
-  if (connectedAddress && typeof window !== "undefined" && getDefiExtension() && connectedProvider !== "xportal" && connectedProvider !== "inspector") {
+  if (connectedAddress && typeof window !== "undefined" && getDefiExtension() && connectedProvider !== "xportal" && connectedProvider !== "inspector" && connectedProvider !== "phantom") {
     connectedProvider = "extension";
     localStorage.setItem("efoo_wallet_provider", "extension");
     localStorage.setItem("multiversx_provider", "extension");
@@ -7893,6 +7893,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const pubkey = await SolanaAdapter.connectPhantom();
       connectWithAddress(pubkey, "phantom");
+      document.getElementById("wallet-modal-backdrop")?.classList.add("hidden");
       showToast(currentLang === "hu" ? "✅ Phantom tárca csatlakoztatva (Solana Devnet)!" : "✅ Phantom wallet connected on Solana Devnet!");
     } catch (err) {
       if (err && err.message !== "PHANTOM_NOT_INSTALLED") {
