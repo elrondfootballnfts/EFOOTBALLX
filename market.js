@@ -2092,6 +2092,20 @@ function updateWalletUI() {
 
   if (isConn) {
     const a = marketWallet.address;
+    const isSol = marketWallet.isSolana || (typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(a));
+    const pillIcon = document.getElementById("m-wallet-connected-icon");
+    if (pillIcon && typeof SolanaAdapter !== "undefined") {
+      pillIcon.innerHTML = isSol ? SolanaAdapter.PHANTOM_ICON_SVG : SolanaAdapter.MULTIVERSX_ICON_SVG;
+    }
+    if (pill) {
+      if (isSol) {
+        pill.style.borderColor = "#ab9ff2";
+        pill.style.boxShadow = "0 0 14px rgba(171,159,242,0.45)";
+      } else {
+        pill.style.borderColor = "";
+        pill.style.boxShadow = "";
+      }
+    }
     if (shortAddr) shortAddr.textContent = `${a.slice(0, 6)}...${a.slice(-4)}`;
     if (balEl) balEl.textContent = `${Math.floor(marketWallet.efooBalance).toLocaleString("en-US")} $EFOO`;
     const isVip = hasUltrasPass(a);
@@ -2099,6 +2113,14 @@ function updateWalletUI() {
       vipBadge.classList.toggle("hidden", !isVip);
     }
   } else {
+    if (pill) {
+      pill.style.borderColor = "";
+      pill.style.boxShadow = "";
+    }
+    const connIcon = document.getElementById("m-btn-connect-icon");
+    if (connIcon && typeof SolanaAdapter !== "undefined") {
+      connIcon.innerHTML = SolanaAdapter.MULTIVERSX_ICON_SVG;
+    }
     if (vipBadge) vipBadge.classList.add("hidden");
   }
 

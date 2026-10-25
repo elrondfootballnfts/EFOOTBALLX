@@ -171,8 +171,8 @@ const I18N = {
     hub_keepers: "Verified Goalkeepers (51+ Minted so far, GOALKEEPER-cb9e3e)",
     hub_explorer: "Verify 10,328 holders & 92.9% burn on-chain",
     hub_socials: "Join the Sunday League Ultras & Matchday Raids",
-    modal_title: "CONNECT YOUR MULTIVERSX WALLET",
-    modal_desc: "Choose how you want to enter the Sunday League Degen FC Locker Room. View your $EFOO & NFTs, sign swaps/mints, and unlock NFT bonuses in EFOO FOMO!",
+    modal_title: "CONNECT YOUR WALLET",
+    modal_desc: "Choose your official Solana (Phantom) or MultiversX wallet to view your live $EFOO tokens, NFTs, and unlock game bonuses!",
     prov_xportal_sub: "Scan QR code with xPortal App via MultiversX Gateway",
     qr_instructions: "Scan with your phone camera or xPortal App to open the official MultiversX Login Bridge, or click below:",
     prov_ext_sub: "Connect Chrome / Brave / Edge Browser Extension",
@@ -354,8 +354,8 @@ const I18N = {
     hub_keepers: "Portari Verificați (51+ Mintați până acum, GOALKEEPER-cb9e3e)",
     hub_explorer: "Verifică cei 10,328 holderi & arderea de 92.9%",
     hub_socials: "Alătură-te Ultrașilor pe X și Telegram",
-    modal_title: "CONECTEAZĂ PORTOFELUL MULTIVERSX",
-    modal_desc: "Alege metoda de autentificare în Vestiarul Sunday League Degen FC. Vezi soldul $EFOO și NFT-urile, semnează tranzacții și activează bonusurile în joc!",
+    modal_title: "CONECTEAZĂ PORTOFELUL",
+    modal_desc: "Alege portofelul Solana (Phantom) sau MultiversX pentru a vedea soldul $EFOO, NFT-urile și pentru a activa bonusurile!",
     prov_xportal_sub: "Scanează codul QR cu aplicația xPortal prin MultiversX Gateway",
     qr_instructions: "Scanează cu telefonul sau aplicația xPortal pentru a deschide puntea oficială MultiversX, sau apasă mai jos:",
     prov_ext_sub: "Conectează extensia Chrome / Brave / Edge",
@@ -517,8 +517,8 @@ const I18N = {
     hub_keepers: "Ellenőrzött Kapusok (51+ Veretve, GOALKEEPER-cb9e3e)",
     hub_explorer: "Ellenőrizd a 10,328 holdert és a 92.9% égetést",
     hub_socials: "Csatlakozz az Ultrákhoz X-en és Telegramon",
-    modal_title: "CSATLAKOZTASD MULTIVERSX TÁRCÁDAT",
-    modal_desc: "Válaszd ki a kívánt MultiversX tárcát az egyenlegeid megtekintéséhez és a tranzakciók aláírásához!",
+    modal_title: "CSATLAKOZTASD A TÁRCÁDAT",
+    modal_desc: "Válaszd ki a kívánt Solana (Phantom) vagy MultiversX tárcát az egyenlegeid megtekintéséhez és a tranzakciók aláírásához!",
     prov_xportal_sub: "Olvasd be a hivatalos QR-kódot az xPortal alkalmazással",
     qr_instructions: "Nyisd meg az xPortal appot a telefonodon ➔ bökj a QR-kód olvasóra (jobb fent) ➔ olvasd be és hagyd jóvá a kapcsolatot:",
     prov_ext_sub: "Chrome / Brave / Edge böngésző bővítmény csatlakozás",
@@ -2542,24 +2542,68 @@ function updateWalletStatusUI() {
     xportal: "📱 xPortal App",
     extension: "🧩 DeFi Extension",
     webwallet: "🌐 Web Wallet",
-    inspector: "🔍 Wallet Inspector"
+    inspector: "🔍 Wallet Inspector",
+    phantom: "🟣 Phantom Wallet"
   };
+
+  const navIcon = document.getElementById("nav-wallet-icon");
+  const navBtn = document.getElementById("open-wallet-modal-btn");
+  const modalNetTitle = document.getElementById("modal-connected-network-title");
+  const modalDot = document.getElementById("modal-status-dot");
 
   if (connectedAddress) {
     const isSol = typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(connectedAddress);
-    if (navLabel) navLabel.textContent = (isSol ? "🟣 " : "") + shortErd(connectedAddress);
+    if (navLabel) navLabel.textContent = shortErd(connectedAddress);
+    if (navIcon && typeof SolanaAdapter !== "undefined") {
+      navIcon.innerHTML = isSol ? SolanaAdapter.PHANTOM_ICON_SVG : SolanaAdapter.MULTIVERSX_ICON_SVG;
+    }
+    if (navBtn) {
+      if (isSol) {
+        navBtn.classList.add("solana-connected");
+        navBtn.style.borderColor = "#ab9ff2";
+        navBtn.style.boxShadow = "0 0 16px rgba(171,159,242,0.45)";
+      } else {
+        navBtn.classList.remove("solana-connected");
+        navBtn.style.borderColor = "";
+        navBtn.style.boxShadow = "";
+      }
+    }
     if (navDisconnectBtn) navDisconnectBtn.classList.remove("hidden");
     if (modalConnStatus) modalConnStatus.classList.remove("hidden");
     if (modalConnAddr) modalConnAddr.textContent = shortErd(connectedAddress);
+    if (modalNetTitle) {
+      modalNetTitle.textContent = isSol ? "Connected (Solana Devnet):" : "Connected (MultiversX):";
+    }
+    if (modalDot) {
+      modalDot.textContent = isSol ? "🟣" : "🟢";
+    }
 
-    if (wsDot) wsDot.classList.add("connected");
+    if (wsDot) {
+      wsDot.classList.add("connected");
+      if (isSol) {
+        wsDot.style.background = "#ab9ff2";
+        wsDot.style.boxShadow = "0 0 10px #ab9ff2";
+      } else {
+        wsDot.style.background = "";
+        wsDot.style.boxShadow = "";
+      }
+    }
     if (wsTitle) {
-      wsTitle.textContent =
-        currentLang === "hu"
-          ? "🟢 MultiversX Tárca Csatlakoztatva"
-          : currentLang === "ro"
-          ? "🟢 Portofel MultiversX Conectat"
-          : "🟢 MultiversX Wallet Connected";
+      if (isSol) {
+        wsTitle.textContent =
+          currentLang === "hu"
+            ? "🟣 Solana (Phantom) Tárca Csatlakoztatva"
+            : currentLang === "ro"
+            ? "🟣 Portofel Solana (Phantom) Conectat"
+            : "🟣 Solana (Phantom) Wallet Connected";
+      } else {
+        wsTitle.textContent =
+          currentLang === "hu"
+            ? "🟢 MultiversX Tárca Csatlakoztatva"
+            : currentLang === "ro"
+            ? "🟢 Portofel MultiversX Conectat"
+            : "🟢 MultiversX Wallet Connected";
+      }
     }
     if (wsSub) {
       wsSub.innerHTML = `
@@ -2580,11 +2624,25 @@ function updateWalletStatusUI() {
       });
     }
     if (wsProvPill) {
-      wsProvPill.textContent = providerNames[connectedProvider] || "⚡ MultiversX";
+      if (isSol && typeof SolanaAdapter !== "undefined") {
+        wsProvPill.innerHTML = `${SolanaAdapter.SOLANA_ICON_SVG} <span style="margin-left:4px;">Phantom (Devnet)</span>`;
+        wsProvPill.style.background = "rgba(171,159,242,0.2)";
+        wsProvPill.style.borderColor = "#ab9ff2";
+        wsProvPill.style.color = "#fff";
+      } else {
+        wsProvPill.textContent = providerNames[connectedProvider] || "⚡ MultiversX";
+        wsProvPill.style.background = "";
+        wsProvPill.style.borderColor = "";
+        wsProvPill.style.color = "";
+      }
       wsProvPill.classList.remove("hidden");
     }
     if (wsShardPill) {
-      wsShardPill.textContent = `Shard ${walletState.shard}`;
+      if (isSol) {
+        wsShardPill.textContent = walletState.hasUltrasPass ? "🎟️ Ultras VIP" : "Solana Devnet";
+      } else {
+        wsShardPill.textContent = `Shard ${walletState.shard}`;
+      }
       wsShardPill.classList.remove("hidden");
     }
     if (wsConnectBtn) {
@@ -2594,13 +2652,30 @@ function updateWalletStatusUI() {
     if (wsDisconnectBtn) wsDisconnectBtn.classList.remove("hidden");
   } else {
     if (navLabel) navLabel.textContent = I18N[currentLang].nav_connect;
+    if (navIcon && typeof SolanaAdapter !== "undefined") {
+      navIcon.innerHTML = SolanaAdapter.MULTIVERSX_ICON_SVG;
+    }
+    if (navBtn) {
+      navBtn.classList.remove("solana-connected");
+      navBtn.style.borderColor = "";
+      navBtn.style.boxShadow = "";
+    }
     if (navDisconnectBtn) navDisconnectBtn.classList.add("hidden");
     if (modalConnStatus) modalConnStatus.classList.add("hidden");
 
-    if (wsDot) wsDot.classList.remove("connected");
+    if (wsDot) {
+      wsDot.classList.remove("connected");
+      wsDot.style.background = "";
+      wsDot.style.boxShadow = "";
+    }
     if (wsTitle) wsTitle.textContent = I18N[currentLang].ws_not_connected;
     if (wsSub) wsSub.textContent = I18N[currentLang].ws_connect_prompt;
-    if (wsProvPill) wsProvPill.classList.add("hidden");
+    if (wsProvPill) {
+      wsProvPill.classList.add("hidden");
+      wsProvPill.style.background = "";
+      wsProvPill.style.borderColor = "";
+      wsProvPill.style.color = "";
+    }
     if (wsShardPill) wsShardPill.classList.add("hidden");
     if (wsConnectBtn) wsConnectBtn.classList.remove("hidden");
     if (wsRefreshBtn) wsRefreshBtn.classList.add("hidden");

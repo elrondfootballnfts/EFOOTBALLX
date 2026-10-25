@@ -2153,7 +2153,30 @@ function updateEntryGateUI() {
 
   if (connectedAddress && VALID_WALLET_PROVIDERS.includes(connectedProvider)) {
     const isSol = typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(connectedAddress);
-    document.getElementById("nav-wallet-label").textContent = (isSol ? "🟣 " : "") + shortErd(connectedAddress);
+    document.getElementById("nav-wallet-label").textContent = shortErd(connectedAddress);
+    const navIconGm = document.getElementById("nav-wallet-icon-gm");
+    const hubIconGm = document.getElementById("hub-wallet-icon-gm");
+    const navBtnGm = document.getElementById("open-wallet-modal-btn");
+    const modalActiveChainLabel = document.getElementById("modal-active-chain-label");
+    if (navIconGm && typeof SolanaAdapter !== "undefined") {
+      navIconGm.innerHTML = isSol ? SolanaAdapter.PHANTOM_ICON_SVG : SolanaAdapter.MULTIVERSX_ICON_SVG;
+    }
+    if (hubIconGm && typeof SolanaAdapter !== "undefined") {
+      hubIconGm.innerHTML = isSol ? SolanaAdapter.PHANTOM_ICON_SVG : "⚡";
+    }
+    if (navBtnGm) {
+      if (isSol) {
+        navBtnGm.style.borderColor = "#ab9ff2";
+        navBtnGm.style.boxShadow = "0 0 14px rgba(171,159,242,0.45)";
+      } else {
+        navBtnGm.style.borderColor = "";
+        navBtnGm.style.boxShadow = "";
+      }
+    }
+    if (modalActiveChainLabel) {
+      modalActiveChainLabel.textContent = isSol ? "🟣 CONNECTED SOLANA WALLET (DEVNET):" : "🟢 CONNECTED MULTIVERSX WALLET:";
+      modalActiveChainLabel.style.color = isSol ? "#ab9ff2" : "#a8ff00";
+    }
     disconnectBtn?.classList.remove("hidden");
     if (hubWalletLbl) hubWalletLbl.textContent = shortErd(connectedAddress);
     if (hubDisconnectBtn) hubDisconnectBtn.classList.remove("hidden");
@@ -2167,6 +2190,20 @@ function updateEntryGateUI() {
     hudEfooBadge?.classList.toggle("active", walletState.efooBalance >= MIN_EFOO_REQUIRED);
   } else {
     document.getElementById("nav-wallet-label").textContent = I18N_GAME[currentLang].btn_connect;
+    const navIconGm = document.getElementById("nav-wallet-icon-gm");
+    const hubIconGm = document.getElementById("hub-wallet-icon-gm");
+    const navBtnGm = document.getElementById("open-wallet-modal-btn");
+    const modalActiveChainLabel = document.getElementById("modal-active-chain-label");
+    if (navIconGm) navIconGm.textContent = "⚡";
+    if (hubIconGm) hubIconGm.textContent = "⚡";
+    if (navBtnGm) {
+      navBtnGm.style.borderColor = "";
+      navBtnGm.style.boxShadow = "";
+    }
+    if (modalActiveChainLabel) {
+      modalActiveChainLabel.textContent = "🟢 CONNECTED WALLET:";
+      modalActiveChainLabel.style.color = "#a8ff00";
+    }
     disconnectBtn?.classList.add("hidden");
     if (hubWalletLbl) hubWalletLbl.textContent = currentLang === "hu" ? "CSATLAKOZÁS" : "CONNECT";
     if (hubDisconnectBtn) hubDisconnectBtn.classList.add("hidden");
