@@ -8214,11 +8214,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (typeof window !== "undefined" && window.EfooLeaderboard) {
         window.EfooLeaderboard.fetchLeaderboard().then(() => {
           renderStartScreenLeaderboard();
-          showToast(currentLang === "hu" ? "🔄 Élő ranglista frissítve a felhőből!" : "🔄 Live leaderboard updated from cloud!");
+          showToast("🔄 Live leaderboard updated from cloud!");
         });
       } else {
         renderStartScreenLeaderboard();
-        showToast(currentLang === "hu" ? "🔄 Ranglista frissítve!" : "🔄 Leaderboard refreshed!");
+        showToast("🔄 Leaderboard refreshed!");
       }
     });
   });
