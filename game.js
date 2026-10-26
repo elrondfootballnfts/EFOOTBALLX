@@ -7032,27 +7032,13 @@ async function resolveHerotagAsync(address) {
   } catch (e) {}
 }
 
-// Known Mock Addresses to purge from local storage (no fake/dummy accounts!)
+// Filter set for non-player contracts (reserve / system SCs)
 const KNOWN_MOCK_ADDRESSES = new Set([
-  "erd1k8w7y5ftg2uax8v8ng8p5azjw96zzfgky9v3fydtpe2xwdz0007q3hl9z8", // FOMO_RESERVE
-  "erd1uaw4x3kretddfqx79qvvta9l29sdq7ad6lygavgynlq5mc52w0hqfzczm7", // augustintr
-  "erd1qzm0h502r4x9uslqhfdjxrkmrwtq5qtle57queakzz6majydu3nswj6shc", // digitalmoney
-  "erd1q4rrqj2fragmkz7x2jgpqy7svsunwd33hkl69v7h62nlwum9qunq3pllj3", // janhunedoara
-  "erd14zpeqacvvt8mlyrqudcv0c9r9d28s7q4350h7602xwt8r3j3wzjlx6pj", // chuckszilard
-  "erd136yy3cseqx6e0m8n8a54n8a385f096l863r3t700k7t9y3q36mtrv8", // souleymaz
-  "erd14a9dmrpqf2x33x5k68p6z3x7v0w987y6q5r423a2b1c0d9e8788zrk", // quantumarun
-  "erd1zs55shr6trx5em9t60pnzwjdaak8atk0dpxzkuq7n4h4r4ejmthqjp6g44",
-  "erd1370z0cuvpn6826ffqg86n438a29r54f8m6940a4g322u7eeyzru87vkj"
+  "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzllls8a5w6u", // SYSTEM_SC
+  "erd1qqqqqqqqqqqqqpgqwdrgl4k7gfa26wp0xcje8qn9gucq87yx55hs39eend"  // STADIUM_VAULT_SC
 ]);
 
-const MOCK_HEROTAGS_TO_PURGE = new Set([
-  "@chuckszilard",
-  "@augustintr",
-  "@digitalmoney",
-  "@janhunedoara",
-  "@souleymaz",
-  "@quantumarun"
-]);
+const MOCK_HEROTAGS_TO_PURGE = new Set([]);
 
 const STORAGE_ALLTIME_LEADERBOARD = "efoo_leaderboard_alltime_v1";
 let currentHubLeaderboardTab = "weekly";
