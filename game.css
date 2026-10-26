@@ -5037,6 +5037,112 @@ body.fx-gold-active #arcade-viewport {
   transform: rotate(45deg);
 }
 
+/* Dual Leaderboard Tabs (Weekly vs All-Time Hall of Fame) */
+.hlb-tabs {
+  display: flex;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hlb-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 6px 4px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.hlb-tab-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.hlb-tab-btn.active {
+  background: rgba(168, 255, 0, 0.15);
+  border-color: #a8ff00;
+  color: #a8ff00;
+  text-shadow: 0 0 10px rgba(168, 255, 0, 0.4);
+}
+
+.hlb-tab-btn.active.alltime {
+  background: rgba(255, 184, 0, 0.18);
+  border-color: #ffb800;
+  color: #ffb800;
+  text-shadow: 0 0 10px rgba(255, 184, 0, 0.4);
+}
+
+/* Modal Tabs */
+.lb-modal-tabs {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  margin-bottom: 14px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 5px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lb-modal-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: 1.5px solid transparent;
+  color: #94a3b8;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.05em;
+  padding: 8px 12px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.lb-modal-tab-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.lb-modal-tab-btn.active {
+  background: rgba(168, 255, 0, 0.15);
+  border-color: #a8ff00;
+  color: #a8ff00;
+  box-shadow: 0 0 16px rgba(168, 255, 0, 0.25);
+}
+
+.lb-modal-tab-btn.active.alltime {
+  background: rgba(255, 184, 0, 0.18);
+  border-color: #ffb800;
+  color: #ffb800;
+  box-shadow: 0 0 16px rgba(255, 184, 0, 0.3);
+}
+
+.hall-of-fame-strip {
+  background: linear-gradient(135deg, rgba(255, 184, 0, 0.15), rgba(168, 85, 247, 0.15));
+  border: 1px solid rgba(255, 184, 0, 0.4);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+}
+
+
 .hlb-payout-strip {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;

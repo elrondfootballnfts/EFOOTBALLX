@@ -398,16 +398,22 @@
             <div class="hub-leaderboard-card">
               <div class="hlb-header">
                 <div>
-                  <h3 class="hlb-title">🏆 STADIUM LEADERBOARD</h3>
-                  <small class="hlb-subtitle">Top Scorers of the Week • Live Verification</small>
+                  <h3 class="hlb-title" id="hlb-header-title">🏆 STADIUM LEADERBOARD</h3>
+                  <small class="hlb-subtitle" id="hlb-header-subtitle">Top Scorers of the Week • Live Verification</small>
                 </div>
                 <button type="button" id="btn-refresh-hub-lb" class="hlb-refresh-btn" title="Refresh Leaderboard">
                   🔄
                 </button>
               </div>
 
-              <!-- Payout rule banner -->
-              <div class="hlb-payout-strip">
+              <!-- DUAL TABS: WEEKLY VS ALL-TIME -->
+              <div class="hlb-tabs">
+                <button type="button" id="tab-hub-weekly" class="hlb-tab-btn active">⚡ HETI (WEEKLY)</button>
+                <button type="button" id="tab-hub-alltime" class="hlb-tab-btn">👑 ÖRÖKÖS (ALL-TIME)</button>
+              </div>
+
+              <!-- Payout rule banner (Shown on Weekly tab) -->
+              <div class="hlb-payout-strip" id="hlb-weekly-payout-strip">
                 <div class="hlb-payout-col gold">
                   <span>1ST PLACE</span>
                   <strong>65% VAULT</strong>
@@ -420,6 +426,18 @@
                   <span>3RD PLACE</span>
                   <strong>10% VAULT</strong>
                 </div>
+              </div>
+
+              <!-- All-Time Hall of Fame Banner (Shown on All-Time tab) -->
+              <div class="hall-of-fame-strip hidden" id="hlb-alltime-strip">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:1.3rem;">👑</span>
+                  <div>
+                    <strong style="color:#ffb800; font-family:'Bebas Neue',sans-serif; font-size:1.05rem; letter-spacing:0.04em; display:block;">ALL-TIME HALL OF FAME</strong>
+                    <small style="color:#cbd5e1; font-size:0.68rem;">Örökös dicsőségfal • SOHA NEM TÖRLŐDIK (Permanent)</small>
+                  </div>
+                </div>
+                <span style="background:rgba(255,184,0,0.25); color:#ffb800; border:1px solid #ffb800; font-family:'JetBrains Mono',monospace; font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:4px;">LIFETIME</span>
               </div>
 
               <!-- Live Leaderboard List -->
@@ -903,18 +921,28 @@
       <div class="leaderboard-modal-card">
         <div class="modal-header-row">
           <div>
-            <h2 class="modal-headline" style="color:#ffb800;">
+            <h2 class="modal-headline" style="color:#ffb800;" id="lb-modal-main-title">
               🏆 LEADERBOARD &amp; WEEKLY JACKPOT
             </h2>
-            <p class="modal-subline">
+            <p class="modal-subline" id="lb-modal-main-subline">
               Sunday League Degen FC • Top Strikers Share the 90+5' Pool
             </p>
           </div>
           <button type="button" class="modal-close-btn" id="close-ranks-modal-btn">✕</button>
         </div>
 
-        <!-- Weekly Pot Distribution Share Card -->
-        <div class="jackpot-share-banner">
+        <!-- DUAL TABS IN MODAL -->
+        <div class="lb-modal-tabs">
+          <button type="button" id="tab-modal-weekly" class="lb-modal-tab-btn active">
+            ⚡ HETI JACKPOT RANGLISTA
+          </button>
+          <button type="button" id="tab-modal-alltime" class="lb-modal-tab-btn">
+            👑 ALL-TIME HALL OF FAME (ÖRÖKÖS)
+          </button>
+        </div>
+
+        <!-- Weekly Pot Distribution Share Card (Shown on Weekly Tab) -->
+        <div class="jackpot-share-banner" id="lb-modal-weekly-banner">
           <div class="jp-main-col">
             <span class="jp-kicker">WEEKLY DERBY JACKPOT POOL</span>
             <strong class="jp-pot-number" id="lb-pot-amount">0 $EFOO</strong>
@@ -936,6 +964,33 @@
             <div class="jp-tier-badge burn">
               <span class="jp-rank">🏟️ ROLLOVER</span>
               <strong class="jp-share-val" id="lb-share-burn">35% Rollover if &lt;2</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- All-Time Hall of Fame Banner (Shown on All-Time Tab) -->
+        <div class="jackpot-share-banner hidden" id="lb-modal-alltime-banner" style="border-color:rgba(255,184,0,0.5); background:linear-gradient(135deg, rgba(255,184,0,0.12), rgba(168,85,247,0.12));">
+          <div class="jp-main-col">
+            <span class="jp-kicker" style="color:#ffb800;">👑 EFOOTBALL-X ALL-TIME LEGENDS</span>
+            <strong class="jp-pot-number" style="color:#ffffff;">ALL-TIME HALL OF FAME</strong>
+            <small style="color:#cbd5e1; font-size:0.75rem;">A valaha játszott összes játékos örökös ranglistája • Rekordok amik soha nem törlődnek!</small>
+          </div>
+          <div class="jp-distribution-grid">
+            <div class="jp-tier-badge gold" style="border-color:#ffb800;">
+              <span class="jp-rank" style="color:#ffb800;">👑 1ST ALL-TIME</span>
+              <strong class="jp-share-val" id="lb-alltime-1st-score">0 PTS</strong>
+            </div>
+            <div class="jp-tier-badge silver">
+              <span class="jp-rank">⚡ TOTAL LEGENDS</span>
+              <strong class="jp-share-val" id="lb-alltime-total-players">0</strong>
+            </div>
+            <div class="jp-tier-badge bronze" style="border-color:#38bdf8;">
+              <span class="jp-rank" style="color:#38bdf8;">🛡️ RECORD STATUS</span>
+              <strong class="jp-share-val" style="color:#38bdf8; font-size:0.95rem;">PERMANENT</strong>
+            </div>
+            <div class="jp-tier-badge burn">
+              <span class="jp-rank">🛡️ INTEGRITY</span>
+              <strong class="jp-share-val" style="font-size:0.85rem; color:#a8ff00;">LIFETIME BEST</strong>
             </div>
           </div>
         </div>

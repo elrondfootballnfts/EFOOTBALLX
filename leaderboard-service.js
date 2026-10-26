@@ -1,15 +1,17 @@
 /**
  * ============================================================================
- * EFOOTBALLX — REAL-TIME GLOBAL LEADERBOARD SERVICE (FIREBASE REST API)
+ * EFOOTBALLX — REAL-TIME GLOBAL DUAL LEADERBOARD SERVICE (FIREBASE REST API)
  * ============================================================================
  * 
- * Synchronizes player high-scores worldwide in real-time across all devices.
+ * Supports both:
+ * 1. ⚡ WEEKLY DERBY LEADERBOARD: Resets weekly, tied to the 25.4M Stadium Jackpot.
+ * 2. 👑 ALL-TIME HALL OF FAME: Permanent, NEVER wiped, stores all-time personal bests.
  * 
  * Features:
  * - 100% Free: Uses Google Firebase Realtime Database HTTPS REST API (Zero SDK needed).
  * - High-Score Guarantee: A lower score NEVER overwrites a higher personal best.
- * - Deduplication: Each MultiversX wallet (erd1...) appears at most once in Top 10.
- * - Seamless Fallback: Automatically falls back to localStorage if offline or no network.
+ * - Deduplication: Each MultiversX or Solana wallet appears at most once in Top ranks.
+ * - Seamless Fallback: Automatically falls back to localStorage if offline.
  * - Live Event Sync: Dispatches 'efoo:leaderboard-updated' on changes for instant UI refresh.
  */
 
@@ -22,12 +24,15 @@
 })(typeof window !== "undefined" ? window : this, function () {
   "use strict";
 
-  const STORAGE_LOCAL_KEY = "efoo_leaderboard_v2";
+  const STORAGE_LOCAL_KEY_WEEKLY = "efoo_leaderboard_v2";
+  const STORAGE_LOCAL_KEY_ALLTIME = "efoo_leaderboard_alltime_v1";
   const STORAGE_URL_KEY = "efoo_firebase_rtdb_url";
   const DEFAULT_FIREBASE_URL = "https://efootballx-leaderboard-default-rtdb.europe-west1.firebasedatabase.app";
 
-  let memoryCache = null;
-  let isFetching = false;
+  let memoryCacheWeekly = null;
+  let memoryCacheAllTime = null;
+  let isFetchingWeekly = false;
+  let isFetchingAllTime = false;
   let sseSource = null;
 
   function getBaseUrl() {
@@ -55,7 +60,7 @@
       }
     } catch (e) {}
     setupSSE();
-    fetchLeaderboard();
+    fetchAll();
   }
 
   function sanitizeKey(address) {
@@ -63,10 +68,11 @@
     return String(address).toLowerCase().replace(/[^a-z0-9_]/g, "_");
   }
 
-  function getLocalLeaderboard() {
+  function getLocalLeaderboard(type = "weekly") {
+    const key = type === "alltime" ? STORAGE_LOCAL_KEY_ALLTIME : STORAGE_LOCAL_KEY_WEEKLY;
     try {
       if (typeof localStorage !== "undefined") {
-        const raw = localStorage.getItem(STORAGE_LOCAL_KEY);
+        const raw = localStorage.getItem(key);
         if (raw) {
           const parsed = JSON.parse(raw);
           if (Array.isArray(parsed)) return parsed;
@@ -76,15 +82,16 @@
     return [];
   }
 
-  function setLocalLeaderboard(list) {
+  function setLocalLeaderboard(list, type = "weekly") {
+    const key = type === "alltime" ? STORAGE_LOCAL_KEY_ALLTIME : STORAGE_LOCAL_KEY_WEEKLY;
     try {
       if (typeof localStorage !== "undefined") {
-        localStorage.setItem(STORAGE_LOCAL_KEY, JSON.stringify(list));
+        localStorage.setItem(key, JSON.stringify(list));
       }
     } catch (e) {}
   }
 
-  function processRawLeaderboard(rawObject) {
+  function processRawLeaderboard(rawObject, maxItems = 25) {
     const list = [];
     if (!rawObject) return list;
 
@@ -97,7 +104,6 @@
       });
     }
 
-    // Filter valid wallets / guests
     const cleanList = list.filter(row => {
       if (!row || !row.address) return false;
       const addr = String(row.address).trim().toLowerCase();
@@ -131,25 +137,31 @@
       item.rank = idx + 1;
     });
 
-    return sorted.slice(0, 10);
+    return sorted.slice(0, maxItems);
   }
 
-  function notifyUpdate(top10) {
-    memoryCache = top10;
-    setLocalLeaderboard(top10);
+  function notifyUpdate(list, type = "weekly") {
+    if (type === "alltime") {
+      memoryCacheAllTime = list;
+    } else {
+      memoryCacheWeekly = list;
+    }
+    setLocalLeaderboard(list, type);
+
     if (typeof window !== "undefined") {
-      const evt = new CustomEvent("efoo:leaderboard-updated", { detail: { list: top10 } });
+      const evt = new CustomEvent("efoo:leaderboard-updated", {
+        detail: { list, type }
+      });
       window.dispatchEvent(evt);
     }
   }
 
   /**
-   * Fetch current global leaderboard from Firebase.
-   * Falls back to local cached copy on failure.
+   * Fetch weekly leaderboard (Top 10 / Top 25)
    */
-  async function fetchLeaderboard() {
-    if (isFetching) return memoryCache || getLocalLeaderboard();
-    isFetching = true;
+  async function fetchWeeklyLeaderboard() {
+    if (isFetchingWeekly) return memoryCacheWeekly || getLocalLeaderboard("weekly");
+    isFetchingWeekly = true;
 
     const url = `${getBaseUrl()}/leaderboard.json`;
     try {
@@ -159,30 +171,100 @@
       });
       if (res.ok) {
         const data = await res.json();
-        const top10 = processRawLeaderboard(data);
-        notifyUpdate(top10);
-        isFetching = false;
-        return top10;
+        const topList = processRawLeaderboard(data, 20);
+        notifyUpdate(topList, "weekly");
+        isFetchingWeekly = false;
+        return topList;
       }
     } catch (err) {
-      console.warn("[EfooLeaderboard] Central fetch failed, using local cache:", err.message);
+      console.warn("[EfooLeaderboard] Weekly fetch failed, using local cache:", err.message);
     }
 
-    isFetching = false;
-    const fallback = getLocalLeaderboard();
-    memoryCache = fallback;
+    isFetchingWeekly = false;
+    const fallback = getLocalLeaderboard("weekly");
+    memoryCacheWeekly = fallback;
     return fallback;
   }
 
   /**
-   * Record a completed match to the central Firebase database.
-   * If an entry already exists for this wallet, updates ONLY IF new score > previous score.
+   * Fetch permanent All-Time Hall of Fame leaderboard (NEVER WIPED)
+   */
+  async function fetchAllTimeLeaderboard() {
+    if (isFetchingAllTime) return memoryCacheAllTime || getLocalLeaderboard("alltime");
+    isFetchingAllTime = true;
+
+    const url = `${getBaseUrl()}/leaderboard_alltime.json`;
+    try {
+      const res = await fetch(url, {
+        method: "GET",
+        headers: { "Accept": "application/json" }
+      });
+      if (res.ok) {
+        let data = await res.json();
+
+        // Auto-seed: If all-time is initially empty, seed it from weekly / existing records
+        if (!data || Object.keys(data).length === 0) {
+          const weeklyData = memoryCacheWeekly || getLocalLeaderboard("weekly");
+          if (weeklyData && weeklyData.length > 0) {
+            console.log("[EfooLeaderboard] Seeding initial All-Time Hall of Fame from historical records...");
+            data = {};
+            weeklyData.forEach(item => {
+              if (item.address) {
+                const k = sanitizeKey(item.address);
+                data[k] = item;
+              }
+            });
+            // Background PUT to Firebase to persist All-Time baseline
+            fetch(`${getBaseUrl()}/leaderboard_alltime.json`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data)
+            }).catch(() => {});
+          }
+        }
+
+        const topList = processRawLeaderboard(data, 50);
+        notifyUpdate(topList, "alltime");
+        isFetchingAllTime = false;
+        return topList;
+      }
+    } catch (err) {
+      console.warn("[EfooLeaderboard] All-time fetch failed, using local cache:", err.message);
+    }
+
+    isFetchingAllTime = false;
+    const fallback = getLocalLeaderboard("alltime");
+    memoryCacheAllTime = fallback;
+    return fallback;
+  }
+
+  /**
+   * Universal fetch: fetches requested type or default weekly
+   */
+  async function fetchLeaderboard(type = "weekly") {
+    if (type === "alltime") {
+      return fetchAllTimeLeaderboard();
+    }
+    return fetchWeeklyLeaderboard();
+  }
+
+  /**
+   * Fetch both tables in parallel
+   */
+  async function fetchAll() {
+    return Promise.all([fetchWeeklyLeaderboard(), fetchAllTimeLeaderboard()]);
+  }
+
+  /**
+   * Record a completed match to BOTH:
+   * 1. Weekly Leaderboard (may be wiped at end of cycle for new jackpot)
+   * 2. All-Time Hall of Fame (PERMANENT - NEVER WIPED)
    */
   async function recordScore(data) {
     if (!data || typeof data.score !== "number" || data.score <= 0) return null;
 
     const rawAddr = (data.address || "guest_player").trim();
-    const isGuest = !rawAddr.startsWith("erd1") || rawAddr.length !== 62;
+    const isGuest = (!rawAddr.startsWith("erd1") && rawAddr.length < 32) || rawAddr.startsWith("guest");
     const key = sanitizeKey(rawAddr);
     const score = data.score;
     const goals = data.goals || 0;
@@ -203,97 +285,130 @@
       date: new Date().toLocaleDateString()
     };
 
-    // 1. Immediately update local storage so UI reacts instantly
-    const localList = getLocalLeaderboard();
-    const localIdx = localList.findIndex(x => x.address && x.address.toLowerCase() === rawAddr.toLowerCase());
-    if (localIdx !== -1) {
-      if (score > localList[localIdx].score) {
-        localList[localIdx] = { ...localList[localIdx], ...payload };
+    // 1. Instantly update Weekly in LocalStorage
+    const localWeekly = getLocalLeaderboard("weekly");
+    const wIdx = localWeekly.findIndex(x => x.address && x.address.toLowerCase() === rawAddr.toLowerCase());
+    if (wIdx !== -1) {
+      if (score > localWeekly[wIdx].score) {
+        localWeekly[wIdx] = { ...localWeekly[wIdx], ...payload };
       }
     } else {
-      localList.push(payload);
+      localWeekly.push(payload);
     }
-    const processedLocal = processRawLeaderboard(localList);
-    notifyUpdate(processedLocal);
+    const procWeekly = processRawLeaderboard(localWeekly, 20);
+    notifyUpdate(procWeekly, "weekly");
 
-    // If it's a guest without a real wallet, do not push to public on-chain prize database
+    // 2. Instantly update All-Time in LocalStorage (Permanent Best)
+    const localAllTime = getLocalLeaderboard("alltime");
+    const aIdx = localAllTime.findIndex(x => x.address && x.address.toLowerCase() === rawAddr.toLowerCase());
+    if (aIdx !== -1) {
+      if (score > localAllTime[aIdx].score) {
+        localAllTime[aIdx] = { ...localAllTime[aIdx], ...payload };
+      }
+    } else {
+      localAllTime.push(payload);
+    }
+    const procAllTime = processRawLeaderboard(localAllTime, 50);
+    notifyUpdate(procAllTime, "alltime");
+
     if (isGuest) {
-      const myItem = processedLocal.find(x => x.address.toLowerCase() === rawAddr.toLowerCase());
+      const myItem = procWeekly.find(x => x.address.toLowerCase() === rawAddr.toLowerCase());
       return myItem ? myItem.rank : null;
     }
 
-    // 2. Fetch existing record from Firebase to ensure strictly highest score is kept
-    const singleUrl = `${getBaseUrl()}/leaderboard/${key}.json`;
-    try {
-      const checkRes = await fetch(singleUrl, { method: "GET" });
-      if (checkRes.ok) {
-        const existing = await checkRes.json();
-        if (existing && typeof existing.score === "number" && existing.score >= score) {
-          // Existing record is already higher or equal - DO NOT OVERWRITE!
-          console.log(`[EfooLeaderboard] Preserving existing personal best (${existing.score} pts >= ${score} pts) for ${rawAddr}`);
-          // Sync herotag or ultras status if changed
-          if ((typeof isUltras === "boolean" && isUltras !== existing.isUltras) || (herotag && !existing.herotag)) {
-            await fetch(singleUrl, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ isUltras: !!isUltras, herotag: herotag || existing.herotag })
-            });
+    // 3. Central Firebase Sync for BOTH Weekly & All-Time
+    const syncSingleTable = async (tablePath) => {
+      const singleUrl = `${getBaseUrl()}/${tablePath}/${key}.json`;
+      try {
+        const checkRes = await fetch(singleUrl, { method: "GET" });
+        if (checkRes.ok) {
+          const existing = await checkRes.json();
+          if (existing && typeof existing.score === "number" && existing.score >= score) {
+            // Keep existing higher score, only patch metadata if changed
+            if ((typeof isUltras === "boolean" && isUltras !== existing.isUltras) || (herotag && !existing.herotag)) {
+              await fetch(singleUrl, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ isUltras: !!isUltras, herotag: herotag || existing.herotag })
+              });
+            }
+            return;
           }
-          await fetchLeaderboard();
-          const curList = memoryCache || processedLocal;
-          const match = curList.find(x => x.address.toLowerCase() === rawAddr.toLowerCase());
-          return match ? match.rank : null;
         }
+
+        // Write new high-score
+        await fetch(singleUrl, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.warn(`[EfooLeaderboard] Sync to ${tablePath} warning:`, err.message);
       }
+    };
 
-      // New high-score! Write to Firebase
-      const putRes = await fetch(singleUrl, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+    // Parallel sync to weekly and alltime
+    await Promise.all([
+      syncSingleTable("leaderboard"),         // Weekly
+      syncSingleTable("leaderboard_alltime")   // Permanent All-Time
+    ]);
 
-      if (putRes.ok) {
-        console.log(`[EfooLeaderboard] ✅ High score recorded to central database: ${score} pts for ${rawAddr}`);
-        const freshList = await fetchLeaderboard();
-        const match = freshList.find(x => x.address.toLowerCase() === rawAddr.toLowerCase());
-        return match ? match.rank : null;
-      }
-    } catch (err) {
-      console.warn("[EfooLeaderboard] Central PUT failed, using local score:", err.message);
-    }
-
-    const match = (memoryCache || processedLocal).find(x => x.address.toLowerCase() === rawAddr.toLowerCase());
+    // Refresh memory caches
+    await fetchAll();
+    const curList = memoryCacheWeekly || procWeekly;
+    const match = curList.find(x => x.address.toLowerCase() === rawAddr.toLowerCase());
     return match ? match.rank : null;
   }
 
   /**
    * Delete a player entry (Admin function).
    */
-  async function deletePlayer(address) {
+  async function deletePlayer(address, target = "both") {
     if (!address) return;
     const key = sanitizeKey(address);
     try {
-      await fetch(`${getBaseUrl()}/leaderboard/${key}.json`, { method: "DELETE" });
+      if (target === "weekly" || target === "both") {
+        await fetch(`${getBaseUrl()}/leaderboard/${key}.json`, { method: "DELETE" });
+        const localList = getLocalLeaderboard("weekly").filter(x => x.address && x.address.toLowerCase() !== address.toLowerCase());
+        notifyUpdate(localList, "weekly");
+      }
+      if (target === "alltime" || target === "both") {
+        await fetch(`${getBaseUrl()}/leaderboard_alltime/${key}.json`, { method: "DELETE" });
+        const localList = getLocalLeaderboard("alltime").filter(x => x.address && x.address.toLowerCase() !== address.toLowerCase());
+        notifyUpdate(localList, "alltime");
+      }
     } catch (e) {}
 
-    const localList = getLocalLeaderboard().filter(x => x.address && x.address.toLowerCase() !== address.toLowerCase());
-    notifyUpdate(localList);
-    return fetchLeaderboard();
+    return fetchAll();
   }
 
   /**
-   * Reset / clear entire leaderboard (Admin weekly reset).
+   * Reset / clear Weekly leaderboard (Admin weekly jackpot cycle restart).
+   * IMPORTANT: NEVER touches leaderboard_alltime!
    */
-  async function clearAll() {
+  async function clearWeekly() {
     try {
       await fetch(`${getBaseUrl()}/leaderboard.json`, { method: "DELETE" });
     } catch (e) {}
-    notifyUpdate([]);
+    notifyUpdate([], "weekly");
+    console.log("[EfooLeaderboard] ✅ Weekly leaderboard reset. All-Time Hall of Fame remains 100% intact.");
   }
 
   /**
-   * Set up Server-Sent Events (SSE) for zero-latency live updates across open browser tabs.
+   * clearAll(): Safe by default — only clears weekly, preserves All-Time Hall of Fame.
+   */
+  async function clearAll(options = {}) {
+    await clearWeekly();
+    if (options && options.wipeAllTimePermanently === true) {
+      try {
+        await fetch(`${getBaseUrl()}/leaderboard_alltime.json`, { method: "DELETE" });
+      } catch (e) {}
+      notifyUpdate([], "alltime");
+    }
+  }
+
+  /**
+   * Server-Sent Events (SSE) listener
    */
   function setupSSE() {
     if (typeof window === "undefined" || typeof EventSource === "undefined") return;
@@ -311,13 +426,12 @@
         try {
           const parsed = JSON.parse(e.data);
           if (parsed && parsed.data !== undefined) {
-            fetchLeaderboard();
+            fetchAll();
           }
         } catch (err) {}
       });
 
       sseSource.onerror = () => {
-        // Fallback: poll every 30s when window is visible
         try { sseSource.close(); } catch (e) {}
         sseSource = null;
       };
@@ -327,33 +441,45 @@
   // Periodic poll fallback when page is visible
   if (typeof window !== "undefined") {
     setInterval(() => {
-      if (!document.hidden && !isFetching) {
-        fetchLeaderboard();
+      if (!document.hidden && !isFetchingWeekly && !isFetchingAllTime) {
+        fetchAll();
       }
     }, 25000);
 
     document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) fetchLeaderboard();
+      if (!document.hidden) fetchAll();
     });
 
     // Auto-init
     setTimeout(() => {
-      fetchLeaderboard();
+      fetchAll();
       setupSSE();
-    }, 300);
+    }, 200);
   }
 
   return {
     getBaseUrl,
     setBaseUrl,
-    getLeaderboardSync: () => memoryCache || getLocalLeaderboard(),
+    getLeaderboardSync: (type = "weekly") => {
+      if (type === "alltime") {
+        return memoryCacheAllTime || getLocalLeaderboard("alltime");
+      }
+      return memoryCacheWeekly || getLocalLeaderboard("weekly");
+    },
     fetchLeaderboard,
+    fetchWeeklyLeaderboard,
+    fetchAllTimeLeaderboard,
+    fetchAll,
     recordScore,
     deletePlayer,
+    clearWeekly,
     clearAll,
     onUpdate: (cb) => {
       if (typeof window !== "undefined" && typeof cb === "function") {
-        window.addEventListener("efoo:leaderboard-updated", (e) => cb(e.detail ? e.detail.list : []));
+        window.addEventListener("efoo:leaderboard-updated", (e) => {
+          const detail = e.detail || {};
+          cb(detail.list || [], detail.type || "weekly");
+        });
       }
     }
   };

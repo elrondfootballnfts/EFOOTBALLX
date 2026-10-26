@@ -978,9 +978,14 @@
             <button id="btn-toggle-add-player" class="admin-btn admin-btn-outline" style="width: auto; margin:0; border-color:var(--admin-gold); color:var(--admin-gold);" onclick="toggleAddPlayerForm()">
               ➕ Játékos Manuális Rögzítése
             </button>
-            <button id="btn-reset-weekly-lb" class="admin-btn admin-btn-danger" style="width: auto; margin:0;">
-              🗑️ Heti Ranglista Törlése &amp; Új Forduló Indítása
-            </button>
+            <div style="display:flex; flex-direction:column; align-items:flex-end;">
+              <button id="btn-reset-weekly-lb" class="admin-btn admin-btn-danger" style="width: auto; margin:0;">
+                🗑️ Heti Ranglista Törlése &amp; Új Forduló Indítása
+              </button>
+              <small style="color: #94a3b8; display: block; margin-top: 4px; font-size: 0.72rem;">
+                🛡️ Csak a heti fordulót nullázza. Az <strong>Örökös (All-Time) Ranglista SOHA nem törlődik</strong>!
+              </small>
+            </div>
           </div>
         </div>
 
@@ -2925,14 +2930,14 @@
     };
 
     document.getElementById("btn-reset-weekly-lb").addEventListener("click", () => {
-      if (!confirm("⚠️ BIZTOSAN TÖRÖLNI AKAROD A TELJES HETI RANGLISTÁT? Ezzel új heti forduló indul!")) return;
+      if (!confirm("⚠️ BIZTOSAN TÖRÖLNI AKAROD A HETI RANGLISTÁT? Ezzel új heti forduló indul! (Az Örökös/All-Time ranglista 100% megmarad és soha nem törlődik!)")) return;
       if (window.EfooLeaderboard) {
-        window.EfooLeaderboard.clearAll();
+        window.EfooLeaderboard.clearWeekly();
       }
       localStorage.removeItem("efoo_leaderboard_v2");
       localStorage.removeItem("efoo_real_leaderboard_v2");
       renderLeaderboardTable();
-      showToast("✨ A heti ranglista sikeresen nullázva a felhőben és helyben is!");
+      showToast("✨ A HETI ranglista sikeresen nullázva! Az Örökös (All-Time) Hall of Fame érintetlen maradt.");
     });
 
     // Firebase Realtime DB Admin Controls Binding

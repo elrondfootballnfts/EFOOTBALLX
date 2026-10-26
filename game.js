@@ -7054,17 +7054,22 @@ const MOCK_HEROTAGS_TO_PURGE = new Set([
   "@quantumarun"
 ]);
 
-function getLeaderboard() {
+const STORAGE_ALLTIME_LEADERBOARD = "efoo_leaderboard_alltime_v1";
+let currentHubLeaderboardTab = "weekly";
+let currentModalLeaderboardTab = "weekly";
+
+function getLeaderboard(type = "weekly") {
   if (typeof window !== "undefined" && window.EfooLeaderboard) {
-    const remoteList = window.EfooLeaderboard.getLeaderboardSync();
+    const remoteList = window.EfooLeaderboard.getLeaderboardSync(type);
     if (Array.isArray(remoteList) && remoteList.length > 0) {
       return remoteList;
     }
   }
 
   let list = [];
+  const storageKey = type === "alltime" ? STORAGE_ALLTIME_LEADERBOARD : STORAGE_LEADERBOARD;
   try {
-    const raw = localStorage.getItem(STORAGE_LEADERBOARD);
+    const raw = localStorage.getItem(storageKey);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -7081,7 +7086,7 @@ function getLeaderboard() {
     const addr = row.address.trim().toLowerCase();
     if (addr.includes("...")) return false; // Purge old truncated entries
     if (addr === localGuestId.toLowerCase() || addr === "guest_player") return true;
-    if (!addr.startsWith("erd1") || addr.length !== 62) return false; // Must be strictly 62 chars
+    if (!addr.startsWith("erd1") && addr.length < 32) return false;
     if (KNOWN_MOCK_ADDRESSES.has(addr)) return false;
     if (row.herotag && MOCK_HEROTAGS_TO_PURGE.has(row.herotag.toLowerCase())) return false;
     return true;
@@ -7118,11 +7123,12 @@ function getLeaderboard() {
     item.rank = idx + 1;
   });
 
-  const finalTop10 = sorted.slice(0, 10);
+  const maxItems = type === "alltime" ? 50 : 20;
+  const finalTop = sorted.slice(0, maxItems);
   try {
-    localStorage.setItem(STORAGE_LEADERBOARD, JSON.stringify(finalTop10));
+    localStorage.setItem(storageKey, JSON.stringify(finalTop));
   } catch (e) {}
-  return finalTop10;
+  return finalTop;
 }
 
 function recordMatchToLeaderboard(score, goals, level) {
@@ -7236,11 +7242,16 @@ function recordMatchToLeaderboard(score, goals, level) {
 
 function renderLeaderboardModal(options = {}) {
   const isPostMatch = !!options.isPostMatch;
-  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
+  const isConnected = !!(connectedAddress && (connectedAddress.startsWith("erd1") || connectedAddress.length >= 32));
   const isGuest = !isConnected;
   const currentScore = typeof options.score === "number" ? options.score : (game.score || 0);
   const currentGoals = typeof options.goals === "number" ? options.goals : (game.userGoals || 0);
   const currentLevel = options.level || game.level || 1;
+
+  if (options.tab) {
+    currentModalLeaderboardTab = options.tab;
+  }
+  const isAllTime = currentModalLeaderboardTab === "alltime";
 
   const tbody = document.getElementById("lb-table-body");
   const postMatchBanner = document.getElementById("lb-postmatch-banner");
@@ -7258,6 +7269,37 @@ function renderLeaderboardModal(options = {}) {
     }
   }
 
+  // Update Modal Main Title and Subtitle
+  const mainTitleEl = document.getElementById("lb-modal-main-title");
+  const mainSublineEl = document.getElementById("lb-modal-main-subline");
+  if (mainTitleEl) {
+    mainTitleEl.innerHTML = isAllTime ? "👑 ALL-TIME HALL OF FAME (ÖRÖKÖS DICSŐSÉGFAL)" : "🏆 LEADERBOARD &amp; WEEKLY JACKPOT";
+    mainTitleEl.style.color = isAllTime ? "#ffb800" : "#a8ff00";
+  }
+  if (mainSublineEl) {
+    mainSublineEl.textContent = isAllTime
+      ? (currentLang === "hu" ? "A valaha játszott összes játékos örökös ranglistája • SOHA NEM TÖRLŐDIK!" : "Sunday League Degen FC • Permanent All-Time Player Legends • Never Wiped!")
+      : (currentLang === "hu" ? "Sunday League Degen FC • A heti 90+5' Jackpot Pool elosztása" : "Sunday League Degen FC • Top Strikers Share the 90+5' Pool");
+  }
+
+  // Update Modal Tab Active States
+  const tabW = document.getElementById("tab-modal-weekly");
+  const tabA = document.getElementById("tab-modal-alltime");
+  if (tabW) {
+    tabW.classList.toggle("active", !isAllTime);
+    tabW.classList.remove("alltime");
+  }
+  if (tabA) {
+    tabA.classList.toggle("active", isAllTime);
+    tabA.classList.toggle("alltime", isAllTime);
+  }
+
+  // Toggle Weekly Banner vs All-Time Banner
+  const weeklyBanner = document.getElementById("lb-modal-weekly-banner");
+  const allTimeBanner = document.getElementById("lb-modal-alltime-banner");
+  if (weeklyBanner) weeklyBanner.classList.toggle("hidden", isAllTime);
+  if (allTimeBanner) allTimeBanner.classList.toggle("hidden", !isAllTime);
+
   // Dynamic calculation for weekly pot (65% / 25% / 10%)
   const stats = getVaultStats();
   const potVal = stats.pot;
@@ -7271,8 +7313,20 @@ function renderLeaderboardModal(options = {}) {
   if (share2nd) share2nd.textContent = `${Math.round(potVal * 0.25).toLocaleString("en-US")} $EFOO`;
   if (share3rd) share3rd.textContent = `${Math.round(potVal * 0.10).toLocaleString("en-US")} $EFOO`;
 
-  let list = getLeaderboard();
+  let list = getLeaderboard(currentModalLeaderboardTab);
   if (tbody) tbody.innerHTML = "";
+
+  // Update All-Time banner stats
+  if (isAllTime && allTimeBanner) {
+    const allTime1st = document.getElementById("lb-alltime-1st-score");
+    const allTimeTotal = document.getElementById("lb-alltime-total-players");
+    if (allTime1st) {
+      allTime1st.textContent = list.length > 0 ? `${list[0].score.toLocaleString("en-US")} PTS` : "0 PTS";
+    }
+    if (allTimeTotal) {
+      allTimeTotal.textContent = String(list.length);
+    }
+  }
 
   // Render Post-Match Banner & Simulated Rows
   if (isPostMatch && postMatchBanner) {
@@ -7450,13 +7504,45 @@ function renderStartScreenLeaderboard() {
   const countEl = document.getElementById("hub-lb-players-count");
   if (!tbody) return;
 
-  const list = getLeaderboard();
+  const isAllTime = currentHubLeaderboardTab === "alltime";
+  const list = getLeaderboard(currentHubLeaderboardTab);
   tbody.innerHTML = "";
 
+  // Update Tab active states
+  const tabW = document.getElementById("tab-hub-weekly");
+  const tabA = document.getElementById("tab-hub-alltime");
+  if (tabW) {
+    tabW.classList.toggle("active", !isAllTime);
+    tabW.classList.remove("alltime");
+  }
+  if (tabA) {
+    tabA.classList.toggle("active", isAllTime);
+    tabA.classList.toggle("alltime", isAllTime);
+  }
+
+  // Toggle Payout Strip vs All-Time Hall of Fame Banner
+  const weeklyStrip = document.getElementById("hlb-weekly-payout-strip");
+  const allTimeStrip = document.getElementById("hlb-alltime-strip");
+  if (weeklyStrip) weeklyStrip.classList.toggle("hidden", isAllTime);
+  if (allTimeStrip) allTimeStrip.classList.toggle("hidden", !isAllTime);
+
+  // Update Header titles
+  const titleEl = document.getElementById("hlb-header-title");
+  const subEl = document.getElementById("hlb-header-subtitle");
+  if (titleEl) {
+    titleEl.textContent = isAllTime ? "👑 ALL-TIME HALL OF FAME" : "🏆 STADIUM LEADERBOARD";
+  }
+  if (subEl) {
+    subEl.textContent = isAllTime 
+      ? (currentLang === "hu" ? "Örökös dicsőségfal • SOHA NEM TÖRLŐDIK" : "All-Time Legends • Never Deleted")
+      : (currentLang === "hu" ? "A hét góllövői • Élő ellenőrzés" : "Top Scorers of the Week • Live Verification");
+  }
+
   if (countEl) {
+    const label = isAllTime ? (currentLang === "hu" ? "Örökös Legenda" : "All-Time Legends") : (currentLang === "hu" ? "Heti Játékos" : "Weekly Scorers");
     countEl.textContent = list.length === 0
-      ? "0 Players Ranked"
-      : `${list.length} Player${list.length === 1 ? "" : "s"} Ranked`;
+      ? `0 ${label}`
+      : `${list.length} ${label}`;
   }
 
   if (list.length === 0) {
@@ -7464,8 +7550,8 @@ function renderStartScreenLeaderboard() {
     emptyTr.innerHTML = `
       <td colspan="4" style="text-align:center; padding:28px 12px; color:#94a3b8;">
         <div style="font-size:1.8rem; margin-bottom:6px;">🏟️ ⚽</div>
-        <strong style="color:#fff; font-size:0.92rem; letter-spacing:0.04em;">NO WEEKLY SCORERS YET</strong><br>
-        <span style="font-size:0.75rem; color:#64748b; margin-top:3px; display:inline-block;">Click "PLAY MATCH NOW", score a goal and claim the #1 spot!</span>
+        <strong style="color:#fff; font-size:0.92rem; letter-spacing:0.04em;">${isAllTime ? (currentLang === "hu" ? "MÉG NINCS ÖRÖKÖS LEGENDA" : "NO ALL-TIME LEGENDS YET") : (currentLang === "hu" ? "MÉG NINCS HETI GÓLLÖVŐ" : "NO WEEKLY SCORERS YET")}</strong><br>
+        <span style="font-size:0.75rem; color:#64748b; margin-top:3px; display:inline-block;">${currentLang === "hu" ? "Játssz egy meccset, rúgj gólt és írd be magad a történelembe!" : "Play a match, score goals, and claim the #1 spot!"}</span>
       </td>
     `;
     tbody.appendChild(emptyTr);
@@ -7490,32 +7576,37 @@ function renderStartScreenLeaderboard() {
       }
     }
 
+    const isConnected = !!(connectedAddress && (connectedAddress.startsWith("erd1") || connectedAddress.length >= 32));
+    if (isConnected && row.address && row.address.toLowerCase() === connectedAddress.toLowerCase()) {
+      tr.className = "user-highlight-row";
+    }
+
     const isHero = !!(herotag && herotag.trim().length > 0);
-    const shortAddr = row.isGuest ? "Guest" : shortErd(row.address);
     const isRowUltras = !row.isGuest && hasUltrasPass(row.address);
-    const vipCrown = isRowUltras ? `<span class="ultras-vip-crown" title="👑 EFOO Ultras VIP Pass Active (0% Fees & +25% Score Boost)">👑 VIP</span> ` : "";
+    const vipCrown = isRowUltras ? `<span class="ultras-vip-crown" title="👑 EFOO Ultras VIP Pass Active">👑</span> ` : "";
+
     const displayName = isHero
-      ? `<strong class="herotag-name" style="color:#a8ff00; font-weight:800; font-size:0.86rem; text-shadow:0 0 10px rgba(168,255,0,0.5);">${vipCrown}⚡ ${escapeHtml(herotag)}</strong>`
-      : `<span class="generated-nickname" style="color:#e2e8f0; font-weight:600; font-size:0.82rem;">${vipCrown}${escapeHtml(row.nickname || row.name || (row.isGuest ? "Guest Player" : getDeterministicFootballNickname(row.address)))}</span>`;
+      ? `<strong class="herotag-name" style="color:#a8ff00; font-weight:800; font-size:0.86rem;">${vipCrown}⚡ ${escapeHtml(herotag)}</strong>`
+      : `<span class="generated-nickname" style="color:#cbd5e1; font-size:0.84rem;">${vipCrown}${escapeHtml(row.nickname || row.name || getDeterministicFootballNickname(row.address))}</span>`;
 
     const rankPill = row.rank === 1
-      ? `<span style="color:#ffb800; font-weight:900; font-size:1.05rem;">🥇 1</span>`
+      ? "🥇 1"
       : row.rank === 2
-      ? `<span style="color:#cbd5e1; font-weight:900; font-size:1.05rem;">🥈 2</span>`
+      ? "🥈 2"
       : row.rank === 3
-      ? `<span style="color:#f97316; font-weight:900; font-size:1.05rem;">🥉 3</span>`
-      : `<span style="color:#94a3b8; font-weight:800; font-family:'JetBrains Mono',monospace;">#${row.rank}</span>`;
+      ? "🥉 3"
+      : `#${row.rank}`;
 
     tr.innerHTML = `
-      <td>${rankPill}</td>
+      <td><strong style="color:${row.rank <= 3 ? '#ffb800' : '#94a3b8'};">${rankPill}</strong></td>
       <td>
-        <div style="display:flex; flex-direction:column; gap:2px; line-height:1.2;">
-          <div>${displayName}</div>
-          <small style="color:#64748b; font-size:0.68rem; font-family:'JetBrains Mono',monospace;">${shortAddr}</small>
+        <div style="display:flex; flex-direction:column; line-height:1.2;">
+          ${displayName}
+          <small style="color:#64748b; font-size:0.65rem; font-family:'JetBrains Mono',monospace;">${row.isGuest ? 'Guest' : shortErd(row.address)}</small>
         </div>
       </td>
-      <td style="text-align:center; white-space:nowrap;"><span style="color:#38bdf8; font-weight:800; font-family:'JetBrains Mono',monospace; font-size:0.84rem; background:rgba(56,189,248,0.12); padding:3px 10px; border-radius:999px; border:1px solid rgba(56,189,248,0.3); display:inline-block; white-space:nowrap; letter-spacing:0.02em;">LVL ${row.level || 1}</span></td>
-      <td style="text-align:right;"><strong style="color:#a8ff00; font-family:'JetBrains Mono',monospace; font-size:0.92rem;">${row.score.toLocaleString("en-US")}</strong></td>
+      <td style="text-align: center;"><span style="color:#38bdf8; font-weight:800; font-size:0.75rem;">L${row.level || 1}</span></td>
+      <td style="text-align: right;"><strong style="color:#a8ff00; font-family:'JetBrains Mono',monospace; font-size:0.84rem;">${row.score.toLocaleString("en-US")}</strong></td>
     `;
     tbody.appendChild(tr);
   });
@@ -8145,6 +8236,25 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+  // Dual Leaderboard Tab Switchers
+  document.getElementById("tab-hub-weekly")?.addEventListener("click", () => {
+    currentHubLeaderboardTab = "weekly";
+    renderStartScreenLeaderboard();
+  });
+  document.getElementById("tab-hub-alltime")?.addEventListener("click", () => {
+    currentHubLeaderboardTab = "alltime";
+    renderStartScreenLeaderboard();
+  });
+
+  document.getElementById("tab-modal-weekly")?.addEventListener("click", () => {
+    currentModalLeaderboardTab = "weekly";
+    renderLeaderboardModal({ isPostMatch: isPostMatchLeaderboardActive });
+  });
+  document.getElementById("tab-modal-alltime")?.addEventListener("click", () => {
+    currentModalLeaderboardTab = "alltime";
+    renderLeaderboardModal({ isPostMatch: isPostMatchLeaderboardActive });
+  });
+
   document.getElementById("open-full-ranks-modal")?.addEventListener("click", openLeaderboard);
   document.querySelector(".hub-pot-badge")?.addEventListener("click", openLeaderboard);
 
