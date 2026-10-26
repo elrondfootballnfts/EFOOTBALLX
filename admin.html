@@ -983,7 +983,7 @@
                 🗑️ Heti Ranglista Törlése &amp; Új Forduló Indítása
               </button>
               <small style="color: #94a3b8; display: block; margin-top: 4px; font-size: 0.72rem;">
-                🛡️ Csak a heti fordulót nullázza. Az <strong>Örökös (All-Time) Ranglista SOHA nem törlődik</strong>!
+                Resets weekly derby scores only. All-Time Hall of Fame remains untouched.
               </small>
             </div>
           </div>
@@ -2930,7 +2930,7 @@
     };
 
     document.getElementById("btn-reset-weekly-lb").addEventListener("click", () => {
-      if (!confirm("⚠️ BIZTOSAN TÖRÖLNI AKAROD A HETI RANGLISTÁT? Ezzel új heti forduló indul! (Az Örökös/All-Time ranglista 100% megmarad és soha nem törlődik!)")) return;
+      if (!confirm("Reset weekly derby leaderboard and start a new round?")) return;
       if (window.EfooLeaderboard) {
         window.EfooLeaderboard.clearWeekly();
       }

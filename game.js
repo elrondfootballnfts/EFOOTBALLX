@@ -7273,13 +7273,13 @@ function renderLeaderboardModal(options = {}) {
   const mainTitleEl = document.getElementById("lb-modal-main-title");
   const mainSublineEl = document.getElementById("lb-modal-main-subline");
   if (mainTitleEl) {
-    mainTitleEl.innerHTML = isAllTime ? "👑 ALL-TIME HALL OF FAME (ÖRÖKÖS DICSŐSÉGFAL)" : "🏆 LEADERBOARD &amp; WEEKLY JACKPOT";
+    mainTitleEl.innerHTML = isAllTime ? "👑 ALL-TIME HALL OF FAME" : "🏆 LEADERBOARD &amp; WEEKLY JACKPOT";
     mainTitleEl.style.color = isAllTime ? "#ffb800" : "#a8ff00";
   }
   if (mainSublineEl) {
     mainSublineEl.textContent = isAllTime
-      ? (currentLang === "hu" ? "A valaha játszott összes játékos örökös ranglistája • SOHA NEM TÖRLŐDIK!" : "Sunday League Degen FC • Permanent All-Time Player Legends • Never Wiped!")
-      : (currentLang === "hu" ? "Sunday League Degen FC • A heti 90+5' Jackpot Pool elosztása" : "Sunday League Degen FC • Top Strikers Share the 90+5' Pool");
+      ? "Sunday League Degen FC • Highest Career Scores"
+      : "Sunday League Degen FC • Top Strikers Share the 90+5' Pool";
   }
 
   // Update Modal Tab Active States
@@ -7534,12 +7534,12 @@ function renderStartScreenLeaderboard() {
   }
   if (subEl) {
     subEl.textContent = isAllTime 
-      ? (currentLang === "hu" ? "Örökös dicsőségfal • SOHA NEM TÖRLŐDIK" : "All-Time Legends • Never Deleted")
-      : (currentLang === "hu" ? "A hét góllövői • Élő ellenőrzés" : "Top Scorers of the Week • Live Verification");
+      ? "All-Time Legends • Career High Scores"
+      : "Top Scorers of the Week • Live Verification";
   }
 
   if (countEl) {
-    const label = isAllTime ? (currentLang === "hu" ? "Örökös Legenda" : "All-Time Legends") : (currentLang === "hu" ? "Heti Játékos" : "Weekly Scorers");
+    const label = isAllTime ? "All-Time Legends" : "Weekly Scorers";
     countEl.textContent = list.length === 0
       ? `0 ${label}`
       : `${list.length} ${label}`;
@@ -7550,8 +7550,8 @@ function renderStartScreenLeaderboard() {
     emptyTr.innerHTML = `
       <td colspan="4" style="text-align:center; padding:28px 12px; color:#94a3b8;">
         <div style="font-size:1.8rem; margin-bottom:6px;">🏟️ ⚽</div>
-        <strong style="color:#fff; font-size:0.92rem; letter-spacing:0.04em;">${isAllTime ? (currentLang === "hu" ? "MÉG NINCS ÖRÖKÖS LEGENDA" : "NO ALL-TIME LEGENDS YET") : (currentLang === "hu" ? "MÉG NINCS HETI GÓLLÖVŐ" : "NO WEEKLY SCORERS YET")}</strong><br>
-        <span style="font-size:0.75rem; color:#64748b; margin-top:3px; display:inline-block;">${currentLang === "hu" ? "Játssz egy meccset, rúgj gólt és írd be magad a történelembe!" : "Play a match, score goals, and claim the #1 spot!"}</span>
+        <strong style="color:#fff; font-size:0.92rem; letter-spacing:0.04em;">${isAllTime ? "NO ALL-TIME LEGENDS YET" : "NO WEEKLY SCORERS YET"}</strong><br>
+        <span style="font-size:0.75rem; color:#64748b; margin-top:3px; display:inline-block;">Play a match, score goals, and etch your name into the ${isAllTime ? "Hall of Fame" : "Weekly Board"}!</span>
       </td>
     `;
     tbody.appendChild(emptyTr);
