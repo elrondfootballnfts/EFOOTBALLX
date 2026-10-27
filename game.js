@@ -7464,13 +7464,17 @@ function renderLeaderboardModal(options = {}) {
     }
 
     const isHero = !!(herotag && herotag.trim().length > 0);
-    const shortAddr = row.isGuest ? (row.isSimulated ? "Unsaved" : "Guest") : shortErd(row.address);
+    const isSol = (typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(row.address)) || (row.address && !row.address.startsWith("erd1") && row.address.length >= 32);
+    const shortAddr = row.isGuest ? (row.isSimulated ? "Unsaved" : "Guest") : (isSol ? row.address.slice(0, 4) + '...' + row.address.slice(-4) : shortErd(row.address));
+    const solBadge = isSol ? `<span style="color:#ab9ff2; font-weight:800; font-size:0.68rem; background:rgba(171,159,242,0.18); padding:1px 5px; border-radius:3px; border:1px solid #ab9ff2; margin-right:4px;">SOL</span> ` : "";
     const isRowUltras = !row.isGuest && hasUltrasPass(row.address);
     const vipCrown = isRowUltras ? `<span class="ultras-vip-crown" title="👑 EFOO Ultras VIP Pass Active (0% Fees & +25% Score Boost)">👑 VIP</span> ` : "";
     const displayName = row.isSimulated
       ? `<strong style="color:#ffffff; font-size:0.92rem;">👤 ${escapeHtml(row.nickname)}</strong>`
       : isHero
       ? `<strong class="herotag-name" style="color:#a8ff00; font-weight:800; font-size:0.95rem; text-shadow:0 0 10px rgba(168,255,0,0.5);">${vipCrown}⚡ ${escapeHtml(herotag)}</strong>`
+      : isSol
+      ? `<strong style="color:#ab9ff2; font-weight:800; font-size:0.92rem;">${vipCrown}${solBadge}${escapeHtml(row.nickname || getDeterministicFootballNickname(row.address))}</strong>`
       : `<span class="generated-nickname" style="color:#94a3b8; font-style:italic;">${vipCrown}${escapeHtml(row.nickname || row.name || getDeterministicFootballNickname(row.address))}</span>`;
 
     const rankPill = row.displayRank === 1
@@ -7559,6 +7563,8 @@ function renderStartScreenLeaderboard() {
   topList.forEach((row) => {
     const tr = document.createElement("tr");
 
+    const isSol = (typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(row.address)) || (row.address && !row.address.startsWith("erd1") && row.address.length >= 32);
+
     let herotag = row.herotag;
     if (!herotag || herotag.trim().length === 0) {
       if (!row.isGuest && row.address && row.address.startsWith("erd1")) {
@@ -7581,8 +7587,11 @@ function renderStartScreenLeaderboard() {
     const isRowUltras = !row.isGuest && hasUltrasPass(row.address);
     const vipCrown = isRowUltras ? `<span class="ultras-vip-crown" title="👑 EFOO Ultras VIP Pass Active">👑</span> ` : "";
 
+    const solBadge = isSol ? `<span style="color:#ab9ff2; font-weight:800; font-size:0.68rem; background:rgba(171,159,242,0.18); padding:1px 5px; border-radius:3px; border:1px solid #ab9ff2; margin-right:3px;">SOL</span> ` : "";
     const displayName = isHero
       ? `<strong class="herotag-name" style="color:#a8ff00; font-weight:800; font-size:0.86rem;">${vipCrown}⚡ ${escapeHtml(herotag)}</strong>`
+      : isSol
+      ? `<strong style="color:#ab9ff2; font-weight:800; font-size:0.86rem;">${vipCrown}${solBadge}${escapeHtml(row.nickname || getDeterministicFootballNickname(row.address))}</strong>`
       : `<span class="generated-nickname" style="color:#cbd5e1; font-size:0.84rem;">${vipCrown}${escapeHtml(row.nickname || row.name || getDeterministicFootballNickname(row.address))}</span>`;
 
     const rankPill = row.rank === 1
