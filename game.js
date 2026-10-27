@@ -1362,6 +1362,14 @@ const audio = new ModernStadiumAudio();
 // ============================================================================
 let currentLang = "en";
 localStorage.setItem("efoo_game_lang", "en");
+function isWalletConnected() {
+  if (!connectedAddress || typeof connectedAddress !== "string") return false;
+  const clean = connectedAddress.trim();
+  if (clean.startsWith("erd1") && clean.length >= 40) return true;
+  if (clean.length >= 32 && clean.length <= 44 && !clean.startsWith("guest")) return true;
+  return false;
+}
+
 let connectedAddress = localStorage.getItem("efoo_wallet_address") || localStorage.getItem("multiversx_address") || "";
 let connectedProvider = localStorage.getItem("efoo_wallet_provider") || localStorage.getItem("multiversx_provider") || "webwallet";
 if (connectedAddress && connectedAddress.startsWith("erd1qyu5wthldz")) {
@@ -1640,7 +1648,7 @@ function clampNum(v, lo, hi) {
 // NFT RARITY & SKILLS SCALING (ROOKIE F2P, COMMON, RARE, EPIC, LEGENDARY)
 // ============================================================================
 function getPowers() {
-  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
+  const isConnected = isWalletConnected();
   if (!isConnected) {
     return {
       pCount: 0,
@@ -1828,7 +1836,7 @@ const game = {
 };
 
 function getAvailableStrikers() {
-  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
+  const isConnected = isWalletConnected();
   if (!isConnected) {
     return [ROOKIE_STRIKER];
   }
@@ -1857,7 +1865,7 @@ function getAvailableStrikers() {
 }
 
 function getAvailableKeepers() {
-  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
+  const isConnected = isWalletConnected();
   if (!isConnected) {
     return [ROOKIE_KEEPER];
   }
@@ -2289,7 +2297,7 @@ function refreshHudUI() {
   const hudTrait = document.getElementById("hud-striker-trait");
   const hudDock = document.getElementById("fut-striker-dock");
 
-  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
+  const isConnected = isWalletConnected();
   if (hudDock) {
     if (!isConnected) {
       hudDock.style.display = "none";
@@ -2500,7 +2508,7 @@ function launchMatchWithIntro() {
   }
   if (titleEl) titleEl.textContent = "120' DRAW — PENALTY SHOOTOUT";
   if (perkEl) {
-    if (!connectedAddress || !connectedAddress.startsWith("erd1")) {
+    if (!isWalletConnected()) {
       perkEl.textContent = currentLang === "hu" ? "🔒 VENDÉG MÓD • ALAP FELSZERELÉS (0 KÉPESSÉG)" : "🔒 GUEST MODE • BASE KIT (0 SKILLS)";
       perkEl.style.color = "#94a3b8";
     } else if (p.isUltrasPass) {
@@ -3142,7 +3150,7 @@ function showPostMatchLeaderboard() {
     refreshHudUI();
   }
 
-  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
+  const isConnected = isWalletConnected();
   if (isConnected) {
     recordMatchToLeaderboard(game.score, game.userGoals, game.level);
   }
@@ -4969,7 +4977,7 @@ function drawArticulatedGoalkeeper(ctx, x, y, angle, armReach, isFrozen = false)
   // When user shoots (game.shootoutTurn === "shoot") ➔ Keeper is CPU / BOT (NO NFT).
   // When bot shoots (game.shootoutTurn === "defend") ➔ Keeper is USER'S OWN NFT GOALKEEPER!
   const isUserDefending = game.shootoutTurn === "defend";
-  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
+  const isConnected = isWalletConnected();
 
   if (isUserDefending && isConnected) {
     // 1. User's Own NFT Goalkeeper
@@ -5125,7 +5133,7 @@ function drawPitchStrikerHologram(ctx, x, y) {
   ctx.translate(x, y);
 
   const isUserShooting = game.shootoutTurn === "shoot";
-  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
+  const isConnected = isWalletConnected();
 
   if (isUserShooting && isConnected) {
     // 1. User's Own NFT Striker
@@ -6780,7 +6788,7 @@ function buySkillWithEfoo(skillId, count = 1) {
 }
 
 function armSkill(skillId) {
-  if (!connectedAddress || !connectedAddress.startsWith("erd1")) {
+  if (!isWalletConnected()) {
     showToast(currentLang === "hu" ? "🔒 A szuperképességek használatához jelentkezz be tárcáddal!" : "🔒 Connect your wallet with an NFT to use skills!");
     return;
   }
@@ -6801,7 +6809,7 @@ function armSkill(skillId) {
 function renderSkillsDeckUI() {
   const row = document.getElementById("skills-slots-row");
   if (!row) return;
-  const isConnected = !!(connectedAddress && connectedAddress.startsWith("erd1"));
+  const isConnected = isWalletConnected();
   if (!isConnected) {
     row.innerHTML = `
       <div style="color:#94a3b8; font-size:0.72rem; font-family:'JetBrains Mono',monospace; padding:6px 14px; background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.12); border-radius:8px; display:flex; align-items:center; gap:6px;">
@@ -7120,16 +7128,17 @@ function getLeaderboard(type = "weekly") {
 function recordMatchToLeaderboard(score, goals, level) {
   if (score <= 0) return null;
 
-  let playerAddr = connectedAddress;
-  let isGuest = false;
-  if (!playerAddr || !playerAddr.startsWith("erd1") || playerAddr.length !== 62) {
+  let playerAddr = (connectedAddress || "").trim();
+  const isConnected = isWalletConnected();
+  let isGuest = !isConnected;
+
+  if (isGuest) {
     let guestId = localStorage.getItem("efoo_local_guest_id");
     if (!guestId) {
       guestId = "guest_player";
       localStorage.setItem("efoo_local_guest_id", guestId);
     }
     playerAddr = guestId;
-    isGuest = true;
   }
 
   let hero = "";
@@ -7228,7 +7237,7 @@ function recordMatchToLeaderboard(score, goals, level) {
 
 function renderLeaderboardModal(options = {}) {
   const isPostMatch = !!options.isPostMatch;
-  const isConnected = !!(connectedAddress && (connectedAddress.startsWith("erd1") || connectedAddress.length >= 32));
+  const isConnected = isWalletConnected();
   const isGuest = !isConnected;
   const currentScore = typeof options.score === "number" ? options.score : (game.score || 0);
   const currentGoals = typeof options.goals === "number" ? options.goals : (game.userGoals || 0);
@@ -7320,7 +7329,8 @@ function renderLeaderboardModal(options = {}) {
     if (!isGuest) {
       // Verified connected player
       const userRank = list.findIndex(x => x.address && x.address.toLowerCase() === connectedAddress.toLowerCase()) + 1;
-      const rankPill = userRank === 1 ? "🥇 1ST PLACE (65% JACKPOT)" : userRank === 2 ? "🥈 2ND PLACE (25% JACKPOT)" : userRank === 3 ? "🥉 3RD PLACE (10% JACKPOT)" : `#${userRank} RANK`;
+      const displayUserRank = userRank > 0 ? userRank : 1;
+      const rankPill = displayUserRank === 1 ? "🥇 1ST PLACE (65% JACKPOT)" : displayUserRank === 2 ? "🥈 2ND PLACE (25% JACKPOT)" : displayUserRank === 3 ? "🥉 3RD PLACE (10% JACKPOT)" : `#${displayUserRank} RANK`;
       postMatchBanner.innerHTML = `
         <div class="verified-winner-banner">
           <div class="gjs-head">
@@ -7328,7 +7338,7 @@ function renderLeaderboardModal(options = {}) {
             <span class="gjs-jackpot-share">${rankPill}</span>
           </div>
           <p class="gjs-desc" style="margin:0;">
-            Congratulations! Your score of <strong>${currentScore.toLocaleString("en-US")} PTS</strong> is verified on the weekly Stadium Vault Leaderboard at <strong>#${userRank || 1}</strong>!
+            Congratulations! Your score of <strong>${currentScore.toLocaleString("en-US")} PTS</strong> is verified on the weekly Stadium Vault Leaderboard at <strong>#${displayUserRank}</strong>!
           </p>
         </div>
       `;
@@ -7562,7 +7572,7 @@ function renderStartScreenLeaderboard() {
       }
     }
 
-    const isConnected = !!(connectedAddress && (connectedAddress.startsWith("erd1") || connectedAddress.length >= 32));
+    const isConnected = isWalletConnected();
     if (isConnected && row.address && row.address.toLowerCase() === connectedAddress.toLowerCase()) {
       tr.className = "user-highlight-row";
     }
@@ -7588,7 +7598,7 @@ function renderStartScreenLeaderboard() {
       <td>
         <div style="display:flex; flex-direction:column; line-height:1.2;">
           ${displayName}
-          <small style="color:#64748b; font-size:0.65rem; font-family:'JetBrains Mono',monospace;">${row.isGuest ? 'Guest' : shortErd(row.address)}</small>
+          <small style="color:#64748b; font-size:0.65rem; font-family:'JetBrains Mono',monospace;">${row.isGuest ? 'Guest' : (isSol ? row.address.slice(0, 4) + '...' + row.address.slice(-4) : shortErd(row.address))}</small>
         </div>
       </td>
       <td style="text-align: center;"><span style="color:#38bdf8; font-weight:800; font-size:0.75rem;">L${row.level || 1}</span></td>

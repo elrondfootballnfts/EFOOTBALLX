@@ -65,7 +65,7 @@
 
   function sanitizeKey(address) {
     if (!address) return "guest";
-    return String(address).toLowerCase().replace(/[^a-z0-9_]/g, "_");
+    return String(address).trim().replace(/[^a-zA-Z0-9_-]/g, "_");
   }
 
   function getLocalLeaderboard(type = "weekly") {
@@ -264,7 +264,9 @@
     if (!data || typeof data.score !== "number" || data.score <= 0) return null;
 
     const rawAddr = (data.address || "guest_player").trim();
-    const isGuest = (!rawAddr.startsWith("erd1") && rawAddr.length < 32) || rawAddr.startsWith("guest");
+    const isSol = rawAddr.length >= 32 && rawAddr.length <= 44 && !rawAddr.startsWith("erd1") && !rawAddr.startsWith("guest");
+    const isMvx = rawAddr.startsWith("erd1") && rawAddr.length >= 40;
+    const isGuest = !(isSol || isMvx);
     const key = sanitizeKey(rawAddr);
     const score = data.score;
     const goals = data.goals || 0;
