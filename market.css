@@ -176,13 +176,14 @@ body {
   font-weight: 800;
 }
 
-/* Krogan-style Teal/Cyan Connect Button */
+/* Universal Web3 Cyber Gaming Connect Button (Cross-Chain / Solana & MultiversX) */
+.web3-btn-connect,
 .krogan-btn-connect {
-  background: linear-gradient(135deg, #1aa4b8, #118192);
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
   color: #ffffff;
-  border: none;
-  border-radius: 10px;
-  font-family: var(--font-inter);
+  border: 1px solid rgba(139, 92, 246, 0.45);
+  border-radius: 12px;
+  font-family: inherit;
   font-size: 0.88rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -191,14 +192,16 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 4px 16px rgba(18, 130, 146, 0.4);
-  transition: all 0.18s ease;
+  box-shadow: 0 4px 18px rgba(99, 102, 241, 0.35);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.web3-btn-connect:hover,
 .krogan-btn-connect:hover {
   transform: translateY(-1px);
-  filter: brightness(1.1);
-  box-shadow: 0 6px 20px rgba(18, 130, 146, 0.55);
+  filter: brightness(1.15);
+  border-color: rgba(139, 92, 246, 0.85);
+  box-shadow: 0 6px 24px rgba(139, 92, 246, 0.55);
 }
 
 /* Krogan-style Teal/Cyan Connected Wallet Capsule Pill */

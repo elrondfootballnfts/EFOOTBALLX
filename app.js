@@ -2666,7 +2666,7 @@ function updateWalletStatusUI() {
   } else {
     if (navLabel) navLabel.textContent = I18N[currentLang].nav_connect;
     if (navIcon && typeof SolanaAdapter !== "undefined") {
-      navIcon.innerHTML = SolanaAdapter.MULTIVERSX_ICON_SVG;
+      navIcon.innerHTML = SolanaAdapter.WEB3_WALLET_ICON_SVG || SolanaAdapter.MULTIVERSX_ICON_SVG;
     }
     if (navBtn) {
       navBtn.classList.remove("solana-connected");

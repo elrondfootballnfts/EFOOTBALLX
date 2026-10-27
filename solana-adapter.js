@@ -23,6 +23,9 @@
 
   const MULTIVERSX_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 200 200" class="egld-icon-svg" aria-hidden="true"><circle cx="100" cy="100" r="100" fill="#000000"/><path fill="#23f7dd" d="M 105.65625 99.953125 L 152.476562 75.019531 L 144.613281 60 L 101.714844 77.234375 C 100.617188 77.683594 99.382812 77.683594 98.285156 77.234375 L 55.386719 60 L 47.5 75.066406 L 94.320312 100 L 47.5 124.933594 L 55.386719 140 L 98.285156 122.632812 C 99.382812 122.1875 100.617188 122.1875 101.714844 122.632812 L 144.613281 139.914062 L 152.5 124.847656 Z M 105.65625 99.953125 "/></svg>`;
 
+  const WEB3_WALLET_ICON_SVG = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="web3-wallet-svg" style="vertical-align:middle; display:inline-block;"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a3 3 0 0 0 0 6h3v2a1 1 0 0 1-1 1H5a2 2 0 0 1-2-2V5" /><circle cx="18" cy="15" r="1.5" fill="currentColor"/></svg>`;
+
+
   function isSolanaAddress(addr) {
     if (!addr || typeof addr !== "string") return false;
     const clean = addr.trim();
@@ -110,22 +113,35 @@
     }
   }
 
-  async function connectPhantom() {
+    async function connectPhantom() {
     const provider = getPhantomProvider();
     if (!provider) {
       window.open("https://phantom.app/", "_blank");
       throw new Error("PHANTOM_NOT_INSTALLED");
     }
 
-    const resp = await provider.connect();
-    const pubkey = resp.publicKey.toString();
+    // Always actively disconnect previous session so Phantom opens its prompt popup asking for user confirmation
+    try {
+      if (provider.isConnected) {
+        await provider.disconnect();
+      }
+    } catch (e) {}
+
+    const resp = await provider.connect({ onlyIfTrusted: false });
+    const pubkey = resp && resp.publicKey ? resp.publicKey.toString() : (provider.publicKey ? provider.publicKey.toString() : "");
+
+    if (!pubkey) {
+      throw new Error("PHANTOM_CONNECT_REJECTED");
+    }
 
     // Persist session
     try {
       localStorage.setItem("efoo_wallet_address", pubkey);
       localStorage.setItem("efoo_wallet_provider", "phantom");
       localStorage.setItem("efoo_active_chain", "solana_mainnet");
-      localStorage.setItem("multiversx_address", ""); // clear MVX address to avoid conflict
+      localStorage.removeItem("multiversx_address");
+      localStorage.removeItem("multiversx_provider");
+      localStorage.setItem("efoo_connected_address", pubkey);
     } catch (e) {}
 
     return pubkey;
@@ -154,6 +170,7 @@
     SOLANA_ICON_SVG,
     SOLANA_BADGE_SVG,
     MULTIVERSX_ICON_SVG,
+    WEB3_WALLET_ICON_SVG,
     isSolanaAddress,
     getPhantomProvider,
     rpcCall,

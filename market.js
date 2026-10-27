@@ -2119,7 +2119,7 @@ function updateWalletUI() {
     }
     const connIcon = document.getElementById("m-btn-connect-icon");
     if (connIcon && typeof SolanaAdapter !== "undefined") {
-      connIcon.innerHTML = SolanaAdapter.MULTIVERSX_ICON_SVG;
+      connIcon.innerHTML = SolanaAdapter.WEB3_WALLET_ICON_SVG || SolanaAdapter.MULTIVERSX_ICON_SVG;
     }
     if (vipBadge) vipBadge.classList.add("hidden");
   }
