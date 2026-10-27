@@ -5,7 +5,7 @@
  * 
  * Supports both:
  * 1. ⚡ WEEKLY DERBY LEADERBOARD: Resets weekly, tied to the 25.4M Stadium Jackpot.
- * 2. 👑 ALL-TIME HALL OF FAME: Permanent, NEVER wiped, stores all-time personal bests.
+ * 2. 👑 ALL-TIME HALL OF FAME: Permanent career records and all-time personal bests.
  * 
  * Features:
  * - 100% Free: Uses Google Firebase Realtime Database HTTPS REST API (Zero SDK needed).
@@ -187,7 +187,7 @@
   }
 
   /**
-   * Fetch permanent All-Time Hall of Fame leaderboard (NEVER WIPED)
+   * Fetch permanent All-Time Hall of Fame leaderboard
    */
   async function fetchAllTimeLeaderboard() {
     if (isFetchingAllTime) return memoryCacheAllTime || getLocalLeaderboard("alltime");
@@ -258,7 +258,7 @@
   /**
    * Record a completed match to BOTH:
    * 1. Weekly Leaderboard (may be wiped at end of cycle for new jackpot)
-   * 2. All-Time Hall of Fame (PERMANENT - NEVER WIPED)
+   * 2. All-Time Hall of Fame (PERMANENT CAREER RECORDS)
    */
   async function recordScore(data) {
     if (!data || typeof data.score !== "number" || data.score <= 0) return null;

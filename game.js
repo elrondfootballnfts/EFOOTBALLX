@@ -7248,7 +7248,7 @@ function renderLeaderboardModal(options = {}) {
     if (isPostMatch) {
       playBtn.classList.add("hidden");
       nextBtn.classList.remove("hidden");
-      nextBtn.textContent = currentLang === "hu" ? "🚀 KÖVETKEZŐ: MECCS ÖSSZEFOGLALÓ ➔" : "🚀 NEXT: MATCH SUMMARY ➔";
+      nextBtn.textContent = "🚀 NEXT: MATCH SUMMARY ➔";
     } else {
       playBtn.classList.remove("hidden");
       nextBtn.classList.add("hidden");
@@ -7937,8 +7937,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("sfx-label").textContent = audio.enabled ? "ON" : "OFF";
   });
   document.getElementById("lang-toggle-btn")?.addEventListener("click", () => {
-    const nextLang = currentLang === "en" ? "hu" : currentLang === "hu" ? "ro" : "en";
-    applyLang(nextLang);
+    applyLang("en");
   });
 
   // Boost / Pot Drawer Modal
