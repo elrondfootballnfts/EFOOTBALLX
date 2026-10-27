@@ -5658,7 +5658,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Providers: xPortal Mobile App (WalletConnect v2)
   
-  // Phantom Wallet Login on Solana Devnet
+  // Phantom Wallet Login on Solana Mainnet
   document.getElementById("m-login-phantom")?.addEventListener("click", async () => {
     try {
       if (typeof SolanaAdapter === "undefined") {
@@ -5672,7 +5672,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("m-wallet-modal")?.classList.add("hidden");
       await fetchSolanaWalletBalances(pubkey);
       updateWalletUI();
-      showToast(currentLang === "hu" ? "✅ Phantom tárca csatlakoztatva (Solana Devnet)!" : "✅ Phantom wallet connected on Solana Devnet!");
+      showToast("✅ Phantom wallet connected on Solana Mainnet!");
     } catch (err) {
       if (err && err.message !== "PHANTOM_NOT_INSTALLED") {
         console.warn("Market Phantom notice:", err);

@@ -2585,7 +2585,7 @@ function updateWalletStatusUI() {
     if (modalConnStatus) modalConnStatus.classList.remove("hidden");
     if (modalConnAddr) modalConnAddr.textContent = shortErd(connectedAddress);
     if (modalNetTitle) {
-      modalNetTitle.textContent = isSol ? "Connected (Solana Devnet):" : "Connected (MultiversX):";
+      modalNetTitle.textContent = isSol ? "Connected (Solana Mainnet):" : "Connected (MultiversX):";
     }
     if (modalDot) {
       modalDot.textContent = isSol ? "🟣" : "🟢";
@@ -2638,7 +2638,7 @@ function updateWalletStatusUI() {
     }
     if (wsProvPill) {
       if (isSol && typeof SolanaAdapter !== "undefined") {
-        wsProvPill.innerHTML = `${SolanaAdapter.SOLANA_ICON_SVG} <span style="margin-left:4px;">Phantom (Devnet)</span>`;
+        wsProvPill.innerHTML = `${SolanaAdapter.SOLANA_ICON_SVG} <span style="margin-left:4px;">Phantom (Mainnet)</span>`;
         wsProvPill.style.background = "rgba(171,159,242,0.2)";
         wsProvPill.style.borderColor = "#ab9ff2";
         wsProvPill.style.color = "#fff";
@@ -2652,7 +2652,7 @@ function updateWalletStatusUI() {
     }
     if (wsShardPill) {
       if (isSol) {
-        wsShardPill.textContent = walletState.hasUltrasPass ? "🎟️ Ultras VIP" : "Solana Devnet";
+        wsShardPill.textContent = walletState.hasUltrasPass ? "🎟️ Ultras VIP" : "Solana Mainnet";
       } else {
         wsShardPill.textContent = `Shard ${walletState.shard}`;
       }
@@ -2713,7 +2713,7 @@ function updateWalletStatusUI() {
 async function fetchConnectedWalletData(address) {
   try {
 
-  // Solana Devnet Check
+  // Solana Mainnet Check
   if (typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(address)) {
     try {
       const solData = await SolanaAdapter.fetchAccountData(address);
@@ -2727,12 +2727,12 @@ async function fetchConnectedWalletData(address) {
       if (efooBalEl) efooBalEl.textContent = `${Math.floor(solData.efooBalance).toLocaleString("en-US")} $EFOO`;
       const wsProvPill = document.getElementById("ws-provider-pill");
       if (wsProvPill) {
-        wsProvPill.textContent = "🟣 Solana Devnet";
+        wsProvPill.textContent = "🟣 Solana Mainnet";
         wsProvPill.classList.remove("hidden");
       }
       const wsShardPill = document.getElementById("ws-shard-pill");
       if (wsShardPill) {
-        wsShardPill.textContent = solData.hasUltrasPass ? "👑 Ultras VIP" : "Devnet Cluster";
+        wsShardPill.textContent = solData.hasUltrasPass ? "👑 Ultras VIP" : "Mainnet Cluster";
         wsShardPill.classList.remove("hidden");
       }
       updateWalletStatusUI();
@@ -4784,7 +4784,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 1. xPortal Mobile App (WalletConnect v2 Pairing QR + Deep Link)
   
-  // Solana Devnet Phantom Login
+  // Solana Mainnet Phantom Login
   document.getElementById("login-phantom-btn")?.addEventListener("click", async () => {
     try {
       if (typeof SolanaAdapter === "undefined") {
@@ -4794,7 +4794,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const pubkey = await SolanaAdapter.connectPhantom();
       await connectWithWalletAddress(pubkey, "phantom");
       closeWalletModal();
-      showToast(currentLang === "hu" ? "✅ Phantom tárca sikeresen csatlakoztatva (Solana Devnet)!" : "✅ Phantom wallet connected on Solana Devnet!");
+      showToast("✅ Phantom wallet connected on Solana Mainnet!");
     } catch (err) {
       if (err && err.message !== "PHANTOM_NOT_INSTALLED") {
         console.warn("Phantom connect notice:", err);

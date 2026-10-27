@@ -1,13 +1,13 @@
 /**
- * EFOOTBALLX - Solana Devnet Web3 Adapter
- * Handles Phantom / Solflare wallet connection, Devnet RPC queries for $EFOO SPL tokens and EFOO Ultras VIP Pass SFT.
+ * EFOOTBALLX - Solana Mainnet Web3 Adapter
+ * Handles Phantom / Solflare wallet connection, Mainnet RPC queries for $EFOO SPL tokens and EFOO Ultras VIP Pass SFT.
  */
 (function (window) {
   "use strict";
 
   const SOLANA_CONFIG = {
-    CLUSTER: "devnet",
-    RPC_URL: "https://api.devnet.solana.com",
+    CLUSTER: "mainnet-beta",
+    RPC_URL: "https://api.mainnet-beta.solana.com",
     EFOO_MINT: "EB5Zr98z8iGcd7tsP4YXLpPqfwa46FmsqFcop2ztFs2K",
     ULTRAS_PASS_MINT: "8T7GWartHkssv5uL9Ru4QEsVXVKouK5wbqBnA4LvJDak",
     EXPLORER_BASE: "https://explorer.solana.com"
@@ -124,7 +124,7 @@
     try {
       localStorage.setItem("efoo_wallet_address", pubkey);
       localStorage.setItem("efoo_wallet_provider", "phantom");
-      localStorage.setItem("efoo_active_chain", "solana_devnet");
+      localStorage.setItem("efoo_active_chain", "solana_mainnet");
       localStorage.setItem("multiversx_address", ""); // clear MVX address to avoid conflict
     } catch (e) {}
 

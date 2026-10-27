@@ -2172,7 +2172,7 @@ function updateEntryGateUI() {
       }
     }
     if (modalActiveChainLabel) {
-      modalActiveChainLabel.textContent = isSol ? "🟣 CONNECTED SOLANA WALLET (DEVNET):" : "🟢 CONNECTED MULTIVERSX WALLET:";
+      modalActiveChainLabel.textContent = isSol ? "🟣 CONNECTED SOLANA WALLET (MAINNET):" : "🟢 CONNECTED MULTIVERSX WALLET:";
       modalActiveChainLabel.style.color = isSol ? "#ab9ff2" : "#a8ff00";
     }
     disconnectBtn?.classList.remove("hidden");
@@ -7995,7 +7995,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("wallet-modal-backdrop")?.classList.add("hidden");
   });
   
-  // Solana Devnet Phantom Login in Game
+  // Solana Mainnet Phantom Login in Game
   document.getElementById("login-phantom-btn")?.addEventListener("click", async () => {
     try {
       if (typeof SolanaAdapter === "undefined") {
@@ -8005,7 +8005,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const pubkey = await SolanaAdapter.connectPhantom();
       connectWithAddress(pubkey, "phantom");
       document.getElementById("wallet-modal-backdrop")?.classList.add("hidden");
-      showToast(currentLang === "hu" ? "✅ Phantom tárca csatlakoztatva (Solana Devnet)!" : "✅ Phantom wallet connected on Solana Devnet!");
+      showToast("✅ Phantom wallet connected on Solana Mainnet!");
     } catch (err) {
       if (err && err.message !== "PHANTOM_NOT_INSTALLED") {
         console.warn("Phantom game connect notice:", err);
