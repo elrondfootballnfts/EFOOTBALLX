@@ -5680,7 +5680,7 @@ function syncPendingGuestScoreOnConnect() {
       hasPending = true;
     }
 
-    if (hasPending && connectedAddress && connectedAddress.startsWith("erd1")) {
+    if (hasPending && connectedAddress && isWalletConnected()) {
       recordMatchToLeaderboard(score, goals, level);
       isPostMatchLeaderboardActive = true;
       renderLeaderboardModal({ isPostMatch: true, score, goals, level });

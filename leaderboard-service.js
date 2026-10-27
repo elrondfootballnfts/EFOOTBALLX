@@ -327,11 +327,14 @@
           const existing = await checkRes.json();
           if (existing && typeof existing.score === "number" && existing.score >= score) {
             // Keep existing higher score, only patch metadata if changed
-            if ((typeof isUltras === "boolean" && isUltras !== existing.isUltras) || (herotag && !existing.herotag)) {
+            const higherLevel = level > (existing.level || 1);
+            if ((typeof isUltras === "boolean" && isUltras !== existing.isUltras) || (herotag && !existing.herotag) || higherLevel) {
+              const patchObj = { isUltras: !!isUltras, herotag: herotag || existing.herotag };
+              if (higherLevel) patchObj.level = level;
               await fetch(singleUrl, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ isUltras: !!isUltras, herotag: herotag || existing.herotag })
+                body: JSON.stringify(patchObj)
               });
             }
             return;
