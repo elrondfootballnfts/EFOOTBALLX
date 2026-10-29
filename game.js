@@ -1459,19 +1459,20 @@ function canPlayMatch() {
 }
 
 // ============================================================================
-// LEVELS (1–20): EVERY LEVEL IS A BOSS KEEPER — THE KEEPER READS YOU BETTER,
-// THE AIM SHAKES MORE, THE SWEET SPOT SHRINKS AND WIND PICKS UP
+// LEVELS (1–100): 100 PROGRESSIVE DERBY STAGES WITH BOSS TIERS
+// DIFFICULTY PROGRESSIVELY RISES (SHARPER KEEPER, WIND, FASTER TIMING) BUT ALWAYS SOLVABLE
 // ============================================================================
-const MAX_LEVEL = 20;
+const MAX_LEVEL = 100;
 const SHOTS_PER_MATCH = 5;
 
 const LEVEL_TIERS = [
   { from: 1, name: "SUNDAY LEAGUE", nameRo: "LIGA DE DUMINICĂ", color: "#a8ff00" },
-  { from: 5, name: "AMATEUR CUP", nameRo: "CUPA AMATORILOR", color: "#38bdf8" },
-  { from: 9, name: "PRO LEAGUE", nameRo: "LIGA PRO", color: "#ffb800" },
-  { from: 13, name: "CHAMPIONS", nameRo: "CAMPIONII", color: "#fb923c" },
-  { from: 17, name: "WORLD CLASS", nameRo: "CLASA MONDIALĂ", color: "#ef4444" },
-  { from: 20, name: "LEGEND BOSS", nameRo: "BOSS LEGENDĂ", color: "#e879f9" }
+  { from: 15, name: "AMATEUR CUP", nameRo: "CUPA AMATORILOR", color: "#38bdf8" },
+  { from: 35, name: "PRO LEAGUE", nameRo: "LIGA PRO", color: "#ffb800" },
+  { from: 55, name: "CHAMPIONS", nameRo: "CAMPIONII", color: "#fb923c" },
+  { from: 75, name: "WORLD CLASS", nameRo: "CLASA MONDIALĂ", color: "#ef4444" },
+  { from: 90, name: "GALACTICO ELITE", nameRo: "ELITA GALACTICĂ", color: "#a855f7" },
+  { from: 100, name: "IMMORTAL LEGEND", nameRo: "LEGENDĂ NEMURITOARE", color: "#e879f9" }
 ];
 
 function getLevelTier(level) {
@@ -1488,17 +1489,17 @@ function getLevelParams(level) {
   return {
     level: L,
     t,
-    goalsNeeded: 2 + Math.floor((L - 1) / 7), // L1-7: 2/5 • L8-14: 3/5 • L15-20: 4/5
-    keeperSigma: 0.5 - 0.3 * t, // how badly the keeper misreads the shot (lower = reads better)
-    keeperReach: 0.34 + 0.16 * t, // how far he can stretch
-    commitLean: 0.55 - 0.3 * t, // chance he ignores the ball and dives to his gut-feeling side
-    sway: 0.025 + 0.14 * t, // crosshair shake amplitude
-    swaySpeed: 1 + 1.2 * t,
-    chargeSpeed: 0.024 + 0.02 * t, // power bar speed
-    sweetMin: 0.4 + 0.12 * t, // power sweet-spot window shrinks with level
-    sweetMax: 0.9 - 0.12 * t,
-    windMax: L < 6 ? 0 : 0.05 + 0.17 * ((L - 6) / (MAX_LEVEL - 6)),
-    scoreMul: 1 + (L - 1) * 0.12
+    goalsNeeded: L <= 15 ? 2 : (L <= 50 ? 3 : 4), // L1-15: 2/5 • L16-50: 3/5 • L51-100: 4/5 (challenging, never impossible)
+    keeperSigma: 0.52 - 0.32 * Math.pow(t, 0.75), // how badly keeper misreads shot (0.52 -> 0.20)
+    keeperReach: 0.33 + 0.13 * Math.pow(t, 0.8), // how far he stretches (0.33 -> 0.46)
+    commitLean: 0.55 - 0.25 * t, // chance he commits early (0.55 -> 0.30)
+    sway: 0.025 + 0.08 * Math.pow(t, 0.85), // crosshair shake amplitude
+    swaySpeed: 1 + 1.1 * t,
+    chargeSpeed: 0.024 + 0.016 * t, // power bar speed
+    sweetMin: 0.40 + 0.08 * t, // power sweet-spot window
+    sweetMax: 0.90 - 0.08 * t,
+    windMax: L < 6 ? 0 : 0.04 + 0.14 * ((L - 6) / (MAX_LEVEL - 6)),
+    scoreMul: 1 + (L - 1) * 0.08
   };
 }
 
@@ -3031,6 +3032,8 @@ function executeAiShot() {
 
 function onAiBallReachGoal(endScreenX, endScreenY) {
   const fx = game.activeFx || {};
+  const p = getPowers();
+  const lv = getLevelParams(game.level);
 
   const ballNx = game.ball.aimNx;
   const ballNy = game.ball.aimNy;
@@ -3045,11 +3048,27 @@ function onAiBallReachGoal(endScreenX, endScreenY) {
 
   if (isSaved) {
     game.aiShotHistory.push("miss");
+    game.saves = (game.saves || 0) + 1;
+    game.userSaves = (game.userSaves || 0) + 1;
+
+    // Award major defensive points for saves (scaled by level multiplier and keeper tier)
+    const isClutch = dist < reach * 0.45;
+    const baseSavePts = 1200;
+    const keeperMult = (activeKeeper && activeKeeper.mult) ? activeKeeper.mult : 1.0;
+    const rawSavePts = Math.round(baseSavePts * (lv.scoreMul || 1.0) * keeperMult * (isClutch ? 1.5 : 1.0));
+    const totalSavePts = Math.round(rawSavePts * (p.totalMult || 1.0));
+
+    game.rawBaseScore += rawSavePts;
+    game.score += totalSavePts;
+
     audio.playSaveBlock();
     audio.playApplause();
-    spawnSparks(endScreenX, endScreenY, "#38bdf8", 50);
-    game.shake = 12;
-    game.bigBanner = "🧤 MONSTER SAVE! PENALTY SAVED!";
+    spawnSparks(endScreenX, endScreenY, "#38bdf8", 60);
+    game.shake = 14;
+    const savePtsStr = totalSavePts.toLocaleString("en-US");
+    game.bigBanner = isClutch
+      ? `🧤 INCREDIBLE CLUTCH SAVE! +${savePtsStr}`
+      : `🧤 PENALTY SAVED! +${savePtsStr}`;
     game.bigBannerColor = "#38bdf8";
   } else {
     game.aiGoals += 1;
@@ -3786,10 +3805,27 @@ function initFullscreenStadiumCanvas() {
     const lv = getLevelParams(game.level);
     const fx = game.activeFx || {};
 
-    // Update Moving 2x Bullseye Target
-    game.bullseyePhase += 0.022;
-    game.bullseyeNx = Math.sin(game.bullseyePhase) * 0.74;
-    game.bullseyeNy = 0.62 + Math.cos(game.bullseyePhase * 1.7) * 0.22;
+    // Update Moving 2x Bullseye Target (Progressively unpredictable with higher levels)
+    const lvlNorm = Math.min(1.0, Math.max(0, (game.level - 1) / (MAX_LEVEL - 1)));
+    const baseSpeed = 0.018 + 0.038 * lvlNorm; // Speed scales up with level
+    // Dynamic chaotic velocity fluctuation
+    const speedWobble = 1.0 + Math.sin(game.bullseyePhase * 2.7) * (0.42 * lvlNorm);
+    game.bullseyePhase += baseSpeed * speedWobble;
+
+    // Unpredictable multi-harmonic trajectory
+    // Primary horizontal swing + chaotic secondary frequency + erratic direction kick
+    const hPrimary = Math.sin(game.bullseyePhase) * (0.65 - 0.05 * lvlNorm);
+    const hChaotic = Math.sin(game.bullseyePhase * (2.13 + 1.4 * lvlNorm)) * (0.18 * lvlNorm);
+    const hJitter = Math.cos(game.bullseyePhase * 4.7) * (0.08 * lvlNorm);
+    const rawNx = hPrimary + hChaotic + hJitter;
+    game.bullseyeNx = Math.max(-0.80, Math.min(0.80, rawNx));
+
+    // Multi-harmonic vertical floating: Lissajous curve with unpredictable dips and rises
+    const vBase = 0.58;
+    const vHarmonic = Math.cos(game.bullseyePhase * (1.65 + 0.9 * lvlNorm)) * (0.18 + 0.07 * lvlNorm);
+    const vChaotic = Math.sin(game.bullseyePhase * 3.31 + Math.cos(game.bullseyePhase * 1.5)) * (0.12 * lvlNorm);
+    const rawNy = vBase + vHarmonic + vChaotic;
+    game.bullseyeNy = Math.max(0.24, Math.min(0.88, rawNy));
 
     // Update Hold-to-Charge Ring (scales with level difficulty and skills)
     if (game.phase === "charging" && game.isCharging) {
@@ -7648,6 +7684,12 @@ function renderLevelSelectModal() {
     }
     grid.appendChild(node);
   }
+
+  // Smoothly scroll to current level node in grid
+  setTimeout(() => {
+    const activeNode = grid.querySelector('.level-node.current') || grid.querySelector('.level-node.unlocked:last-of-type');
+    if (activeNode) activeNode.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }, 50);
 }
 
 function metaRefreshUI() {

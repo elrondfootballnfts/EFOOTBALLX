@@ -3817,13 +3817,35 @@ body.start-screen-active .hud-top-bar,
 }
 .levels-map-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 7px;
   margin-top: 14px;
+  max-height: 58vh;
+  overflow-y: auto;
+  padding-right: 6px;
+  scroll-behavior: smooth;
 }
-@media (max-width: 520px) {
+.levels-map-grid::-webkit-scrollbar {
+  width: 6px;
+}
+.levels-map-grid::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+.levels-map-grid::-webkit-scrollbar-thumb {
+  background: #38bdf8;
+  border-radius: 4px;
+}
+@media (max-width: 680px) {
+  .levels-map-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+}
+@media (max-width: 400px) {
   .levels-map-grid {
     grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
   }
 }
 .level-node {
@@ -3831,9 +3853,9 @@ body.start-screen-active .hud-top-bar,
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 10px 4px;
-  border-radius: 12px;
+  gap: 1px;
+  padding: 8px 2px;
+  border-radius: 9px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.12);
   cursor: pointer;
@@ -3856,12 +3878,12 @@ body.start-screen-active .hud-top-bar,
 }
 .level-node-num {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.6rem;
+  font-size: 1.3rem;
   line-height: 1;
 }
 .level-node-req {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.62rem;
+  font-size: 0.56rem;
   color: #94a3b8;
 }
 
