@@ -1333,6 +1333,15 @@ function isWalletConnected() {
   return false;
 }
 
+function isSolanaWalletConnected() {
+  if (!isWalletConnected()) return false;
+  const clean = (connectedAddress || "").trim();
+  if (connectedProvider === "phantom" || connectedProvider === "solana") return true;
+  if (typeof SolanaAdapter !== "undefined" && SolanaAdapter.isSolanaAddress(clean)) return true;
+  if (!clean.startsWith("erd1") && clean.length >= 32 && clean.length <= 44) return true;
+  return false;
+}
+
 let connectedAddress = localStorage.getItem("efoo_wallet_address") || localStorage.getItem("multiversx_address") || "";
 let connectedProvider = localStorage.getItem("efoo_wallet_provider") || localStorage.getItem("multiversx_provider") || "webwallet";
 if (connectedAddress && connectedAddress.startsWith("erd1qyu5wthldz")) {
@@ -6644,7 +6653,12 @@ function claimDailyStreakReward() {
     walletState.efooBalance += 100000;
     updateHudEfooBadge();
     audio.playGoalCheer();
-    showToast("🎉 5-DAY STREAK CLAIMED! 100,000 $EFOO credited!");
+    const isSol = isSolanaWalletConnected();
+    if (isSol) {
+      showToast("🎉 5-DAY STREAK CLAIMED! 100,000 in-game $EFOO credited! (Coming soon to Solana on-chain!)");
+    } else {
+      showToast("🎉 5-DAY STREAK CLAIMED! 100,000 $EFOO credited!");
+    }
     renderDailyStreakModal();
     refreshHudUI();
   }
@@ -6654,7 +6668,35 @@ function renderDailyStreakModal() {
   const d = getDailyStreakData();
   const row = document.getElementById("streak-days-row");
   const bonusCard = document.getElementById("streak-bonus-card");
+  const solBanner = document.getElementById("streak-solana-banner");
   const isRo = currentLang === "ro";
+  const isSol = isSolanaWalletConnected();
+
+  if (solBanner) {
+    if (isSol) {
+      solBanner.classList.remove("hidden");
+      solBanner.innerHTML = `
+        <div class="streak-solana-badge">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;">
+            <path d="M4 18h12l4-4H8l-4 4zm4-6h12l-4-4H4l4 4zm-4-6h12l4-4H8l-4 4z" fill="url(#sol_grad_streak)"/>
+            <defs>
+              <linearGradient id="sol_grad_streak" x1="4" y1="2" x2="20" y2="18" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#9945FF"/>
+                <stop offset="1" stop-color="#14F195"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span>🟣 COMING SOON TO SOLANA</span>
+        </div>
+        <p class="streak-solana-text">
+          On-chain $EFOO daily streak claiming is launching soon on Solana! You are currently building your daily streak and earn in-game $EFOO credits for Super Skills & Revives.
+        </p>
+      `;
+    } else {
+      solBanner.classList.add("hidden");
+      solBanner.innerHTML = "";
+    }
+  }
 
   if (row) {
     row.innerHTML = "";
@@ -6676,19 +6718,30 @@ function renderDailyStreakModal() {
 
   if (bonusCard) {
     if (d.isFifthDay && !d.claimed) {
+      const claimBtnText = isSol
+        ? "🎁 CLAIM 100,000 $EFOO (IN-GAME CREDITS)"
+        : (isRo ? "REVENDICĂ 100.000 $EFOO" : "CLAIM 100,000 $EFOO");
+      const solNoticeExtra = isSol
+        ? `<div style="font-size:0.72rem; color:#c4b5fd; margin-top:2px; font-family:'JetBrains Mono', monospace;">⚡ Solana Mainnet on-chain claiming coming soon!</div>`
+        : "";
+
       bonusCard.innerHTML = `
         <strong style="color:#ffb800; font-size:1.1rem;">🎉 ${isRo ? "ZIUA 5 ATINSĂ! PREMIU SPECIAL!" : "DAY 5 REACHED! SPECIAL REWARD!"}</strong>
         <p style="font-size:0.8rem; color:#e2e8f0; margin:0;">${isRo ? "Ai fost activ 5 zile la rând! Colectează 100.000 $EFOO!" : "You played 5 days in a row! Claim your 100,000 $EFOO bonus!"}</p>
         <button type="button" class="arcade-btn gold" id="btn-claim-streak-reward">
-          🎁 ${isRo ? "REVENDICĂ 100.000 $EFOO" : "CLAIM 100,000 $EFOO"}
+          ${claimBtnText}
         </button>
+        ${solNoticeExtra}
       `;
       document.getElementById("btn-claim-streak-reward")?.addEventListener("click", claimDailyStreakReward);
     } else {
       const remaining = 5 - (((d.streak - 1) % 5) + 1);
+      const subMsg = isSol
+        ? `Build your streak! ${remaining} day(s) until your next 100,000 $EFOO reward! (Coming soon to Solana on-chain)`
+        : (isRo ? `Mai ai ${remaining} zile până la următorul cadou de 100.000 $EFOO!` : `${remaining} day(s) until your next 100,000 $EFOO gift!`);
       bonusCard.innerHTML = `
         <strong style="color:#a8ff00;">🔥 ${isRo ? `Serie activă: ${d.streak} zile` : `Active Streak: ${d.streak} days`}</strong>
-        <p style="font-size:0.78rem; color:#94a3b8; margin:0;">${isRo ? `Mai ai ${remaining} zile până la următorul cadou de 100.000 $EFOO!` : `${remaining} day(s) until your next 100,000 $EFOO gift!`}</p>
+        <p style="font-size:0.78rem; color:#94a3b8; margin:0;">${subMsg}</p>
       `;
     }
   }
