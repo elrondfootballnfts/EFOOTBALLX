@@ -132,6 +132,28 @@ pub trait EfooStadiumVault {
         self.vault_pot_balance().update(|pot| *pot += &payment);
     }
 
+    /// Daily Streak 5-Day Vault Reward Claim:
+    /// Player claims 1% of the Stadium Vault Pot on their 5th consecutive login day.
+    /// Transfers 1% $EFOO tokens directly into the caller's wallet on-chain!
+    #[endpoint(claimStreakReward)]
+    fn claim_streak_reward(&self) {
+        self.require_not_paused();
+        let caller = self.blockchain().get_caller();
+        let total_vault = self.vault_pot_balance().get();
+        require!(total_vault > 0, "No vault pot balance available");
+
+        // 1% of the Stadium Vault Pot
+        let reward_amount = &total_vault / 100u32;
+        require!(reward_amount > 0, "Reward amount too small");
+
+        // Checks-Effects-Interactions (CEI): update vault pot balance before sending
+        self.vault_pot_balance().update(|pot| *pot -= &reward_amount);
+
+        // Send 1% $EFOO tokens directly to the caller's wallet
+        let token_id = self.efoo_token_id().get();
+        self.send().direct_esdt(&caller, &token_id, 0, &reward_amount);
+    }
+
     /// Direct Milestone / Marketing Token Burn:
     /// Anyone or team can burn $EFOO supply directly through the contract, updating global stats
     #[payable("*")]

@@ -6201,6 +6201,7 @@ async function signAndSendTxs(txList, actionKey = null) {
           setTimeout(() => fetchWalletNftsAndBalance(connectedAddress), 3500);
           setTimeout(() => fetchWalletNftsAndBalance(connectedAddress), 8000);
         }
+        return hashes.length > 0 ? hashes : (signedList[0]?.txHash ? [signedList[0].txHash] : ["broadcasted"]);
       }
       return;
     } catch (err) {
@@ -6644,23 +6645,82 @@ function getDailyStreakData() {
   return { streak, today, isFifthDay, claimed, claimedKey };
 }
 
-function claimDailyStreakReward() {
+function getDailyStreakRewardAmount() {
+  const stats = getVaultStats();
+  const pot = stats && stats.pot > 0 ? stats.pot : BASE_VAULT_POT;
+  // 1% of the Stadium Vault Jackpot
+  return Math.max(100000, Math.floor(pot * 0.01));
+}
+
+async function claimDailyStreakReward() {
   const d = getDailyStreakData();
-  if (d.isFifthDay && !d.claimed) {
+  if (!d.isFifthDay || d.claimed) return;
+
+  const rewardAmount = getDailyStreakRewardAmount();
+  const rewardFormatted = rewardAmount.toLocaleString("en-US");
+
+  if (!isWalletConnected()) {
+    showToast("⚡ Please connect your MultiversX wallet to sign and claim your 1% Vault reward!");
+    document.getElementById("wallet-modal-backdrop")?.classList.remove("hidden");
+    return;
+  }
+
+  if (isSolanaWalletConnected()) {
+    showToast("🟣 Solana on-chain 1% Vault claim is coming soon! Please connect your MultiversX wallet to sign and claim on-chain.");
+    return;
+  }
+
+  showToast(`🧩 Please confirm on-chain transaction: Claiming 1% Stadium Vault (${rewardFormatted} $EFOO)...`);
+
+  const txObj = {
+    receiver: CONTRACTS.STADIUM_VAULT_SC,
+    value: "0",
+    gasLimit: 12000000,
+    data: "claimStreakReward"
+  };
+
+  try {
+    const hashes = await signAndSendTxs([txObj], "claim_streak_reward");
+
     try {
       localStorage.setItem(d.claimedKey, "true");
     } catch (e) {}
-    walletState.efooBalance += 100000;
+
+    // Credit in-game balance so user can arm Super Skills immediately
+    walletState.efooBalance += rewardAmount;
     updateHudEfooBadge();
-    audio.playGoalCheer();
-    const isSol = isSolanaWalletConnected();
-    if (isSol) {
-      showToast("🎉 5-DAY STREAK CLAIMED! 100,000 in-game $EFOO credited! (Coming soon to Solana on-chain!)");
-    } else {
-      showToast("🎉 5-DAY STREAK CLAIMED! 100,000 $EFOO credited!");
-    }
+    if (typeof audio.playGoalCheer === "function") audio.playGoalCheer();
+
+    // Deduct 1% from live vault stats display
+    try {
+      const stats = getVaultStats();
+      stats.pot = Math.max(0, stats.pot - rewardAmount);
+      localStorage.setItem(STORAGE_VAULT_POT, String(stats.pot));
+      updateVaultUI();
+    } catch (e) {}
+
+    const txHash = (hashes && hashes[0]) ? hashes[0] : "";
+    showToast(
+      `🎉 TRANSACTION BROADCASTED! 1% Vault Reward (${rewardFormatted} $EFOO) is on its way to your wallet!`,
+      txHash ? `https://explorer.multiversx.com/transactions/${txHash}` : null
+    );
+
     renderDailyStreakModal();
     refreshHudUI();
+
+    setTimeout(() => {
+      if (typeof fetchWalletNftsAndBalance === "function" && connectedAddress) {
+        fetchWalletNftsAndBalance(connectedAddress);
+      }
+    }, 4000);
+    setTimeout(() => {
+      if (typeof fetchWalletNftsAndBalance === "function" && connectedAddress) {
+        fetchWalletNftsAndBalance(connectedAddress);
+      }
+    }, 9000);
+  } catch (err) {
+    console.warn("Claim streak signing cancelled or failed:", err);
+    showToast(`⚠️ Claim cancelled: ${err.message || "Signing was not completed"}`);
   }
 }
 
@@ -6671,6 +6731,9 @@ function renderDailyStreakModal() {
   const solBanner = document.getElementById("streak-solana-banner");
   const isRo = currentLang === "ro";
   const isSol = isSolanaWalletConnected();
+  const isConnected = isWalletConnected();
+  const rewardAmount = getDailyStreakRewardAmount();
+  const rewardFormatted = rewardAmount.toLocaleString("en-US");
 
   if (solBanner) {
     if (isSol) {
@@ -6689,7 +6752,7 @@ function renderDailyStreakModal() {
           <span>🟣 COMING SOON TO SOLANA</span>
         </div>
         <p class="streak-solana-text">
-          On-chain $EFOO daily streak claiming is launching soon on Solana! You are currently building your daily streak and earn in-game $EFOO credits for Super Skills & Revives.
+          On-chain $EFOO 1% Vault streak claiming is launching soon on Solana! Connect your MultiversX wallet to sign and claim on-chain today.
         </p>
       `;
     } else {
@@ -6710,7 +6773,7 @@ function renderDailyStreakModal() {
       div.innerHTML = `
         <span class="sdb-icon">${isGift ? "🎁" : isDone ? "✅" : isToday ? "🔥" : "⚽"}</span>
         <span class="sdb-label">${isRo ? `Ziua ${day}` : `Day ${day}`}</span>
-        <small style="font-size:0.58rem; color:#94a3b8;">${isGift ? "+100k" : "Streak"}</small>
+        <small style="font-size:0.58rem; color:${isGift ? '#ffb800' : '#94a3b8'}; font-weight:${isGift ? '800' : '400'};">${isGift ? "+1% Vault" : "Streak"}</small>
       `;
       row.appendChild(div);
     }
@@ -6718,30 +6781,52 @@ function renderDailyStreakModal() {
 
   if (bonusCard) {
     if (d.isFifthDay && !d.claimed) {
-      const claimBtnText = isSol
-        ? "🎁 CLAIM 100,000 $EFOO (IN-GAME CREDITS)"
-        : (isRo ? "REVENDICĂ 100.000 $EFOO" : "CLAIM 100,000 $EFOO");
-      const solNoticeExtra = isSol
-        ? `<div style="font-size:0.72rem; color:#c4b5fd; margin-top:2px; font-family:'JetBrains Mono', monospace;">⚡ Solana Mainnet on-chain claiming coming soon!</div>`
-        : "";
-
-      bonusCard.innerHTML = `
-        <strong style="color:#ffb800; font-size:1.1rem;">🎉 ${isRo ? "ZIUA 5 ATINSĂ! PREMIU SPECIAL!" : "DAY 5 REACHED! SPECIAL REWARD!"}</strong>
-        <p style="font-size:0.8rem; color:#e2e8f0; margin:0;">${isRo ? "Ai fost activ 5 zile la rând! Colectează 100.000 $EFOO!" : "You played 5 days in a row! Claim your 100,000 $EFOO bonus!"}</p>
-        <button type="button" class="arcade-btn gold" id="btn-claim-streak-reward">
-          ${claimBtnText}
-        </button>
-        ${solNoticeExtra}
-      `;
+      if (isSol) {
+        bonusCard.innerHTML = `
+          <strong style="color:#ffb800; font-size:1.15rem;">🎉 DAY 5 REACHED! 1% VAULT REWARD!</strong>
+          <p style="font-size:0.82rem; color:#e2e8f0; margin:0;">
+            You played 5 consecutive days! <strong>1% of the Stadium Vault (${rewardFormatted} $EFOO)</strong> is ready to claim!
+          </p>
+          <button type="button" class="arcade-btn" id="btn-claim-streak-reward" style="background:#581c87; border-color:#a855f7; color:#f3e8ff; font-size:0.92rem; padding:12px 24px; width:100%; max-width:380px;">
+            🟣 1% VAULT CLAIM (COMING SOON TO SOLANA)
+          </button>
+          <div style="font-size:0.73rem; color:#c4b5fd; font-family:'JetBrains Mono', monospace;">
+            ⚡ Connect a MultiversX wallet (xPortal or Extension) to sign and claim 1% of the Vault on-chain.
+          </div>
+        `;
+      } else if (!isConnected) {
+        bonusCard.innerHTML = `
+          <strong style="color:#ffb800; font-size:1.15rem;">🎉 DAY 5 REACHED! 1% VAULT REWARD!</strong>
+          <p style="font-size:0.82rem; color:#e2e8f0; margin:0;">
+            You played 5 consecutive days! Connect your wallet to sign and claim <strong>1% of the Stadium Vault (${rewardFormatted} $EFOO)</strong>!
+          </p>
+          <button type="button" class="arcade-btn gold" id="btn-claim-streak-reward" style="font-size:0.95rem; padding:12px 24px; width:100%; max-width:380px; box-shadow:0 0 22px rgba(255,184,0,0.5);">
+            ⚡ CONNECT WALLET TO CLAIM 1% VAULT
+          </button>
+        `;
+      } else {
+        bonusCard.innerHTML = `
+          <strong style="color:#ffb800; font-size:1.15rem;">🎉 DAY 5 REACHED! 1% VAULT REWARD!</strong>
+          <p style="font-size:0.82rem; color:#e2e8f0; margin:0;">
+            You played 5 consecutive days! Sign an on-chain transaction to claim <strong>1% of the Stadium Vault (${rewardFormatted} $EFOO)</strong> directly to your wallet!
+          </p>
+          <button type="button" class="arcade-btn gold" id="btn-claim-streak-reward" style="font-size:0.95rem; padding:12px 24px; width:100%; max-width:380px; box-shadow:0 0 22px rgba(255,184,0,0.5);">
+            ✍️ SIGN &amp; CLAIM ${rewardFormatted} $EFOO (1% VAULT)
+          </button>
+          <div style="font-size:0.73rem; color:#94a3b8; font-family:'JetBrains Mono', monospace;">
+            ⚡ Broadcasts an on-chain claim transaction directly to your connected wallet.
+          </div>
+        `;
+      }
       document.getElementById("btn-claim-streak-reward")?.addEventListener("click", claimDailyStreakReward);
     } else {
       const remaining = 5 - (((d.streak - 1) % 5) + 1);
       const subMsg = isSol
-        ? `Build your streak! ${remaining} day(s) until your next 100,000 $EFOO reward! (Coming soon to Solana on-chain)`
-        : (isRo ? `Mai ai ${remaining} zile până la următorul cadou de 100.000 $EFOO!` : `${remaining} day(s) until your next 100,000 $EFOO gift!`);
+        ? `Build your streak! ${remaining} day(s) until your next 1% Stadium Vault reward (~${rewardFormatted} $EFOO)! (Coming soon to Solana on-chain)`
+        : `${remaining} day(s) until your next 1% Stadium Vault payout (~${rewardFormatted} $EFOO)!`;
       bonusCard.innerHTML = `
-        <strong style="color:#a8ff00;">🔥 ${isRo ? `Serie activă: ${d.streak} zile` : `Active Streak: ${d.streak} days`}</strong>
-        <p style="font-size:0.78rem; color:#94a3b8; margin:0;">${subMsg}</p>
+        <strong style="color:#a8ff00;">🔥 Active Streak: ${d.streak} days</strong>
+        <p style="font-size:0.8rem; color:#94a3b8; margin:0;">${subMsg}</p>
       `;
     }
   }

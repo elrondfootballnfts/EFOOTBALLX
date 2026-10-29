@@ -17,6 +17,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         reviveStreakAndAdvance => revive_streak_and_advance
         retryCurrentRound => retry_current_round
         depositToVaultPot => deposit_to_vault_pot
+        claimStreakReward => claim_streak_reward
         burnTokens => burn_tokens
         pauseContract => pause_contract
         unpauseContract => unpause_contract
