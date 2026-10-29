@@ -1276,82 +1276,45 @@ class ModernStadiumAudio {
     o.stop(now + 0.15);
   }
 
-  // Euphoric Golden 2X Multiplier Target Impact Chime & Rising Fanfare Arpeggio
+  // Euphoric Golden 2X Multiplier Target Impact Chime (Optimized, Zero-Lag)
   playMultiplier2xHit() {
     if (!this.enabled) return;
     this.init();
     if (!this.ctx) return;
     const now = this.ctx.currentTime;
 
-    // 1. Heavy visceral sub-bass punch impact
-    const punch = this.ctx.createOscillator();
-    const punchG = this.ctx.createGain();
-    punch.type = "sine";
-    punch.frequency.setValueAtTime(175, now);
-    punch.frequency.exponentialRampToValueAtTime(40, now + 0.19);
-    punchG.gain.setValueAtTime(0.48, now);
-    punchG.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-    punch.connect(punchG);
-    punchG.connect(this.ctx.destination);
-    punch.start(now);
-    punch.stop(now + 0.24);
+    try {
+      // 1. Snappy visceral bass punch
+      const punch = this.ctx.createOscillator();
+      const punchG = this.ctx.createGain();
+      punch.type = "sine";
+      punch.frequency.setValueAtTime(160, now);
+      punch.frequency.exponentialRampToValueAtTime(45, now + 0.16);
+      punchG.gain.setValueAtTime(0.35, now);
+      punchG.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      punch.connect(punchG);
+      punchG.connect(this.ctx.destination);
+      punch.start(now);
+      punch.stop(now + 0.19);
 
-    // 2. Ascending 6-note crystal gold arpeggio with shimmer bell harmonics
-    const notes = [587.33, 739.99, 880.0, 1174.66, 1479.98, 1760.0]; // D-maj crystal arpeggio
-    notes.forEach((freq, i) => {
-      const t = now + i * 0.045;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(freq, t);
+      // 2. Ascending 3-tone crystal gold chime chord (880Hz -> 1174Hz -> 1760Hz)
+      [880.0, 1174.66, 1760.0].forEach((freq, i) => {
+        const t = now + i * 0.045;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(freq, t);
 
-      // Bell sparkle harmonics
-      const shimmer = this.ctx.createOscillator();
-      const shimmerG = this.ctx.createGain();
-      shimmer.type = "sine";
-      shimmer.frequency.setValueAtTime(freq * 2, t);
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(0.20, t + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
 
-      gain.gain.setValueAtTime(0.001, t);
-      gain.gain.linearRampToValueAtTime(0.26, t + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.46);
-
-      shimmerG.gain.setValueAtTime(0.001, t);
-      shimmerG.gain.linearRampToValueAtTime(0.14, t + 0.01);
-      shimmerG.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
-
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      shimmer.connect(shimmerG);
-      shimmerG.connect(this.ctx.destination);
-
-      osc.start(t);
-      osc.stop(t + 0.48);
-      shimmer.start(t);
-      shimmer.stop(t + 0.35);
-    });
-
-    // 3. Sci-fi multiplier energy shimmer bandpass sweep
-    const sweep = this.ctx.createOscillator();
-    const filter = this.ctx.createBiquadFilter();
-    const sweepG = this.ctx.createGain();
-    sweep.type = "sawtooth";
-    sweep.frequency.setValueAtTime(420, now);
-    sweep.frequency.exponentialRampToValueAtTime(1860, now + 0.4);
-
-    filter.type = "bandpass";
-    filter.frequency.setValueAtTime(750, now);
-    filter.frequency.linearRampToValueAtTime(2450, now + 0.4);
-    filter.Q.setValueAtTime(3.8, now);
-
-    sweepG.gain.setValueAtTime(0.001, now);
-    sweepG.gain.linearRampToValueAtTime(0.2, now + 0.06);
-    sweepG.gain.exponentialRampToValueAtTime(0.001, now + 0.44);
-
-    sweep.connect(filter);
-    filter.connect(sweepG);
-    sweepG.connect(this.ctx.destination);
-    sweep.start(now);
-    sweep.stop(now + 0.46);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.30);
+      });
+    } catch (e) {}
   }
 }
 
@@ -2750,7 +2713,8 @@ function releaseAndFireShot(finalPower, swipeCurve = 0, customTarget = null) {
   nx += game.wind;
   ny = Math.max(0, ny);
 
-  const hitBullseye = Math.hypot(nx - game.bullseyeNx, ny - game.bullseyeNy) < 0.26;
+  // DO NOT evaluate hitBullseye at launch! The 2x ring moves during ball flight.
+  // Hit detection is accurately checked at impact when the ball reaches the goal line!
   const outcome = evaluateShot(nx, ny, power, isSweet, isWeak, lv, p, fx, swipeCurve);
 
   // Keeper's physical dive
@@ -2798,7 +2762,7 @@ function releaseAndFireShot(finalPower, swipeCurve = 0, customTarget = null) {
     isSweet,
     isWeak,
     isTwin: isSweet && p.hasTwinBall,
-    hitBullseye,
+    hitBullseye: false, // Calculated on impact at the goal line
     result: outcome.result,
     postIn: outcome.postIn,
     keeperAnticipated: outcome.keeperAnticipated,
@@ -2817,6 +2781,13 @@ function onBallReachGoal(endScreenX, endScreenY) {
   const fx = b.fx || {};
   let scored = b.result === "goal";
   let shieldTriggered = false;
+
+  // Real-time Impact Hit Detection:
+  // Evaluate the exact distance between the ball impact and the 2x ring AT THE MOMENT of reaching the goal!
+  const targetDist = Math.hypot(b.aimNx - game.bullseyeNx, b.aimNy - game.bullseyeNy);
+  // Target ring radius in normalized coordinates is ~0.26
+  const hitBullseyeNow = scored && targetDist <= 0.28;
+  b.hitBullseye = hitBullseyeNow;
 
   // Goalkeeper NFT Save Shield: Only saves close deflections on active shots, NOT on weak shots or repeated corner camping!
   if (b.result === "save" && game.shieldsLeft > 0 && !b.keeperAnticipated && !b.isWeak && Math.random() < 0.65) {
@@ -3432,53 +3403,52 @@ function spawnSparks(x, y, color, count = 35) {
 }
 
 function spawnGoldMultiplierBurst(x, y) {
-  // 1. High-velocity radiant golden sparks & stardust
+  // 1. High-velocity radiant golden sparks & stardust (clean, GPU-friendly, no expensive shadowBlur)
   const goldColors = ["#ffffff", "#fff59d", "#ffd700", "#ffb800", "#ff9100"];
-  for (let i = 0; i < 55; i++) {
+  for (let i = 0; i < 28; i++) {
     const a = Math.random() * Math.PI * 2;
-    const speed = 3.5 + Math.random() * 11.0;
+    const speed = 3.5 + Math.random() * 8.0;
+    game.particles.push({
+      x,
+      y,
+      vx: Math.cos(a) * speed,
+      vy: Math.sin(a) * speed - 2.2,
+      r: 2.5 + Math.random() * 3.5,
+      color: goldColors[Math.floor(Math.random() * goldColors.length)],
+      alpha: 1.0,
+      decay: 0.024 + Math.random() * 0.018
+    });
+  }
+
+  // 2. Flying celebration glyphs (stars, 2X, sparkles) - lightweight count
+  const glyphs = ["⭐", "2X", "✨", "2X", "⭐", "2X"];
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+    const speed = 2.5 + Math.random() * 4.5;
     game.particles.push({
       x,
       y,
       vx: Math.cos(a) * speed,
       vy: Math.sin(a) * speed - 2.8,
-      r: 3 + Math.random() * 5.5,
-      color: goldColors[Math.floor(Math.random() * goldColors.length)],
-      alpha: 1.0,
-      decay: 0.016 + Math.random() * 0.016
-    });
-  }
-
-  // 2. Flying celebration glyphs (stars, 2X, sparkles, coins, trophy)
-  const glyphs = ["⭐", "2X", "✨", "💰", "⭐", "2X", "⚡", "🌟"];
-  for (let i = 0; i < 16; i++) {
-    const a = (i / 16) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
-    const speed = 2.8 + Math.random() * 6.5;
-    game.particles.push({
-      x,
-      y,
-      vx: Math.cos(a) * speed,
-      vy: Math.sin(a) * speed - 3.2,
       glyph: glyphs[i % glyphs.length],
-      size: 16 + Math.floor(Math.random() * 12),
+      size: 14 + Math.floor(Math.random() * 6),
       rot: Math.random() * Math.PI * 2,
-      vRot: (Math.random() - 0.5) * 0.15,
+      vRot: (Math.random() - 0.5) * 0.12,
       alpha: 1.0,
-      decay: 0.013 + Math.random() * 0.012
+      decay: 0.02 + Math.random() * 0.015
     });
   }
 }
 
 function triggerBullseye2xImpact(x, y) {
   game.bullseyeHitAnim = 1.0;
-  game.goldFlash = 1.0;
-  game.shake = Math.max(game.shake, 28);
+  game.goldFlash = 0.55; // soft radiant flash without GPU hitch
+  game.shake = Math.max(game.shake, 12); // punchy arcade impact without violent camera tearing
 
   if (!game.multiplierShockwaves) game.multiplierShockwaves = [];
   game.multiplierShockwaves.push(
-    { x, y, r: 12, maxR: 130, speed: 7.2, alpha: 1.0, color: "#fff59d", width: 6 },
-    { x, y, r: 6, maxR: 200, speed: 9.8, alpha: 0.92, color: "#ffb800", width: 4.5 },
-    { x, y, r: 2, maxR: 270, speed: 12.5, alpha: 0.8, color: "#ff9100", width: 3 }
+    { x, y, r: 8, maxR: 120, speed: 6.5, alpha: 1.0, color: "#fff59d", width: 4 },
+    { x, y, r: 4, maxR: 180, speed: 9.0, alpha: 0.85, color: "#ffb800", width: 3 }
   );
 
   game.goldFloatingBanner = {
@@ -3487,7 +3457,7 @@ function triggerBullseye2xImpact(x, y) {
     text: "⭐ 2X MULTIPLIER! ⭐",
     subtext: "+100% SCORE BONUS",
     alpha: 1.0,
-    scale: 0.35
+    scale: 0.4
   };
 
   spawnGoldMultiplierBurst(x, y);
@@ -4698,7 +4668,7 @@ function initFullscreenStadiumCanvas() {
       drawBallSprite(ctx, game.settledBall.x, game.settledBall.y, game.settledBall.r, 0.4);
     }
 
-    // 10. RENDER PARTICLES
+    // 10. RENDER PARTICLES (60/120 FPS hardware accelerated, zero shadowBlur stalls)
     for (let i = game.particles.length - 1; i >= 0; i--) {
       const pt = game.particles[i];
       pt.x += pt.vx;
@@ -4720,16 +4690,13 @@ function initFullscreenStadiumCanvas() {
       if (pt.glyph) {
         ctx.translate(pt.x, pt.y);
         ctx.rotate(pt.rot || 0);
-        ctx.font = `bold ${pt.size || 18}px sans-serif`;
+        ctx.font = `bold ${pt.size || 16}px sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.shadowColor = "#ffb800";
-        ctx.shadowBlur = 12;
+        ctx.fillStyle = "#ffb800";
         ctx.fillText(pt.glyph, 0, 0);
       } else {
         ctx.fillStyle = pt.color;
-        ctx.shadowColor = pt.color;
-        ctx.shadowBlur = 8;
         ctx.beginPath();
         ctx.arc(pt.x, pt.y, Math.max(0.5, pt.r), 0, Math.PI * 2);
         ctx.fill();
@@ -4752,8 +4719,8 @@ function initFullscreenStadiumCanvas() {
         ctx.globalAlpha = Math.max(0, sw.alpha);
         ctx.strokeStyle = sw.color;
         ctx.lineWidth = sw.width * (sw.r / sw.maxR * 0.5 + 0.5);
-        ctx.shadowColor = sw.color;
-        ctx.shadowBlur = 20;
+        // Lightweight GPU stroke
+        ctx.shadowBlur = 0;
         ctx.beginPath();
         ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
         ctx.stroke();
