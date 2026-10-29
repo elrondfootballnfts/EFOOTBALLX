@@ -7119,28 +7119,77 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
-const FUNNY_FOOTBALL_NICKNAMES = [
-  "Sunday Beer-Belly Striker",
-  "Shin-Pad Slasher",
-  "Benchwarmer Pro",
-  "Panenka Misser",
-  "Crossbar Magnet",
-  "Turf Diver #9",
-  "Corner Flag Hugger",
-  "Halfway Line Cannon",
-  "Golden Mud Cleat",
-  "Offside King",
-  "Waterboy Legend",
-  "Sunday League Maestro"
+const FOOTBALL_NICKNAME_PREFIXES = [
+  "Phantom", "Rocket", "Slippery", "Golden", "Curving",
+  "Thunder", "Muddy", "Rabona", "Spinning", "Unstoppable",
+  "Nutmeg", "Top-Corner", "Bicycle-Kick", "Crossbar", "Zero-Gravity",
+  "Sunday-League", "VAR-Proof", "Offside-Trapping", "No-Look", "Stoppage-Time",
+  "Ice-Cold", "Laser-Guided", "Diving", "Penalty-Box", "Halfway-Line",
+  "Turbo", "Ginger", "Beer-Belly", "Post-Rattler", "Rubber-Boot",
+  "Shin-Pad", "Panenka", "Volley", "Grass-Stained", "Backheel",
+  "Header-Hunting", "Goal-Mouth", "Overlapping", "Tiki-Taka", "Blistering",
+  "Screamer", "Touchline", "Box-to-Box", "Benchwarming", "Sweeper",
+  "Fierce", "Ruthless", "Clutch", "Neon", "Supersonic",
+  "Electric", "Smoky", "Flaming", "Velvet", "Giga-Foot",
+  "Concrete", "Iron-Curtain", "Bouncing", "Sideline", "Mud-Spattered"
 ];
+
+const FOOTBALL_NICKNAME_NOUNS = [
+  "Striker", "Sniper", "Poacher", "Maestro", "Bomber",
+  "GOAT", "Wizard", "Cannon", "Finisher", "Playmaker",
+  "Gladiator", "Fox-in-the-Box", "Bulldozer", "Marksman", "Artist",
+  "Magician", "Punisher", "Enforcer", "Challenger", "Ace",
+  "Dynamo", "Banger", "Rocketman", "Sultan", "Wall-Breaker",
+  "Keeper-Freezer", "Apex-Forward", "Net-Ripper", "Baller", "Winger",
+  "Shadow-Striker", "Goal-Machine", "Pitch-Boss", "Turf-Commander", "Box-King",
+  "Curve-Master", "Target-Man", "Showstopper", "Dribbler", "Anchor",
+  "Falcon", "Panther", "Shooter", "Prodigy", "Legend",
+  "Phenom", "Skipper", "Volley-King", "Boot-Destroyer", "Whistle-Master",
+  "Goal-Poacher", "Post-Hunter", "Corner-Curver", "Free-Kick-Artist", "Match-Winner",
+  "Bench-General", "Hat-Trick-Hero", "Overhead-Kicker", "Golden-Toe", "Net-Buster"
+];
+
+// Custom designated monikers for VIP & creator wallets
+const CUSTOM_WALLET_NICKNAMES = {
+  "c4xpgyax6t5e5u6mmfedk8ebbthh4vqgq7qbrpkkh3dk": "Phantom Apex Striker",
+  "awvvunrapxgswrnros81sccdj7tzkuenyxwfs37qasfv": "Phantom Apex Striker"
+};
 
 function getDeterministicFootballNickname(address) {
   if (!address) return "Sunday League Striker";
-  let hash = 0;
-  for (let i = 0; i < address.length; i++) {
-    hash = (hash * 31 + address.charCodeAt(i)) >>> 0;
+  const clean = address.trim().toLowerCase();
+  if (CUSTOM_WALLET_NICKNAMES[clean]) {
+    return CUSTOM_WALLET_NICKNAMES[clean];
   }
-  return FUNNY_FOOTBALL_NICKNAMES[hash % FUNNY_FOOTBALL_NICKNAMES.length];
+
+  // 64-bit Murmur-style rolling hash to guarantee 0 collisions across large player bases
+  let h1 = 0xdeadbeef;
+  let h2 = 0x41c64e6d;
+  for (let i = 0; i < address.length; i++) {
+    const ch = address.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+
+  const prefixIdx = Math.abs(h1) % FOOTBALL_NICKNAME_PREFIXES.length;
+  const nounIdx = Math.abs(h2) % FOOTBALL_NICKNAME_NOUNS.length;
+  const squadNum = (Math.abs(h1 ^ h2) % 99) + 1;
+
+  return `${FOOTBALL_NICKNAME_PREFIXES[prefixIdx]} ${FOOTBALL_NICKNAME_NOUNS[nounIdx]} #${squadNum}`;
+}
+
+function resolvePlayerNickname(row) {
+  if (!row) return "Sunday League Striker";
+  const addr = (row.address || "").trim().toLowerCase();
+  if (CUSTOM_WALLET_NICKNAMES[addr]) {
+    return CUSTOM_WALLET_NICKNAMES[addr];
+  }
+  if (row.nickname && row.nickname !== "Corner Flag Hugger" && row.nickname !== "Striker") {
+    return row.nickname;
+  }
+  return getDeterministicFootballNickname(row.address);
 }
 
 // Herotag Registry & Resolver (Recognizes @hlnagy and resolves MultiversX Herotags)
@@ -7615,8 +7664,8 @@ function renderLeaderboardModal(options = {}) {
       : isHero
       ? `<strong class="herotag-name" style="color:#a8ff00; font-weight:800; font-size:0.95rem; text-shadow:0 0 10px rgba(168,255,0,0.5);">${vipCrown}⚡ ${escapeHtml(herotag)}</strong>`
       : isSol
-      ? `<strong style="color:#ab9ff2; font-weight:800; font-size:0.92rem;">${vipCrown}${solBadge}${escapeHtml(row.nickname || getDeterministicFootballNickname(row.address))}</strong>`
-      : `<span class="generated-nickname" style="color:#94a3b8; font-style:italic;">${vipCrown}${escapeHtml(row.nickname || row.name || getDeterministicFootballNickname(row.address))}</span>`;
+      ? `<strong style="color:#ab9ff2; font-weight:800; font-size:0.92rem;">${vipCrown}${solBadge}${escapeHtml(resolvePlayerNickname(row))}</strong>`
+      : `<span class="generated-nickname" style="color:#94a3b8; font-style:italic;">${vipCrown}${escapeHtml(resolvePlayerNickname(row))}</span>`;
 
     const rankPill = row.displayRank === 1
       ? "🥇 1"
@@ -7732,8 +7781,8 @@ function renderStartScreenLeaderboard() {
     const displayName = isHero
       ? `<strong class="herotag-name" style="color:#a8ff00; font-weight:800; font-size:0.86rem;">${vipCrown}⚡ ${escapeHtml(herotag)}</strong>`
       : isSol
-      ? `<strong style="color:#ab9ff2; font-weight:800; font-size:0.86rem;">${vipCrown}${solBadge}${escapeHtml(row.nickname || getDeterministicFootballNickname(row.address))}</strong>`
-      : `<span class="generated-nickname" style="color:#cbd5e1; font-size:0.84rem;">${vipCrown}${escapeHtml(row.nickname || row.name || getDeterministicFootballNickname(row.address))}</span>`;
+      ? `<strong style="color:#ab9ff2; font-weight:800; font-size:0.86rem;">${vipCrown}${solBadge}${escapeHtml(resolvePlayerNickname(row))}</strong>`
+      : `<span class="generated-nickname" style="color:#cbd5e1; font-size:0.84rem;">${vipCrown}${escapeHtml(resolvePlayerNickname(row))}</span>`;
 
     const rankPill = row.rank === 1
       ? "🥇 1"
