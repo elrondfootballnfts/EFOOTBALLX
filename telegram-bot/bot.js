@@ -186,11 +186,14 @@ async function handleCommand(msg) {
   if (cmd === '/start' || cmd === '/help') {
     const helpMsg = 
       `⚽ <b>EFOOTBALLX OFFICIAL BOT COMMANDS</b>\n\n` +
-      `🎮 <b>Game & Stats:</b>\n` +
-      `• /play or /game — Direct link to play the game\n` +
+      `🌐 <b>Ecosystem & Overview:</b>\n` +
+      `• /project or /about — Full EFOOTBALLX & NFooT overview\n` +
+      `• /links — All official dApp, swap, market & social links\n` +
+      `• /ca or /token — Official Contract Addresses ($EFOO)\n\n` +
+      `🎮 <b>Game & Rewards:</b>\n` +
+      `• /play or /game — Direct link to play the 100-level game\n` +
       `• /top or /leaderboard — Live Top 5 strikers & scores\n` +
       `• /vault or /jackpot — Stadium Vault Jackpot breakdown\n` +
-      `• /ca or /token — Official Contract Addresses ($EFOO)\n` +
       `• /streak — 5-Day Daily Login Streak rewards\n` +
       `• /penalty or /shoot — Shoot an interactive penalty in chat!\n\n` +
       `🛡️ <b>Admin Controls:</b>\n` +
@@ -215,6 +218,96 @@ async function handleCommand(msg) {
       reply_markup: {
         inline_keyboard: [
           [{ text: '🚀 PLAY EFOOTBALLX NOW', url: config.GAME_URL }]
+        ]
+      }
+    });
+    return;
+  }
+
+  // 2B. /links (All official project & ecosystem links)
+  if (cmd === '/links') {
+    const linksMsg = 
+      `🌐 <b>EFOOTBALLX OFFICIAL ECOSYSTEM LINKS</b>\n\n` +
+      `🎮 <b>Game & Market dApps:</b>\n` +
+      `• <b>Play 100 Levels Game:</b> <a href="${config.GAME_URL}">${config.GAME_URL}</a>\n` +
+      `• <b>NFooT P2P Marketplace:</b> <a href="${config.MARKET_URL}">${config.MARKET_URL}</a>\n` +
+      `• <b>Official Website:</b> <a href="${config.WEBSITE_URL}">${config.WEBSITE_URL}</a>\n\n` +
+      `💎 <b>Token & Swaps ($EFOO):</b>\n` +
+      `• <b>OneDex (EGLD/EFOO):</b> <a href="${config.ONEDEX_URL}">Swap on OneDex ↗</a>\n` +
+      `• <b>xExchange (USDC/EFOO):</b> <a href="${config.XEXCHANGE_URL}">Trade on xExchange ↗</a>\n` +
+      `• <b>DexScreener (Solana SPL):</b> <a href="${config.DEXSCREENER_SOL_URL}">Live Chart & Trade ↗</a>\n` +
+      `• <b>MultiversX Explorer:</b> <a href="${config.MVX_EXPLORER_TOKEN}">EFOO-8fe2d4 ↗</a>\n` +
+      `• <b>Solana Explorer:</b> <a href="${config.SOLANA_EXPLORER_TOKEN}">Solana Mint ↗</a>\n\n` +
+      `🖼️ <b>Official NFT Collections:</b>\n` +
+      `• <b>XOXNO Strikers:</b> <a href="${config.XOXNO_STRIKERS_URL}">EFOOTBALL-91a4eb ↗</a>\n` +
+      `• <b>XOXNO Goalkeepers:</b> <a href="${config.XOXNO_KEEPERS_URL}">GOALKEEPER-cb9e3e ↗</a>\n\n` +
+      `📢 <b>Socials & Community:</b>\n` +
+      `• <b>X (Twitter):</b> <a href="${config.TWITTER_URL}">@${config.TWITTER_HANDLE} ↗</a>\n` +
+      `• <b>Telegram:</b> <a href="${config.TELEGRAM_URL}">@elrondfootball ↗</a>\n` +
+      `• <b>GitHub:</b> <a href="${config.GITHUB_URL}">EFOOTBALLX Open-Source ↗</a>`;
+
+    await sendMessage(chatId, linksMsg, {
+      disable_web_page_preview: true,
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: '🎮 Play 100 Levels', url: config.GAME_URL },
+            { text: '🛍️ NFooT Market', url: config.MARKET_URL }
+          ],
+          [
+            { text: '💎 Buy on OneDex', url: config.ONEDEX_URL },
+            { text: '📈 DexScreener SOL', url: config.DEXSCREENER_SOL_URL }
+          ],
+          [
+            { text: '🐦 Follow on X', url: config.TWITTER_URL },
+            { text: '🖼️ XOXNO NFTs', url: config.XOXNO_STRIKERS_URL }
+          ]
+        ]
+      }
+    });
+    return;
+  }
+
+  // 2C. /project or /about or /info (Complete Project & Ecosystem Overview)
+  if (cmd === '/project' || cmd === '/about' || cmd === '/info') {
+    const projectMsg = 
+      `⚽👑 <b>EFOOTBALLX — DUAL-CHAIN WEB3 FOOTBALL POWERHOUSE</b>\n\n` +
+      `<b>EFOOTBALLX</b> is the first dual-chain (<b>MultiversX & Solana</b>) Web3 penalty shootout arcade, fusing high-speed reflex gameplay with a sustainable deflationary economy and P2P NFT marketplace!\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `🎮 <b>1. 100-LEVEL ARCADE GAMEPLAY</b>\n` +
+      `• <b>7 Competitive Leagues:</b> Sunday League ➔ Amateur ➔ Semi-Pro ➔ Professional ➔ World Class ➔ Galactic ➔ <b>Immortal Legend</b>!\n` +
+      `• <b>Striker & Goalkeeper Dual Roles:</b> Score curving rocket penalties, and dive to save clutch shots as goalkeeper.\n` +
+      `• <b>5 Super Skills:</b> Rocket Shot, Keeper Freeze, Iron Wall, Laser Aim, and Banana Curve.\n` +
+      `• <b>Real-time 2X Multiplier Ring:</b> Hit moving bullseyes for explosive leaderboard score surges!\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `🛍️ <b>2. NFooT P2P MARKETPLACE</b>\n` +
+      `• Trade verified Striker and Goalkeeper NFTs directly player-to-player.\n` +
+      `• Dual-currency settlement: buy/sell in <b>$EFOO</b> or native <b>EGLD</b>.\n` +
+      `• <b>Ultras VIP Pass:</b> 0% lifetime trading fees + in-game score bonuses!\n` +
+      `• Deflationary split: 50% burned forever, 50% added to the Stadium Vault.\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `🏆 <b>3. 25.4M $EFOO STADIUM VAULT JACKPOT</b>\n` +
+      `• Payouts distributed automatically every Sunday 23:59 UTC to the Top 3 verified strikers (<b>65% 1st</b>, <b>25% 2nd</b>, <b>10% 3rd</b>).\n` +
+      `• Deflationary engine: 50% of all skill purchases and match streak revives are burned on-chain forever.\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `🔥 <b>4. 5-DAY STREAK ON-CHAIN REWARDS</b>\n` +
+      `• Play 5 consecutive days to sign an on-chain transaction claiming <b>1% of the live Stadium Vault Jackpot</b> directly into your wallet!\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `⚡ <b>5. DUAL-CHAIN MULTI-WALLET FREEDOM</b>\n` +
+      `• Connect instantly with MultiversX (xPortal, DeFi Extension, Web Wallet) or Solana (Phantom Wallet).`;
+
+    await sendMessage(chatId, projectMsg, {
+      disable_web_page_preview: true,
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: '🎮 PLAY EFOOTBALLX', url: config.GAME_URL },
+            { text: '🛍️ NFooT MARKETPLACE', url: config.MARKET_URL }
+          ],
+          [
+            { text: '🏆 Live Leaderboard', url: config.GAME_URL },
+            { text: '🌐 Official Website', url: config.WEBSITE_URL }
+          ]
         ]
       }
     });
@@ -514,6 +607,8 @@ async function startBot() {
   await apiCall('setMyCommands', {
     commands: [
       { command: 'play', description: '🎮 Play EFOOTBALLX now' },
+      { command: 'project', description: '⚽ EFOOTBALLX & NFooT overview' },
+      { command: 'links', description: '🌐 All official links & swaps' },
       { command: 'leaderboard', description: '🏆 Live Derby Leaderboard' },
       { command: 'vault', description: '💰 25.4M Stadium Vault Pot' },
       { command: 'token', description: '💎 $EFOO Contract Addresses' },

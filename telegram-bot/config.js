@@ -33,18 +33,27 @@ module.exports = {
   // Admin user IDs allowed to run /ban, /mute, /postx, /broadcast (numbers or usernames)
   ADMIN_IDS: (process.env.ADMIN_IDS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
 
-  // Official Links
+  // Official Links & dApps
   WEBSITE_URL: 'https://efootballx.com',
   GAME_URL: 'https://efootballx.com/game',
+  MARKET_URL: 'https://efootballx.com/market',
   TWITTER_URL: 'https://x.com/EFootball_X',
   TWITTER_HANDLE: 'EFootball_X',
   TELEGRAM_URL: 'https://t.me/elrondfootball',
+  GITHUB_URL: 'https://github.com/elrondfootballnfts/EFOOTBALLX',
+  
+  // MultiversX DEX & Marketplace Links
+  ONEDEX_URL: 'https://swap.onedex.app/swap?firstToken=EGLD&secondToken=EFOO-8fe2d4',
+  XEXCHANGE_URL: 'https://xexchange.com/trade?firstToken=USDC-c76f1f&secondToken=EFOO-8fe2d4',
+  XOXNO_STRIKERS_URL: 'https://xoxno.com/collection/EFOOTBALL-91a4eb',
+  XOXNO_KEEPERS_URL: 'https://xoxno.com/collection/GOALKEEPER-cb9e3e',
   
   // Blockchain Contracts & Tokens
   MVX_TOKEN_ID: 'EFOO-8fe2d4',
   MVX_EXPLORER_TOKEN: 'https://explorer.multiversx.com/tokens/EFOO-8fe2d4',
   SOLANA_TOKEN_MINT: 'AWvvUNraPXGSwRnRos81ScCdJ7TzkuenYxWfS37qASFV',
   SOLANA_EXPLORER_TOKEN: 'https://explorer.solana.com/address/AWvvUNraPXGSwRnRos81ScCdJ7TzkuenYxWfS37qASFV',
+  DEXSCREENER_SOL_URL: 'https://dexscreener.com/solana/AWvvUNraPXGSwRnRos81ScCdJ7TzkuenYxWfS37qASFV',
   
   // Live Leaderboard & Vault DB
   FIREBASE_RTDB_URL: 'https://efootballx-leaderboard-default-rtdb.europe-west1.firebasedatabase.app',
