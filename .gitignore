@@ -8,5 +8,9 @@ vault/*.pem
 node_modules/
 .env
 .env.local
+telegram-bot/.env
+telegram-bot/node_modules/
+!.env.example
+!telegram-bot/.env.example
 .DS_Store
 Thumbs.db

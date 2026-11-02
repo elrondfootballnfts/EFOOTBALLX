@@ -1,0 +1,21 @@
+{
+  "name": "efootballx-telegram-bot",
+  "version": "1.0.0",
+  "description": "Official Telegram Community Manager & Gamification Bot for EFOOTBALLX",
+  "main": "bot.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node bot.js",
+    "dev": "node --watch bot.js"
+  },
+  "keywords": [
+    "telegram-bot",
+    "efootballx",
+    "web3",
+    "solana",
+    "multiversx",
+    "community-manager"
+  ],
+  "author": "EFOOTBALLX Team",
+  "license": "MIT"
+}
